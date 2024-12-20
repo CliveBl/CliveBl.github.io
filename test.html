@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+< lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive File Upload</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 600px;
+    }
+    .file-list {
+      list-style: none;
+      padding: 0;
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .file-item span {
+      flex-grow: 1;
+      margin-left: 10px;
+    }
+    .delete-button {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .delete-button:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <h1>File Upload</h1>
+  <input type="file" id="fileInput" multiple>
+  <ul class="file-list" id="fileList"></ul>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+
+    fileInput.addEventListener('change', () => {
+      const files = Array.from(fileInput.files);
+      files.forEach((file) => {
+        addFileToList(file);
+      });
+      fileInput.value = ''; // Clear input after processing
+    });
+
+    function addFileToList(file) {
+      const li = document.createElement('li');
+      li.className = 'file-item';
+
+      const fileName = document.createElement('span');
+      fileName.textContent = file.name;
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.className = 'delete-button';
+      deleteButton.addEventListener('click', () => {
+        fileList.removeChild(li);
+      });
+
+      li.appendChild(fileName);
+      li.appendChild(deleteButton);
+      fileList.appendChild(li);
+    }
+  </script>
+</body>
+	</html>
