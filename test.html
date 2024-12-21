@@ -540,6 +540,55 @@
       background-color: #7f8c8d;
       cursor: not-allowed;
     }
+
+    /* Add info section styling */
+    .info-section {
+      background-color: var(--item-bg);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .info-section h2 {
+      margin: 0 0 20px 0;
+      color: var(--text-color);
+      font-size: 1.3em;
+      border-right: 4px solid var(--tax-green);
+      padding-right: 10px;
+    }
+
+    .required-docs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .doc-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 15px;
+      background-color: var(--bg-color);
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .doc-icon {
+      font-size: 24px;
+    }
+
+    .doc-details h3 {
+      margin: 0 0 5px 0;
+      font-size: 1.1em;
+      color: var(--text-color);
+    }
+
+    .doc-details p {
+      margin: 0;
+      font-size: 0.9em;
+      color: var(--message-text);
+    }
   </style>
 </head>
 <body>
@@ -583,9 +632,45 @@
   </div>
 
   <div class="header-container">
-    <h1>העלאת קבצים</h1>
+    <h1>דו"ח שנתי - עשה זאת עצמך</h1>
     <button class="login-button">התחברות</button>
   </div>
+
+  <!-- Add info section -->
+  <div class="info-section">
+    <h2>מסמכים נדרשים להגשת הדו"ח</h2>
+    <div class="required-docs">
+      <div class="doc-item">
+        <span class="doc-icon">📄</span>
+        <div class="doc-details">
+          <h3>טופס 106</h3>
+          <p>תלושי משכורת שנתיים מכל מעסיק</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <span class="doc-icon">📊</span>
+        <div class="doc-details">
+          <h3>אישורי רווח הון</h3>
+          <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <span class="doc-icon">🏠</span>
+        <div class="doc-details">
+          <h3>אישור תושב</h3>
+          <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <span class="doc-icon">💝</span>
+        <div class="doc-details">
+          <h3>אישורי תרומות</h3>
+          <p>קבלות על תרומות למוסדות מוכרים</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Container for the list of uploaded files -->
   <ul class="file-list" id="fileList"></ul>
 
@@ -1221,7 +1306,7 @@
 
         // Handle fatal error if present
         if (result.fatalProcessingError) {
-          addMessage('שגיאה קריטית: ' + result.fatalProcessingError, 'error');
+          addMessage('שג��אה קריטית: ' + result.fatalProcessingError, 'error');
         }
 
         // Handle warnings if present
