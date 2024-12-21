@@ -1,80 +1,1275 @@
 <!DOCTYPE html>
-< lang="en">
+<!-- Set language to Hebrew -->
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive File Upload</title>
+  <title>העלאת קבצים אינטראקטיבית</title>
+  <!-- CSS Styles -->
   <style>
+    /* Add these color variables at the top of the style section */
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --border-color: #ccc;
+      --item-bg: #f8f9fa;
+      --warning-bg: #fef9e7;
+      --error-bg: #fde9e7;
+      --default-border: #95a5a6;
+      --warning-border: #f1c40f;
+      --error-border: #e74c3c;
+      --warning-text: #b7950b;
+      --error-text: #c0392b;
+      --button-text: white;
+      --message-text: #666;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #ffffff;
+        --border-color: #404040;
+        --item-bg: #2d2d2d;
+        --warning-bg: #3d3415;
+        --error-bg: #3d1f1d;
+        --default-border: #606060;
+        --warning-border: #b7950b;
+        --error-border: #c0392b;
+        --warning-text: #f1c40f;
+        --error-text: #e74c3c;
+        --button-text: #ffffff;
+        --message-text: #b0b0b0;
+      }
+    }
+
+    /* Update existing styles to use variables */
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
       max-width: 600px;
+      direction: rtl;
+      text-align: right;
+      background-color: var(--bg-color);
+      color: var(--text-color);
     }
+
+    /* Remove default list styling */
     .file-list {
       list-style: none;
       padding: 0;
     }
+    /* Style for each file item container */
     .file-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border-color);
       border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      border-left: none;  /* Remove default left border */
+      border-right: 4px solid var(--default-border);  /* Default gray border */
+      background-color: var(--item-bg);
     }
+    /* File name styling */
     .file-item span {
       flex-grow: 1;
-      margin-left: 10px;
+      margin-left: 0;
+      margin-right: 10px;
     }
+    /* Delete button styling */
     .delete-button {
       background-color: #e74c3c;
-      color: white;
+      color: var(--button-text);
       border: none;
-      padding: 5px 10px;
+      padding: 4px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+    }
+    /* Delete button hover effect */
+    .delete-button:hover {
+      background-color: #c0392b;
+    }
+    /* Add these new styles */
+    .button-container {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .process-button {
+      background-color: #2ecc71;
+      color: var(--button-text);
+      border: none;
+      padding: 5px 15px;
       border-radius: 3px;
       cursor: pointer;
     }
-    .delete-button:hover {
-      background-color: #c0392b;
+
+    .process-button:hover {
+      background-color: #27ae60;
+    }
+
+    /* Style for custom file input */
+    .custom-file-input {
+      display: inline-block;
+      position: relative;
+    }
+
+    .custom-file-input input[type="file"] {
+      display: none;
+    }
+
+    .custom-file-input label {
+      background-color: #3498db;
+      color: var(--button-text);
+      padding: 5px 15px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .custom-file-input label:hover {
+      background-color: #2980b9;
+    }
+
+    /* Add these new styles */
+    .message-container {
+      margin-top: 20px;
+    }
+
+    .message-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: var(--item-bg);
+      border-right: 4px solid var(--default-border);
+      border-radius: 3px;
+    }
+
+    .message-text {
+      flex-grow: 1;
+      margin-right: 0;
+      margin-left: 10px;
+    }
+
+    .dismiss-button {
+      background-color: #95a5a6;
+      color: var(--button-text);
+      border: none;
+      padding: 3px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+
+    .dismiss-button:hover {
+      background-color: #7f8c8d;
+    }
+
+    /* Add these new styles */
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .login-button {
+      background-color: #3498db;
+      color: var(--button-text);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .login-button:hover {
+      background-color: #2980b9;
+    }
+
+    /* Add these new styles for file status */
+    .file-item.warning {
+      border-right-color: var(--warning-border);
+      background-color: var(--warning-bg);
+    }
+
+    .file-item.error {
+      border-right-color: var(--error-border);
+      background-color: var(--error-bg);
+    }
+
+    .status-icon {
+      margin-left: 6px;
+      font-size: 14px;
+    }
+
+    .status-message {
+      font-size: 0.8em;
+      color: var(--message-text);
+      margin-right: 20px;
+      display: block;
+      margin-top: 2px;
+      width: 100%;
+    }
+
+    .warning .status-message {
+      color: var(--warning-text);
+    }
+
+    .error .status-message {
+      color: var(--error-text);
+    }
+
+    /* Add icon and message container */
+    .file-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .file-header {
+      display: flex;
+      align-items: center;
+      font-size: 0.9em;
+    }
+
+    /* Add these new styles */
+    .login-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-overlay.active {
+      display: flex;
+    }
+
+    .login-modal {
+      background-color: var(--bg-color);
+      border-radius: 8px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .login-header h2 {
+      margin: 0;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-color);
+      padding: 5px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .login-form input {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--item-bg);
+      color: var(--text-color);
+    }
+
+    .login-submit {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .login-submit:hover {
+      background-color: #2980b9;
+    }
+
+    .login-divider {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .login-divider::before,
+    .login-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 45%;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+
+    .login-divider::before {
+      right: 0;
+    }
+
+    .login-divider::after {
+      left: 0;
+    }
+
+    .login-divider span {
+      background-color: var(--bg-color);
+      padding: 0 10px;
+      color: var(--text-color);
+    }
+
+    .social-login {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .social-login button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--item-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .social-login button:hover {
+      background-color: var(--border-color);
+    }
+
+    .social-login img {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Add these new styles */
+    .mode-toggle {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .toggle-button {
+      padding: 8px 16px;
+      border: 1px solid var(--border-color);
+      background: none;
+      color: var(--text-color);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .toggle-button.active {
+      background-color: #3498db;
+      color: white;
+      border-color: #3498db;
+    }
+
+    .signup-field {
+      transition: all 0.3s ease;
+    }
+
+    .message-item.error {
+      background-color: var(--error-bg);
+      border-right: 4px solid var(--error-border);
+    }
+
+    .message-item.error .message-text {
+      color: var(--error-text);
+    }
+
+    .message-item.warning {
+      background-color: var(--warning-bg);
+      border-right: 4px solid var(--warning-border);
+    }
+
+    .message-item.warning .message-text {
+      color: var(--warning-text);
+    }
+
+    .message-item.info {
+      background-color: var(--item-bg);
+      border-right: 4px solid var(--default-border);
+    }
+
+    /* Add these styles to your existing CSS */
+    .results-container {
+      display: none;
+      margin-top: 20px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+    }
+
+    .results-container.active {
+      display: block;
+    }
+
+    .results-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .results-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      margin-bottom: 6px;
+      background-color: var(--item-bg);
+      border-radius: 4px;
+      border-right: 4px solid var(--default-border);
+    }
+
+    .download-button {
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .download-button:hover {
+      background-color: #27ae60;
     }
   </style>
 </head>
 <body>
-  <h1>File Upload</h1>
-  <input type="file" id="fileInput" multiple>
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-modal">
+      <div class="login-header">
+        <h2 id="modalTitle">התחברות</h2>
+        <button class="close-button">����</button>
+      </div>
+      <div class="login-options">
+        <!-- Add mode toggle buttons -->
+        <div class="mode-toggle">
+          <button class="toggle-button active" data-mode="signin">התחברות</button>
+          <button class="toggle-button" data-mode="signup">הרשמה</button>
+        </div>
+
+        <form class="login-form">
+          <input type="email" placeholder="אימייל" required>
+          <input type="password" placeholder="סיסמה" required>
+          <!-- Add confirm password field (hidden by default) -->
+          <input type="password" id="confirmPassword" placeholder="אימות סיסמה" required class="signup-field" style="display: none;">
+          <button type="submit" class="login-submit" id="submitButton">התחבר</button>
+        </form>
+
+        <div class="login-divider">
+          <span>או</span>
+        </div>
+
+        <div class="social-login">
+          <button class="google-login">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+            <span id="googleButtonText">התחבר עם Google</span>
+          </button>
+          <button class="github-login">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+            <span id="githubButtonText">התחבר עם GitHub</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-container">
+    <h1>העלאת קבצים</h1>
+    <button class="login-button">התחברות</button>
+  </div>
+  <!-- Container for the list of uploaded files -->
   <ul class="file-list" id="fileList"></ul>
 
+  <!-- File input and process button container -->
+  <div class="button-container">
+    <!-- Custom styled file input -->
+    <div class="custom-file-input">
+      <input type="file" id="fileInput" multiple>
+      <label for="fileInput">העלאת מסמכים...</label>
+    </div>
+    <button id="processButton" class="process-button">עיבוד</button>
+  </div>
+
+  <!-- Add new message container -->
+  <div id="messageContainer" class="message-container"></div>
+
+  <!-- Add this HTML right after the message container div -->
+  <div id="resultsContainer" class="results-container">
+    <div class="results-title">תוצאות</div>
+    <ul id="resultsList" class="results-list"></ul>
+  </div>
+
   <script>
+    // Add these constants at the start of your script section, after DEBUG
+    const API_BASE_URL = 'https://localhost:443/api/v1';
+    const AUTH_BASE_URL = 'https://localhost:443/auth';
+    const fetchConfig = {
+      credentials: 'include',
+      mode: 'cors'
+    };
+
+    // Add this near the top of your script
+    const DEBUG = true;
+
+    function debug(...args) {
+      if (DEBUG) {
+        console.log(...args);
+      }
+    }
+
+    // Get references to DOM elements
     const fileInput = document.getElementById('fileInput');
     const fileList = document.getElementById('fileList');
+    const processButton = document.getElementById('processButton');
+    const messageContainer = document.getElementById('messageContainer');
+    const messages = [
+      "מתחיל בעיבוד המסמכים...",
+      "בודק את פורמט הקבצים...",
+      "ממת א הוכן...",
+      "העיבוד הושלם!"
+    ];
 
-    fileInput.addEventListener('change', () => {
-      const files = Array.from(fileInput.files);
-      files.forEach((file) => {
-        addFileToList(file);
-      });
-      fileInput.value = ''; // Clear input after processing
+    // Add this after all the existing variable declarations
+    const exampleFile = {
+      name: 'large_document.pdf',
+      size: 6291456  // 6MB in bytes
+    };
+
+    // Add these cookie utility functions at the start of your script section
+    const cookieUtils = {
+      set: function(name, value, days = 7) {
+        const d = new Date();
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        const expires = "expires=" + d.toUTCString();
+        document.cookie = name + "=" + value + ";" + expires + ";path=/;Secure;SameSite=Strict";
+      },
+      
+      get: function(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+      },
+      
+      delete: function(name) {
+        document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/;Secure;SameSite=Strict';
+      }
+    };
+
+    // Update the auth token handling
+    let authToken = cookieUtils.get('authToken');
+
+    // Update signInAnonymous function
+    async function signInAnonymous() {
+      try {
+        debug('Attempting anonymous sign in...');
+        const response = await fetch(`${AUTH_BASE_URL}/signInAnonymous`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          credentials: 'include',
+          mode: 'cors'
+        });
+        
+        debug('Sign in response:', response.status);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.token) {
+          throw new Error('No token received');
+        }
+        authToken = result.token;
+        cookieUtils.set('authToken', authToken); // Save token to cookie
+        debug('Token received and saved:', authToken);
+        return authToken;
+      } catch (error) {
+        debug('Sign in error:', error);
+        throw error;
+      }
+    }
+
+    // Update signIn function
+    async function signIn(email, password) {
+      try {
+        const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        authToken = result.token;
+        cookieUtils.set('authToken', authToken); // Save token to cookie
+        console.log('Sign in successful');
+        return authToken;
+      } catch (error) {
+        console.error('Sign in failed:', error);
+        throw error;
+      }
+    }
+
+    // Add a sign out function
+    function signOut() {
+      authToken = null;
+      cookieUtils.delete('authToken');
+      // Clear the file list
+      fileList.innerHTML = '';
+      // Clear results
+      const resultsContainer = document.getElementById('resultsContainer');
+      resultsContainer.classList.remove('active');
+      document.getElementById('resultsList').innerHTML = '';
+      // Add back the example file
+      addFileToList(
+        exampleFile,
+        'warning',
+        'קובץ גדול מדי - הקובץ חורג ממגבלת 5MB המומלצת. העלאה עשויה להיות איטית.'
+      );
+      addMessage('התנתקת בהצלחה');
+    }
+
+    // Add a function to check token validity
+    async function checkToken() {
+      if (!authToken) return false;
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=Default`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Accept': 'application/json'
+          },
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            authToken = null;
+            cookieUtils.delete('authToken');
+            return false;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return true;
+      } catch (error) {
+        console.error('Token check failed:', error);
+        return false;
+      }
+    }
+
+    // Add this function to load files with existing token
+    async function loadExistingFiles() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=Default`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Accept': 'application/json'
+          },
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            // Token is invalid, remove it
+            authToken = null;
+            cookieUtils.delete('authToken');
+            throw new Error('Invalid token');
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        debug('Files info:', result);
+
+        // Clear existing files (except example file)
+        const files = Array.from(fileList.children);
+        files.forEach(file => {
+          if (!file.querySelector('.file-header span').textContent.includes('large_document.pdf')) {
+            fileList.removeChild(file);
+          }
+        });
+
+        // Add files from server
+        if (Array.isArray(result)) {
+          result.forEach(fileInfo => {
+            if (fileInfo.type === 'FormError') {
+              addFileToList(
+                { name: fileInfo.fileName || 'Unknown file', size: 0 },
+                'error',
+                fileInfo.reason,
+                fileInfo.fileId
+              );
+            } else {
+              addFileToList(
+                { name: fileInfo.fileName, size: 0 },
+                null,
+                `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`,
+                fileInfo.fileId
+              );
+            }
+          });
+        }
+      } catch (error) {
+        debug('Failed to load files:', error);
+        // Only show message if it's not an auth error
+        if (!error.message.includes('Invalid token')) {
+          addMessage('שגיאה בטעינת רשימת הקבצים: ' + error.message);
+        }
+        throw error;
+      }
+    }
+
+    // Update window load event to try existing token first and load any existing results
+    window.addEventListener('load', async () => {
+      // Add example file
+      addFileToList(
+        exampleFile,
+        'warning',
+        'קובץ גדול מדי - הקובץ חורג ממגבלת 5MB המומלצת. העלאה עשויה להיות איטית.'
+      );
+
+      try {
+        // If we have a token, try to use it
+        if (authToken) {
+          await loadExistingFiles();
+          await loadResults();
+          debug('Successfully loaded files and results with existing token');
+        } else {
+          // No token, sign in anonymously
+          debug('No token found, signing in anonymously');
+          await signInAnonymous();
+          await loadExistingFiles();
+          await loadResults();
+        }
+      } catch (error) {
+        debug('Error during initialization:', error);
+        // If loading files failed, try anonymous sign in
+        if (error.message.includes('Invalid token')) {
+          debug('Token invalid, signing in anonymously');
+          await signInAnonymous();
+          await loadExistingFiles();
+          await loadResults();
+        }
+      }
     });
 
-    function addFileToList(file) {
+    // Add this at the start of your script
+    const fileIdMap = new Map(); // Store file IDs for deletion
+
+    // Update the addFileToList function to store fileId
+    function addFileToList(file, status = null, statusMessage = '', fileId = null) {
       const li = document.createElement('li');
       li.className = 'file-item';
+      if (status) {
+        li.classList.add(status);
+      }
+
+      // Store the fileId in our map
+      if (fileId) {
+        fileIdMap.set(file.name, fileId);
+      }
+
+      const fileInfo = document.createElement('div');
+      fileInfo.className = 'file-info';
+
+      const fileHeader = document.createElement('div');
+      fileHeader.className = 'file-header';
+
+      // Create status icon
+      const statusIcon = document.createElement('span');
+      statusIcon.className = 'status-icon';
+      switch(status) {
+        case 'warning':
+          statusIcon.textContent = '⚠️';
+          break;
+        case 'error':
+          statusIcon.textContent = '❌';
+          break;
+        default:
+          statusIcon.textContent = '✓';
+      }
 
       const fileName = document.createElement('span');
       fileName.textContent = file.name;
 
+      // Add file size info
+      const fileSize = (file.size / 1024).toFixed(1);
+      fileName.textContent += ` (${fileSize}KB)`;
+
+      fileHeader.appendChild(statusIcon);
+      fileHeader.appendChild(fileName);
+      fileInfo.appendChild(fileHeader);
+
+      if (statusMessage) {
+        const statusMessageSpan = document.createElement('span');
+        statusMessageSpan.className = 'status-message';
+        statusMessageSpan.textContent = statusMessage;
+        fileInfo.appendChild(statusMessageSpan);
+      }
+
       const deleteButton = document.createElement('button');
-      deleteButton.textContent = 'Delete';
+      deleteButton.textContent = '🗑️';  // Change from 'מחק' to trash can icon
       deleteButton.className = 'delete-button';
-      deleteButton.addEventListener('click', () => {
-        fileList.removeChild(li);
+      deleteButton.title = 'מחק';  // Add tooltip with the word "Delete" in Hebrew
+      deleteButton.addEventListener('click', async () => {
+        try {
+          const fileId = fileIdMap.get(file.name);
+          if (fileId) {
+            const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${authToken}`
+              },
+              ...fetchConfig
+            });
+
+            if (!response.ok) {
+              throw new Error(`Delete failed: ${response.status}`);
+            }
+
+            // Remove from UI only after successful deletion
+            fileList.removeChild(li);
+            fileIdMap.delete(file.name);
+            addMessage('הקובץ נמחק בהצלחה');
+          }
+        } catch (error) {
+          console.error('Delete failed:', error);
+          addMessage('שגיאה במחיקת הקובץ: ' + error.message);
+        }
       });
 
-      li.appendChild(fileName);
+      li.appendChild(fileInfo);
       li.appendChild(deleteButton);
       fileList.appendChild(li);
     }
+
+    // Update the file upload success handler
+    fileInput.addEventListener('change', async () => {
+      const files = Array.from(fileInput.files);
+      
+      try {
+        if (!authToken) {
+          await signInAnonymous();
+        }
+
+        for (const file of files) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const metadata = {
+              customerDataEntryName: 'Default'
+            };
+            formData.append('metadata', new Blob([JSON.stringify(metadata)], {
+              type: 'application/json'
+            }));
+
+            const response = await fetch(`${API_BASE_URL}/uploadFile`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${authToken}`
+              },
+              body: formData,
+              ...fetchConfig
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Upload response:', result);
+
+            // Handle array of results
+            if (Array.isArray(result)) {
+              result.forEach(fileInfo => {
+                if (fileInfo.type === 'FormError') {
+                  addFileToList(
+                    { name: fileInfo.fileName || 'Unknown file', size: 0 },
+                    'error',
+                    fileInfo.reason,
+                    fileInfo.fileId
+                  );
+                } else {
+                  addFileToList(
+                    file,
+                    null,
+                    `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`,
+                    fileInfo.fileId
+                  );
+                }
+              });
+            }
+
+          } catch (error) {
+            console.error('Upload failed:', error);
+            addFileToList(file, 'error', 'שגיאה בהעלאת הקובץ: ' + error.message);
+          }
+        }
+      } catch (error) {
+        console.error('Authentication failed:', error);
+        addMessage('שגיאה באימות: ' + error.message);
+      }
+      
+      fileInput.value = '';
+    });
+
+    // Update the process button handler
+    processButton.addEventListener('click', async () => {
+      try {
+        if (!authToken) {
+          await signInAnonymous();
+        }
+
+        const response = await fetch(`${API_BASE_URL}/processFiles`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            customerDataEntryName: 'Default'
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Processing response:', result);
+
+        // Clear previous messages
+        messageContainer.innerHTML = '';
+
+        // Handle fatal error if present
+        if (result.fatalProcessingError) {
+          addMessage('שגיאה קריטית: ' + result.fatalProcessingError, 'error');
+        }
+
+        // Handle warnings if present
+        if (result.processingWarnings && result.processingWarnings.length > 0) {
+          result.processingWarnings.forEach(warning => {
+            addMessage('אזהרה: ' + warning, 'warning');
+          });
+        }
+
+        // If no errors or warnings, show success message
+        if (!result.fatalProcessingError && (!result.processingWarnings || result.processingWarnings.length === 0)) {
+          addMessage('העיבוד הושלם בהצלחה!');
+        }
+
+      } catch (error) {
+        console.error('Processing failed:', error);
+        addMessage('שגיאה בעיבוד הקבצים: ' + error.message, 'error');
+      }
+    });
+
+    // Update addMessage function to handle message types
+    function addMessage(text, type = 'info') {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message-item';
+      if (type) {
+        messageDiv.classList.add(type);
+      }
+
+      const messageText = document.createElement('span');
+      messageText.className = 'message-text';
+      messageText.textContent = text;
+
+      const dismissButton = document.createElement('button');
+      dismissButton.className = 'dismiss-button';
+      dismissButton.textContent = '✕';
+      dismissButton.addEventListener('click', () => {
+        messageContainer.removeChild(messageDiv);
+      });
+
+      messageDiv.appendChild(messageText);
+      messageDiv.appendChild(dismissButton);
+      messageContainer.appendChild(messageDiv);
+    }
+
+    // Add this to your existing script
+    const loginButton = document.querySelector('.login-button');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const closeButton = document.querySelector('.close-button');
+    const loginForm = document.querySelector('.login-form');
+    const toggleButtons = document.querySelectorAll('.toggle-button');
+    const modalTitle = document.getElementById('modalTitle');
+    const submitButton = document.getElementById('submitButton');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const googleButtonText = document.getElementById('googleButtonText');
+    const githubButtonText = document.getElementById('githubButtonText');
+
+    loginButton.addEventListener('click', () => {
+      loginOverlay.classList.add('active');
+    });
+
+    closeButton.addEventListener('click', () => {
+      loginOverlay.classList.remove('active');
+    });
+
+    loginOverlay.addEventListener('click', (e) => {
+      if (e.target === loginOverlay) {
+        loginOverlay.classList.remove('active');
+      }
+    });
+
+    // Function to switch between signin and signup modes
+    function switchMode(mode) {
+      const isSignup = mode === 'signup';
+      
+      // Update UI elements
+      modalTitle.textContent = isSignup ? 'הרשמה' : 'התחברות';
+      submitButton.textContent = isSignup ? 'הירשם' : 'התחבר';
+      confirmPassword.style.display = isSignup ? 'block' : 'none';
+      googleButtonText.textContent = isSignup ? 'הרשמה עם Google' : 'התחבר עם Google';
+      githubButtonText.textContent = isSignup ? 'הרשמה עם GitHub' : 'התחבר עם GitHub';
+
+      // Update active toggle button
+      toggleButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+    }
+
+    // Add click handlers for mode toggle buttons
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        switchMode(button.dataset.mode);
+      });
+    });
+
+    // Update the login form submit handler
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const isSignup = document.querySelector('.toggle-button.active').dataset.mode === 'signup';
+      const email = loginForm.querySelector('input[type="email"]').value;
+      const password = loginForm.querySelector('input[type="password"]').value;
+      
+      try {
+        if (isSignup) {
+          // Handle signup
+          const response = await fetch(`${AUTH_BASE_URL}/register`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password
+            })
+          });
+          if (!response.ok) throw new Error('Registration failed');
+          addMessage('נרשמת בהצלחה! אנא התחבר/י');
+        } else {
+          // Handle signin
+          await signIn(email, password);
+          addMessage('התחברת בהצלחה!');
+        }
+        loginOverlay.classList.remove('active');
+      } catch (error) {
+        console.error('Auth failed:', error);
+        addMessage('שגיאה באימות: ' + error.message);
+      }
+    });
+
+    document.querySelector('.google-login').addEventListener('click', () => {
+      console.log('Google login clicked');
+    });
+
+    document.querySelector('.github-login').addEventListener('click', () => {
+      console.log('GitHub login clicked');
+    });
+
+    // Add these functions before the window load event listener
+    async function loadResults() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=Default`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Accept': 'application/json'
+          },
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const results = await response.json();
+        
+        // Clear previous messages
+        messageContainer.innerHTML = '';
+
+        // Handle messages if present
+        results.forEach(result => {
+          if (result.messages) {
+            // Handle fatal error if present
+            if (result.messages.fatalProcessingError) {
+              addMessage('שגיאה קריטית: ' + result.messages.fatalProcessingError, 'error');
+            }
+
+            // Handle warnings if present
+            if (result.messages.processingWarnings && result.messages.processingWarnings.length > 0) {
+              result.messages.processingWarnings.forEach(warning => {
+                addMessage('אזהרה: ' + warning, 'warning');
+              });
+            }
+          }
+        });
+
+        // Display result files
+        displayResults(results);
+      } catch (error) {
+        console.error('Failed to load results:', error);
+        // Only show error if it's not an auth error
+        if (!error.message.includes('Invalid token')) {
+          addMessage('שגיאה בטעינת התוצאות: ' + error.message, 'error');
+        }
+      }
+    }
+
+    function displayResults(results) {
+      const resultsContainer = document.getElementById('resultsContainer');
+      const resultsList = document.getElementById('resultsList');
+      resultsList.innerHTML = ''; // Clear existing results
+
+      if (!Array.isArray(results) || results.length === 0) {
+        resultsContainer.classList.remove('active');
+        return;
+      }
+
+      let hasFiles = false;
+
+      results.forEach(result => {
+        if (result.file) {
+          hasFiles = true;
+          const li = document.createElement('li');
+          li.className = 'result-item';
+
+          const fileName = document.createElement('span');
+          fileName.textContent = result.file.fileName;
+
+          const downloadButton = document.createElement('button');
+          downloadButton.className = 'download-button';
+          downloadButton.innerHTML = '⬇️ הורדה';
+          downloadButton.addEventListener('click', () => downloadResult(result.file.fileName));
+
+          li.appendChild(fileName);
+          li.appendChild(downloadButton);
+          resultsList.appendChild(li);
+        }
+      });
+
+      if (hasFiles) {
+        resultsContainer.classList.add('active');
+      } else {
+        resultsContainer.classList.remove('active');
+      }
+    }
+
+    async function downloadResult(fileName) {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/downloadResultsFile?fileName=${encodeURIComponent(fileName)}&customerDataEntryName=Default`,
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${authToken}`
+            },
+            ...fetchConfig
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Download failed: ${response.status}`);
+        }
+
+        // Create blob from response
+        const blob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        addMessage(`הקובץ ${fileName} הורד בהצלחה`);
+      } catch (error) {
+        console.error('Download failed:', error);
+        addMessage('שגיאה בהורדת הקובץ: ' + error.message, 'error');
+      }
+    }
   </script>
 </body>
-	</html>
+</html>
