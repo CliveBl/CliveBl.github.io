@@ -119,8 +119,8 @@
 
     /* Style for custom file input */
     .custom-file-input {
-      display: inline-block;
-      position: relative;
+      display: flex;
+      gap: 10px;
     }
 
     .custom-file-input input[type="file"] {
@@ -134,10 +134,20 @@
       border-radius: 3px;
       cursor: pointer;
       display: inline-block;
+      transition: background-color 0.2s;
     }
 
     .custom-file-input label:hover {
       background-color: #2980b9;
+    }
+
+    /* Style for the second button */
+    .custom-file-input label:nth-of-type(2) {
+      background-color: #2ecc71;
+    }
+
+    .custom-file-input label:nth-of-type(2):hover {
+      background-color: #27ae60;
     }
 
     /* Add these new styles */
@@ -478,6 +488,58 @@
     .download-button:hover {
       background-color: #27ae60;
     }
+
+    /* Add these styles */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .delete-all-button {
+      background-color: #e74c3c;
+      color: var(--button-text);
+      border: none;
+      padding: 5px 15px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .delete-all-button:hover {
+      background-color: #c0392b;
+    }
+
+    /* Add these styles for the loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-left: 8px;
+      border: 3px solid var(--border-color);
+      border-radius: 50%;
+      border-top-color: #3498db;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .process-button.processing {
+      background-color: #7f8c8d;
+      cursor: not-allowed;
+    }
+
+    /* Add this CSS for the folder upload button */
+    .uploading {
+      background-color: #f0f0f0;
+      cursor: not-allowed;
+    }
+
+    .custom-file-input label.uploading {
+      background-color: #7f8c8d;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -529,12 +591,16 @@
 
   <!-- File input and process button container -->
   <div class="button-container">
-    <!-- Custom styled file input -->
     <div class="custom-file-input">
-      <input type="file" id="fileInput" multiple>
+      <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg" multiple>
       <label for="fileInput">העלאת מסמכים...</label>
+      <input type="file" id="folderInput" accept=".pdf,.jpg,.jpeg" webkitdirectory directory multiple>
+      <label for="folderInput">העלאת תיקייה...</label>
     </div>
-    <button id="processButton" class="process-button">עיבוד</button>
+    <div class="action-buttons">
+      <button id="processButton" class="process-button">עיבוד</button>
+      <button id="deleteAllButton" class="delete-all-button">מחק הכל</button>
+    </div>
   </div>
 
   <!-- Add new message container -->
@@ -571,7 +637,7 @@
     const messageContainer = document.getElementById('messageContainer');
     const messages = [
       "מתחיל בעיבוד המסמכים...",
-      "בודק את פורמט הקבצים...",
+      "בואק את פורמט הקבצים...",
       "ממת א הוכן...",
       "העיבוד הושלם!"
     ];
@@ -855,11 +921,12 @@
       }
 
       const fileName = document.createElement('span');
-      fileName.textContent = file.name;
-
-      // Add file size info
-      const fileSize = (file.size / 1024).toFixed(1);
-      fileName.textContent += ` (${fileSize}KB)`;
+      // Show path if available
+      if (file.path) {
+        fileName.textContent = `${file.path}`;
+      } else {
+        fileName.textContent = file.name;
+      }
 
       fileHeader.appendChild(statusIcon);
       fileHeader.appendChild(fileName);
@@ -895,11 +962,10 @@
             // Remove from UI only after successful deletion
             fileList.removeChild(li);
             fileIdMap.delete(file.name);
-            addMessage('הקובץ נמחק בהצלחה');
           }
         } catch (error) {
           console.error('Delete failed:', error);
-          addMessage('שגיאה במחיקת הקובץ: ' + error.message);
+          addMessage('שגיאה במחיקת הקובץ: ' + error.message, 'error');
         }
       });
 
@@ -908,7 +974,63 @@
       fileList.appendChild(li);
     }
 
-    // Update the file upload success handler
+    // Add this helper function at the start of your script
+    function isValidFileType(file) {
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        return {
+          valid: false,
+          message: 'סוג קובץ לא נתמך - רק קבצי PDF או JPG מותרים'
+        };
+      }
+      return { valid: true };
+    }
+
+    // Add this helper function to check if file is in GeneratedTaxForms folder
+    function isInGeneratedTaxFormsFolder(filePath) {
+      return filePath.includes('GeneratedTaxForms');
+    }
+
+    // Add this function to update the file list from server response
+    function updateFileList(result) {
+      // Clear existing files (except example file)
+      const files = Array.from(fileList.children);
+      files.forEach(file => {
+        if (!file.querySelector('.file-header span').textContent.includes('large_document.pdf')) {
+          fileList.removeChild(file);
+        }
+      });
+
+      // Clear the file ID map (except example file)
+      for (const [name, id] of fileIdMap) {
+        if (!name.includes('large_document.pdf')) {
+          fileIdMap.delete(name);
+        }
+      }
+
+      // Add all files from the response
+      if (Array.isArray(result)) {
+        result.forEach(fileInfo => {
+          if (fileInfo.type === 'FormError') {
+            addFileToList(
+              { name: fileInfo.fileName || 'Unknown file', size: 0 },
+              'error',
+              fileInfo.reason,
+              fileInfo.fileId
+            );
+          } else {
+            addFileToList(
+              { name: fileInfo.fileName, size: 0 },
+              null,
+              `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`,
+              fileInfo.fileId
+            );
+          }
+        });
+      }
+    }
+
+    // Update file input handler to always use individual uploads
     fileInput.addEventListener('change', async () => {
       const files = Array.from(fileInput.files);
       
@@ -917,7 +1039,27 @@
           await signInAnonymous();
         }
 
-        for (const file of files) {
+        // Filter out invalid files first
+        const validFiles = files.filter(file => {
+          if (isInGeneratedTaxFormsFolder(file.webkitRelativePath || file.name)) {
+            return false;
+          }
+
+          const validation = isValidFileType(file);
+          if (!validation.valid) {
+            addMessage(validation.message, 'error');
+            return false;
+          }
+
+          return true;
+        });
+
+        if (validFiles.length === 0) {
+          return;
+        }
+
+        // Upload files one by one
+        for (const file of validFiles) {
           try {
             const formData = new FormData();
             formData.append('file', file);
@@ -938,45 +1080,105 @@
               ...fetchConfig
             });
 
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
             const result = await response.json();
             console.log('Upload response:', result);
-
-            // Handle array of results
-            if (Array.isArray(result)) {
-              result.forEach(fileInfo => {
-                if (fileInfo.type === 'FormError') {
-                  addFileToList(
-                    { name: fileInfo.fileName || 'Unknown file', size: 0 },
-                    'error',
-                    fileInfo.reason,
-                    fileInfo.fileId
-                  );
-                } else {
-                  addFileToList(
-                    file,
-                    null,
-                    `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`,
-                    fileInfo.fileId
-                  );
-                }
-              });
-            }
+            updateFileList(result);
 
           } catch (error) {
             console.error('Upload failed:', error);
-            addFileToList(file, 'error', 'שגיאה בהעלאת הקובץ: ' + error.message);
+            addMessage('שגיאה בהעלאת הקובץ: ' + error.message, 'error');
           }
         }
+
       } catch (error) {
         console.error('Authentication failed:', error);
-        addMessage('שגיאה באימות: ' + error.message);
+        addMessage('שגיאה באימות: ' + error.message, 'error');
       }
       
       fileInput.value = '';
+    });
+
+    // Update folder upload handler to always use individual uploads
+    folderInput.addEventListener('change', async () => {
+      const files = Array.from(folderInput.files);
+      const folderLabel = folderInput.nextElementSibling;
+      const originalText = folderLabel.textContent;
+      
+      try {
+        if (!authToken) {
+          await signInAnonymous();
+        }
+
+        // Sort and filter files
+        const validFiles = files
+          .sort((a, b) => {
+            const pathA = a.webkitRelativePath || a.name;
+            const pathB = b.webkitRelativePath || b.name;
+            return pathA.localeCompare(pathB);
+          })
+          .filter(file => {
+            if (isInGeneratedTaxFormsFolder(file.webkitRelativePath || file.name)) {
+              return false;
+            }
+
+            const validation = isValidFileType(file);
+            if (!validation.valid) {
+              addMessage(validation.message, 'error');
+              return false;
+            }
+
+            return true;
+          });
+
+        if (validFiles.length === 0) {
+          return;
+        }
+
+        // Show uploading status in button
+        folderLabel.innerHTML = '⏳ מעלה...';
+        folderLabel.classList.add('uploading');
+
+        // Upload files one by one
+        for (const file of validFiles) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const metadata = {
+              customerDataEntryName: 'Default'
+            };
+            formData.append('metadata', new Blob([JSON.stringify(metadata)], {
+              type: 'application/json'
+            }));
+
+            const response = await fetch(`${API_BASE_URL}/uploadFile`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${authToken}`
+              },
+              body: formData,
+              ...fetchConfig
+            });
+
+            const result = await response.json();
+            console.log('Upload response:', result);
+            updateFileList(result);
+
+          } catch (error) {
+            console.error('Upload failed:', error);
+            addMessage('שגיאה בהעלאת הקובץ: ' + error.message, 'error');
+          }
+        }
+
+      } catch (error) {
+        console.error('Authentication failed:', error);
+        addMessage('שגיאה באימות: ' + error.message, 'error');
+      } finally {
+        // Restore button text
+        folderLabel.innerHTML = originalText;
+        folderLabel.classList.remove('uploading');
+        folderInput.value = '';
+      }
     });
 
     // Update the process button handler
@@ -985,6 +1187,19 @@
         if (!authToken) {
           await signInAnonymous();
         }
+
+        // Disable button and show spinner
+        processButton.disabled = true;
+        processButton.classList.add('processing');
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        processButton.appendChild(spinner);
+
+        // Clear previous messages
+        messageContainer.innerHTML = '';
+        
+        // Show initial processing message
+        addMessage("מתחיל בעיבוד המסמכים...", 'info');
 
         const response = await fetch(`${API_BASE_URL}/processFiles`, {
           method: 'POST',
@@ -1004,9 +1219,6 @@
         const result = await response.json();
         console.log('Processing response:', result);
 
-        // Clear previous messages
-        messageContainer.innerHTML = '';
-
         // Handle fatal error if present
         if (result.fatalProcessingError) {
           addMessage('שגיאה קריטית: ' + result.fatalProcessingError, 'error');
@@ -1019,14 +1231,26 @@
           });
         }
 
-        // If no errors or warnings, show success message
-        if (!result.fatalProcessingError && (!result.processingWarnings || result.processingWarnings.length === 0)) {
-          addMessage('העיבוד הושלם בהצלחה!');
+        // If no fatal errors, load results
+        if (!result.fatalProcessingError) {
+          addMessage("טוען תוצאות...", 'info');
+          // Wait a moment for processing to complete on server
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          await loadResults();
+          addMessage("העיבוד הושלם", 'info');
         }
 
       } catch (error) {
         console.error('Processing failed:', error);
         addMessage('שגיאה בעיבוד הקבצים: ' + error.message, 'error');
+      } finally {
+        // Re-enable button and remove spinner
+        processButton.disabled = false;
+        processButton.classList.remove('processing');
+        const spinner = processButton.querySelector('.spinner');
+        if (spinner) {
+          processButton.removeChild(spinner);
+        }
       }
     });
 
@@ -1270,6 +1494,51 @@
         addMessage('שגיאה בהורדת הקובץ: ' + error.message, 'error');
       }
     }
+
+    // Add this after the other button references
+    const deleteAllButton = document.getElementById('deleteAllButton');
+
+    // Update delete all handler - remove confirmation dialog
+    deleteAllButton.addEventListener('click', async () => {
+      try {
+        if (!authToken) {
+          await signInAnonymous();
+        }
+
+        const response = await fetch(`${API_BASE_URL}/deleteAllFiles?customerDataEntryName=Default`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          },
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          throw new Error(`Delete failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Delete all response:', result);
+
+        // Clear the file list except for the example file
+        const files = Array.from(fileList.children);
+        files.forEach(file => {
+          if (!file.querySelector('.file-header span').textContent.includes('large_document.pdf')) {
+            fileList.removeChild(file);
+          }
+        });
+
+        // Clear the file ID map
+        fileIdMap.clear();
+
+        // Refresh the file list
+        await loadExistingFiles();
+
+      } catch (error) {
+        console.error('Delete all failed:', error);
+        addMessage('שגיאה במחיקת כל הקבצים: ' + error.message, 'error');
+      }
+    });
   </script>
 </body>
 </html>
