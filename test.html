@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-< lang="en">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,16 +38,41 @@
     .delete-button:hover {
       background-color: #c0392b;
     }
+    .upload-button, .process-button {
+      display: block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .upload-button {
+      background-color: #3498db;
+      color: white;
+    }
+    .upload-button:hover {
+      background-color: #2980b9;
+    }
+    .process-button {
+      background-color: #2ecc71;
+      color: white;
+    }
+    .process-button:hover {
+      background-color: #27ae60;
+    }
   </style>
 </head>
 <body>
   <h1>File Upload</h1>
-  <input type="file" id="fileInput" multiple>
   <ul class="file-list" id="fileList"></ul>
+  <input type="file" id="fileInput" webkitdirectory multiple class="upload-button">
+  <button class="process-button" id="processButton">Process</button>
 
   <script>
     const fileInput = document.getElementById('fileInput');
     const fileList = document.getElementById('fileList');
+    const processButton = document.getElementById('processButton');
 
     fileInput.addEventListener('change', () => {
       const files = Array.from(fileInput.files);
@@ -75,6 +100,11 @@
       li.appendChild(deleteButton);
       fileList.appendChild(li);
     }
+
+    processButton.addEventListener('click', () => {
+      // Add functionality to process the files here
+      alert('Processing files...');
+    });
   </script>
 </body>
-	</html>
+</html>
