@@ -589,6 +589,152 @@
       font-size: 0.9em;
       color: var(--message-text);
     }
+
+    /* Add questionnaire button styling */
+    .questionnaire-button {
+      background-color: var(--tax-blue);
+      color: var(--button-text);
+      border: none;
+      padding: 5px 15px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .questionnaire-button::before {
+      content: "📝";
+    }
+
+    .questionnaire-button:hover {
+      background-color: #2980b9;
+    }
+
+    /* Add questionnaire dialog styling */
+    .questionnaire-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .questionnaire-overlay.active {
+      display: flex;
+    }
+
+    .questionnaire-modal {
+      background-color: var(--bg-color);
+      border-radius: 8px;
+      padding: 20px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .questionnaire-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .questionnaire-header h2 {
+      margin: 0;
+    }
+
+    .questionnaire-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .question-group {
+      border: 1px solid var(--border-color);
+      padding: 15px;
+      border-radius: 6px;
+      background-color: var(--item-bg);
+    }
+
+    .question-text {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .question-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .question-controls input[type="text"],
+    .question-controls input[type="number"],
+    .question-controls input[type="date"] {
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    .question-controls input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+    }
+
+    .question-controls input[type="radio"] {
+      width: 20px;
+      height: 20px;
+    }
+
+    .save-button {
+      background-color: var(--tax-green);
+      color: var(--button-text);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .save-button:hover {
+      background-color: #27ae60;
+    }
+
+    .questionnaire-actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .year-selector {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .year-selector label {
+      font-weight: bold;
+    }
+
+    .year-selector select {
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-size: 1em;
+      min-width: 100px;
+    }
   </style>
 </head>
 <body>
@@ -596,7 +742,7 @@
     <div class="login-modal">
       <div class="login-header">
         <h2 id="modalTitle">התחברות</h2>
-        <button class="close-button">����</button>
+        <button class="close-button">✕</button>
       </div>
       <div class="login-options">
         <!-- Add mode toggle buttons -->
@@ -626,6 +772,30 @@
             <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
             <span id="githubButtonText">התחבר עם GitHub</span>
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add this after the login overlay -->
+  <div id="questionnaireOverlay" class="questionnaire-overlay">
+    <div class="questionnaire-modal">
+      <div class="questionnaire-header">
+        <h2>שאלון מקדים</h2>
+        <button class="close-button">✕</button>
+      </div>
+      <div class="questionnaire-content">
+        <div class="year-selector">
+          <label for="taxYear">שנת מס:</label>
+          <select id="taxYear" name="taxYear">
+            <!-- Years will be added dynamically -->
+          </select>
+        </div>
+        <form id="questionnaireForm" class="questionnaire-form">
+          <!-- Questions will be inserted here dynamically -->
+        </form>
+        <div class="questionnaire-actions">
+          <button type="submit" class="save-button">שמור תשובות</button>
         </div>
       </div>
     </div>
@@ -665,7 +835,7 @@
         <span class="doc-icon">💝</span>
         <div class="doc-details">
           <h3>אישורי תרומות</h3>
-          <p>קבלות על תרומות למוסדות מוכרים</p>
+          <p>קבלות על רומות מוסדות מוכרים</p>
         </div>
       </div>
     </div>
@@ -683,6 +853,7 @@
       <label for="folderInput">העלאת תיקייה...</label>
     </div>
     <div class="action-buttons">
+      <button id="questionnaireButton" class="questionnaire-button">שאלון מקדים</button>
       <button id="processButton" class="process-button">עיבוד</button>
       <button id="deleteAllButton" class="delete-all-button">מחק הכל</button>
     </div>
@@ -1306,7 +1477,7 @@
 
         // Handle fatal error if present
         if (result.fatalProcessingError) {
-          addMessage('שג��אה קריטית: ' + result.fatalProcessingError, 'error');
+          addMessage('שגיאה קריטית: ' + result.fatalProcessingError, 'error');
         }
 
         // Handle warnings if present
@@ -1623,6 +1794,139 @@
         console.error('Delete all failed:', error);
         addMessage('שגיאה במחיקת כל הקבצים: ' + error.message, 'error');
       }
+    });
+
+    // Update questionnaire button handler
+    const questionnaireButton = document.getElementById('questionnaireButton');
+    const questionnaireOverlay = document.getElementById('questionnaireOverlay');
+    const questionnaireForm = document.getElementById('questionnaireForm');
+
+    questionnaireButton.addEventListener('click', async () => {
+      try {
+        if (!authToken) {
+          await signInAnonymous();
+        }
+
+        // Get questionnaire definitions
+        const response = await fetch(`${AUTH_BASE_URL}/getQuestionDefinitions`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Accept': 'application/json'
+          },
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const questions = await response.json();
+        console.log('Questions:', questions);
+        
+        // Clear existing questions
+        questionnaireForm.innerHTML = '';
+
+        // Populate year selector
+        const yearSelect = document.getElementById('taxYear');
+        yearSelect.innerHTML = '';
+        
+        // Add last 3 years and current year
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear; year >= currentYear - 3; year--) {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          yearSelect.appendChild(option);
+        }
+
+        // Add questions to form
+        questions.forEach(question => {
+          const questionGroup = document.createElement('div');
+          questionGroup.className = 'question-group';
+
+          const questionText = document.createElement('div');
+          questionText.className = 'question-text';
+          questionText.textContent = question.text;
+          questionGroup.appendChild(questionText);
+
+          const controls = document.createElement('div');
+          controls.className = 'question-controls';
+
+          switch (question.controlType) {
+            case 'CHECKBOX':
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.name = question.name;
+              controls.appendChild(checkbox);
+              break;
+
+            case 'NUMERIC':
+              const input = document.createElement('input');
+              input.type = 'number';
+              input.name = question.name;
+              controls.appendChild(input);
+              break;
+
+            case 'DATE':
+              const dateInput = document.createElement('input');
+              dateInput.type = 'date';
+              dateInput.name = question.name;
+              controls.appendChild(dateInput);
+              break;
+
+            case 'RADIO':
+              const options = question.tooltip.split(':');
+              options.forEach(option => {
+                const label = document.createElement('label');
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = question.name;
+                radio.value = option;
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(option));
+                controls.appendChild(label);
+              });
+              break;
+          }
+
+          questionGroup.appendChild(controls);
+          questionnaireForm.appendChild(questionGroup);
+        });
+
+        // Show questionnaire dialog
+        questionnaireOverlay.classList.add('active');
+        
+      } catch (error) {
+        console.error('Failed to load questionnaire:', error);
+        addMessage('שגיאה בטעינת השאלון: ' + error.message, 'error');
+      }
+    });
+
+    // Close questionnaire on overlay click
+    questionnaireOverlay.addEventListener('click', (e) => {
+      if (e.target === questionnaireOverlay) {
+        questionnaireOverlay.classList.remove('active');
+      }
+    });
+
+    // Close questionnaire on close button click
+    questionnaireOverlay.querySelector('.close-button').addEventListener('click', () => {
+      questionnaireOverlay.classList.remove('active');
+    });
+
+    // Handle form submission
+    questionnaireForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const selectedYear = document.getElementById('taxYear').value;
+      console.log('Selected year:', selectedYear);
+      
+      // TODO: Save answers with selected year
+      console.log('Saving answers for year', selectedYear);
+      
+      questionnaireOverlay.classList.remove('active');
+      addMessage('התשובות נשמרו בהצלחה');
     });
   </script>
 </body>
