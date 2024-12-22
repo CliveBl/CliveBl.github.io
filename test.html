@@ -735,6 +735,138 @@
       font-size: 1em;
       min-width: 100px;
     }
+
+    .more-info-container {
+      margin-top: 10px;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 10px;
+    }
+
+    .more-info-button {
+      background: none;
+      border: none;
+      color: var(--tax-blue);
+      cursor: pointer;
+      font-size: 0.9em;
+      padding: 5px 10px;
+      position: relative;
+      transition: color 0.3s;
+      opacity: 0.8;
+    }
+
+    .more-info-button:hover {
+      color: #2980b9;
+      opacity: 1;
+    }
+
+    .more-info-button::after {
+      content: '▼';
+      font-size: 0.7em;
+      margin-right: 5px;
+      transition: transform 0.3s;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .more-info-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.3s ease-out;
+      opacity: 0;
+    }
+
+    .more-info-content.active {
+      max-height: 1000px;
+      margin-top: 15px;
+      opacity: 1;
+    }
+
+    .more-info-content .required-docs {
+      gap: 15px;
+    }
+
+    .more-info-content .doc-item {
+      padding: 12px;
+    }
+
+    .additional-info {
+      text-align: right;
+      padding: 20px;
+      background-color: var(--bg-color);
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .additional-info h3 {
+      margin: 0 0 15px 0;
+      color: var(--text-color);
+    }
+
+    .additional-info ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .additional-info li {
+      margin-bottom: 15px;
+    }
+
+    .additional-info li:last-child {
+      margin-bottom: 0;
+    }
+
+    .additional-info strong {
+      color: var(--tax-blue);
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .additional-info p {
+      margin: 0;
+      color: var(--text-color);
+      line-height: 1.4;
+    }
+
+    .taxpayer-input-container {
+      background-color: var(--item-bg);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .taxpayer-input-container label {
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .taxpayer-input-container input {
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-size: 1em;
+      width: 150px;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .taxpayer-input-container input:focus {
+      outline: none;
+      border-color: var(--tax-blue);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .taxpayer-input-container input::placeholder {
+      color: var(--message-text);
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
@@ -806,9 +938,11 @@
     <button class="login-button">התחברות</button>
   </div>
 
+
+
   <!-- Add info section -->
   <div class="info-section">
-    <h2>מסמכים נדרשים להגשת הדו"ח</h2>
+    <h2>מסמכים נדרשים להשת הדו"ח</h2>
     <div class="required-docs">
       <div class="doc-item">
         <span class="doc-icon">📄</span>
@@ -835,12 +969,51 @@
         <span class="doc-icon">💝</span>
         <div class="doc-details">
           <h3>אישורי תרומות</h3>
-          <p>קבלות על רומות מוסדות מוכרים</p>
+          <p>קבלות על רוות מוסדות מוכרים</p>
+        </div>
+      </div>
+    </div>
+    <div class="more-info-container">
+      <button class="more-info-button">עוד מסמכים אפשריים...</button>
+      <div class="more-info-content">
+        <div class="required-docs">
+          <div class="doc-item">
+            <span class="doc-icon">🏥</span>
+            <div class="doc-details">
+              <h3>הוצאות רפואיות</h3>
+              <p>קבלות על הוצאות רפואיות חריגות</p>
+            </div>
+          </div>
+          <div class="doc-item">
+            <span class="doc-icon">🏫</span>
+            <div class="doc-details">
+              <h3>לימודים אקדמאיים</h3>
+              <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
+            </div>
+          </div>
+          <div class="doc-item">
+            <span class="doc-icon">👶</span>
+            <div class="doc-details">
+              <h3>הוצאות טיפול בילדים</h3>
+              <p>קבלות ממעונות יום או משפחתונים מוכרים</p>
+            </div>
+          </div>
+          <div class="doc-item">
+            <span class="doc-icon">🏠</span>
+            <div class="doc-details">
+              <h3>משכנתא</h3>
+              <p>אישור על תשלומי ריבית משכנתא</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
+  <!-- Add taxpayer ID input after info section -->
+  <div class="taxpayer-input-container">
+    <label for="taxpayerId">מספר זהות של בן הזוג הרשום:</label>
+    <input type="text" id="taxpayerId" pattern="\d{9}" maxlength="9" placeholder="הכנס 9 ספרות">
+  </div>
   <!-- Container for the list of uploaded files -->
   <ul class="file-list" id="fileList"></ul>
 
@@ -1927,6 +2100,43 @@
       
       questionnaireOverlay.classList.remove('active');
       addMessage('התשובות נשמרו בהצלחה');
+    });
+
+    // Add this with your other event listeners
+    document.querySelector('.more-info-button').addEventListener('click', function() {
+      const content = document.querySelector('.more-info-content');
+      const button = this;
+      
+      button.classList.toggle('active');
+      content.classList.toggle('active');
+    });
+
+    // Add this with your other event listeners
+    const taxpayerIdInput = document.getElementById('taxpayerId');
+
+    taxpayerIdInput.addEventListener('input', (e) => {
+      // Allow only numbers
+      e.target.value = e.target.value.replace(/[^\d]/g, '');
+      
+      // Limit to 9 digits
+      if (e.target.value.length > 9) {
+        e.target.value = e.target.value.slice(0, 9);
+      }
+    });
+
+    // Store taxpayer ID when changed
+    taxpayerIdInput.addEventListener('change', () => {
+      if (taxpayerIdInput.value.length === 9) {
+        localStorage.setItem('taxpayerId', taxpayerIdInput.value);
+      }
+    });
+
+    // Load saved taxpayer ID on page load
+    window.addEventListener('load', () => {
+      const savedId = localStorage.getItem('taxpayerId');
+      if (savedId) {
+        taxpayerIdInput.value = savedId;
+      }
     });
   </script>
 </body>
