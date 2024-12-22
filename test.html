@@ -1012,7 +1012,7 @@
   <!-- Add taxpayer ID input after info section -->
   <div class="taxpayer-input-container">
     <label for="taxpayerId">מספר זהות של בן הזוג הרשום:</label>
-    <input type="text" id="taxpayerId" pattern="\d{9}" maxlength="9" placeholder="הכנס 9 ספרות">
+    <input type="text" id="taxpayerId" pattern="\d{9}" maxlength="9" placeholder="הכנ�� 9 ספרות">
   </div>
   <!-- Container for the list of uploaded files -->
   <ul class="file-list" id="fileList"></ul>
@@ -2027,6 +2027,98 @@
           controls.className = 'question-controls';
 
           switch (question.controlType) {
+            case 'ID':
+              if (question.pair === 'PAIR') {
+                // Create container for pair of inputs
+                const pairContainer = document.createElement('div');
+                pairContainer.className = 'id-pair-container';
+                pairContainer.style.display = 'flex';
+                pairContainer.style.gap = '10px';
+
+                // First ID input (registered partner)
+                const idInput1 = document.createElement('div');
+                idInput1.style.flex = '1';
+                
+                const label1 = document.createElement('label');
+                label1.textContent = 'בן זוג רשום';
+                label1.style.display = 'block';
+                label1.style.marginBottom = '3px';
+                label1.style.fontSize = '0.9em';
+                
+                const input1 = document.createElement('input');
+                input1.type = 'text';
+                input1.name = question.name + '_1';
+                input1.pattern = '\\d{9}';
+                input1.maxLength = 9;
+                input1.placeholder = 'הכנס 9 ספרות';
+                input1.style.direction = 'ltr';
+                input1.style.textAlign = 'left';
+                input1.style.width = '120px';
+                input1.style.padding = '4px 8px';
+
+                // Second ID input (partner)
+                const idInput2 = document.createElement('div');
+                idInput2.style.flex = '1';
+                
+                const label2 = document.createElement('label');
+                label2.textContent = 'בן/בת זוג';
+                label2.style.display = 'block';
+                label2.style.marginBottom = '3px';
+                label2.style.fontSize = '0.9em';
+                
+                const input2 = document.createElement('input');
+                input2.type = 'text';
+                input2.name = question.name + '_2';
+                input2.pattern = '\\d{9}';
+                input2.maxLength = 9;
+                input2.placeholder = 'הכנס 9 ספרות';
+                input2.style.direction = 'ltr';
+                input2.style.textAlign = 'left';
+                input2.style.width = '120px';
+                input2.style.padding = '4px 8px';
+
+                // Add validation to both inputs
+                [input1, input2].forEach(input => {
+                  input.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^\d]/g, '');
+                    if (e.target.value.length > 9) {
+                      e.target.value = e.target.value.slice(0, 9);
+                    }
+                  });
+                });
+
+                idInput1.appendChild(label1);
+                idInput1.appendChild(input1);
+                idInput2.appendChild(label2);
+                idInput2.appendChild(input2);
+
+                pairContainer.appendChild(idInput1);
+                pairContainer.appendChild(idInput2);
+                controls.appendChild(pairContainer);
+              } else {
+                // Single ID input
+                const idInput = document.createElement('input');
+                idInput.type = 'text';
+                idInput.name = question.name;
+                idInput.pattern = '\\d{9}';
+                idInput.maxLength = 9;
+                idInput.placeholder = 'הכנס 9 ספרות';
+                idInput.style.direction = 'ltr';
+                idInput.style.textAlign = 'left';
+                idInput.style.width = '120px';
+                idInput.style.padding = '4px 8px';
+                
+                idInput.addEventListener('input', (e) => {
+                  e.target.value = e.target.value.replace(/[^\d]/g, '');
+                  if (e.target.value.length > 9) {
+                    e.target.value = e.target.value.slice(0, 9);
+                  }
+                });
+                
+                controls.appendChild(idInput);
+              }
+              break;
+
             case 'CHECKBOX':
               const checkbox = document.createElement('input');
               checkbox.type = 'checkbox';
@@ -2042,10 +2134,62 @@
               break;
 
             case 'DATE':
-              const dateInput = document.createElement('input');
-              dateInput.type = 'date';
-              dateInput.name = question.name;
-              controls.appendChild(dateInput);
+              if (question.pair === 'PAIR') {
+                // Create container for pair of inputs
+                const pairContainer = document.createElement('div');
+                pairContainer.className = 'date-pair-container';
+                pairContainer.style.display = 'flex';
+                pairContainer.style.gap = '10px';
+
+                // First date input (registered partner)
+                const dateInput1 = document.createElement('div');
+                dateInput1.style.flex = '1';
+                
+                const label1 = document.createElement('label');
+                label1.textContent = 'בן זוג רשום';
+                label1.style.display = 'block';
+                label1.style.marginBottom = '3px';
+                label1.style.fontSize = '0.9em';
+                
+                const input1 = document.createElement('input');
+                input1.type = 'date';
+                input1.name = question.name + '_1';
+                input1.style.width = '150px';
+                input1.style.padding = '4px 8px';
+
+                // Second date input (partner)
+                const dateInput2 = document.createElement('div');
+                dateInput2.style.flex = '1';
+                
+                const label2 = document.createElement('label');
+                label2.textContent = 'בן/בת זוג';
+                label2.style.display = 'block';
+                label2.style.marginBottom = '3px';
+                label2.style.fontSize = '0.9em';
+                
+                const input2 = document.createElement('input');
+                input2.type = 'date';
+                input2.name = question.name + '_2';
+                input2.style.width = '150px';
+                input2.style.padding = '4px 8px';
+
+                dateInput1.appendChild(label1);
+                dateInput1.appendChild(input1);
+                dateInput2.appendChild(label2);
+                dateInput2.appendChild(input2);
+
+                pairContainer.appendChild(dateInput1);
+                pairContainer.appendChild(dateInput2);
+                controls.appendChild(pairContainer);
+              } else {
+                // Single date input
+                const dateInput = document.createElement('input');
+                dateInput.type = 'date';
+                dateInput.name = question.name;
+                dateInput.style.width = '150px';
+                dateInput.style.padding = '4px 8px';
+                controls.appendChild(dateInput);
+              }
               break;
 
             case 'RADIO':
