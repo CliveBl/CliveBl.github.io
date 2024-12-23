@@ -1280,7 +1280,7 @@
         }
 
         const result = await response.json();
-        debug('Files info:', result);
+        //debug('Files info:', result);
 
         // Clear existing files (except example file)
         const files = Array.from(fileList.children);
@@ -2198,11 +2198,11 @@
         }
 
         const answersData = await answersResponse.json();
-        console.log('Raw answers data:', answersData);
+        //console.log('Raw answers data:', answersData);
 
         // The response is already the map we want
         answersMap = answersData;
-        console.log('Parsed answers map:', answersMap);
+        //console.log('Parsed answers map:', answersMap);
 
         // Set initial current year
         const endYear = 2023;
@@ -2210,7 +2210,7 @@
 
         // Use let for currentYearAnswers since we need to update it
         let currentYearAnswers = answersMap[currentlySelectedTaxYear]?.answers || {};
-        console.log('Initial year answers:', currentYearAnswers);
+        //console.log('Initial year answers:', currentYearAnswers);
 
         // Then get questionnaire definitions
         const response = await fetch(`${AUTH_BASE_URL}/getQuestionDefinitions`, {
@@ -2245,7 +2245,7 @@
 
         // Set the year selector to match currentlySelectedTaxYear
         yearSelect.value = currentlySelectedTaxYear;
-        console.log('Set year selector to:', currentlySelectedTaxYear); // Debug log
+        //console.log('Set year selector to:', currentlySelectedTaxYear); // Debug log
 
         // Get answers for the current year if they exist
         currentYearAnswers = answersMap[currentlySelectedTaxYear]?.answers || {};
@@ -2563,11 +2563,11 @@
 
           // After creating all controls for a question, populate with saved answers
           const savedAnswer = currentYearAnswers[question.name];
-          console.log(`Attempting to populate ${question.name}:`, savedAnswer); // Debug log
+          //console.log(`Attempting to populate ${question.name}:`, savedAnswer); // Debug log
 
           if (savedAnswer) {
             const controls = questionGroup.querySelector('.question-controls');
-            console.log(`Found controls for ${question.name}:`, controls); // Debug log
+            //console.log(`Found controls for ${question.name}:`, controls); // Debug log
             
             const controlType = question.controlType;
             const isPair = question.pair === 'PAIR';
@@ -2578,21 +2578,21 @@
                   const [value1, value2] = savedAnswer.split(',');
                   const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
                   const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                  console.log(`Found ID inputs for ${question.name}:`, input1, input2); // Debug log
+                  //console.log(`Found ID inputs for ${question.name}:`, input1, input2); // Debug log
                   if (input1) {
                     input1.value = value1 || '';
-                    console.log(`Set ${question.name}_1 to:`, value1);
+                    //console.log(`Set ${question.name}_1 to:`, value1);
                   }
                   if (input2) {
                     input2.value = value2 || '';
-                    console.log(`Set ${question.name}_2 to:`, value2);
+                    //console.log(`Set ${question.name}_2 to:`, value2);
                   }
                 } else {
                   const input = controls.querySelector(`input[name="${question.name}"]`);
-                  console.log(`Found single ID input for ${question.name}:`, input); // Debug log
+                  //console.log(`Found single ID input for ${question.name}:`, input); // Debug log
                   if (input) {
                     input.value = savedAnswer;
-                    console.log(`Set ${question.name} to:`, savedAnswer);
+                    //console.log(`Set ${question.name} to:`, savedAnswer);
                   }
                 }
                 break;
@@ -2644,8 +2644,8 @@
         });
 
         // Add debug logging for the answers map and current year answers
-        console.log('Full answers map:', answersMap);
-        console.log('Current year answers:', currentYearAnswers);
+        //console.log('Full answers map:', answersMap);
+        //console.log('Current year answers:', currentYearAnswers);
 
         // Add the save button to the form
         const saveButtonContainer = document.createElement('div');
@@ -2958,12 +2958,17 @@
           yearAnswers[questionName] = answer;
         });
 
+
+ 
         // Update the answersMap with the current year's answers while preserving other years
         answersMap[selectedYear] = {
           taxYear: parseInt(selectedYear),
           answers: yearAnswers
         };
 
+
+		//console.log('Set answers map:', JSON.stringify(answersMap));
+ 
         // Call the API to save answers
         const response = await fetch(`${API_BASE_URL}/setAnswersMap`, {
           method: 'POST',
