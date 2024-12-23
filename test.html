@@ -1737,7 +1737,7 @@
       
       // Update UI elements
       modalTitle.textContent = isSignup ? 'הרשמה' : 'התחברות';
-      submitButton.textContent = isSignup ? 'הירשם' : 'התחבר';
+      submitButton.textContent = isSignup ? 'הירשם' : 'התח��ר';
       confirmPassword.style.display = isSignup ? 'block' : 'none';
       googleButtonText.textContent = isSignup ? 'הרשמה עם Google' : 'התחבר עם Google';
       githubButtonText.textContent = isSignup ? 'הרשמה עם GitHub' : 'התחבר עם GitHub';
@@ -1967,19 +1967,89 @@
       }
     });
 
-    // Add this at the top of your script with other global variables
+    // Add this with your other event listeners
+    document.querySelector('.more-info-button').addEventListener('click', function() {
+      const content = document.querySelector('.more-info-content');
+      const button = this;
+      
+      button.classList.toggle('active');
+      content.classList.toggle('active');
+    });
+
+    // Add this with your other event listeners
+    const taxpayerIdInput = document.getElementById('taxpayerId');
+
+    taxpayerIdInput.addEventListener('input', (e) => {
+      // Allow only numbers
+      e.target.value = e.target.value.replace(/[^\d]/g, '');
+      
+      // Limit to 9 digits
+      if (e.target.value.length > 9) {
+        e.target.value = e.target.value.slice(0, 9);
+      }
+    });
+
+    // Store taxpayer ID when changed
+    taxpayerIdInput.addEventListener('change', () => {
+      if (taxpayerIdInput.value.length === 9) {
+        localStorage.setItem('taxpayerId', taxpayerIdInput.value);
+      }
+    });
+
+    // Load saved taxpayer ID on page load
+    window.addEventListener('load', () => {
+      const savedId = localStorage.getItem('taxpayerId');
+      if (savedId) {
+        taxpayerIdInput.value = savedId;
+      }
+    });
+
+    // At the top with other global variables
     let answersMap = {};
-
-    // Update the questionnaire button handler
-    const questionnaireButton = document.getElementById('questionnaireButton');
-    const questionnaireOverlay = document.getElementById('questionnaireOverlay');
-    const questionnaireForm = document.getElementById('questionnaireForm');
-
-    // Add this variable at the top of your script to track current year
     let currentlySelectedTaxYear;
 
-    // Change from const to let for currentYearAnswers
-    let currentYearAnswers;
+    // Move all document details initialization inside DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // Existing document details initialization
+    const docDetailsModal = document.getElementById('docDetailsModal');
+    const docDetailsClose = docDetailsModal.querySelector('.doc-details-close');
+    const docDetailsTitle = docDetailsModal.querySelector('.doc-details-title');
+    const docDetailsBody = docDetailsModal.querySelector('.doc-details-body');
+
+      // Document details event listeners
+    document.querySelectorAll('.doc-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const docType = item.dataset.docType;
+        const details = docDetails[docType];
+        if (details) {
+          showDocDetails(details);
+        }
+      });
+    });
+
+      // Document details functions
+    function showDocDetails(details) {
+        docDetailsTitle.textContent = details.title;
+        docDetailsBody.innerHTML = details.sections.map(section => `
+        <div class="doc-details-section">
+          <h4>${section.title}</h4>
+          <div>${section.content.replace(/\n/g, '<br>')}</div>
+        </div>
+      `).join('');
+        docDetailsModal.classList.add('active');
+      }
+
+      // Close modal handlers
+      docDetailsClose.addEventListener('click', () => {
+        docDetailsModal.classList.remove('active');
+      });
+
+      docDetailsModal.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        e.target.classList.remove('active');
+      }
+      });
+    });
 
     questionnaireButton.addEventListener('click', async () => {
       try {
@@ -2002,18 +2072,19 @@
         }
 
         const answersData = await answersResponse.json();
-        // Update the global answersMap
-        answersMap = answersData.answersMapJson ? JSON.parse(answersData.answersMapJson) : {};
+        console.log('Raw answers data:', answersData);
 
-        // Set initial current year and get its answers
-        const startYear = 2017;
+        // The response is already the map we want
+        answersMap = answersData;
+        console.log('Parsed answers map:', answersMap);
+
+        // Set initial current year
         const endYear = 2023;
-        currentlySelectedTaxYear = endYear;  // Use endYear instead of current date year
-        currentYearAnswers = answersMap[endYear]?.answers || {};
+        currentlySelectedTaxYear = endYear;
 
-        // Log for debugging
-        console.log('Initial answers map:', answersMap);
-        console.log('Current year answers:', currentYearAnswers);
+        // Use let for currentYearAnswers since we need to update it
+        let currentYearAnswers = answersMap[currentlySelectedTaxYear]?.answers || {};
+        console.log('Initial year answers:', currentYearAnswers);
 
         // Then get questionnaire definitions
         const response = await fetch(`${AUTH_BASE_URL}/getQuestionDefinitions`, {
@@ -2039,7 +2110,7 @@
         yearSelect.innerHTML = '';
         
         // Add supported years (2017-2023)
-        for (let year = endYear; year >= startYear; year--) {
+        for (let year = endYear; year >= 2017; year--) {
           const option = document.createElement('option');
           option.value = year;
           option.textContent = year;
@@ -2794,146 +2865,6 @@
       } catch (error) {
         console.error('Failed to save answers:', error);
         addMessage('שגיאה בשמירת התשובות: ' + error.message, 'error');
-      }
-    });
-
-    // Add this with your other event listeners
-    document.querySelector('.more-info-button').addEventListener('click', function() {
-      const content = document.querySelector('.more-info-content');
-      const button = this;
-      
-      button.classList.toggle('active');
-      content.classList.toggle('active');
-    });
-
-    // Add this with your other event listeners
-    const taxpayerIdInput = document.getElementById('taxpayerId');
-
-    taxpayerIdInput.addEventListener('input', (e) => {
-      // Allow only numbers
-      e.target.value = e.target.value.replace(/[^\d]/g, '');
-      
-      // Limit to 9 digits
-      if (e.target.value.length > 9) {
-        e.target.value = e.target.value.slice(0, 9);
-      }
-    });
-
-    // Store taxpayer ID when changed
-    taxpayerIdInput.addEventListener('change', () => {
-      if (taxpayerIdInput.value.length === 9) {
-        localStorage.setItem('taxpayerId', taxpayerIdInput.value);
-      }
-    });
-
-    // Load saved taxpayer ID on page load
-    window.addEventListener('load', () => {
-      const savedId = localStorage.getItem('taxpayerId');
-      if (savedId) {
-        taxpayerIdInput.value = savedId;
-      }
-    });
-
-    // Add this to your existing script
-    const docDetailsModal = document.getElementById('docDetailsModal');
-    const docDetailsClose = docDetailsModal.querySelector('.doc-details-close');
-    const docDetailsTitle = docDetailsModal.querySelector('.doc-details-title');
-    const docDetailsBody = docDetailsModal.querySelector('.doc-details-body');
-
-    // Add click event listener for document items
-    document.querySelectorAll('.doc-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const docType = item.getAttribute('data-doc-type');
-        showDocDetails(docType);
-      });
-    });
-
-    // Add function to show document details
-    function showDocDetails(docType) {
-      // Fetch and display the details for the clicked document
-      // This is a placeholder implementation
-      docDetailsTitle.textContent = docType;
-      docDetailsBody.innerHTML = `Details for ${docType} document will appear here.`;
-      docDetailsModal.classList.add('active');
-    }
-
-    // Add click event listener for close button
-    docDetailsClose.addEventListener('click', () => {
-      docDetailsModal.classList.remove('active');
-    });
-
-    // Add click event listener for document details modal
-    docDetailsModal.addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        e.target.classList.remove('active');
-      }
-    });
-
-    // Add this to your script section
-    const docDetails = {
-      form106: {
-        title: 'טופס 106 - פירוט מלא',
-        sections: [
-          {
-            title: 'מה זה טופס 106?',
-            content: 'טופס 106 הוא דיווח שנתי שמנפיק המעסיק לעובד ומפרט את כל התשלומים והניכויים במהלך שנת המס.'
-          },
-          {
-            title: 'מתי מקבלים את הטופס?',
-            content: 'המעסיק חייב להנפיק את הטופס עד סוף חודש מרץ בשנה העוקבת לשנת המס.'
-          },
-          {
-            title: 'מה כולל הטופס?',
-            content: `
-              - פרטי העובד והמעסיק
-              - סך כל ההכנסות מעבודה
-              - ניכויי מס הכנסה
-              - ניכויי ביטוח לאומי
-              - הפרשות לקופות גמל ופנסיה
-              - שווי הטבות ותשלומים נוספים
-            `
-          }
-        ]
-      },
-      // Add similar details for other document types
-    };
-
-    // Add click handlers for document items
-    document.querySelectorAll('.doc-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const docType = item.dataset.docType;
-        const details = docDetails[docType];
-        if (details) {
-          showDocDetails(details);
-        }
-      });
-    });
-
-    function showDocDetails(details) {
-      const modal = document.getElementById('docDetailsModal');
-      const title = modal.querySelector('.doc-details-title');
-      const body = modal.querySelector('.doc-details-body');
-      
-      title.textContent = details.title;
-      
-      body.innerHTML = details.sections.map(section => `
-        <div class="doc-details-section">
-          <h4>${section.title}</h4>
-          <div>${section.content.replace(/\n/g, '<br>')}</div>
-        </div>
-      `).join('');
-      
-      modal.classList.add('active');
-    }
-
-    // Close modal when clicking close button or outside
-    document.querySelector('.doc-details-close').addEventListener('click', () => {
-      document.getElementById('docDetailsModal').classList.remove('active');
-    });
-
-    document.getElementById('docDetailsModal').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        e.target.classList.remove('active');
       }
     });
 
