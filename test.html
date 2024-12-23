@@ -1028,7 +1028,7 @@
             <span class="doc-icon">👶</span>
             <div class="doc-details">
               <h3>הוצאות טיפול בילדים</h3>
-              <p>קבלות ממעונות יום או משפחתונים מוכרים</p>
+              <p>קבלות ממעונות יום או משפחתונים מוכרים לילדים עד גיל 5.</p>
             </div>
           </div>
           <div class="doc-item" data-doc-type="mortgage">
@@ -1996,7 +1996,7 @@
           },
           {
             title: 'מתי מקבלים את האישורים?',
-            content: 'הבנקים מנפיקים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
+            content: 'הבנקים מנפ��קים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
           },
           {
             title: 'מה כולל האישור?',
@@ -2112,37 +2112,34 @@
       }
     };
 
-    // Move all document details initialization inside DOMContentLoaded
+    // Then organize the event listeners
     document.addEventListener('DOMContentLoaded', () => {
-      // Existing document details initialization
       const docDetailsModal = document.getElementById('docDetailsModal');
       const docDetailsTitle = docDetailsModal.querySelector('.doc-details-title');
       const docDetailsBody = docDetailsModal.querySelector('.doc-details-body');
 
       // Add hover event listeners for document items
       document.querySelectorAll('.doc-item').forEach(item => {
-        let hoverTimeout;
-        
         item.addEventListener('mouseenter', () => {
           const docType = item.dataset.docType;
           const details = docDetails[docType];
           if (details) {
-            // Position the modal next to the hovered item
+            // Get the info section bounds
+            const infoSection = document.querySelector('.info-section');
+            const infoSectionRect = infoSection.getBoundingClientRect();
             const rect = item.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const modalWidth = 400; // matches max-width in CSS
+            const modalWidth = 400;
             
-            // Calculate left position, ensuring modal stays within viewport
-            let leftPos = rect.right + 10; // Default position (10px gap)
-            if (leftPos + modalWidth > viewportWidth) {
-              // If would overflow right edge, position to the left of the item instead
-              leftPos = rect.left - modalWidth - 10;
-            }
+            let leftPos = Math.min(
+              rect.right + 10,
+              infoSectionRect.right - modalWidth - 10
+            );
             
-            // Ensure top position is visible
+            leftPos = Math.max(leftPos, infoSectionRect.left + 10);
+            
             const viewportHeight = window.innerHeight;
             let topPos = rect.top;
-            if (topPos + 300 > viewportHeight) { // 300 is approximate max height
+            if (topPos + 300 > viewportHeight) {
               topPos = Math.max(0, viewportHeight - 300);
             }
 
@@ -2150,7 +2147,6 @@
             docDetailsModal.style.top = `${topPos}px`;
             docDetailsModal.style.left = `${leftPos}px`;
             
-            // Show the details
             docDetailsTitle.textContent = details.title;
             docDetailsBody.innerHTML = details.sections.map(section => `
               <div class="doc-details-section">
@@ -2164,7 +2160,6 @@
         });
 
         item.addEventListener('mouseleave', (e) => {
-          // Check if the cursor is moving to the details modal
           const toElement = e.relatedTarget;
           if (!docDetailsModal.contains(toElement)) {
             docDetailsModal.classList.remove('active');
@@ -2172,7 +2167,7 @@
         });
       });
 
-      // Keep modal visible when hovering over it
+      // Modal hover handlers
       docDetailsModal.addEventListener('mouseenter', () => {
         docDetailsModal.classList.add('active');
       });
@@ -2180,7 +2175,7 @@
       docDetailsModal.addEventListener('mouseleave', () => {
         docDetailsModal.classList.remove('active');
       });
-    });
+    }); // End of DOMContentLoaded
 
     questionnaireButton.addEventListener('click', async () => {
       try {
