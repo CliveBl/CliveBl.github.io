@@ -903,6 +903,123 @@
       color: var(--tax-blue);
       margin-bottom: 8px;
     }
+
+    .year-selector-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .year-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .questions-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .calculate-tax-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .calculate-tax-button {
+      background-color: var(--tax-blue);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .calculate-tax-button:hover {
+      background-color: #2980b9;
+    }
+
+    .calculate-tax-button:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+    .tax-results-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      direction: rtl;
+    }
+
+    .tax-results-table th,
+    .tax-results-table td {
+      padding: 10px;
+      text-align: right;
+      border: 1px solid var(--border-color);
+    }
+
+    .tax-results-table th {
+      background-color: var(--tax-blue);
+      color: white;
+      font-weight: bold;
+    }
+
+    .tax-results-table tr:nth-child(even) {
+      background-color: var(--item-bg);
+    }
+
+    .tax-results-table tr:hover {
+      background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--bg-color);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--border-color);
+      border-top: 5px solid var(--tax-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -953,14 +1070,19 @@
         <button class="close-button">✕</button>
       </div>
       <div class="questionnaire-content">
-        <div class="year-selector">
-          <label for="taxYear">שנת מס:</label>
-          <select id="taxYear" name="taxYear">
-            <!-- Years will be added dynamically -->
-          </select>
-        </div>
         <form id="questionnaireForm" method="post" class="questionnaire-form">
-          <!-- Questions will be inserted here dynamically -->
+          <div class="year-selector-container">
+            <div class="year-selector">
+              <label for="taxYear">שנת מס:</label>
+              <select id="taxYear" name="taxYear">
+                <!-- Years will be added dynamically -->
+              </select>
+            </div>
+            <button type="submit" class="save-button">שמור תשובות</button>
+          </div>
+          <div class="questions-container">
+            <!-- Questions will be inserted here dynamically -->
+          </div>
         </form>
       </div>
     </div>
@@ -1072,6 +1194,9 @@
   <div id="resultsContainer" class="results-container">
     <div class="results-title">תוצאות</div>
     <ul id="resultsList" class="results-list"></ul>
+    <div class="calculate-tax-container">
+      <button id="calculateTaxButton" class="calculate-tax-button">חשב מס</button>
+    </div>
   </div>
 
   <!-- Add this right after the info-section div -->
@@ -1079,6 +1204,14 @@
     <div class="doc-details-content">
       <h3 class="doc-details-title"></h3>
       <div class="doc-details-body"></div>
+    </div>
+  </div>
+
+  <!-- Add loading overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div>מחשב מס...</div>
     </div>
   </div>
 
@@ -1360,7 +1493,7 @@
       if (!validTypes.includes(file.type)) {
         return {
           valid: false,
-          message: 'סוג ��ובץ לא נתמך - רק קבצי PDF או JPG מותרים'
+          message: 'סוג קובץ לא נתמך - רק קבצי PDF או JPG מותרים'
         };
       }
       return { valid: true };
@@ -1690,7 +1823,7 @@
       
       // Update UI elements
       modalTitle.textContent = isSignup ? 'הרשמה' : 'התחברות';
-      submitButton.textContent = isSignup ? 'הירשם' : 'התח��ר';
+      submitButton.textContent = isSignup ? 'הירשם' : 'התחבר';
       confirmPassword.style.display = isSignup ? 'block' : 'none';
       googleButtonText.textContent = isSignup ? 'הרשמה עם Google' : 'התחבר עם Google';
       githubButtonText.textContent = isSignup ? 'הרשמה עם GitHub' : 'התחבר עם GitHub';
@@ -1996,7 +2129,7 @@
           },
           {
             title: 'מתי מקבלים את האישורים?',
-            content: 'הבנקים מנפ��קים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
+            content: 'הבנקים מנפיקים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
           },
           {
             title: 'מה כולל האישור?',
@@ -2018,7 +2151,7 @@
           },
           {
             title: 'למה צריך את האישור?',
-            content: 'האישור נדרש כדי לקבל זיכוי ממס הכנסה בהתאם ליישוב המגורים.'
+            content: 'האישור נ��רש כדי לקבל זיכוי ממס הכנסה בהתאם ליישוב המגורי.'
           }
         ]
       },
@@ -2183,6 +2316,12 @@
           await signInAnonymous();
         }
 
+        // Get reference to the questionnaire form
+        const questionnaireForm = document.getElementById('questionnaireForm');
+        if (!questionnaireForm) {
+          throw new Error('Questionnaire form not found');
+        }
+
         // Get the answers map
         const answersResponse = await fetch(`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`, {
           method: 'GET',
@@ -2229,7 +2368,8 @@
         const questions = await response.json();
         
         // Clear existing questions
-        questionnaireForm.innerHTML = '';
+        const questionsContainer = questionnaireForm.querySelector('.questions-container');
+        questionsContainer.innerHTML = '';
 
         // Populate year selector
         const yearSelect = document.getElementById('taxYear');
@@ -2486,60 +2626,73 @@
 
             case 'DATE':
               if (question.pair === 'PAIR') {
-                // Create container for pair of inputs
-                const pairContainer = document.createElement('div');
-                pairContainer.className = 'date-pair-container';
-                pairContainer.style.display = 'flex';
-                pairContainer.style.gap = '10px';
+                // Create container for pair of date inputs
+                const dateContainer = document.createElement('div');
+                dateContainer.className = 'date-pair-container';
+                dateContainer.style.display = 'flex';
+                dateContainer.style.gap = '10px';
 
                 // First date input (registered partner)
                 const dateInput1 = document.createElement('div');
                 dateInput1.style.flex = '1';
                 
-                const label1 = document.createElement('label');
-                label1.textContent = 'בן זוג רשום';
-                label1.style.display = 'block';
-                label1.style.marginBottom = '3px';
-                label1.style.fontSize = '0.9em';
+                const dateLabel1 = document.createElement('label');
+                dateLabel1.textContent = 'בן זוג רשום';
+                dateLabel1.style.display = 'block';
+                dateLabel1.style.marginBottom = '3px';
+                dateLabel1.style.fontSize = '0.9em';
                 
                 const input1 = document.createElement('input');
-                input1.type = 'date';
+                input1.type = 'text';
+                input1.placeholder = 'dd/MM/yyyy';
+                input1.pattern = '\\d{2}/\\d{2}/\\d{4}';
                 input1.name = question.name + '_1';
-                input1.style.width = '150px';
-                input1.style.padding = '4px 8px';
+                
+                // Add input validation and formatting
+                input1.addEventListener('input', formatDateInput);
+                input1.addEventListener('blur', validateDateInput);
+
+                dateInput1.appendChild(dateLabel1);
+                dateInput1.appendChild(input1);
+                dateContainer.appendChild(dateInput1);
 
                 // Second date input (partner)
                 const dateInput2 = document.createElement('div');
                 dateInput2.style.flex = '1';
                 
-                const label2 = document.createElement('label');
-                label2.textContent = 'בן/בת זוג';
-                label2.style.display = 'block';
-                label2.style.marginBottom = '3px';
-                label2.style.fontSize = '0.9em';
+                const dateLabel2 = document.createElement('label');
+                dateLabel2.textContent = 'בן/בת זוג';
+                dateLabel2.style.display = 'block';
+                dateLabel2.style.marginBottom = '3px';
+                dateLabel2.style.fontSize = '0.9em';
                 
                 const input2 = document.createElement('input');
-                input2.type = 'date';
+                input2.type = 'text';
+                input2.placeholder = 'dd/MM/yyyy';
+                input2.pattern = '\\d{2}/\\d{2}/\\d{4}';
                 input2.name = question.name + '_2';
-                input2.style.width = '150px';
-                input2.style.padding = '4px 8px';
+                
+                // Add input validation and formatting
+                input2.addEventListener('input', formatDateInput);
+                input2.addEventListener('blur', validateDateInput);
 
-                dateInput1.appendChild(label1);
-                dateInput1.appendChild(input1);
-                dateInput2.appendChild(label2);
+                dateInput2.appendChild(dateLabel2);
                 dateInput2.appendChild(input2);
+                dateContainer.appendChild(dateInput2);
 
-                pairContainer.appendChild(dateInput1);
-                pairContainer.appendChild(dateInput2);
-                controls.appendChild(pairContainer);
+                controls.appendChild(dateContainer);
               } else {
-                // Single date input
-                const dateInput = document.createElement('input');
-                dateInput.type = 'date';
-                dateInput.name = question.name;
-                dateInput.style.width = '150px';
-                dateInput.style.padding = '4px 8px';
-                controls.appendChild(dateInput);
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = 'dd/MM/yyyy';
+                input.pattern = '\\d{2}/\\d{2}/\\d{4}';
+                input.name = question.name;
+                
+                // Add input validation and formatting
+                input.addEventListener('input', formatDateInput);
+                input.addEventListener('blur', validateDateInput);
+                
+                controls.appendChild(input);
               }
               break;
 
@@ -2646,16 +2799,6 @@
         // Add debug logging for the answers map and current year answers
         //console.log('Full answers map:', answersMap);
         //console.log('Current year answers:', currentYearAnswers);
-
-        // Add the save button to the form
-        const saveButtonContainer = document.createElement('div');
-        saveButtonContainer.className = 'questionnaire-actions';
-        const saveButton = document.createElement('button');
-        saveButton.type = 'submit';
-        saveButton.className = 'save-button';
-        saveButton.textContent = 'שמור תשובות';
-        saveButtonContainer.appendChild(saveButton);
-        questionnaireForm.appendChild(saveButtonContainer);
 
         // Add year change handler to load answers for selected year
         yearSelect.addEventListener('change', () => {
@@ -2959,6 +3102,8 @@
         });
 
 
+
+
  
         // Update the answersMap with the current year's answers while preserving other years
         answersMap[selectedYear] = {
@@ -3080,6 +3225,142 @@
       li.appendChild(fileInfo);
       li.appendChild(deleteButton);
       fileList.appendChild(li);
+    }
+
+    // Add this with your other event listeners
+    document.getElementById('calculateTaxButton').addEventListener('click', async () => {
+      try {
+        if (!authToken) {
+          await signInAnonymous();
+        }
+
+        // Get taxpayer ID
+        const taxpayerId = document.getElementById('taxpayerId').value;
+        if (!taxpayerId || taxpayerId.length !== 9) {
+          throw new Error('נדרש מספר זהות תקין של 9 ספרות');
+        }
+
+        // Show loading overlay
+        document.getElementById('loadingOverlay').classList.add('active');
+        // Disable calculate button
+        document.getElementById('calculateTaxButton').disabled = true;
+
+        const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            customerDataEntryName: 'Default',
+            taxYear: 2023
+          }),
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        // Show success message
+        addMessage('חישוב המס הושלם בהצלחה', 'info');
+        
+        // Update results display
+        const resultsList = document.getElementById('resultsList');
+		console.log(result);
+        resultsList.innerHTML = ''; // Clear existing results
+        
+        // Create table
+        const table = document.createElement('table');
+        table.className = 'tax-results-table';
+        
+        // Add table header
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+          <tr>
+            <th>פרטים</th>
+            <th>בן/בת זוג</th>
+            <th>בן זוג רשום</th>
+            <th>סה"כ</th>
+          </tr>
+        `;
+        table.appendChild(thead);
+        
+        // Add table body
+        const tbody = document.createElement('tbody');
+        result.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.title}</td>
+            <td>${row.spouse?.trim() || ''}</td>
+            <td>${row.registered?.trim() || ''}</td>
+            <td>${row.total?.trim() || ''}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        
+        resultsList.appendChild(table);
+        
+        // Show the results container
+        document.getElementById('resultsContainer').classList.add('active');
+
+      } catch (error) {
+        console.error('Calculate tax failed:', error);
+        addMessage('שגיאה בחישוב המס: ' + error.message, 'error');
+      } finally {
+        // Hide loading overlay
+        document.getElementById('loadingOverlay').classList.remove('active');
+        // Re-enable calculate button
+        document.getElementById('calculateTaxButton').disabled = false;
+      }
+    });
+
+    // Add these helper functions for date formatting and validation
+    function formatDateInput(e) {
+      let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+      if (value.length > 8) value = value.slice(0, 8);
+      
+      // Add slashes as the user types
+      if (value.length >= 4) {
+        value = value.slice(0, 2) + '/' + value.slice(2, 4) + '/' + value.slice(4);
+      } else if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2);
+      }
+      
+      e.target.value = value;
+    }
+
+    function validateDateInput(e) {
+      const value = e.target.value;
+      if (!value) return; // Allow empty value
+
+      const parts = value.split('/');
+      if (parts.length !== 3) {
+        e.target.setCustomValidity('תאריך חייב להיות בפורמט dd/MM/yyyy');
+        return;
+      }
+
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10);
+      const year = parseInt(parts[2], 10);
+
+      const date = new Date(year, month - 1, day);
+      const isValid = date &&
+        date.getDate() === day &&
+        date.getMonth() === month - 1 &&
+        date.getFullYear() === year &&
+        year >= 1900 &&
+        year <= new Date().getFullYear();
+
+      if (!isValid) {
+        e.target.setCustomValidity('תאריך לא תקין');
+      } else {
+        e.target.setCustomValidity('');
+      }
     }
   </script>
 </body>
