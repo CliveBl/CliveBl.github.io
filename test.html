@@ -799,11 +799,6 @@
       margin-top: 10px;
     }
 
-    .additional-info h3 {
-      margin: 0 0 15px 0;
-      color: var(--text-color);
-    }
-
     .additional-info ul {
       list-style: none;
       padding: 0;
@@ -867,6 +862,46 @@
     .taxpayer-input-container input::placeholder {
       color: var(--message-text);
       opacity: 0.7;
+    }
+
+    .doc-details-modal {
+      display: none;
+      position: absolute;
+      background: var(--bg-color);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      max-width: 400px;
+      border: 1px solid var(--border-color);
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      pointer-events: none;
+    }
+
+    .doc-details-modal.active {
+      display: block;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .doc-details-content {
+      position: relative;
+    }
+
+    .doc-details-title {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: var(--text-color);
+    }
+
+    .doc-details-section {
+      margin-bottom: 15px;
+    }
+
+    .doc-details-section h4 {
+      color: var(--tax-blue);
+      margin-bottom: 8px;
     }
   </style>
 </head>
@@ -942,28 +977,28 @@
   <div class="info-section">
     <h2>מסמכים נדרשים להשת הדו"ח</h2>
     <div class="required-docs">
-      <div class="doc-item">
+      <div class="doc-item" data-doc-type="form106">
         <span class="doc-icon">📄</span>
         <div class="doc-details">
           <h3>טופס 106</h3>
           <p>תלושי משכורת שנתיים מכל מעסיק</p>
         </div>
       </div>
-      <div class="doc-item">
+      <div class="doc-item" data-doc-type="capital-gains">
         <span class="doc-icon">📊</span>
         <div class="doc-details">
           <h3>אישורי רווח הון</h3>
           <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך</p>
         </div>
       </div>
-      <div class="doc-item">
+      <div class="doc-item" data-doc-type="residency">
         <span class="doc-icon">🏠</span>
         <div class="doc-details">
           <h3>אישור תושב</h3>
           <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
         </div>
       </div>
-      <div class="doc-item">
+      <div class="doc-item" data-doc-type="donations">
         <span class="doc-icon">💝</span>
         <div class="doc-details">
           <h3>אישורי תרומות</h3>
@@ -975,28 +1010,28 @@
       <button class="more-info-button">עוד מסמכים אפשריים...</button>
       <div class="more-info-content">
         <div class="required-docs">
-          <div class="doc-item">
+          <div class="doc-item" data-doc-type="medical">
             <span class="doc-icon">🏥</span>
             <div class="doc-details">
               <h3>הוצאות רפואיות</h3>
               <p>קבלות על הוצאות רפואיות חריגות</p>
             </div>
           </div>
-          <div class="doc-item">
+          <div class="doc-item" data-doc-type="education">
             <span class="doc-icon">🏫</span>
             <div class="doc-details">
               <h3>לימודים אקדמאיים</h3>
               <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
             </div>
           </div>
-          <div class="doc-item">
+          <div class="doc-item" data-doc-type="childcare">
             <span class="doc-icon">👶</span>
             <div class="doc-details">
               <h3>הוצאות טיפול בילדים</h3>
               <p>קבלות ממעונות יום או משפחתונים מוכרים</p>
             </div>
           </div>
-          <div class="doc-item">
+          <div class="doc-item" data-doc-type="mortgage">
             <span class="doc-icon">🏠</span>
             <div class="doc-details">
               <h3>משכנתא</h3>
@@ -1037,6 +1072,14 @@
   <div id="resultsContainer" class="results-container">
     <div class="results-title">תוצאות</div>
     <ul id="resultsList" class="results-list"></ul>
+  </div>
+
+  <!-- Add this right after the info-section div -->
+  <div id="docDetailsModal" class="doc-details-modal">
+    <div class="doc-details-content">
+      <h3 class="doc-details-title"></h3>
+      <div class="doc-details-body"></div>
+    </div>
   </div>
 
   <script>
@@ -1311,103 +1354,13 @@
       }
     });
 
-    // Add this at the start of your script
-    const fileIdMap = new Map(); // Store file IDs for deletion
-
-    // Update the addFileToList function to store fileId
-    function addFileToList(file, status = null, statusMessage = '', fileId = null) {
-      const li = document.createElement('li');
-      li.className = 'file-item';
-      if (status) {
-        li.classList.add(status);
-      }
-
-      // Store the fileId in our map
-      if (fileId) {
-        fileIdMap.set(file.name, fileId);
-      }
-
-      const fileInfo = document.createElement('div');
-      fileInfo.className = 'file-info';
-
-      const fileHeader = document.createElement('div');
-      fileHeader.className = 'file-header';
-
-      // Create status icon
-      const statusIcon = document.createElement('span');
-      statusIcon.className = 'status-icon';
-      switch(status) {
-        case 'warning':
-          statusIcon.textContent = '⚠️';
-          break;
-        case 'error':
-          statusIcon.textContent = '❌';
-          break;
-        default:
-          statusIcon.textContent = '✓';
-      }
-
-      const fileName = document.createElement('span');
-      // Show path if available
-      if (file.path) {
-        fileName.textContent = `${file.path}`;
-      } else {
-        fileName.textContent = file.name;
-      }
-
-      fileHeader.appendChild(statusIcon);
-      fileHeader.appendChild(fileName);
-      fileInfo.appendChild(fileHeader);
-
-      if (statusMessage) {
-        const statusMessageSpan = document.createElement('span');
-        statusMessageSpan.className = 'status-message';
-        statusMessageSpan.textContent = statusMessage;
-        fileInfo.appendChild(statusMessageSpan);
-      }
-
-      const deleteButton = document.createElement('button');
-      deleteButton.textContent = '🗑️';  // Change from 'מחק' to trash can icon
-      deleteButton.className = 'delete-button';
-      deleteButton.title = 'מחק';  // Add tooltip with the word "Delete" in Hebrew
-      deleteButton.addEventListener('click', async () => {
-        try {
-          const fileId = fileIdMap.get(file.name);
-          if (fileId) {
-            const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${authToken}`
-              },
-              ...fetchConfig
-            });
-
-            if (!response.ok) {
-              throw new Error(`Delete failed: ${response.status}`);
-            }
-
-            // Remove from UI only after successful deletion
-            fileList.removeChild(li);
-            fileIdMap.delete(file.name);
-          }
-        } catch (error) {
-          console.error('Delete failed:', error);
-          addMessage('שגיאה במחיקת הקובץ: ' + error.message, 'error');
-        }
-      });
-
-      li.appendChild(fileInfo);
-      li.appendChild(deleteButton);
-      fileList.appendChild(li);
-    }
-
     // Add this helper function at the start of your script
     function isValidFileType(file) {
       const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
         return {
           valid: false,
-          message: 'סוג קובץ לא נתמך - רק קבצי PDF או JPG מותרים'
+          message: 'סוג ��ובץ לא נתמך - רק קבצי PDF או JPG מותרים'
         };
       }
       return { valid: true };
@@ -1429,7 +1382,7 @@
       });
 
       // Clear the file ID map (except example file)
-      for (const [name, id] of fileIdMap) {
+      for (const [name, id] of fileIdMap.entries()) {
         if (!name.includes('large_document.pdf')) {
           fileIdMap.delete(name);
         }
@@ -2008,46 +1961,224 @@
     let answersMap = {};
     let currentlySelectedTaxYear;
 
+    // Keep only the JavaScript object and event handlers
+    const docDetails = {
+      form106: {
+        title: 'טופס 106 - פירוט מלא',
+        sections: [
+          {
+            title: 'מה זה טופס 106?',
+            content: 'טופס 106 הוא דיווח שנתי שמנפיק המעסיק לעובד ומפרט את כל התשלומים והניכויים במהלך שנת המס.'
+          },
+          {
+            title: 'מתי מקבלים את הטופס?',
+            content: 'המעסיק חייב להנפיק את הטופס עד סוף חודש מרץ בשנה העוקבת לשנת המס.'
+          },
+          {
+            title: 'מה כולל הטופס?',
+            content: `
+              - פרטי העובד והמעסיק
+              - סך כל ההכנסות מעבודה
+              - ניכויי מס הכנסה
+              - ניכויי ביטוח לאומי
+              - הפרשות לקופות גמל ופנסיה
+              - שווי הטבות ותשלומים נוספים
+            `
+          }
+        ]
+      },
+      'capital-gains': {
+        title: 'אישורי רווח הון - פירוט מלא',
+        sections: [
+          {
+            title: 'מה הם אישורי רווח הון?',
+            content: 'אישורים שנתיים מהבנקים המפרטים את הרווחים וההפסדים מעסקאות בניירות ערך.'
+          },
+          {
+            title: 'מתי מקבלים את האישורים?',
+            content: 'הבנקים מנפיקים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
+          },
+          {
+            title: 'מה כולל האישור?',
+            content: `
+              - פירוט כל העסקאות בניירות ערך
+              - רווחים והפסדים מכל עסקה
+              - סיכום שנתי של הרווחים וההפסדים
+              - מס שנוכה במקור
+            `
+          }
+        ]
+      },
+      'residency': {
+        title: 'אישור תושב - פירוט מלא',
+        sections: [
+          {
+            title: 'מהו אישור תושב?',
+            content: 'אישור מהרשות המקומית המעיד על מגורים ביישוב המזכה בהטבת מס.'
+          },
+          {
+            title: 'למה צריך את האישור?',
+            content: 'האישור נדרש כדי לקבל זיכוי ממס הכנסה בהתאם ליישוב המגורים.'
+          }
+        ]
+      },
+      'donations': {
+        title: 'אישורי תרומות - פירוט מלא',
+        sections: [
+          {
+            title: 'מה הם אישורי תרומות?',
+            content: 'אישורים שנתיים מהמוסדות המפרטים את סכומם ותנאיהם של תרומות מוכרות.'
+          },
+          {
+            title: 'מתי מקבלים את האישורים?',
+            content: 'המוסדות מנפיקים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
+          },
+          {
+            title: 'מה כולל האישור?',
+            content: `
+              - סכומם של תרומות מוכרות
+              - תנאיהם של תרומות מוכרות
+            `
+          }
+        ]
+      },
+      'medical': {
+        title: 'הוצאות רפואיות - פירוט מלא',
+        sections: [
+          {
+            title: 'אילו הוצאות רפואיות מוכרות?',
+            content: 'הוצאות רפואיות חריגות, טיפולים, תרופות ואביזרים רפואיים שלא מכוסים על ידי קופת החולים.'
+          },
+          {
+            title: 'איזה מסמכים נדרשים?',
+            content: `
+              - קבלות על הוצאות רפואיות
+              - אישורים רפואיים המעידים על הצורך בטיפול
+              - אישור על אי-כיסוי מקופת החולים
+            `
+          }
+        ]
+      },
+      'education': {
+        title: 'לימודים אקדמאיים - פירוט מלא',
+        sections: [
+          {
+            title: 'מה נחשב להוצאות לימודים מוכרות?',
+            content: 'שכר לימוד במוסד אקדמי מוכר לתואר ראשון או שני.'
+          },
+          {
+            title: 'איזה מסמכים נדרשים?',
+            content: `
+              - אישור על סיום לימודים או תעודת זכאות לתואר
+              - קבלות על תשלום שכר לימוד
+              - אישור מהמוסד על היקף הלימודים
+            `
+          }
+        ]
+      },
+      'childcare': {
+        title: 'הוצאות טיפול בילדים - פירוט מלא',
+        sections: [
+          {
+            title: 'אילו הוצאות מוכרות?',
+            content: 'הוצאות עבור מעונות יום, משפחתונים וגני ילדים מוכרים לילדים עד גיל 5.'
+          },
+          {
+            title: 'איזה מסמכים נדרשים?',
+            content: `
+              - קבלות ממעון יום או משפחתון מוכר
+              - אישור על רישום הילד למסגרת
+              - אישור על הכרה במסגרת על ידי משרד העבודה והרווחה
+            `
+          }
+        ]
+      },
+      'mortgage': {
+        title: 'משכנתא - פירוט מלא',
+        sections: [
+          {
+            title: 'אילו תשלומי משכנתא מוכרים?',
+            content: 'ריבית על משכנתא לדירה ראשונה או דירה יחידה.'
+          },
+          {
+            title: 'איזה מסמכים נדרשים?',
+            content: `
+              - אישור שנתי מהבנק על תשלומי ריבית משכנתא
+              - חוזה רכישת הדירה
+              - אישור על היות הדירה דירה יחידה
+            `
+          }
+        ]
+      }
+    };
+
     // Move all document details initialization inside DOMContentLoaded
     document.addEventListener('DOMContentLoaded', () => {
       // Existing document details initialization
-    const docDetailsModal = document.getElementById('docDetailsModal');
-    const docDetailsClose = docDetailsModal.querySelector('.doc-details-close');
-    const docDetailsTitle = docDetailsModal.querySelector('.doc-details-title');
-    const docDetailsBody = docDetailsModal.querySelector('.doc-details-body');
+      const docDetailsModal = document.getElementById('docDetailsModal');
+      const docDetailsTitle = docDetailsModal.querySelector('.doc-details-title');
+      const docDetailsBody = docDetailsModal.querySelector('.doc-details-body');
 
-      // Document details event listeners
-    document.querySelectorAll('.doc-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const docType = item.dataset.docType;
-        const details = docDetails[docType];
-        if (details) {
-          showDocDetails(details);
-        }
+      // Add hover event listeners for document items
+      document.querySelectorAll('.doc-item').forEach(item => {
+        let hoverTimeout;
+        
+        item.addEventListener('mouseenter', () => {
+          const docType = item.dataset.docType;
+          const details = docDetails[docType];
+          if (details) {
+            // Position the modal next to the hovered item
+            const rect = item.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const modalWidth = 400; // matches max-width in CSS
+            
+            // Calculate left position, ensuring modal stays within viewport
+            let leftPos = rect.right + 10; // Default position (10px gap)
+            if (leftPos + modalWidth > viewportWidth) {
+              // If would overflow right edge, position to the left of the item instead
+              leftPos = rect.left - modalWidth - 10;
+            }
+            
+            // Ensure top position is visible
+            const viewportHeight = window.innerHeight;
+            let topPos = rect.top;
+            if (topPos + 300 > viewportHeight) { // 300 is approximate max height
+              topPos = Math.max(0, viewportHeight - 300);
+            }
+
+            docDetailsModal.style.position = 'fixed';
+            docDetailsModal.style.top = `${topPos}px`;
+            docDetailsModal.style.left = `${leftPos}px`;
+            
+            // Show the details
+            docDetailsTitle.textContent = details.title;
+            docDetailsBody.innerHTML = details.sections.map(section => `
+              <div class="doc-details-section">
+                <h4>${section.title}</h4>
+                <div>${section.content.replace(/\n/g, '<br>')}</div>
+              </div>
+            `).join('');
+            
+            docDetailsModal.classList.add('active');
+          }
+        });
+
+        item.addEventListener('mouseleave', (e) => {
+          // Check if the cursor is moving to the details modal
+          const toElement = e.relatedTarget;
+          if (!docDetailsModal.contains(toElement)) {
+            docDetailsModal.classList.remove('active');
+          }
+        });
       });
-    });
 
-      // Document details functions
-    function showDocDetails(details) {
-        docDetailsTitle.textContent = details.title;
-        docDetailsBody.innerHTML = details.sections.map(section => `
-        <div class="doc-details-section">
-          <h4>${section.title}</h4>
-          <div>${section.content.replace(/\n/g, '<br>')}</div>
-        </div>
-      `).join('');
+      // Keep modal visible when hovering over it
+      docDetailsModal.addEventListener('mouseenter', () => {
         docDetailsModal.classList.add('active');
-      }
-
-      // Close modal handlers
-      docDetailsClose.addEventListener('click', () => {
-        docDetailsModal.classList.remove('active');
       });
 
-      docDetailsModal.addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        e.target.classList.remove('active');
-      }
+      docDetailsModal.addEventListener('mouseleave', () => {
+        docDetailsModal.classList.remove('active');
       });
     });
 
@@ -2289,9 +2420,9 @@
                 label.style.marginBottom = '3px';
                 label.style.fontSize = '0.9em';
                 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.name = question.name;
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.name = question.name;
 
                 container.appendChild(label);
                 container.appendChild(checkbox);
@@ -2349,12 +2480,12 @@
                 controls.appendChild(pairContainer);
               } else {
                 // Single numeric input
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.name = question.name;
+              const input = document.createElement('input');
+              input.type = 'number';
+              input.name = question.name;
                 input.style.width = '120px';
                 input.style.padding = '4px 8px';
-                controls.appendChild(input);
+              controls.appendChild(input);
               }
               break;
 
@@ -2751,7 +2882,7 @@
       e.preventDefault();
       
       try {
-        const selectedYear = document.getElementById('taxYear').value;
+      const selectedYear = document.getElementById('taxYear').value;
         const yearAnswers = {};
         
         // Get all question groups
@@ -2868,6 +2999,88 @@
       }
     });
 
+    // Add this at the start of your script
+    const fileIdMap = new Map(); // Store file IDs for deletion
+
+    function addFileToList(file, status = null, statusMessage = '', fileId = null) {
+      const li = document.createElement('li');
+      li.className = 'file-item';
+      if (status) {
+        li.classList.add(status);
+      }
+
+      // Store the fileId in our map
+      if (fileId) {
+        fileIdMap.set(file.name, fileId);
+      }
+
+      const fileInfo = document.createElement('div');
+      fileInfo.className = 'file-info';
+
+      const fileHeader = document.createElement('div');
+      fileHeader.className = 'file-header';
+
+      // Create status icon
+      const statusIcon = document.createElement('span');
+      statusIcon.className = 'status-icon';
+      switch(status) {
+        case 'warning':
+          statusIcon.textContent = '⚠️';
+          break;
+        case 'error':
+          statusIcon.textContent = '❌';
+          break;
+        default:
+          statusIcon.textContent = '✓';
+      }
+
+      const fileName = document.createElement('span');
+      fileName.textContent = file.path || file.name;
+
+      fileHeader.appendChild(statusIcon);
+      fileHeader.appendChild(fileName);
+      fileInfo.appendChild(fileHeader);
+
+      if (statusMessage) {
+        const statusMessageSpan = document.createElement('span');
+        statusMessageSpan.className = 'status-message';
+        statusMessageSpan.textContent = statusMessage;
+        fileInfo.appendChild(statusMessageSpan);
+      }
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = '🗑️';
+      deleteButton.className = 'delete-button';
+      deleteButton.title = 'מחק';
+      deleteButton.addEventListener('click', async () => {
+        try {
+          const fileId = fileIdMap.get(file.name);
+          if (fileId) {
+            const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${authToken}`
+              },
+              ...fetchConfig
+            });
+
+            if (!response.ok) {
+              throw new Error(`Delete failed: ${response.status}`);
+            }
+
+            fileList.removeChild(li);
+            fileIdMap.delete(file.name);
+          }
+        } catch (error) {
+          console.error('Delete failed:', error);
+          addMessage('שגיאה במחיקת הקובץ: ' + error.message, 'error');
+        }
+      });
+
+      li.appendChild(fileInfo);
+      li.appendChild(deleteButton);
+      fileList.appendChild(li);
+    }
   </script>
 </body>
 </html>
