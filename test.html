@@ -645,6 +645,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .questionnaire-header h2 {
@@ -923,12 +924,9 @@
             <!-- Years will be added dynamically -->
           </select>
         </div>
-        <form id="questionnaireForm" class="questionnaire-form">
+        <form id="questionnaireForm" method="post" class="questionnaire-form">
           <!-- Questions will be inserted here dynamically -->
         </form>
-        <div class="questionnaire-actions">
-          <button type="submit" class="save-button">שמור תשובות</button>
-        </div>
       </div>
     </div>
   </div>
@@ -1012,7 +1010,7 @@
   <!-- Add taxpayer ID input after info section -->
   <div class="taxpayer-input-container">
     <label for="taxpayerId">מספר זהות של בן הזוג הרשום:</label>
-    <input type="text" id="taxpayerId" pattern="\d{9}" maxlength="9" placeholder="הכנ�� 9 ספרות">
+    <input type="text" id="taxpayerId" pattern="\d{9}" maxlength="9" placeholder="הכנס 9 ספרות">
   </div>
   <!-- Container for the list of uploaded files -->
   <ul class="file-list" id="fileList"></ul>
@@ -1787,7 +1785,7 @@
         loginOverlay.classList.remove('active');
       } catch (error) {
         console.error('Auth failed:', error);
-        addMessage('שגיאה באימות: ' + error.message);
+        addMessage('שגיאה באימות: ' + error.message, 'error');
       }
     });
 
@@ -1969,10 +1967,19 @@
       }
     });
 
-    // Update questionnaire button handler
+    // Add this at the top of your script with other global variables
+    let answersMap = {};
+
+    // Update the questionnaire button handler
     const questionnaireButton = document.getElementById('questionnaireButton');
     const questionnaireOverlay = document.getElementById('questionnaireOverlay');
     const questionnaireForm = document.getElementById('questionnaireForm');
+
+    // Add this variable at the top of your script to track current year
+    let currentlySelectedTaxYear;
+
+    // Change from const to let for currentYearAnswers
+    let currentYearAnswers;
 
     questionnaireButton.addEventListener('click', async () => {
       try {
@@ -1980,7 +1987,35 @@
           await signInAnonymous();
         }
 
-        // Get questionnaire definitions
+        // Get the answers map
+        const answersResponse = await fetch(`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Accept': 'application/json'
+          },
+          ...fetchConfig
+        });
+
+        if (!answersResponse.ok) {
+          throw new Error(`HTTP error! status: ${answersResponse.status}`);
+        }
+
+        const answersData = await answersResponse.json();
+        // Update the global answersMap
+        answersMap = answersData.answersMapJson ? JSON.parse(answersData.answersMapJson) : {};
+
+        // Set initial current year and get its answers
+        const startYear = 2017;
+        const endYear = 2023;
+        currentlySelectedTaxYear = endYear;  // Use endYear instead of current date year
+        currentYearAnswers = answersMap[endYear]?.answers || {};
+
+        // Log for debugging
+        console.log('Initial answers map:', answersMap);
+        console.log('Current year answers:', currentYearAnswers);
+
+        // Then get questionnaire definitions
         const response = await fetch(`${AUTH_BASE_URL}/getQuestionDefinitions`, {
           method: 'GET',
           headers: {
@@ -1995,7 +2030,6 @@
         }
 
         const questions = await response.json();
-        console.log('Questions:', questions);
         
         // Clear existing questions
         questionnaireForm.innerHTML = '';
@@ -2004,19 +2038,28 @@
         const yearSelect = document.getElementById('taxYear');
         yearSelect.innerHTML = '';
         
-        // Add last 3 years and current year
-        const currentYear = new Date().getFullYear();
-        for (let year = currentYear; year >= currentYear - 3; year--) {
+        // Add supported years (2017-2023)
+        for (let year = endYear; year >= startYear; year--) {
           const option = document.createElement('option');
           option.value = year;
           option.textContent = year;
           yearSelect.appendChild(option);
         }
 
-        // Add questions to form
+        // Set the year selector to match currentlySelectedTaxYear
+        yearSelect.value = currentlySelectedTaxYear;
+        console.log('Set year selector to:', currentlySelectedTaxYear); // Debug log
+
+        // Get answers for the current year if they exist
+        currentYearAnswers = answersMap[currentlySelectedTaxYear]?.answers || {};
+
+        // Create questions and populate with answers
         questions.forEach(question => {
           const questionGroup = document.createElement('div');
           questionGroup.className = 'question-group';
+          questionGroup.setAttribute('data-question', question.name);
+          questionGroup.setAttribute('data-control-type', question.controlType);
+          questionGroup.setAttribute('data-is-pair', question.pair === 'PAIR');
 
           const questionText = document.createElement('div');
           questionText.className = 'question-text';
@@ -2025,6 +2068,8 @@
 
           const controls = document.createElement('div');
           controls.className = 'question-controls';
+          controls.setAttribute('data-control-type', question.controlType);
+          controls.setAttribute('data-is-pair', question.pair === 'PAIR');
 
           switch (question.controlType) {
             case 'ID':
@@ -2120,17 +2165,126 @@
               break;
 
             case 'CHECKBOX':
-              const checkbox = document.createElement('input');
-              checkbox.type = 'checkbox';
-              checkbox.name = question.name;
-              controls.appendChild(checkbox);
+              if (question.pair === 'PAIR') {
+                // Create container for pair of checkboxes
+                const pairContainer = document.createElement('div');
+                pairContainer.className = 'checkbox-pair-container';
+                pairContainer.style.display = 'flex';
+                pairContainer.style.gap = '10px';
+
+                // Partner checkbox
+                const partnerContainer = document.createElement('div');
+                partnerContainer.style.flex = '1';
+                
+                const partnerLabel = document.createElement('label');
+                partnerLabel.textContent = 'בן/בת זוג';
+                partnerLabel.style.display = 'block';
+                partnerLabel.style.marginBottom = '3px';
+                partnerLabel.style.fontSize = '0.9em';
+                
+                const partnerCheckbox = document.createElement('input');
+                partnerCheckbox.type = 'checkbox';
+                partnerCheckbox.name = question.name + '_1';
+
+                // Registered partner checkbox
+                const registeredContainer = document.createElement('div');
+                registeredContainer.style.flex = '1';
+                
+                const registeredLabel = document.createElement('label');
+                registeredLabel.textContent = 'בן זוג רשום';
+                registeredLabel.style.display = 'block';
+                registeredLabel.style.marginBottom = '3px';
+                registeredLabel.style.fontSize = '0.9em';
+                
+                const registeredCheckbox = document.createElement('input');
+                registeredCheckbox.type = 'checkbox';
+                registeredCheckbox.name = question.name + '_2';
+
+                partnerContainer.appendChild(partnerLabel);
+                partnerContainer.appendChild(partnerCheckbox);
+                registeredContainer.appendChild(registeredLabel);
+                registeredContainer.appendChild(registeredCheckbox);
+
+                pairContainer.appendChild(partnerContainer);
+                pairContainer.appendChild(registeredContainer);
+                controls.appendChild(pairContainer);
+              } else {
+                // Single checkbox
+                const container = document.createElement('div');
+                
+                const label = document.createElement('label');
+                label.textContent = 'בן זוג רשום';
+                label.style.display = 'block';
+                label.style.marginBottom = '3px';
+                label.style.fontSize = '0.9em';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.name = question.name;
+
+                container.appendChild(label);
+                container.appendChild(checkbox);
+                controls.appendChild(container);
+              }
               break;
 
             case 'NUMERIC':
-              const input = document.createElement('input');
-              input.type = 'number';
-              input.name = question.name;
-              controls.appendChild(input);
+              if (question.pair === 'PAIR') {
+                // Create container for pair of numeric inputs
+                const pairContainer = document.createElement('div');
+                pairContainer.className = 'numeric-pair-container';
+                pairContainer.style.display = 'flex';
+                pairContainer.style.gap = '10px';
+
+                // Partner numeric input
+                const partnerContainer = document.createElement('div');
+                partnerContainer.style.flex = '1';
+                
+                const partnerLabel = document.createElement('label');
+                partnerLabel.textContent = 'בן/בת זוג';
+                partnerLabel.style.display = 'block';
+                partnerLabel.style.marginBottom = '3px';
+                partnerLabel.style.fontSize = '0.9em';
+                
+                const partnerInput = document.createElement('input');
+                partnerInput.type = 'number';
+                partnerInput.name = question.name + '_1';
+                partnerInput.style.width = '120px';
+                partnerInput.style.padding = '4px 8px';
+
+                // Registered partner numeric input
+                const registeredContainer = document.createElement('div');
+                registeredContainer.style.flex = '1';
+                
+                const registeredLabel = document.createElement('label');
+                registeredLabel.textContent = 'בן זוג רשום';
+                registeredLabel.style.display = 'block';
+                registeredLabel.style.marginBottom = '3px';
+                registeredLabel.style.fontSize = '0.9em';
+                
+                const registeredInput = document.createElement('input');
+                registeredInput.type = 'number';
+                registeredInput.name = question.name + '_2';
+                registeredInput.style.width = '120px';
+                registeredInput.style.padding = '4px 8px';
+
+                partnerContainer.appendChild(partnerLabel);
+                partnerContainer.appendChild(partnerInput);
+                registeredContainer.appendChild(registeredLabel);
+                registeredContainer.appendChild(registeredInput);
+
+                pairContainer.appendChild(partnerContainer);
+                pairContainer.appendChild(registeredContainer);
+                controls.appendChild(pairContainer);
+              } else {
+                // Single numeric input
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.name = question.name;
+                input.style.width = '120px';
+                input.style.padding = '4px 8px';
+                controls.appendChild(input);
+              }
               break;
 
             case 'DATE':
@@ -2209,7 +2363,293 @@
 
           questionGroup.appendChild(controls);
           questionnaireForm.appendChild(questionGroup);
+
+          // After creating all controls for a question, populate with saved answers
+          const savedAnswer = currentYearAnswers[question.name];
+          console.log(`Attempting to populate ${question.name}:`, savedAnswer); // Debug log
+
+          if (savedAnswer) {
+            const controls = questionGroup.querySelector('.question-controls');
+            console.log(`Found controls for ${question.name}:`, controls); // Debug log
+            
+            const controlType = question.controlType;
+            const isPair = question.pair === 'PAIR';
+
+            switch (controlType) {
+              case 'ID':
+                if (isPair) {
+                  const [value1, value2] = savedAnswer.split(',');
+                  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                  console.log(`Found ID inputs for ${question.name}:`, input1, input2); // Debug log
+                  if (input1) {
+                    input1.value = value1 || '';
+                    console.log(`Set ${question.name}_1 to:`, value1);
+                  }
+                  if (input2) {
+                    input2.value = value2 || '';
+                    console.log(`Set ${question.name}_2 to:`, value2);
+                  }
+                } else {
+                  const input = controls.querySelector(`input[name="${question.name}"]`);
+                  console.log(`Found single ID input for ${question.name}:`, input); // Debug log
+                  if (input) {
+                    input.value = savedAnswer;
+                    console.log(`Set ${question.name} to:`, savedAnswer);
+                  }
+                }
+                break;
+
+              case 'DATE':
+                if (isPair) {
+                  const [value1, value2] = savedAnswer.split(',');
+                  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                  if (input1) input1.value = value1 || '';
+                  if (input2) input2.value = value2 || '';
+                } else {
+                  const input = controls.querySelector(`input[name="${question.name}"]`);
+                  if (input) input.value = savedAnswer;
+                }
+                break;
+
+              case 'NUMERIC':
+                if (isPair) {
+                  const [value1, value2] = savedAnswer.split(',');
+                  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                  if (input1) input1.value = value1 === '0' ? '' : value1;
+                  if (input2) input2.value = value2 === '0' ? '' : value2;
+                } else {
+                  const input = controls.querySelector(`input[name="${question.name}"]`);
+                  if (input) input.value = savedAnswer === '0' ? '' : savedAnswer;
+                }
+                break;
+
+              case 'CHECKBOX':
+                if (isPair) {
+                  const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                  const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                  if (checkbox1) checkbox1.checked = savedAnswer === 'partner' || savedAnswer === 'both';
+                  if (checkbox2) checkbox2.checked = savedAnswer === 'registeredPartner' || savedAnswer === 'both';
+                } else {
+                  const checkbox = controls.querySelector(`input[name="${question.name}"]`);
+                  if (checkbox) checkbox.checked = savedAnswer === 'registeredPartner';
+                }
+                break;
+
+              case 'RADIO':
+                const radio = controls.querySelector(`input[value="${savedAnswer}"]`);
+                if (radio) radio.checked = true;
+                break;
+            }
+          }
         });
+
+        // Add debug logging for the answers map and current year answers
+        console.log('Full answers map:', answersMap);
+        console.log('Current year answers:', currentYearAnswers);
+
+        // Add the save button to the form
+        const saveButtonContainer = document.createElement('div');
+        saveButtonContainer.className = 'questionnaire-actions';
+        const saveButton = document.createElement('button');
+        saveButton.type = 'submit';
+        saveButton.className = 'save-button';
+        saveButton.textContent = 'שמור תשובות';
+        saveButtonContainer.appendChild(saveButton);
+        questionnaireForm.appendChild(saveButtonContainer);
+
+        // Add year change handler to load answers for selected year
+        yearSelect.addEventListener('change', () => {
+          const selectedYear = parseInt(yearSelect.value);
+          
+          // If the selected year is different from the currently selected year
+          if (selectedYear !== currentlySelectedTaxYear) {
+            // First save current year's answers to the answersMap
+            const previousYearAnswers = {};
+            
+            questions.forEach(question => {
+              const controls = questionnaireForm.querySelector(
+                `.question-group[data-question="${question.name}"] .question-controls`
+              );
+              
+              if (controls) {
+                const controlType = controls.getAttribute('data-control-type');
+                const isPair = controls.getAttribute('data-is-pair') === 'true';
+                
+                let answer = '';
+                
+                // Get answer from controls using the same logic as form submission
+                switch (controlType) {
+                  case 'ID':
+                    if (isPair) {
+                      const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                      const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                      answer = `${input1.value.trim()},${input2.value.trim()}`;
+                    } else {
+                      const input = controls.querySelector(`input[name="${question.name}"]`);
+                      answer = input.value.trim();
+                    }
+                    break;
+                    
+                  case 'DATE':
+                    if (isPair) {
+                      const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                      const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                      answer = `${input1.value.trim()},${input2.value.trim()}`;
+                    } else {
+                      const input = controls.querySelector(`input[name="${question.name}"]`);
+                      answer = input.value.trim();
+                    }
+                    break;
+                    
+                  case 'NUMERIC':
+                    if (isPair) {
+                      const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                      const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                      const value1 = input1.value.trim() || '0';
+                      const value2 = input2.value.trim() || '0';
+                      answer = `${value1},${value2}`;
+                    } else {
+                      const input = controls.querySelector(`input[name="${question.name}"]`);
+                      answer = input.value.trim() || '0';
+                    }
+                    break;
+                    
+                  case 'CHECKBOX':
+                    if (isPair) {
+                      const partnerCheckbox = controls.querySelector(`input[name="${question.name}_1"]`);
+                      const registeredPartnerCheckbox = controls.querySelector(`input[name="${question.name}_2"]`);
+                      if (registeredPartnerCheckbox.checked && partnerCheckbox.checked) {
+                        answer = 'both';
+                      } else if (registeredPartnerCheckbox.checked) {
+                        answer = 'registeredPartner';
+                      } else if (partnerCheckbox.checked) {
+                        answer = 'partner';
+                      } else {
+                        answer = 'none';
+                      }
+                    } else {
+                      const checkbox = controls.querySelector(`input[name="${question.name}"]`);
+                      answer = checkbox.checked ? 'registeredPartner' : 'none';
+                    }
+                    break;
+                    
+                  case 'RADIO':
+                    const checkedRadio = controls.querySelector('input[type="radio"]:checked');
+                    answer = checkedRadio ? checkedRadio.value : 'none';
+                    break;
+                }
+                
+                previousYearAnswers[question.name] = answer;
+              }
+            });
+
+            // Update answersMap with previous year's answers
+            answersMap[currentlySelectedTaxYear] = {
+              taxYear: currentlySelectedTaxYear,
+              answers: previousYearAnswers
+            };
+
+            // Now update controls with selected year's answers
+            const selectedYearAnswers = answersMap[selectedYear]?.answers || {};
+            
+            questions.forEach(question => {
+              const savedAnswer = selectedYearAnswers[question.name];
+              const controls = questionnaireForm.querySelector(
+                `.question-group[data-question="${question.name}"] .question-controls`
+              );
+              
+              if (controls) {
+                // Update controls using same logic as initial population
+                const controlType = controls.getAttribute('data-control-type');
+                if (savedAnswer) {
+                  switch (controlType) {
+                    case 'ID':
+                      if (question.pair === 'PAIR') {
+                        const [value1, value2] = savedAnswer.split(',');
+                        const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                        if (input1) input1.value = value1 || '';
+                        if (input2) input2.value = value2 || '';
+                      } else {
+                        const input = controls.querySelector(`input[name="${question.name}"]`);
+                        if (input) input.value = savedAnswer;
+                      }
+                      break;
+
+                    case 'DATE':
+                      if (question.pair === 'PAIR') {
+                        const [value1, value2] = savedAnswer.split(',');
+                        const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                        if (input1) input1.value = value1 || '';
+                        if (input2) input2.value = value2 || '';
+                      } else {
+                        const input = controls.querySelector(`input[name="${question.name}"]`);
+                        if (input) input.value = savedAnswer;
+                      }
+                      break;
+
+                    case 'NUMERIC':
+                      if (question.pair === 'PAIR') {
+                        const [value1, value2] = savedAnswer.split(',');
+                        const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                        if (input1) input1.value = value1 === '0' ? '' : value1;
+                        if (input2) input2.value = value2 === '0' ? '' : value2;
+                      } else {
+                        const input = controls.querySelector(`input[name="${question.name}"]`);
+                        if (input) input.value = savedAnswer === '0' ? '' : savedAnswer;
+                      }
+                      break;
+
+                    case 'CHECKBOX':
+                      if (question.pair === 'PAIR') {
+                        const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
+                        if (checkbox1) checkbox1.checked = savedAnswer === 'partner' || savedAnswer === 'both';
+                        if (checkbox2) checkbox2.checked = savedAnswer === 'registeredPartner' || savedAnswer === 'both';
+                      } else {
+                        const checkbox = controls.querySelector(`input[name="${question.name}"]`);
+                        if (checkbox) checkbox.checked = savedAnswer === 'registeredPartner';
+                      }
+                      break;
+
+                    case 'RADIO':
+                      const radio = controls.querySelector(`input[value="${savedAnswer}"]`);
+                      if (radio) radio.checked = true;
+                      break;
+                  }
+                } else {
+                  // Clear controls if no saved answer
+                  clearControls(controls, controlType);
+                }
+              }
+            });
+
+            // Update current year tracker
+            currentlySelectedTaxYear = selectedYear;
+          }
+        });
+
+        // Add helper function to clear controls
+        function clearControls(controls, controlType) {
+          switch (controlType) {
+            case 'ID':
+            case 'DATE':
+            case 'NUMERIC':
+              controls.querySelectorAll('input').forEach(input => input.value = '');
+              break;
+            case 'CHECKBOX':
+              controls.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+              break;
+            case 'RADIO':
+              controls.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+              break;
+          }
+        }
 
         // Show questionnaire dialog
         questionnaireOverlay.classList.add('active');
@@ -2219,6 +2659,9 @@
         addMessage('שגיאה בטעינת השאלון: ' + error.message, 'error');
       }
     });
+
+    // Make sure the form has an ID and method
+    questionnaireForm.setAttribute('method', 'post');
 
     // Close questionnaire on overlay click
     questionnaireOverlay.addEventListener('click', (e) => {
@@ -2232,18 +2675,126 @@
       questionnaireOverlay.classList.remove('active');
     });
 
-    // Handle form submission
+    // Update the questionnaire form submission handler
     questionnaireForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const selectedYear = document.getElementById('taxYear').value;
-      console.log('Selected year:', selectedYear);
-      
-      // TODO: Save answers with selected year
-      console.log('Saving answers for year', selectedYear);
-      
-      questionnaireOverlay.classList.remove('active');
-      addMessage('התשובות נשמרו בהצלחה');
+      try {
+        const selectedYear = document.getElementById('taxYear').value;
+        const yearAnswers = {};
+        
+        // Get all question groups
+        const questionGroups = questionnaireForm.querySelectorAll('.question-group');
+        
+        // First collect all answers for current year
+        questionGroups.forEach(group => {
+          const controls = group.querySelector('.question-controls');
+          const questionName = group.getAttribute('data-question');
+          
+          // Get control type from data attribute
+          const controlType = controls.getAttribute('data-control-type');
+          const isPair = controls.getAttribute('data-is-pair') === 'true';
+          
+          let answer = '';
+          
+          switch (controlType) {
+            case 'ID':
+              if (isPair) {
+                const partnerIdField = controls.querySelector('input[name$="_1"]');
+                const registeredPartnerIdField = controls.querySelector('input[name$="_2"]');
+                answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
+              } else {
+                const idField = controls.querySelector('input');
+                answer = idField.value.trim();
+              }
+              break;
+              
+            case 'DATE':
+              if (isPair) {
+                const partnerDateField = controls.querySelector('input[name$="_1"]');
+                const registeredPartnerDateField = controls.querySelector('input[name$="_2"]');
+                answer = `${partnerDateField.value.trim()},${registeredPartnerDateField.value.trim()}`;
+              } else {
+                const dateField = controls.querySelector('input');
+                answer = dateField.value.trim();
+              }
+              break;
+              
+            case 'NUMERIC':
+              if (isPair) {
+                const partnerNumField = controls.querySelector('input[name$="_1"]');
+                const registeredPartnerNumField = controls.querySelector('input[name$="_2"]');
+                const value1 = partnerNumField.value.trim() || '0';
+                const value2 = registeredPartnerNumField.value.trim() || '0';
+                answer = `${value1},${value2}`;
+              } else {
+                const numField = controls.querySelector('input');
+                answer = numField.value.trim() || '0';
+              }
+              break;
+              
+            case 'CHECKBOX':
+              if (isPair) {
+                const partnerCheckbox = controls.querySelector('input[name$="_1"]');
+                const registeredPartnerCheckbox = controls.querySelector('input[name$="_2"]');
+                if (registeredPartnerCheckbox.checked && partnerCheckbox.checked) {
+                  answer = 'both';
+                } else if (registeredPartnerCheckbox.checked) {
+                  answer = 'registeredPartner';
+                } else if (partnerCheckbox.checked) {
+                  answer = 'partner';
+                } else {
+                  answer = 'none';
+                }
+              } else {
+                const checkbox = controls.querySelector('input');
+                answer = checkbox.checked ? 'registeredPartner' : 'none';
+              }
+              break;
+              
+            case 'RADIO':
+              const checkedRadio = controls.querySelector('input[type="radio"]:checked');
+              answer = checkedRadio ? checkedRadio.value : 'none';
+              break;
+          }
+          
+          yearAnswers[questionName] = answer;
+        });
+
+        // Update the answersMap with the current year's answers while preserving other years
+        answersMap[selectedYear] = {
+          taxYear: parseInt(selectedYear),
+          answers: yearAnswers
+        };
+
+        // Call the API to save answers
+        const response = await fetch(`${API_BASE_URL}/setAnswersMap`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            customerDataEntryName: 'Default',
+            answersMapJson: JSON.stringify(answersMap)  // Send the entire answersMap
+          }),
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Close the questionnaire dialog
+        questionnaireOverlay.classList.remove('active');
+        
+        // Show success message
+        addMessage('התשובות נשמרו בהצלחה', 'info');
+
+      } catch (error) {
+        console.error('Failed to save answers:', error);
+        addMessage('שגיאה בשמירת התשובות: ' + error.message, 'error');
+      }
     });
 
     // Add this with your other event listeners
@@ -2282,6 +2833,110 @@
         taxpayerIdInput.value = savedId;
       }
     });
+
+    // Add this to your existing script
+    const docDetailsModal = document.getElementById('docDetailsModal');
+    const docDetailsClose = docDetailsModal.querySelector('.doc-details-close');
+    const docDetailsTitle = docDetailsModal.querySelector('.doc-details-title');
+    const docDetailsBody = docDetailsModal.querySelector('.doc-details-body');
+
+    // Add click event listener for document items
+    document.querySelectorAll('.doc-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const docType = item.getAttribute('data-doc-type');
+        showDocDetails(docType);
+      });
+    });
+
+    // Add function to show document details
+    function showDocDetails(docType) {
+      // Fetch and display the details for the clicked document
+      // This is a placeholder implementation
+      docDetailsTitle.textContent = docType;
+      docDetailsBody.innerHTML = `Details for ${docType} document will appear here.`;
+      docDetailsModal.classList.add('active');
+    }
+
+    // Add click event listener for close button
+    docDetailsClose.addEventListener('click', () => {
+      docDetailsModal.classList.remove('active');
+    });
+
+    // Add click event listener for document details modal
+    docDetailsModal.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        e.target.classList.remove('active');
+      }
+    });
+
+    // Add this to your script section
+    const docDetails = {
+      form106: {
+        title: 'טופס 106 - פירוט מלא',
+        sections: [
+          {
+            title: 'מה זה טופס 106?',
+            content: 'טופס 106 הוא דיווח שנתי שמנפיק המעסיק לעובד ומפרט את כל התשלומים והניכויים במהלך שנת המס.'
+          },
+          {
+            title: 'מתי מקבלים את הטופס?',
+            content: 'המעסיק חייב להנפיק את הטופס עד סוף חודש מרץ בשנה העוקבת לשנת המס.'
+          },
+          {
+            title: 'מה כולל הטופס?',
+            content: `
+              - פרטי העובד והמעסיק
+              - סך כל ההכנסות מעבודה
+              - ניכויי מס הכנסה
+              - ניכויי ביטוח לאומי
+              - הפרשות לקופות גמל ופנסיה
+              - שווי הטבות ותשלומים נוספים
+            `
+          }
+        ]
+      },
+      // Add similar details for other document types
+    };
+
+    // Add click handlers for document items
+    document.querySelectorAll('.doc-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const docType = item.dataset.docType;
+        const details = docDetails[docType];
+        if (details) {
+          showDocDetails(details);
+        }
+      });
+    });
+
+    function showDocDetails(details) {
+      const modal = document.getElementById('docDetailsModal');
+      const title = modal.querySelector('.doc-details-title');
+      const body = modal.querySelector('.doc-details-body');
+      
+      title.textContent = details.title;
+      
+      body.innerHTML = details.sections.map(section => `
+        <div class="doc-details-section">
+          <h4>${section.title}</h4>
+          <div>${section.content.replace(/\n/g, '<br>')}</div>
+        </div>
+      `).join('');
+      
+      modal.classList.add('active');
+    }
+
+    // Close modal when clicking close button or outside
+    document.querySelector('.doc-details-close').addEventListener('click', () => {
+      document.getElementById('docDetailsModal').classList.remove('active');
+    });
+
+    document.getElementById('docDetailsModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        e.target.classList.remove('active');
+      }
+    });
+
   </script>
 </body>
 </html>
