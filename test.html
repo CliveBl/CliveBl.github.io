@@ -1020,6 +1020,28 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    .tax-results-container {
+      background: var(--bg-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 1px solid var(--border-color);
+      display: none;
+    }
+
+    .tax-results-container.active {
+      display: block;
+    }
+
+    .tax-results-title {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      color: var(--text-color);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -1190,13 +1212,19 @@
   <!-- Add new message container -->
   <div id="messageContainer" class="message-container"></div>
 
-  <!-- Add this HTML right after the message container div -->
+  <!-- Update the results container structure -->
   <div id="resultsContainer" class="results-container">
     <div class="results-title">תוצאות</div>
     <ul id="resultsList" class="results-list"></ul>
     <div class="calculate-tax-container">
       <button id="calculateTaxButton" class="calculate-tax-button">חשב מס</button>
     </div>
+  </div>
+
+  <!-- Add new tax results container -->
+  <div id="taxResultsContainer" class="tax-results-container">
+    <div class="tax-results-title">תוצאות חישוב מס</div>
+    <div id="taxResultsContent"></div>
   </div>
 
   <!-- Add this right after the info-section div -->
@@ -1444,8 +1472,6 @@
 
     // Update window load event to try existing token first and load any existing results
     window.addEventListener('load', async () => {
-
-
       try {
         // If we have a token, try to use it
         if (authToken) {
@@ -1459,6 +1485,8 @@
           await loadExistingFiles();
           await loadResults();
         }
+        // Load stored tax results
+        loadStoredTaxResults();
       } catch (error) {
         debug('Error during initialization:', error);
         // If loading files failed, try anonymous sign in
@@ -1467,6 +1495,7 @@
           await signInAnonymous();
           await loadExistingFiles();
           await loadResults();
+          loadStoredTaxResults();
         }
       }
     });
@@ -2147,7 +2176,7 @@
             content: 'אישורים שנתיים מהמוסדות המפרטים את סכומם ותנאיהם של תרומות מוכרות.'
           },
           {
-            title: 'מתי מקבלים את האישורים?',
+            title: '��תי מקבלים את האישורים?',
             content: 'המוסדות מנפיקים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
           },
           {
@@ -2167,7 +2196,7 @@
             content: 'הוצאות רפואיות חריגות, טיפולים, תרופות ואביזרים רפואיים שלא מכוסים על ידי קופת החולים.'
           },
           {
-            title: 'איזה מסמכים נדרשים?',
+            title: 'איזה מסמכים נ��רשים?',
             content: `
               - קבלות על הוצאות רפואיות
               - אישורים רפואיים המעידים על הצורך בטיפול
@@ -3085,8 +3114,6 @@
           yearAnswers[questionName] = answer;
         });
 
-
-
  
         // Update the answersMap with the current year's answers while preserving other years
         answersMap[selectedYear] = {
@@ -3251,45 +3278,9 @@
         // Show success message
         addMessage('חישוב המס הושלם בהצלחה', 'info');
         
-        // Update results display
-        const resultsList = document.getElementById('resultsList');
-		console.log(result);
-        resultsList.innerHTML = ''; // Clear existing results
-        
-        // Create table
-        const table = document.createElement('table');
-        table.className = 'tax-results-table';
-        
-        // Add table header
-        const thead = document.createElement('thead');
-        thead.innerHTML = `
-          <tr>
-            <th>פרטים</th>
-            <th>בן/בת זוג</th>
-            <th>בן זוג רשום</th>
-            <th>סה"כ</th>
-          </tr>
-        `;
-        table.appendChild(thead);
-        
-        // Add table body
-        const tbody = document.createElement('tbody');
-        result.forEach(row => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${row.title}</td>
-            <td>${row.spouse?.trim() || ''}</td>
-            <td>${row.registered?.trim() || ''}</td>
-            <td>${row.total?.trim() || ''}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-        table.appendChild(tbody);
-        
-        resultsList.appendChild(table);
-        
-        // Show the results container
-        document.getElementById('resultsContainer').classList.add('active');
+        // Store and display results with scroll
+        displayTaxResults(result, true);
+        storeTaxResults(result);
 
       } catch (error) {
         console.error('Calculate tax failed:', error);
@@ -3343,6 +3334,75 @@
         e.target.setCustomValidity('תאריך לא תקין');
       } else {
         e.target.setCustomValidity('');
+      }
+    }
+
+    // Add this function to store tax results
+    function storeTaxResults(results) {
+      try {
+        localStorage.setItem('taxResults', JSON.stringify(results));
+      } catch (error) {
+        console.error('Failed to store tax results:', error);
+      }
+    }
+
+    // Add this function to load stored tax results
+    function loadStoredTaxResults() {
+      try {
+        const storedResults = localStorage.getItem('taxResults');
+        if (storedResults) {
+          const results = JSON.parse(storedResults);
+          displayTaxResults(results);
+        }
+      } catch (error) {
+        console.error('Failed to load stored tax results:', error);
+      }
+    }
+
+    // Add this function to display tax results
+    function displayTaxResults(result, shouldScroll = false) {
+      const taxResultsContent = document.getElementById('taxResultsContent');
+      taxResultsContent.innerHTML = ''; // Clear existing results
+      
+      // Create table
+      const table = document.createElement('table');
+      table.className = 'tax-results-table';
+      
+      // Add table header
+      const thead = document.createElement('thead');
+      thead.innerHTML = `
+        <tr>
+          <th>פרטים</th>
+          <th>בן/בת זוג</th>
+          <th>בן זוג רשום</th>
+          <th>סה"כ</th>
+        </tr>
+      `;
+      table.appendChild(thead);
+      
+      // Add table body
+      const tbody = document.createElement('tbody');
+      result.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.title}</td>
+          <td>${row.spouse?.trim() || ''}</td>
+          <td>${row.registered?.trim() || ''}</td>
+          <td>${row.total?.trim() || ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      
+      taxResultsContent.appendChild(table);
+      document.getElementById('taxResultsContainer').classList.add('active');
+
+      // Only scroll if explicitly requested (i.e., after calculation)
+      if (shouldScroll) {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
       }
     }
   </script>
