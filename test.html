@@ -1072,14 +1072,14 @@
       <div class="questionnaire-content">
         <form id="questionnaireForm" method="post" class="questionnaire-form">
           <div class="year-selector-container">
-            <div class="year-selector">
-              <label for="taxYear">שנת מס:</label>
-              <select id="taxYear" name="taxYear">
-                <!-- Years will be added dynamically -->
-              </select>
-            </div>
-            <button type="submit" class="save-button">שמור תשובות</button>
-          </div>
+        <div class="year-selector">
+          <label for="taxYear">שנת מס:</label>
+          <select id="taxYear" name="taxYear">
+            <!-- Years will be added dynamically -->
+          </select>
+        </div>
+          <button type="submit" class="save-button">שמור תשובות</button>
+        </div>
           <div class="questions-container">
             <!-- Questions will be inserted here dynamically -->
           </div>
@@ -1245,12 +1245,6 @@
       "העיבוד הושלם!"
     ];
 
-    // Add this after all the existing variable declarations
-    const exampleFile = {
-      name: 'large_document.pdf',
-      size: 6291456  // 6MB in bytes
-    };
-
     // Add these cookie utility functions at the start of your script section
     const cookieUtils = {
       set: function(name, value, days = 7) {
@@ -1352,12 +1346,7 @@
       const resultsContainer = document.getElementById('resultsContainer');
       resultsContainer.classList.remove('active');
       document.getElementById('resultsList').innerHTML = '';
-      // Add back the example file
-      addFileToList(
-        exampleFile,
-        'warning',
-        'קובץ גדול מדי - הקובץ חורג ממגבלת 5MB המומלצת. העלאה עשויה להיות איטית.'
-      );
+
       addMessage('התנתקת בהצלחה');
     }
 
@@ -1455,12 +1444,7 @@
 
     // Update window load event to try existing token first and load any existing results
     window.addEventListener('load', async () => {
-      // Add example file
-      addFileToList(
-        exampleFile,
-        'warning',
-        'קובץ גדול מדי - הקובץ חורג ממגבלת 5MB המומלצת. העלאה עשויה להיות איטית.'
-      );
+
 
       try {
         // If we have a token, try to use it
@@ -2151,7 +2135,7 @@
           },
           {
             title: 'למה צריך את האישור?',
-            content: 'האישור נ��רש כדי לקבל זיכוי ממס הכנסה בהתאם ליישוב המגורי.'
+            content: 'האישור נדרש כדי לקבל זיכוי ממס הכנסה בהתאם ליישוב המגורי.'
           }
         ]
       },
@@ -3103,7 +3087,6 @@
 
 
 
-
  
         // Update the answersMap with the current year's answers while preserving other years
         answersMap[selectedYear] = {
@@ -3133,7 +3116,7 @@
         }
 
         // Close the questionnaire dialog
-        questionnaireOverlay.classList.remove('active');
+      questionnaireOverlay.classList.remove('active');
         
         // Show success message
         addMessage('התשובות נשמרו בהצלחה', 'info');
