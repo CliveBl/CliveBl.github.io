@@ -1190,7 +1190,7 @@
           <span class="doc-icon">📊</span>
           <div class="doc-details">
             <h3>אישורי רווח הון</h3>
-            <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך</p>
+            <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
           </div>
         </div>
         <div class="doc-item" data-doc-type="residency">
@@ -1204,7 +1204,21 @@
           <span class="doc-icon">💝</span>
           <div class="doc-details">
             <h3>אישורי תרומות</h3>
-            <p>קבלות על רוות מוסדות מוכרים</p>
+            <p>קבלות על ררומות למוסדות מוכרים</p>
+          </div>
+        </div>
+        <div class="doc-item" data-doc-type="unemployment">
+          <span class="doc-icon">🏛️</span>
+          <div class="doc-details">
+            <h3>דמי אבטלה</h3>
+            <p>אישור מביטוח לאומי על דמי אבטלה</p>
+          </div>
+        </div>
+        <div class="doc-item" data-doc-type="medical">
+          <span class="doc-icon">🏥</span>
+          <div class="doc-details">
+            <h3>הוצאות רפואיות</h3>
+            <p>קבלות על הוצאות רפואיות חריגות</p>
           </div>
         </div>
       </div>
@@ -1212,13 +1226,6 @@
         <button class="more-info-button">עוד מסמכים אפשריים...</button>
         <div class="more-info-content">
           <div class="required-docs">
-            <div class="doc-item" data-doc-type="medical">
-              <span class="doc-icon">🏥</span>
-              <div class="doc-details">
-                <h3>הוצאות רפואיות</h3>
-                <p>קבלות על הוצאות רפואיות חריגות</p>
-              </div>
-            </div>
             <div class="doc-item" data-doc-type="education">
               <span class="doc-icon">🏫</span>
               <div class="doc-details">
@@ -1231,13 +1238,6 @@
               <div class="doc-details">
                 <h3>הוצאות טיפול בילדים</h3>
                 <p>קבלות ממעונות יום או משפחתונים מוכרים לילדים עד גיל 5.</p>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="mortgage">
-              <span class="doc-icon">🏠</span>
-              <div class="doc-details">
-                <h3>משכנתא</h3>
-                <p>אישור על תשלומי ריבית משכנתא</p>
               </div>
             </div>
           </div>
@@ -2221,7 +2221,7 @@
         sections: [
           {
             title: 'מהו אישור תושב?',
-            content: 'אישור מהרשות המקומית המעיד על מגורים ביי��וב המזכה בהטבת מס.'
+            content: 'אישור מהרשות המקומית המעיד על מגורים בייוב המזכה בהטבת מס.'
           },
           {
             title: 'למה צריך את האישור?',
@@ -2300,19 +2300,19 @@
           }
         ]
       },
-      'mortgage': {
-        title: 'משכנתא - פירוט מלא',
+      'unemployment': {
+        title: 'דמי אבטלה - פירוט מלא',
         sections: [
           {
-            title: 'אילו תשלומי משכנתא מוכרים?',
-            content: 'ריבית על משכנתא לדירה ראשונה או דירה יחידה.'
+            title: 'מהם דמי אבטלה?',
+            content: 'תשלום מביטוח לאומי המשולם למובטלים העומדים בתנאי הזכאות.'
           },
           {
             title: 'איזה מסמכים נדרשים?',
             content: `
-              - אישור שנתי מהבנק על תשלומי ריבית משכנתא
-              - חוזה רכישת הדירה
-              - אישור על היות הדירה דירה יחידה
+              - אישור שנתי מביטוח לאומי על דמי אבטלה
+              - פירוט תקופות הזכאות
+              - סכומי התשלומים שהתקבלו
             `
           }
         ]
