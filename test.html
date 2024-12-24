@@ -1188,113 +1188,113 @@
   </div>
 
   <div class="main-container">
-    <div class="header-container">
-      <h1>דו"ח שנתי - עשה זאת עצמך</h1>
-      <button class="login-button">התחברות</button>
-    </div>
+  <div class="header-container">
+    <h1>דו"ח שנתי - עשה זאת עצמך</h1>
+    <button class="login-button">התחברות</button>
+  </div>
 
-    <div class="info-section">
-      <h2>מסמכים נדרשים להשת הדו"ח</h2>
-      <div class="required-docs">
+  <div class="info-section">
+    <h2>מסמכים נדרשים להשת הדו"ח</h2>
+    <div class="required-docs">
         <div class="doc-item" data-doc-type="form106">
-          <span class="doc-icon">📄</span>
-          <div class="doc-details">
-            <h3>טופס 106</h3>
-            <p>תלושי משכורת שנתיים מכל מעסיק</p>
-          </div>
+        <span class="doc-icon">📄</span>
+        <div class="doc-details">
+          <h3>טופס 106</h3>
+          <p>תלושי משכורת שנתיים מכל מעסיק</p>
         </div>
+      </div>
         <div class="doc-item" data-doc-type="capital-gains">
-          <span class="doc-icon">📊</span>
-          <div class="doc-details">
-            <h3>אישורי רווח הון</h3>
+        <span class="doc-icon">📊</span>
+        <div class="doc-details">
+          <h3>אישורי רווח הון</h3>
             <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
-          </div>
         </div>
+      </div>
         <div class="doc-item" data-doc-type="residency">
-          <span class="doc-icon">🏠</span>
-          <div class="doc-details">
-            <h3>אישור תושב</h3>
-            <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
-          </div>
+        <span class="doc-icon">🏠</span>
+        <div class="doc-details">
+          <h3>אישור תושב</h3>
+          <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
         </div>
+      </div>
         <div class="doc-item" data-doc-type="donations">
-          <span class="doc-icon">💝</span>
-          <div class="doc-details">
-            <h3>אישורי תרומות</h3>
+        <span class="doc-icon">💝</span>
+        <div class="doc-details">
+          <h3>אישורי תרומות</h3>
             <p>קבלות על ררומות למוסדות מוכרים</p>
-          </div>
         </div>
-        <div class="doc-item" data-doc-type="unemployment">
+      </div>
+        <div class="doc-item" data-doc-type="national-insurance">
           <span class="doc-icon">🏛️</span>
           <div class="doc-details">
-            <h3>דמי אבטלה</h3>
-            <p>אישור מביטוח לאומי על דמי אבטלה</p>
+            <h3>ביטוח לאומי</h3>
+            <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
           </div>
         </div>
         <div class="doc-item" data-doc-type="medical">
-          <span class="doc-icon">🏥</span>
-          <div class="doc-details">
-            <h3>הוצאות רפואיות</h3>
-            <p>קבלות על הוצאות רפואיות חריגות</p>
+            <span class="doc-icon">🏥</span>
+            <div class="doc-details">
+              <h3>הוצאות רפואיות</h3>
+              <p>קבלות על הוצאות רפואיות חריגות</p>
+            </div>
           </div>
-        </div>
       </div>
       <div class="more-info-container">
         <button class="more-info-button">עוד מסמכים אפשריים...</button>
         <div class="more-info-content">
           <div class="required-docs">
             <div class="doc-item" data-doc-type="education">
-              <span class="doc-icon">🏫</span>
-              <div class="doc-details">
-                <h3>לימודים אקדמאיים</h3>
-                <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
-              </div>
+            <span class="doc-icon">🏫</span>
+            <div class="doc-details">
+              <h3>לימודים אקדמאיים</h3>
+              <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
             </div>
+          </div>
             <div class="doc-item" data-doc-type="childcare">
-              <span class="doc-icon">👶</span>
-              <div class="doc-details">
-                <h3>הוצאות טיפול בילדים</h3>
+            <span class="doc-icon">👶</span>
+            <div class="doc-details">
+              <h3>הוצאות טיפול בילדים</h3>
                 <p>קבלות ממעונות יום או משפחתונים מוכרים לילדים עד גיל 5.</p>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- Add taxpayer ID input after info section -->
-    <div class="taxpayer-input-container">
-      <label for="taxpayerId">מספר זהות של בן הזוג הרשום:</label>
+  </div>
+  <!-- Add taxpayer ID input after info section -->
+  <div class="taxpayer-input-container">
+    <label for="taxpayerId">מספר זהות של בן הזוג הרשום:</label>
       <input type="text" id="taxpayerId" pattern="\d{9}" maxlength="9" placeholder="הכנס 9 ספרות">
-    </div>
-    <!-- Container for the list of uploaded files -->
-    <ul class="file-list" id="fileList"></ul>
+  </div>
+  <!-- Container for the list of uploaded files -->
+  <ul class="file-list" id="fileList"></ul>
 
-    <!-- File input and process button container -->
-    <div class="button-container">
-      <div class="custom-file-input">
-        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg" multiple>
-        <label for="fileInput">העלאת מסמכים...</label>
-        <input type="file" id="folderInput" accept=".pdf,.jpg,.jpeg" webkitdirectory directory multiple>
+  <!-- File input and process button container -->
+  <div class="button-container">
+    <div class="custom-file-input">
+      <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg" multiple>
+      <label for="fileInput">העלאת מסמכים...</label>
+      <input type="file" id="folderInput" accept=".pdf,.jpg,.jpeg" webkitdirectory directory multiple>
         <label for="folderInput">העלאת תיקיי...</label>
-      </div>
-      <div class="action-buttons">
-        <button id="questionnaireButton" class="questionnaire-button">שאלון מקדים</button>
-        <button id="processButton" class="process-button">עיבוד</button>
-        <button id="deleteAllButton" class="delete-all-button">מחק הכל</button>
-      </div>
     </div>
+    <div class="action-buttons">
+      <button id="questionnaireButton" class="questionnaire-button">שאלון מקדים</button>
+      <button id="processButton" class="process-button">עיבוד</button>
+      <button id="deleteAllButton" class="delete-all-button">מחק הכל</button>
+    </div>
+  </div>
 
-    <!-- Add new message container -->
-    <div id="messageContainer" class="message-container"></div>
+  <!-- Add new message container -->
+  <div id="messageContainer" class="message-container"></div>
 
     <!-- Update the results container structure -->
-    <div id="resultsContainer" class="results-container">
-      <div class="results-title">תוצאות</div>
-      <ul id="resultsList" class="results-list"></ul>
+  <div id="resultsContainer" class="results-container">
+    <div class="results-title">תוצאות</div>
+    <ul id="resultsList" class="results-list"></ul>
       <div class="calculate-tax-container">
         <button id="calculateTaxButton" class="calculate-tax-button">חשב מס</button>
       </div>
-    </div>
+  </div>
 
     <!-- Add new tax results container -->
     <div id="taxResultsContainer" class="tax-results-container">
@@ -2262,11 +2262,12 @@
       }
     });
 
-    // At the top with other global variables
+    // Add these variables at the top of your script
+    let cachedQuestions = null;
     let answersMap = {};
     let currentlySelectedTaxYear;
 
-    // Keep only the JavaScript object and event handlers
+    // Keep the docDetails object for hover functionality
     const docDetails = {
       form106: {
         title: 'טופס 106 - פירוט מלא',
@@ -2323,7 +2324,7 @@
           },
           {
             title: 'למה צריך את האישור?',
-            content: 'האישור נדרש כדי לקבל זיכוי ממס הכנסה בהתאם ליישב המגורי.'
+            content: 'האישור נדרש כדי לקבל זיכוי ממס הכנסה בהתאם ליישב המגורים.'
           }
         ]
       },
@@ -2332,7 +2333,7 @@
         sections: [
           {
             title: 'מה הם אישורי תרומות?',
-            content: 'אישורים שנתיים מהמוסדות המפרטים את סכומם ותנאיהם של תרומות מוכרות.'
+            content: 'אישורים שנתיים מהמוסדות המפרטים את סכומי התרומות למוסדות מוכרים.'
           },
           {
             title: 'מתי מקבלים את האישורים?',
@@ -2341,8 +2342,9 @@
           {
             title: 'מה כולל האישור?',
             content: `
-              - סכומם של תרומות מוכרות
-              - תנאיהם של תרומות מוכרות
+              - סכומי התרומות למוסדות מוכרים
+              - פרטי המוסד המוכר
+              - תאריכי התרומות
             `
           }
         ]
@@ -2398,26 +2400,26 @@
           }
         ]
       },
-      'unemployment': {
-        title: 'דמי אבטלה - פירוט מלא',
+      'national-insurance': {
+        title: 'ביטוח לאומי - פירוט מלא',
         sections: [
           {
-            title: 'מהם דמי אבטלה?',
-            content: 'תשלום מביטוח לאומי המשולם למובטלים העומדים בתנאי הזכאות.'
+            title: 'מהו האישור השנתי מביטוח לאומי?',
+            content: 'אישור המפרט את כל התשלומים וההחזרים שהתקבלו מביטוח לאומי במהלך השנה.'
           },
           {
             title: 'איזה מסמכים נדרשים?',
             content: `
-              - אישור שנתי מביטוח לאומי על דמי אבטלה
-              - פירוט תקופות הזכאות
-              - סכומי התשלומים שהתקבלו
+              - אישור שנתי מביטוח לאומי
+              - פירוט כל סוגי התשלומים וההחזרים
+              - סכומים ותאריכי תשלום
             `
           }
         ]
       }
     };
 
-    // Then organize the event listeners
+    // Keep the hover functionality
     document.addEventListener('DOMContentLoaded', () => {
       const docDetailsModal = document.getElementById('docDetailsModal');
       const docDetailsTitle = docDetailsModal.querySelector('.doc-details-title');
@@ -2429,20 +2431,15 @@
           const docType = item.dataset.docType;
           const details = docDetails[docType];
           if (details) {
-            // Get the item bounds
             const itemBounds = item.getBoundingClientRect();
-            const modalWidth = 300;
             
-            // Update modal content
             docDetailsTitle.textContent = details.title;
             docDetailsBody.innerHTML = details.sections.map(section => `
               <h4>${section.title}</h4>
               <p>${section.content}</p>
             `).join('');
             
-            // Position vertically aligned with the hovered item
             docDetailsModal.style.top = `${itemBounds.top}px`;
-            
             docDetailsModal.style.display = 'block';
           }
         });
@@ -2453,7 +2450,8 @@
       });
     });
 
-    questionnaireButton.addEventListener('click', async () => {
+    // Update the questionnaire button click handler
+    document.getElementById('questionnaireButton').addEventListener('click', async () => {
       try {
         if (!authToken) {
           await signInAnonymous();
@@ -2480,11 +2478,7 @@
         }
 
         const answersData = await answersResponse.json();
-        //console.log('Raw answers data:', answersData);
-
-        // The response is already the map we want
         answersMap = answersData;
-        //console.log('Parsed answers map:', answersMap);
 
         // Set initial current year
         const endYear = 2023;
@@ -2492,27 +2486,46 @@
 
         // Use let for currentYearAnswers since we need to update it
         let currentYearAnswers = answersMap[currentlySelectedTaxYear]?.answers || {};
-        //console.log('Initial year answers:', currentYearAnswers);
 
-        // Then get questionnaire definitions
-        const response = await fetch(`${AUTH_BASE_URL}/getQuestionDefinitions`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Accept': 'application/json'
-          },
-          ...fetchConfig
-        });
+        // Get questions from cache or fetch if not cached
+        if (!cachedQuestions) {
+          const response = await fetch(`${AUTH_BASE_URL}/getQuestionDefinitions`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Accept': 'application/json'
+            },
+            ...fetchConfig
+          });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          cachedQuestions = await response.json();
         }
 
-        const questions = await response.json();
+        // Clear the entire form before adding new questions
+        questionnaireForm.innerHTML = '';
         
-        // Clear existing questions
-        const questionsContainer = questionnaireForm.querySelector('.questions-container');
-        questionsContainer.innerHTML = '';
+        // Create year selector container
+        const yearSelectorContainer = document.createElement('div');
+        yearSelectorContainer.className = 'year-selector-container';
+        yearSelectorContainer.innerHTML = `
+          <div class="year-selector">
+            <label for="taxYear">שנת מס:</label>
+            <select id="taxYear" name="taxYear">
+              <!-- Years will be added dynamically -->
+            </select>
+          </div>
+          <button type="submit" class="save-button">שמור תשובות</button>
+        `;
+        questionnaireForm.appendChild(yearSelectorContainer);
+        
+        // Create container for questions
+        const questionsContainer = document.createElement('div');
+        questionsContainer.className = 'questions-container';
+        questionnaireForm.appendChild(questionsContainer);
 
         // Populate year selector
         const yearSelect = document.getElementById('taxYear');
@@ -2530,11 +2543,8 @@
         yearSelect.value = currentlySelectedTaxYear;
         //console.log('Set year selector to:', currentlySelectedTaxYear); // Debug log
 
-        // Get answers for the current year if they exist
-        currentYearAnswers = answersMap[currentlySelectedTaxYear]?.answers || {};
-
         // Create questions and populate with answers
-        questions.forEach(question => {
+        cachedQuestions.forEach(question => {
           const questionGroup = document.createElement('div');
           questionGroup.className = 'question-group';
           questionGroup.setAttribute('data-question', question.name);
@@ -2952,7 +2962,7 @@
             // First save current year's answers to the answersMap
             const previousYearAnswers = {};
             
-            questions.forEach(question => {
+            cachedQuestions.forEach(question => {
               const controls = questionnaireForm.querySelector(
                 `.question-group[data-question="${question.name}"] .question-controls`
               );
@@ -3038,7 +3048,7 @@
             // Now update controls with selected year's answers
             const selectedYearAnswers = answersMap[selectedYear]?.answers || {};
             
-            questions.forEach(question => {
+            cachedQuestions.forEach(question => {
               const savedAnswer = selectedYearAnswers[question.name];
               const controls = questionnaireForm.querySelector(
                 `.question-group[data-question="${question.name}"] .question-controls`
