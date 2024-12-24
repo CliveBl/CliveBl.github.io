@@ -1042,6 +1042,47 @@
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 10px;
     }
+
+    /* Add these styles to your existing <style> section */
+    .cookie-consent {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-color);
+      padding: 15px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      border-top: 1px solid var(--border-color);
+      z-index: 9999;
+    }
+
+    .cookie-consent.active {
+      display: block;
+    }
+
+    .cookie-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .cookie-button {
+      background-color: var(--tax-blue);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .cookie-button:hover {
+      background-color: #2980b9;
+    }
   </style>
 </head>
 <body>
@@ -1240,6 +1281,14 @@
     <div class="loading-spinner">
       <div class="spinner"></div>
       <div>מחשב מס...</div>
+    </div>
+  </div>
+
+  <!-- This line should not be visible in the browser -->
+  <div id="cookieConsent" class="cookie-consent">
+    <div class="cookie-content">
+      <span>אתר זה משתמש בקבצי Cookie כדי לשפר את חווית המשתמש שלך.</span>
+      <button id="acceptCookies" class="cookie-button">אישור</button>
     </div>
   </div>
 
@@ -1470,8 +1519,14 @@
       }
     }
 
-    // Update window load event to try existing token first and load any existing results
+    // Update window load event to include cookie consent check
     window.addEventListener('load', async () => {
+      // Check if user has already accepted cookies
+      const cookiesAccepted = cookieUtils.get('cookiesAccepted');
+      if (!cookiesAccepted) {
+        document.getElementById('cookieConsent').classList.add('active');
+      }
+
       try {
         // If we have a token, try to use it
         if (authToken) {
@@ -2040,29 +2095,26 @@
         });
 
         if (!response.ok) {
-          throw new Error(`Delete failed: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
-        console.log('Delete all response:', result);
-
-        // Clear the file list except for the example file
-        const files = Array.from(fileList.children);
-        files.forEach(file => {
-          if (!file.querySelector('.file-header span').textContent.includes('large_document.pdf')) {
-            fileList.removeChild(file);
-          }
-        });
-
-        // Clear the file ID map
+        // Clear the file list
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
         fileIdMap.clear();
 
-        // Refresh the file list
-        await loadExistingFiles();
+        // Clear tax calculation results from localStorage and UI
+        localStorage.removeItem('taxResults');
+        const taxResultsContent = document.getElementById('taxResultsContent');
+        if (taxResultsContent) {
+          taxResultsContent.innerHTML = '';
+        }
+        document.getElementById('taxResultsContainer').classList.remove('active');
 
+        addMessage('כל הקבצים נמחקו בהצלחה', 'info');
       } catch (error) {
         console.error('Delete all failed:', error);
-        addMessage('שגיאה במחיקת כל הקבצים: ' + error.message, 'error');
+        addMessage('שגיאה במחיקת הקבצים: ' + error.message, 'error');
       }
     });
 
@@ -2176,7 +2228,7 @@
             content: 'אישורים שנתיים מהמוסדות המפרטים את סכומם ותנאיהם של תרומות מוכרות.'
           },
           {
-            title: '��תי מקבלים את האישורים?',
+            title: '��תי מקבלים את הא��שורים?',
             content: 'המוסדות מנפיקים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
           },
           {
@@ -3405,6 +3457,12 @@
         });
       }
     }
+
+    // Add cookie consent button handler
+    document.getElementById('acceptCookies').addEventListener('click', () => {
+      cookieUtils.set('cookiesAccepted', 'true', 365); // Cookie expires in 1 year
+      document.getElementById('cookieConsent').classList.remove('active');
+    });
   </script>
 </body>
 </html>
