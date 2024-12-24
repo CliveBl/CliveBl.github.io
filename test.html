@@ -872,43 +872,60 @@
     }
 
     .doc-details-modal {
+      position: fixed;
       display: none;
-      position: absolute;
       background: var(--bg-color);
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-      max-width: 400px;
       border: 1px solid var(--border-color);
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-      pointer-events: none;
-    }
-
-    .doc-details-modal.active {
-      display: block;
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .doc-details-content {
-      position: relative;
+      border-radius: 8px;
+      padding: 15px;
+      max-width: 300px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
     .doc-details-title {
-      font-size: 1.2em;
-      margin-bottom: 15px;
-      color: var(--text-color);
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .doc-details-section {
-      margin-bottom: 15px;
+    .doc-details-body {
+      font-size: 0.9em;
     }
 
-    .doc-details-section h4 {
+    .doc-details-body h4 {
       color: var(--tax-blue);
-      margin-bottom: 8px;
+      margin: 10px 0 5px 0;
+    }
+
+    .doc-details-body p {
+      margin: 0 0 10px 0;
+      line-height: 1.4;
+    }
+
+    .doc-details-body ul {
+      margin: 5px 0;
+      padding-right: 20px;
+    }
+
+    /* Add styles for the info section container */
+    .info-section {
+      position: relative;
+    }
+
+    /* Update the document item hover behavior */
+    .doc-item {
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .doc-item:hover {
+      background-color: rgba(52, 152, 219, 0.1);
     }
 
     .year-selector-container {
@@ -1258,7 +1275,7 @@
         <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg" multiple>
         <label for="fileInput">העלאת מסמכים...</label>
         <input type="file" id="folderInput" accept=".pdf,.jpg,.jpeg" webkitdirectory directory multiple>
-        <label for="folderInput">העלאת תיקייה...</label>
+        <label for="folderInput">העלאת תיקיי...</label>
       </div>
       <div class="action-buttons">
         <button id="questionnaireButton" class="questionnaire-button">שאלון מקדים</button>
@@ -1296,10 +1313,91 @@
 
   <div id="cookieConsent" class="cookie-consent">
     <div class="cookie-content">
-      <span>אתר זה משתמש בקבצי Cookie כדי לשפר את חווית המשתמש שלך.</span>
+      <span>אר זה משתמש בקבצי Cookie כדי לשפר את חווית המשתמש שלך.</span>
       <button id="acceptCookies" class="cookie-button">אישור</button>
     </div>
   </div>
+
+  <!-- Add this right after the main-container div -->
+  <div id="docDetailsModal" class="doc-details-modal">
+    <div class="doc-details-title"></div>
+    <div class="doc-details-body"></div>
+  </div>
+
+  <!-- Update the CSS for the modal -->
+  <style>
+    .doc-details-modal {
+      position: fixed;
+      display: none;
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      max-width: 300px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .doc-details-title {
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .doc-details-body {
+      font-size: 0.9em;
+    }
+
+    .doc-details-body h4 {
+      color: var(--tax-blue);
+      margin: 10px 0 5px 0;
+    }
+
+    .doc-details-body p {
+      margin: 0 0 10px 0;
+      line-height: 1.4;
+    }
+
+    .doc-details-body ul {
+      margin: 5px 0;
+      padding-right: 20px;
+    }
+  </style>
+
+  <!-- Update the JavaScript event handlers -->
+  <script>
+    document.querySelectorAll('.doc-item').forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        const docType = item.dataset.docType;
+        const details = docDetails[docType];
+        if (details) {
+          const itemBounds = item.getBoundingClientRect();
+          const modalWidth = 300;
+          const docDetailsModal = document.getElementById('docDetailsModal');
+          
+          // Update modal content
+          docDetailsModal.querySelector('.doc-details-title').textContent = details.title;
+          docDetailsModal.querySelector('.doc-details-body').innerHTML = details.sections.map(section => `
+            <h4>${section.title}</h4>
+            <p>${section.content}</p>
+          `).join('');
+          
+          // Position vertically aligned with the hovered item
+          docDetailsModal.style.top = `${itemBounds.top}px`;
+          
+          docDetailsModal.style.display = 'block';
+        }
+      });
+
+      item.addEventListener('mouseleave', () => {
+        docDetailsModal.style.display = 'none';
+      });
+    });
+  </script>
 
   <script>
     // Add these constants at the start of your script section, after DEBUG
@@ -2217,7 +2315,7 @@
         ]
       },
       'residency': {
-        title: 'אישור תושב - פירוט מלא',
+        title: 'אשור תושב - פירוט מלא',
         sections: [
           {
             title: 'מהו אישור תושב?',
@@ -2225,7 +2323,7 @@
           },
           {
             title: 'למה צריך את האישור?',
-            content: 'האישור נדרש כדי לקבל זיכוי ממס הכנסה בהתאם ליישוב המגורי.'
+            content: 'האישור נדרש כדי לקבל זיכוי ממס הכנסה בהתאם ליישב המגורי.'
           }
         ]
       },
@@ -2237,7 +2335,7 @@
             content: 'אישורים שנתיים מהמוסדות המפרטים את סכומם ותנאיהם של תרומות מוכרות.'
           },
           {
-            title: '��תי מקבלים את הא��שורים?',
+            title: 'מתי מקבלים את האישורים?',
             content: 'המוסדות מנפיקים את האישורים עד סוף חודש מרץ בשנה העוקבת.'
           },
           {
@@ -2257,7 +2355,7 @@
             content: 'הוצאות רפואיות חריגות, טיפולים, תרופות ואביזרים רפואיים שלא מכוסים על ידי קופת החולים.'
           },
           {
-            title: 'איזה מסמכים נ��רשים?',
+            title: 'איזה מסמכים נדרשים?',
             content: `
               - קבלות על הוצאות רפואיות
               - אישורים רפואיים המעידים על הצורך בטיפול
@@ -2271,7 +2369,7 @@
         sections: [
           {
             title: 'מה נחשב להוצאות לימודים מוכרות?',
-            content: 'שכר לימוד במוסד אקדמי מוכר לתואר ראש��ן או שני.'
+            content: 'שכר לימוד במוסד אקדמי מוכר לתואר ראשון או שני.'
           },
           {
             title: 'איזה מסמכים נדרשים?',
@@ -2331,58 +2429,29 @@
           const docType = item.dataset.docType;
           const details = docDetails[docType];
           if (details) {
-            // Get the info section bounds
-            const infoSection = document.querySelector('.info-section');
-            const infoSectionRect = infoSection.getBoundingClientRect();
-            const rect = item.getBoundingClientRect();
-            const modalWidth = 400;
+            // Get the item bounds
+            const itemBounds = item.getBoundingClientRect();
+            const modalWidth = 300;
             
-            let leftPos = Math.min(
-              rect.right + 10,
-              infoSectionRect.right - modalWidth - 10
-            );
-            
-            leftPos = Math.max(leftPos, infoSectionRect.left + 10);
-            
-            const viewportHeight = window.innerHeight;
-            let topPos = rect.top;
-            if (topPos + 300 > viewportHeight) {
-              topPos = Math.max(0, viewportHeight - 300);
-            }
-
-            docDetailsModal.style.position = 'fixed';
-            docDetailsModal.style.top = `${topPos}px`;
-            docDetailsModal.style.left = `${leftPos}px`;
-            
+            // Update modal content
             docDetailsTitle.textContent = details.title;
             docDetailsBody.innerHTML = details.sections.map(section => `
-              <div class="doc-details-section">
-                <h4>${section.title}</h4>
-                <div>${section.content.replace(/\n/g, '<br>')}</div>
-              </div>
+              <h4>${section.title}</h4>
+              <p>${section.content}</p>
             `).join('');
             
-            docDetailsModal.classList.add('active');
+            // Position vertically aligned with the hovered item
+            docDetailsModal.style.top = `${itemBounds.top}px`;
+            
+            docDetailsModal.style.display = 'block';
           }
         });
 
-        item.addEventListener('mouseleave', (e) => {
-          const toElement = e.relatedTarget;
-          if (!docDetailsModal.contains(toElement)) {
-            docDetailsModal.classList.remove('active');
-          }
+        item.addEventListener('mouseleave', () => {
+          docDetailsModal.style.display = 'none';
         });
       });
-
-      // Modal hover handlers
-      docDetailsModal.addEventListener('mouseenter', () => {
-        docDetailsModal.classList.add('active');
-      });
-
-      docDetailsModal.addEventListener('mouseleave', () => {
-        docDetailsModal.classList.remove('active');
-      });
-    }); // End of DOMContentLoaded
+    });
 
     questionnaireButton.addEventListener('click', async () => {
       try {
