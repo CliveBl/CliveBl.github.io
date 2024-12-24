@@ -1291,9 +1291,10 @@
   <div id="resultsContainer" class="results-container">
     <div class="results-title">תוצאות</div>
     <ul id="resultsList" class="results-list"></ul>
-      <div class="calculate-tax-container">
-        <button id="calculateTaxButton" class="calculate-tax-button">חשב מס</button>
-      </div>
+  </div>
+
+  <div class="calculate-tax-container">
+	<button id="calculateTaxButton" class="calculate-tax-button">חשב מס</button>
   </div>
 
     <!-- Add new tax results container -->
@@ -2107,6 +2108,39 @@
       }
     }
 
+	function descriptionFromFileName(fileName) {
+		// A filename consists of <name>_<year>.<type>
+		// We want to return a description of the file based on the <name> <year> and <type>
+		// All the names follow a similar format: <name>_<year>.<type>
+		// The possible names are as follows, the year can vary:
+		// TaxAnalysis_2023.xlsx  should return Tax Analysis 2023
+		// 1322_2023_filled.pdf should return Capital Gains Form 1322 2023
+		// 1301_2023.dat should return Data file of 2023 for uploading to the tax authority
+
+		// Split the file name into its components		
+		const parts = fileName.split('_');
+		const name = parts[0];
+		const year = parts[1].split('.')[0];
+		const type = parts[1].split('.')[1];
+
+		// Build the description in Hebrew
+		let description = '';
+		if (name === 'TaxAnalysis') {
+			// Spreadsheet file containing a detailed analysis of the tax situation
+			description = 'קובץ גיליון אלקטרוני המכיל ניתוח מפורט של המצב המס';
+		} else if (name === '1322') {
+			description = 'טופס 1322 - רווח מהון מניירות ערך';
+		} else if (name === '1301') {
+			// Data file containing the annual data for uploading to the tax authority when filing the tax return
+			description = 'קובץ נתונים שנתיים להעלאה אתר מס הכנסה בזמן הגשת דו"ח שנתי';
+		} else {
+			description = 'מסמך נוסף - ' + fileName;
+		}	
+
+		// Return the description
+		return description;
+	}
+
     function displayResults(results) {
       const resultsContainer = document.getElementById('resultsContainer');
       const resultsList = document.getElementById('resultsList');
@@ -2125,15 +2159,15 @@
           const li = document.createElement('li');
           li.className = 'result-item';
 
-          const fileName = document.createElement('span');
-          fileName.textContent = result.file.fileName;
+          const fileDescription = document.createElement('span');
+          fileDescription.textContent = descriptionFromFileName(result.file.fileName);
 
           const downloadButton = document.createElement('button');
           downloadButton.className = 'download-button';
           downloadButton.innerHTML = '⬇️ הורדה';
           downloadButton.addEventListener('click', () => downloadResult(result.file.fileName));
 
-          li.appendChild(fileName);
+          li.appendChild(fileDescription);
           li.appendChild(downloadButton);
           resultsList.appendChild(li);
         }
