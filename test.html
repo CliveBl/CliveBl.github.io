@@ -1119,6 +1119,19 @@
       width: 100%;
       margin-bottom: 20px;
     }
+
+    /* Add styles for disabled state */
+    .custom-file-input label.disabled,
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .custom-file-input input[type="file"]:disabled + label {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background-color: #95a5a6;
+    }
   </style>
 </head>
 <body>
@@ -1272,15 +1285,15 @@
   <!-- File input and process button container -->
   <div class="button-container">
     <div class="custom-file-input">
-      <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg" multiple>
+      <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg" multiple disabled>
       <label for="fileInput">העלאת מסמכים...</label>
-      <input type="file" id="folderInput" accept=".pdf,.jpg,.jpeg" webkitdirectory directory multiple>
+      <input type="file" id="folderInput" accept=".pdf,.jpg,.jpeg" webkitdirectory directory multiple disabled>
         <label for="folderInput">העלאת תיקיי...</label>
     </div>
     <div class="action-buttons">
-      <button id="questionnaireButton" class="questionnaire-button">שאלון מקדים</button>
-      <button id="processButton" class="process-button">עיבוד</button>
-      <button id="deleteAllButton" class="delete-all-button">מחק הכל</button>
+      <button id="questionnaireButton" class="questionnaire-button" disabled>שאלון מקדים</button>
+      <button id="processButton" class="process-button" disabled>עיבוד</button>
+      <button id="deleteAllButton" class="delete-all-button" disabled>מחק הכל</button>
     </div>
   </div>
 
@@ -1291,11 +1304,12 @@
   <div id="resultsContainer" class="results-container">
     <div class="results-title">תוצאות</div>
     <ul id="resultsList" class="results-list"></ul>
-  </div>
-
   <div class="calculate-tax-container">
 	<button id="calculateTaxButton" class="calculate-tax-button">חשב מס</button>
-  </div>
+  </div>  
+</div>
+
+
 
     <!-- Add new tax results container -->
     <div id="taxResultsContainer" class="tax-results-container">
@@ -1577,46 +1591,24 @@
         });
 
         if (!response.ok) {
-          if (response.status === 401) {
-            // Token is invalid, remove it
-            authToken = null;
-            cookieUtils.delete('authToken');
-            throw new Error('Invalid token');
-          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const result = await response.json();
-        //debug('Files info:', result);
-
-        // Clear existing files (except example file)
-        const files = Array.from(fileList.children);
-        files.forEach(file => {
-          if (!file.querySelector('.file-header span').textContent.includes('large_document.pdf')) {
-            fileList.removeChild(file);
-          }
+        updateFileList(result);
+        
+        // Enable all buttons after successful file info retrieval
+        document.getElementById('fileInput').disabled = false;
+        document.getElementById('folderInput').disabled = false;
+        document.getElementById('questionnaireButton').disabled = false;
+        document.getElementById('processButton').disabled = false;
+        document.getElementById('deleteAllButton').disabled = false;
+        
+        // Also enable their labels for better visual feedback
+        document.querySelectorAll('.custom-file-input label').forEach(label => {
+          label.classList.remove('disabled');
         });
 
-        // Add files from server
-        if (Array.isArray(result)) {
-          result.forEach(fileInfo => {
-            if (fileInfo.type === 'FormError') {
-              addFileToList(
-                { name: fileInfo.fileName || 'Unknown file', size: 0 },
-                'error',
-                fileInfo.reason,
-                fileInfo.fileId
-              );
-            } else {
-              addFileToList(
-                { name: fileInfo.fileName, size: 0 },
-                null,
-                `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`,
-                fileInfo.fileId
-              );
-            }
-          });
-        }
       } catch (error) {
         debug('Failed to load files:', error);
         // Only show message if it's not an auth error
