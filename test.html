@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>העלאת קבצים אינטראקטיבית</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAABILAAASCwAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A">
   <!-- CSS Styles -->
   <style>
     /* Add these color variables at the top of the style section */
@@ -1132,6 +1133,22 @@
       cursor: not-allowed;
       background-color: #95a5a6;
     }
+
+    .auth-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .user-email {
+      font-size: 0.9em;
+      color: var(--message-text);
+    }
+    
+    /* Update login button styles */
+    .login-button.logged-in {
+      background-color: #e74c3c;
+    }
   </style>
 </head>
 <body>
@@ -1149,12 +1166,10 @@
           <button class="toggle-button" data-mode="signup">הרשמה</button>
         </div>
 
-        <form class="login-form">
-          <input type="email" placeholder="אימייל" required>
-          <input type="password" placeholder="סיסמה" required>
-          <!-- Add confirm password field (hidden by default) -->
-          <input type="password" id="confirmPassword" placeholder="אימות סיסמה" required class="signup-field" style="display: none;">
-          <button type="submit" class="login-submit" id="submitButton">התחבר</button>
+        <form class="login-form" id="loginForm">
+          <input type="email" id="email" placeholder="דוא״ל" required>
+          <input type="password" id="password" placeholder="סיסמה" required>
+          <button type="submit" id="submitButton">התחבר</button>
         </form>
 
         <div class="login-divider">
@@ -1163,11 +1178,11 @@
 
         <div class="social-login">
           <button class="google-login">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNOSAxOGM0LjQgMCA4LjEtMS40IDEwLjItNC4yTDE1IDE0LjJjLTEuNCAxLTMuMiAxLjYtNiAxLjYtNC42IDAtOC41LTMuMS05LjktNy4zTDIgOS4ydjIuMkE5IDkgMCAwIDAgOSAxOHoiLz48cGF0aCBmaWxsPSIjRkJCQzA1IiBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDlsMy0zLjN6Ii8+PHBhdGggZmlsbD0iI0VBNDMzNSIgZD0iTTkgMy42YzEuMyAwIDIuNS40IDMuNC4xbDEuNi0xLjZDMTIuNS45IDEwLjkgMCA5IDAgNS40IDAgMi4yIDIuMiAxIDUuNGwzIDIuM2MxLjQtNC4yIDUuMy03LjMgOS45LTcuM3oiLz48L3N2Zz4=" alt="Google">
             <span id="googleButtonText">התחבר עם Google</span>
           </button>
           <button class="github-login">
-            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjMjQyOTJlIiBkPSJNMTIgLjI5N2MtNi42MyAwLTEyIDUuMzczLTEyIDEyIDAgNS4zMDMgMy40MzggOS44IDguMjA1IDExLjM4NS42LjExMy44Mi0uMjU4LjgyLS41NzcgMC0uMjg1LS4wMS0xLjA0LS4wMTUtMi4wNC0zLjMzOC43MjQtNC4wNDItMS42MS00LjA0Mi0xLjYxQzQuNDIyIDE4LjA3IDMuNjMzIDE3LjcgMy42MzMgMTcuN2MtMS4wODctLjc0NC4wODQtLjcyOS4wODQtLjcyOSAxLjIwNS4wODQgMS44MzggMS4yMzYgMS44MzggMS4yMzYgMS4wNyAxLjgzNSAyLjgwOSAxLjMwNSAzLjQ5NS45OTguMTA4LS43NzYuNDE3LTEuMzA1Ljc2LTEuNjA1LTIuNjY1LS4zLTUuNDY2LTEuMzMyLTUuNDY2LTUuOTMgMC0xLjMxLjQ2NS0yLjM4IDEuMjM1LTMuMjItLjEzNS0uMzAzLS41NC0xLjUyMy4xMDUtMy4xNzYgMCAwIDEuMDA1LS4zMjIgMy4zIDEuMjMuOTYtLjI2NyAxLjk4LS40IDMtLjQwNXMyLjA0LjEzOCAzIC40MDVjMi4yOC0xLjU1MiAzLjI4NS0xLjIzIDMuMjg1LTEuMjMuNjQ1IDEuNjUzLjI0IDIuODczLjEyIDMuMTc2Ljc2NS44NCAxLjIzIDEuOTEgMS4yMyAzLjIyIDAgNC42MS0yLjgwNSA1LjYyNS01LjQ3NSA1LjkyLjQyLjM2LjgxIDEuMDk2LjgxIDIuMjIgMCAxLjYwNi0uMDE1IDIuODk2LS4wMTUgMy4yODYgMCAuMzE1LjIxLjY5LjgyNS41N0MyMC41NjUgMjIuMDkyIDI0IDE3LjU5MiAyNCAxMi4yOTdjMC02LjYyNy01LjM3My0xMi0xMi0xMiIvPjwvc3ZnPg==" alt="GitHub">
             <span id="githubButtonText">התחבר עם GitHub</span>
           </button>
         </div>
@@ -1203,7 +1218,10 @@
   <div class="main-container">
   <div class="header-container">
     <h1>דו"ח שנתי - עשה זאת עצמך</h1>
-    <button class="login-button">התחברות</button>
+    <div class="auth-container">
+      <span id="userEmail" class="user-email"></span>
+      <button class="login-button">התחברות</button>
+    </div>
   </div>
 
   <div class="info-section">
@@ -1242,7 +1260,7 @@
           <div class="doc-details">
             <h3>ביטוח לאומי</h3>
             <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
-          </div>
+    </div>
         </div>
         <div class="doc-item" data-doc-type="medical">
             <span class="doc-icon">🏥</span>
@@ -1307,7 +1325,7 @@
   <div class="calculate-tax-container">
 	<button id="calculateTaxButton" class="calculate-tax-button">חשב מס</button>
   </div>  
-</div>
+  </div>
 
 
 
@@ -1535,12 +1553,21 @@
       }
     }
 
-    // Add a sign out function
+    // Update the sign out function
     function signOut() {
       authToken = null;
       cookieUtils.delete('authToken');
+      
+      // Update UI to show logged out state
+      const userEmail = document.getElementById('userEmail');
+      const loginButton = document.querySelector('.login-button');
+      userEmail.textContent = '';
+      loginButton.textContent = 'התחברות';
+      loginButton.classList.remove('logged-in');
+      
       // Clear the file list
       fileList.innerHTML = '';
+      
       // Clear results
       const resultsContainer = document.getElementById('resultsContainer');
       resultsContainer.classList.remove('active');
@@ -1853,7 +1880,7 @@
 
       } catch (error) {
         console.error('Authentication failed:', error);
-        addMessage('שגיאה באימות: ' + error.message, 'error');
+        addMessage('שגיאה באימ��ת: ' + error.message, 'error');
       } finally {
         // Restore button text
         folderLabel.innerHTML = originalText;
@@ -1972,7 +1999,11 @@
     const githubButtonText = document.getElementById('githubButtonText');
 
     loginButton.addEventListener('click', () => {
-      loginOverlay.classList.add('active');
+      if (authToken) {
+        signOut();
+      } else {
+        document.getElementById('loginOverlay').classList.add('active');
+      }
     });
 
     closeButton.addEventListener('click', () => {
@@ -2010,16 +2041,14 @@
     });
 
     // Update the login form submit handler
-    loginForm.addEventListener('submit', async (e) => {
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const isSignup = document.querySelector('.toggle-button.active').dataset.mode === 'signup';
-      const email = loginForm.querySelector('input[type="email"]').value;
-      const password = loginForm.querySelector('input[type="password"]').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
       
       try {
-        if (isSignup) {
-          // Handle signup
-          const response = await fetch(`${AUTH_BASE_URL}/register`, {
+        // Call the signIn API
+        const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -2027,19 +2056,45 @@
             body: JSON.stringify({
               email: email,
               password: password
-            })
-          });
-          if (!response.ok) throw new Error('Registration failed');
-          addMessage('נרשמת בהצלחה! אנא התחבר/י');
-        } else {
-          // Handle signin
-          await signIn(email, password);
-          addMessage('התחברת בהצלחה!');
+          }),
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          throw new Error('התחברות נכשלה');
         }
-        loginOverlay.classList.remove('active');
+
+        const data = await response.json();
+        
+        // Store the token
+        authToken = data.token;
+        cookieUtils.set('authToken', authToken);
+
+        // Update UI to show logged in user
+        const userEmail = document.getElementById('userEmail');
+        const loginButton = document.querySelector('.login-button');
+        userEmail.textContent = email;
+        loginButton.textContent = 'התנתק';
+        loginButton.classList.add('logged-in');
+        
+        // Clear stored tax results
+        localStorage.removeItem('taxResults');
+        
+        // Clear tax results display
+        const taxResultsContainer = document.getElementById('taxResultsContainer');
+        const taxResultsContent = document.getElementById('taxResultsContent');
+        taxResultsContainer.classList.remove('active');
+        taxResultsContent.innerHTML = '';
+
+          // Handle signin
+        await loadExistingFiles(); // Load files with new token
+        await loadResults();
+        
+          addMessage('התחברת בהצלחה!');
+        document.getElementById('loginOverlay').classList.remove('active');
       } catch (error) {
-        console.error('Auth failed:', error);
-        addMessage('שגיאה באימות: ' + error.message, 'error');
+        console.error('Login failed:', error);
+        addMessage('שגיאה בהתחברות: ' + error.message, 'error');
       }
     });
 
@@ -2105,9 +2160,9 @@
 		// We want to return a description of the file based on the <name> <year> and <type>
 		// All the names follow a similar format: <name>_<year>.<type>
 		// The possible names are as follows, the year can vary:
-		// TaxAnalysis_2023.xlsx  should return Tax Analysis 2023
-		// 1322_2023_filled.pdf should return Capital Gains Form 1322 2023
-		// 1301_2023.dat should return Data file of 2023 for uploading to the tax authority
+		// TaxAnalysis_2023.xlsx  should return 2023: Tax Analysis
+		// 1322_2023_filled.pdf should return 2023: Capital Gains Form 1322
+		// 1301_2023.dat should return 2023: Data file for uploading to the tax authority
 
 		// Split the file name into its components		
 		const parts = fileName.split('_');
@@ -2119,19 +2174,19 @@
 		let description = '';
 		if (name === 'TaxAnalysis') {
 			// Spreadsheet file containing a detailed analysis of the tax situation
-			description = 'קובץ גיליון אלקטרוני המכיל ניתוח מפורט של המצב המס';
+			description = `${year}: קובץ גיליון אלקטרוני המכיל ניתוח מפורט של המצב המס`;
 		} else if (name === '1322') {
-			description = 'טופס 1322 - רווח מהון מניירות ערך';
+			description = `${year}: טופס 1322 - רווח מהון מניירות ערך`;
 		} else if (name === '1301') {
 			// Data file containing the annual data for uploading to the tax authority when filing the tax return
-			description = 'קובץ נתונים שנתיים להעלאה אתר מס הכנסה בזמן הגשת דו"ח שנתי';
+			description = `${year}: קובץ נתונים שנתיים להעלאה אתר מס הכנסה בזמן הגשת דו"ח שנתי`;
 		} else {
-			description = 'מסמך נוסף - ' + fileName;
+			description = `${year}: מסמך נוסף - ` + fileName;
 		}	
 
 		// Return the description
 		return description;
-	}
+    }
 
     function displayResults(results) {
       const resultsContainer = document.getElementById('resultsContainer');
@@ -2431,14 +2486,14 @@
         sections: [
           {
             title: 'מהו האישור השנתי מביטוח לאומי?',
-            content: 'אישור המפרט את כל התשלומים וההחזרים שהתקבלו מביטוח לאומי במהלך השנה.'
+            content: 'אישו�� המפרט את כל התשלומים וההחזרים שהתקבלו מביטוח לאומי במהלך השנה.'
           },
           {
             title: 'איזה מסמכים נדרשים?',
             content: `
               - אישור שנתי מביטוח לאומי
               - פירוט כל סוגי התשלומים וההחזרים
-              - סכומים ותאריכי תשלום
+              - סכומים ות��ריכי תשלום
             `
           }
         ]
@@ -2515,22 +2570,22 @@
 
         // Get questions from cache or fetch if not cached
         if (!cachedQuestions) {
-          const response = await fetch(`${AUTH_BASE_URL}/getQuestionDefinitions`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${authToken}`,
-              'Accept': 'application/json'
-            },
-            ...fetchConfig
-          });
+        const response = await fetch(`${AUTH_BASE_URL}/getQuestionDefinitions`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Accept': 'application/json'
+          },
+          ...fetchConfig
+        });
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
           cachedQuestions = await response.json();
         }
-
+        
         // Clear the entire form before adding new questions
         questionnaireForm.innerHTML = '';
         
@@ -3576,6 +3631,98 @@
     document.getElementById('acceptCookies').addEventListener('click', () => {
       cookieUtils.set('cookiesAccepted', 'true', 365); // Cookie expires in 1 year
       document.getElementById('cookieConsent').classList.remove('active');
+    });
+
+    // Add this function to initialize auth state
+    async function initializeAuthState() {
+      const storedToken = cookieUtils.get('authToken');
+      if (storedToken) {
+        try {
+          // Verify the token is still valid by making a test request
+          const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=Default`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${storedToken}`,
+              'Accept': 'application/json'
+            },
+            ...fetchConfig
+          });
+
+          if (response.ok) {
+            // Token is valid, update UI
+            authToken = storedToken;
+            const userEmail = document.getElementById('userEmail');
+            const loginButton = document.querySelector('.login-button');
+            
+            // Extract email from token (assuming JWT contains email claim)
+            const tokenPayload = JSON.parse(atob(storedToken.split('.')[1]));
+            userEmail.textContent = tokenPayload.sub; // 'sub' is the email in our JWT
+            loginButton.textContent = 'התנתק';
+            loginButton.classList.add('logged-in');
+          } else {
+            // Token is invalid, clear it
+            cookieUtils.delete('authToken');
+            authToken = null;
+          }
+        } catch (error) {
+          console.error('Failed to verify stored token:', error);
+          cookieUtils.delete('authToken');
+          authToken = null;
+        }
+      }
+    }
+
+    // Setup more info button functionality
+    function setupMoreInfoButton() {
+      const moreInfoButton = document.querySelector('.more-info-button');
+      const content = document.querySelector('.more-info-content');
+      
+      if (moreInfoButton && content) {
+        moreInfoButton.addEventListener('click', function() {
+          this.classList.toggle('active');
+          content.classList.toggle('active');
+        });
+      }
+    }
+
+    // Setup document hover functionality
+    function initializeDocumentHovers() {
+      const docDetailsModal = document.getElementById('docDetailsModal');
+      const docDetailsTitle = docDetailsModal.querySelector('.doc-details-title');
+      const docDetailsBody = docDetailsModal.querySelector('.doc-details-body');
+
+      document.querySelectorAll('.doc-item').forEach(item => {
+        item.addEventListener('mouseenter', () => {
+          const docType = item.dataset.docType;
+          const details = docDetails[docType];
+          if (details) {
+            const itemBounds = item.getBoundingClientRect();
+            docDetailsTitle.textContent = details.title;
+            docDetailsBody.innerHTML = details.sections.map(section => `
+              <h4>${section.title}</h4>
+              <p>${section.content}</p>
+            `).join('');
+            docDetailsModal.style.top = `${itemBounds.top}px`;
+            docDetailsModal.style.display = 'block';
+          }
+        });
+
+        item.addEventListener('mouseleave', () => {
+          docDetailsModal.style.display = 'none';
+        });
+      });
+    }
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initializeAuthState();
+      setupMoreInfoButton();
+      initializeDocumentHovers();
+      
+      // Load existing files if we have a valid token
+      if (authToken) {
+        await loadExistingFiles();
+      }
     });
   </script>
 </body>
