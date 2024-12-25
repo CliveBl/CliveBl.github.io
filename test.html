@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>העלאת קבצים אינטראקטיבית</title>
-  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAABILAAASCwAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A">
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAA...">
   <!-- CSS Styles -->
   <style>
     /* Add these color variables at the top of the style section */
@@ -2283,23 +2284,33 @@
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`Delete failed: ${response.status}`);
         }
 
         // Clear the file list
-        const fileList = document.getElementById('fileList');
         fileList.innerHTML = '';
         fileIdMap.clear();
 
-        // Clear tax calculation results from localStorage and UI
-        localStorage.removeItem('taxResults');
+        // Clear all containers
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsList = document.getElementById('resultsList');
+        const messageContainer = document.getElementById('messageContainer');
+        const taxResultsContainer = document.getElementById('taxResultsContainer');
         const taxResultsContent = document.getElementById('taxResultsContent');
-        if (taxResultsContent) {
-          taxResultsContent.innerHTML = '';
-        }
-        document.getElementById('taxResultsContainer').classList.remove('active');
+        
+        // Hide containers
+        resultsContainer.classList.remove('active');
+        taxResultsContainer.classList.remove('active');
+        
+        // Clear content
+        resultsList.innerHTML = '';
+        messageContainer.innerHTML = '';
+        taxResultsContent.innerHTML = '';
+        
+        // Clear stored results
+        localStorage.removeItem('taxResults');
 
-        addMessage('כל הקבצים נמחקו בהצלחה', 'info');
+        addMessage('כל הקבצים נמחקו בהצלחה');
       } catch (error) {
         console.error('Delete all failed:', error);
         addMessage('שגיאה במחיקת הקבצים: ' + error.message, 'error');
@@ -3342,7 +3353,7 @@
           answers: yearAnswers
         };
 
-
+		answersMapJson = JSON.stringify(answersMap)
 		//console.log('Set answers map:', JSON.stringify(answersMap));
  
         // Call the API to save answers
@@ -3354,7 +3365,7 @@
           },
           body: JSON.stringify({
             customerDataEntryName: 'Default',
-            answersMapJson: JSON.stringify(answersMap)  // Send the entire answersMap
+            answersMapJson: answersMapJson  // Send the entire answersMap
           }),
           ...fetchConfig
         });
@@ -3654,9 +3665,10 @@
             const userEmail = document.getElementById('userEmail');
             const loginButton = document.querySelector('.login-button');
             
-            // Extract email from token (assuming JWT contains email claim)
-            const tokenPayload = JSON.parse(atob(storedToken.split('.')[1]));
-            userEmail.textContent = tokenPayload.sub; // 'sub' is the email in our JWT
+            // Use jwt-decode to extract email
+            const decodedToken = jwt_decode(storedToken);
+            userEmail.textContent = decodedToken.email;
+            
             loginButton.textContent = 'התנתק';
             loginButton.classList.add('logged-in');
           } else {
