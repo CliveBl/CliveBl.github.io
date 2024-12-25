@@ -3476,11 +3476,17 @@
           await signInAnonymous();
         }
 
-        // Get taxpayer ID
-        const taxpayerId = document.getElementById('taxpayerId').value;
-        if (!taxpayerId || taxpayerId.length !== 9) {
-          throw new Error('נדרש מספר זהות תקין של 9 ספרות');
-        }
+		const taxCalcTaxYear = 2023;
+		// // Check if we have a taxpaer ID in the answers map for this year
+		// const answersMap = JSON.parse(localStorage.getItem('answersMap'));
+		// const taxpayerId = answersMap[taxCalcTaxYear]?.answers?.taxpayerId;
+		// if (!taxpayerId || taxpayerId.length !== 9) {
+		// 	// Get taxpayer ID
+		// 	taxpayerId = document.getElementById('taxpayerId').value;
+		// 	if (!taxpayerId || taxpayerId.length !== 9) {
+        //   		throw new Error('נדרש מספר זהות תקין של 9 ספרות');
+        // 	}
+		// }
 
         // Show loading overlay
         document.getElementById('loadingOverlay').classList.add('active');
@@ -3496,7 +3502,7 @@
           },
           body: JSON.stringify({
             customerDataEntryName: 'Default',
-            taxYear: 2023
+            taxYear: taxCalcTaxYear
           }),
           ...fetchConfig
         });
