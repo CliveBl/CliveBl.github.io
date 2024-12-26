@@ -2570,14 +2570,15 @@
         }
 
         const answersData = await answersResponse.json();
-        answersMap = answersData;
+        answersMap = new Map(Object.entries(answersData));
 
         // Set initial current year
         const endYear = 2023;
         currentlySelectedTaxYear = endYear;
 
         // Use let for currentYearAnswers since we need to update it
-        let currentYearAnswers = answersMap[currentlySelectedTaxYear]?.answers || {};
+        let yearAnswers = answersMap.get(currentlySelectedTaxYear.toString());
+        let currentYearAnswers = yearAnswers?.answers || {};
 
         // Get questions from cache or fetch if not cached
         if (!cachedQuestions) {
@@ -2960,7 +2961,11 @@
           questionnaireForm.appendChild(questionGroup);
 
           // After creating all controls for a question, populate with saved answers
-          const savedAnswer = currentYearAnswers[question.name];
+          let savedAnswer = currentYearAnswers[question.name];
+		  if(!savedAnswer)
+		  {
+			savedAnswer = question.defaultAnswer;
+		  }
           //console.log(`Attempting to populate ${question.name}:`, savedAnswer); // Debug log
 
           if (savedAnswer) {
@@ -3034,8 +3039,16 @@
                 break;
 
               case 'RADIO':
-                const radio = controls.querySelector(`input[value="${savedAnswer}"]`);
-                if (radio) radio.checked = true;
+				// The value can be none or one of two values in the tooltip separated by a colon	
+				// We need to check if the value is one of the two values or none
+				const options = question.tooltip.split(':');
+				const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
+				const noButton = controls.querySelector(`input[value="${options[1]}"]`);
+				// Clear the radio buttons
+				controls.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+				// Check the correct radio button
+				if (yesButton) yesButton.checked = savedAnswer === options[0];
+				if (noButton) noButton.checked = savedAnswer === options[1];
                 break;
             }
           }
@@ -3122,26 +3135,44 @@
                     break;
                     
                   case 'RADIO':
-                    const checkedRadio = controls.querySelector('input[type="radio"]:checked');
-                    answer = checkedRadio ? checkedRadio.value : 'none';
+					// The value can be none or one of two values in the tooltip separated by a colon	
+					// We need to calculate the answer based on the radio buttons
+					const options = question.tooltip.split(':');
+					const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
+					const noButton = controls.querySelector(`input[value="${options[1]}"]`);
+					// Check the correct radio button
+					answer = yesButton.checked ? options[0] : noButton.checked ? options[1] : 'none';
                     break;
                 }
                 
-                previousYearAnswers[question.name] = answer;
+				// Only add the answer if it is not the default answer
+                if (question.defaultAnswer !== answer) {
+					previousYearAnswers[question.name] = answer;
+				}
               }
             });
-
-            // Update answersMap with previous year's answers
-            answersMap[currentlySelectedTaxYear] = {
-              taxYear: currentlySelectedTaxYear,
-              answers: previousYearAnswers
-            };
+			// Update answersMap with previous year's answers
+       		answersMap.set(currentlySelectedTaxYear.toString(), {
+          	taxYear: currentlySelectedTaxYear,
+          	answers: previousYearAnswers
+        	});
 
             // Now update controls with selected year's answers
-            const selectedYearAnswers = answersMap[selectedYear]?.answers || {};
+			let selectedYearAnswers;
+            const selectedYearEntry = answersMap.get(selectedYear.toString());
+			if (selectedYearEntry) {
+				selectedYearAnswers = selectedYearEntry.answers;
+			}
             
+			// iterate over the questions
             cachedQuestions.forEach(question => {
-              const savedAnswer = selectedYearAnswers[question.name];
+			  let savedAnswer;
+			  if (selectedYearAnswers) {	
+				savedAnswer = selectedYearAnswers[question.name];
+			  }else{
+				savedAnswer = question.defaultAnswer;
+			  }
+			  // get the controls for the question
               const controls = questionnaireForm.querySelector(
                 `.question-group[data-question="${question.name}"] .question-controls`
               );
@@ -3203,9 +3234,18 @@
                       break;
 
                     case 'RADIO':
-                      const radio = controls.querySelector(`input[value="${savedAnswer}"]`);
-                      if (radio) radio.checked = true;
-                      break;
+						// The value can be none or one of two values in the tooltip separated by a colon	
+						// We need to check if the value is one of the two values or none
+						const options = question.tooltip.split(':');
+						const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
+						const noButton = controls.querySelector(`input[value="${options[1]}"]`);
+						// Clear the radio buttons
+						controls.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+						// Check the correct radio button
+						if (yesButton) yesButton.checked = savedAnswer === options[0];
+						if (noButton) noButton.checked = savedAnswer === options[1];
+						break;
+
                   }
                 } else {
                   // Clear controls if no saved answer
@@ -3265,7 +3305,7 @@
       e.preventDefault();
       
       try {
-      const selectedYear = document.getElementById('taxYear').value;
+        const selectedYear = parseInt(document.getElementById('taxYear').value);
         const yearAnswers = {};
         
         // Get all question groups
@@ -3338,24 +3378,29 @@
               break;
               
             case 'RADIO':
-              const checkedRadio = controls.querySelector('input[type="radio"]:checked');
-              answer = checkedRadio ? checkedRadio.value : 'none';
-              break;
+				// The value can be none or one of two values in the tooltip separated by a colon	
+				// We need to calculate the answer based on the radio buttons
+				// Get the radio buttons by index
+				const yesButton = controls.querySelectorAll('input[type="radio"]')[0];
+				const noButton = controls.querySelectorAll('input[type="radio"]')[1];
+				// Answer is the value of the checked radio button or none
+				answer = yesButton.checked ? yesButton.value : noButton.checked ? noButton.value : 'none';
+				break;
           }
           
           yearAnswers[questionName] = answer;
         });
 
- 
-        // Update the answersMap with the current year's answers while preserving other years
-        answersMap[selectedYear] = {
-          taxYear: parseInt(selectedYear),
+        // Update the Map with the current year's answers
+        answersMap.set(selectedYear.toString(), {
+          taxYear: selectedYear,
           answers: yearAnswers
-        };
+        });
 
-		answersMapJson = JSON.stringify(answersMap)
-		//console.log('Set answers map:', JSON.stringify(answersMap));
- 
+        // Convert Map to object for JSON serialization
+        const answersObject = Object.fromEntries(answersMap);
+        const answersMapJson = JSON.stringify(answersObject);
+
         // Call the API to save answers
         const response = await fetch(`${API_BASE_URL}/setAnswersMap`, {
           method: 'POST',
@@ -3365,7 +3410,7 @@
           },
           body: JSON.stringify({
             customerDataEntryName: 'Default',
-            answersMapJson: answersMapJson  // Send the entire answersMap
+            answersMapJson: answersMapJson
           }),
           ...fetchConfig
         });
@@ -3375,7 +3420,7 @@
         }
 
         // Close the questionnaire dialog
-      questionnaireOverlay.classList.remove('active');
+        questionnaireOverlay.classList.remove('active');
         
         // Show success message
         addMessage('התשובות נשמרו בהצלחה', 'info');
@@ -3742,6 +3787,38 @@
         await loadExistingFiles();
       }
     });
+
+    // Update where we load answers
+    async function loadAnswers(year) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Accept': 'application/json'
+          },
+          ...fetchConfig
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // Clear existing answers and load new ones
+        answersMap.clear();
+        const answers = JSON.parse(data.answersMapJson || '{}');
+        Object.entries(answers).forEach(([key, value]) => {
+          answersMap.set(key, value);
+        });
+
+        return answersMap.get(year) || null;
+      } catch (error) {
+        console.error('Failed to load answers:', error);
+        addMessage('שגיאה בטעינת התשובות: ' + error.message, 'error');
+        return null;
+      }
+    }
   </script>
 </body>
 </html>
