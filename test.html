@@ -113,7 +113,7 @@
       .button-container {
         margin-top: 20px;
         display: flex;
-        gap: 10px;
+        justify-content: space-between;
         align-items: center;
       }
 
@@ -156,11 +156,11 @@
 
       /* Style for the second button */
       .custom-file-input label:nth-of-type(2) {
-        background-color: #2ecc71;
+        background-color: #3498db;
       }
 
       .custom-file-input label:nth-of-type(2):hover {
-        background-color: #27ae60;
+        background-color: #2980b9;
       }
 
       /* Add these new styles */
@@ -506,6 +506,7 @@
       .action-buttons {
         display: flex;
         gap: 10px;
+        align-items: center;
       }
 
       .delete-all-button {
@@ -607,9 +608,9 @@
         color: var(--message-text);
       }
 
-      /* Add questionnaire button styling */
+      /* Update the questionnaire button styling */
       .questionnaire-button {
-        background-color: var(--tax-blue);
+        background-color: #3498db; /* Use the same blue as other buttons */
         color: var(--button-text);
         border: none;
         padding: 5px 15px;
@@ -618,10 +619,6 @@
         display: flex;
         align-items: center;
         gap: 6px;
-      }
-
-      .questionnaire-button::before {
-        content: "📝";
       }
 
       .questionnaire-button:hover {
@@ -965,24 +962,26 @@
         text-align: center;
       }
 
+      /* Add styles for the calculate tax button */
       .calculate-tax-button {
-        background-color: var(--tax-blue);
-        color: white;
+        background-color: #2ecc71;
+        color: var(--button-text);
         border: none;
-        padding: 12px 24px;
-        border-radius: 4px;
-        font-size: 1.1em;
+        padding: 7.5px 22.5px;  /* 50% bigger padding */
+        border-radius: 3px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        font-size: 1.5em;  /* 50% bigger font */
+        min-width: 150px;  /* Ensure minimum width */
       }
 
       .calculate-tax-button:hover {
-        background-color: #2980b9;
+        background-color: #27ae60;
       }
 
       .calculate-tax-button:disabled {
-        background-color: #bdc3c7;
+        opacity: 0.6;
         cursor: not-allowed;
+        background-color: #95a5a6;
       }
 
       .tax-results-table {
@@ -1162,6 +1161,19 @@
       .login-button.logged-in {
         background-color: #e74c3c;
       }
+
+      /* Add styles for button groups */
+      .file-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
     </style>
   </head>
   <body>
@@ -1329,41 +1341,41 @@
 
       <!-- File input and process button container -->
       <div class="button-container">
-        <div class="custom-file-input">
-          <input
-            type="file"
-            id="fileInput"
-            accept=".pdf,.jpg,.jpeg"
-            multiple
-            disabled
-          />
-          <label for="fileInput">העלאת מסמכים...</label>
-          <input
-            type="file"
-            id="folderInput"
-            accept=".pdf,.jpg,.jpeg"
-            webkitdirectory
-            directory
-            multiple
-            disabled
-          />
-          <label for="folderInput">העלאת תיקיי...</label>
+        <div class="file-buttons">
+          <div class="custom-file-input">
+            <input
+              type="file"
+              id="fileInput"
+              accept=".pdf,.jpg,.jpeg"
+              multiple
+              disabled
+            />
+            <label for="fileInput">העלאת מסמכים...</label>
+            <input
+              type="file"
+              id="folderInput"
+              accept=".pdf,.jpg,.jpeg"
+              webkitdirectory
+              directory
+              multiple
+              disabled
+            />
+            <label for="folderInput">העלאת תיקיי...</label>
+          </div>
+          <div class="action-buttons">
+            <button
+              id="questionnaireButton"
+              class="questionnaire-button"
+              disabled
+            >
+              שאלון 
+            </button>
+            <button id="processButton" class="process-button" disabled>
+              עיבוד קבצים
+            </button>
+          </div>
         </div>
-        <div class="action-buttons">
-          <button
-            id="questionnaireButton"
-            class="questionnaire-button"
-            disabled
-          >
-            שאלון מקדים
-          </button>
-          <button id="processButton" class="process-button" disabled>
-            עיבוד
-          </button>
-          <button id="deleteAllButton" class="delete-all-button" disabled>
-            מחק הכל
-          </button>
-        </div>
+        <button id="deleteAllButton" class="delete-all-button">מחק הכל</button>
       </div>
 
       <!-- Add new message container -->
