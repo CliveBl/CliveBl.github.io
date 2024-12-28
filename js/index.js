@@ -293,21 +293,7 @@
         // Add all files from the response
         if (Array.isArray(fileInfoList)) {
           fileInfoList.forEach((fileInfo) => {
-            if (fileInfo.type === "FormError") {
-              addFileToList(
-                { name: fileInfo.fileName || "Unknown file", size: 0 },
-                "error",
-                fileInfo.reason,
-                fileInfo.fileId
-              );
-            } else {
-              addFileToList(
-                { name: fileInfo.fileName, size: 0 },
-                null,
-                `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`,
-                fileInfo.fileId
-              );
-            }
+			addFileToList(fileInfo);
           });
         }
       }
@@ -2244,16 +2230,29 @@ async function uploadFiles(validFiles) {
       });
 
 
-      function addFileToList(fileName, status = null, statusMessage = "", fileId = null) {
+      function addFileToList(fileInfo) {
+		let fileName; 
+		let status;
+		let statusMessage;
+		const fileId = fileInfo.fileId;
+		if (fileInfo.type === "FormError") {
+			fileName = fileInfo.fileName || "Unknown file";
+			status = "error";
+			statusMessage = fileInfo.reason;
+		} else {
+			fileName =  { name: fileInfo.fileName, size: 0 }
+			status = null;
+			statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`;
+		}
+
         const li = document.createElement("li");
         li.className = "file-item";
         if (status) {
           li.classList.add(status);
         }
 
-
-        const fileInfo = document.createElement("div");
-        fileInfo.className = "file-info";
+        const fileInfoElement = document.createElement("div");
+        fileInfoElement.className = "file-info";
 
         const fileHeader = document.createElement("div");
         fileHeader.className = "file-header";
@@ -2277,13 +2276,13 @@ async function uploadFiles(validFiles) {
 
         fileHeader.appendChild(statusIcon);
         fileHeader.appendChild(fileNameElement);
-        fileInfo.appendChild(fileHeader);
+        fileInfoElement.appendChild(fileHeader);
 
         if (statusMessage) {
           const statusMessageSpan = document.createElement("span");
           statusMessageSpan.className = "status-message";
           statusMessageSpan.textContent = statusMessage;
-          fileInfo.appendChild(statusMessageSpan);
+          fileInfoElement.appendChild(statusMessageSpan);
         }
 
         const deleteButton = document.createElement("button");
@@ -2314,7 +2313,7 @@ async function uploadFiles(validFiles) {
           }
         });
 
-        li.appendChild(fileInfo);
+        li.appendChild(fileInfoElement);
         li.appendChild(deleteButton);
         fileList.appendChild(li);
       }
