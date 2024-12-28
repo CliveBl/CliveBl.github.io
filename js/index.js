@@ -205,8 +205,8 @@
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const result = await response.json();
-          updateFileList(result);
+          const fileInfoList = await response.json();
+          updateFileList(fileInfoList);
 
           // Enable all buttons after successful file info retrieval
           document.getElementById("fileInput").disabled = false;
@@ -286,21 +286,13 @@
       }
 
       // Add this function to update the file list from server response
-      function updateFileList(result) {
+      function updateFileList(fileInfoList) {
         // Clear existing files (except example file)
         const files = Array.from(fileList.children);
-        files.forEach((file) => {
-          if (
-            !file
-              .querySelector(".file-header span")
-              .textContent.includes("large_document.pdf")
-          ) {
-            fileList.removeChild(file);
-          }
-        });
+        fileList.innerHTML = '';
         // Add all files from the response
-        if (Array.isArray(result)) {
-          result.forEach((fileInfo) => {
+        if (Array.isArray(fileInfoList)) {
+          fileInfoList.forEach((fileInfo) => {
             if (fileInfo.type === "FormError") {
               addFileToList(
                 { name: fileInfo.fileName || "Unknown file", size: 0 },
@@ -503,9 +495,9 @@ async function uploadFiles(validFiles) {
 				...fetchConfig,
 			});
 
-			const result = await response.json();
-			console.log("Upload response:", result);
-			updateFileList(result);
+			const fileInfoList = await response.json();
+			console.log("Upload response:", fileInfoList);
+			updateFileList(fileInfoList);
 		} catch (error) {
 			console.error("Upload failed:", error);
 			addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
@@ -2252,12 +2244,7 @@ async function uploadFiles(validFiles) {
       });
 
 
-      function addFileToList(
-        file,
-        status = null,
-        statusMessage = "",
-        fileId = null
-      ) {
+      function addFileToList(fileName, status = null, statusMessage = "", fileId = null) {
         const li = document.createElement("li");
         li.className = "file-item";
         if (status) {
@@ -2285,11 +2272,11 @@ async function uploadFiles(validFiles) {
             statusIcon.textContent = "✓";
         }
 
-        const fileName = document.createElement("span");
-        fileName.textContent = file.path || file.name;
+        const fileNameElement = document.createElement("span");
+        fileNameElement.textContent = fileName.path || fileName.name;
 
         fileHeader.appendChild(statusIcon);
-        fileHeader.appendChild(fileName);
+        fileHeader.appendChild(fileNameElement);
         fileInfo.appendChild(fileHeader);
 
         if (statusMessage) {
@@ -2333,9 +2320,7 @@ async function uploadFiles(validFiles) {
       }
 
       // Add this with your other event listeners
-      document
-        .getElementById("calculateTaxButton")
-        .addEventListener("click", async () => {
+      document.getElementById("calculateTaxButton").addEventListener("click", async () => {
           try {
             if (!authToken) {
               await signInAnonymous();
