@@ -298,8 +298,6 @@
             fileList.removeChild(file);
           }
         });
-
- 
         // Add all files from the response
         if (Array.isArray(result)) {
           result.forEach((fileInfo) => {
@@ -324,88 +322,31 @@
 
       // Update file input handler to always use individual uploads
       fileInput.addEventListener("change", async () => {
-        const files = Array.from(fileInput.files);
 
-        try {
-          if (!authToken) {
-            await signInAnonymous();
-          }
+		// Filter out invalid files first
+		const files = Array.from(fileInput.files);
+		const validFiles = files.filter((file) => {
 
-          // Filter out invalid files first
-          const validFiles = files.filter((file) => {
-            if (
-              isInGeneratedTaxFormsFolder(file.webkitRelativePath || file.name)
-            ) {
-              return false;
-            }
+		const validation = isValidFileType(file);
+		if (!validation.valid) {
+			addMessage(validation.message, "error");
+			return false;
+		}
+		return true;
+		});
 
-            const validation = isValidFileType(file);
-            if (!validation.valid) {
-              addMessage(validation.message, "error");
-              return false;
-            }
+		if (validFiles.length === 0) {
+			return;
+		}
 
-            return true;
-          });
-
-          if (validFiles.length === 0) {
-            return;
-          }
-
-          // Upload files one by one
-          for (const file of validFiles) {
-            try {
-              const formData = new FormData();
-              formData.append("file", file);
-
-              const metadata = {
-                customerDataEntryName: "Default",
-              };
-              formData.append(
-                "metadata",
-                new Blob([JSON.stringify(metadata)], {
-                  type: "application/json",
-                })
-              );
-
-              const response = await fetch(`${API_BASE_URL}/uploadFile`, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                },
-                body: formData,
-                ...fetchConfig,
-              });
-
-              const result = await response.json();
-              console.log("Upload response:", result);
-              updateFileList(result);
-    		  addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, 'info'); 
-            } catch (error) {
-              console.error("Upload failed:", error);
-              addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
-            }
-          }
-        } catch (error) {
-          console.error("Authentication failed:", error);
-          addMessage("שגיאה באימות: " + error.message, "error");
-        }
-
-        fileInput.value = "";
-      });
+		await uploadFilesWithButtonProgress(validFiles, fileInput);
+      });	
 
       // Update folder upload handler to always use individual uploads
       folderInput.addEventListener("change", async () => {
         const files = Array.from(folderInput.files);
-        const folderLabel = folderInput.nextElementSibling;
-        const originalText = folderLabel.textContent;
 
-        try {
-          if (!authToken) {
-            await signInAnonymous();
-          }
-
-          // Sort and filter files
+           // Sort and filter files
           const validFiles = files
             .sort((a, b) => {
               const pathA = a.webkitRelativePath || a.name;
@@ -434,55 +375,8 @@
             return;
           }
 
-          // Show uploading status in button
-          folderLabel.innerHTML = "⏳ מעלה...";
-          folderLabel.classList.add("uploading");
-
-          // Upload files one by one
-          for (const file of validFiles) 
-		  {
-            try {
-              const formData = new FormData();
-              formData.append("file", file);
-
-              const metadata = {
-                customerDataEntryName: "Default",
-              };
-              formData.append(
-                "metadata",
-                new Blob([JSON.stringify(metadata)], {
-                  type: "application/json",
-                })
-              );
-
-              const response = await fetch(`${API_BASE_URL}/uploadFile`, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                },
-                body: formData,
-                ...fetchConfig,
-              });
-
-              const result = await response.json();
-              console.log("Upload response:", result);
-              updateFileList(result);
-            } catch (error) {
-              console.error("Upload failed:", error);
-              addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
-            }
-          }
-  		  addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, 'info'); 
-        } catch (error) {
-          console.error("Authentication failed:", error);
-          addMessage("שגיאה באימות: " + error.message, "error");
-        } finally {
-          // Restore button text
-          folderLabel.innerHTML = originalText;
-          folderLabel.classList.remove("uploading");
-         folderInput.value = "";
-        }
-      });
+		  await uploadFilesWithButtonProgress(validFiles, folderInput);
+		});	
 
       // Update the process button handler
       processButton.addEventListener("click", async () => {
@@ -558,6 +452,67 @@
           }
         }
       });
+
+async function uploadFilesWithButtonProgress(validFiles, button) {
+	const buttonLabel = button.nextElementSibling;
+	const originalText = buttonLabel.textContent;
+
+	buttonLabel.innerHTML = "⏳ מעלה...";
+	buttonLabel.classList.add("uploading");
+
+	try {
+		if (!authToken) {
+			await signInAnonymous();
+		}
+
+		// Upload files one by one
+		await uploadFiles(validFiles);
+	} catch (error) {
+		console.error("Authentication failed:", error);
+		addMessage("שגיאה באימות: " + error.message, "error");
+	} finally {
+		// Restore button text
+		buttonLabel.innerHTML = originalText;
+		buttonLabel.classList.remove("uploading");
+		button.value = "";
+	}
+}
+
+async function uploadFiles(validFiles) {
+	for (const file of validFiles) {
+		try {
+			const formData = new FormData();
+			formData.append("file", file);
+
+			const metadata = {
+				customerDataEntryName: "Default",
+			};
+			formData.append(
+				"metadata",
+				new Blob([JSON.stringify(metadata)], {
+					type: "application/json",
+				})
+			);
+
+			const response = await fetch(`${API_BASE_URL}/uploadFile`, {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${authToken}`,
+				},
+				body: formData,
+				...fetchConfig,
+			});
+
+			const result = await response.json();
+			console.log("Upload response:", result);
+			updateFileList(result);
+		} catch (error) {
+			console.error("Upload failed:", error);
+			addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
+		}
+	}
+	addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, 'info');
+}
 
       // Update addMessage function to handle message types
       function addMessage(text, type = "info") {
