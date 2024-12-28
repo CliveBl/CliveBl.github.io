@@ -299,13 +299,7 @@
           }
         });
 
-        // Clear the file ID map (except example file)
-        for (const [name, id] of fileIdMap.entries()) {
-          if (!name.includes("large_document.pdf")) {
-            fileIdMap.delete(name);
-          }
-        }
-
+ 
         // Add all files from the response
         if (Array.isArray(result)) {
           result.forEach((fileInfo) => {
@@ -386,6 +380,7 @@
               const result = await response.json();
               console.log("Upload response:", result);
               updateFileList(result);
+    		  addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, 'info'); 
             } catch (error) {
               console.error("Upload failed:", error);
               addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
@@ -444,7 +439,8 @@
           folderLabel.classList.add("uploading");
 
           // Upload files one by one
-          for (const file of validFiles) {
+          for (const file of validFiles) 
+		  {
             try {
               const formData = new FormData();
               formData.append("file", file);
@@ -476,14 +472,15 @@
               addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
             }
           }
+  		  addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, 'info'); 
         } catch (error) {
           console.error("Authentication failed:", error);
-          addMessage("שגיאה באימ��ת: " + error.message, "error");
+          addMessage("שגיאה באימות: " + error.message, "error");
         } finally {
           // Restore button text
           folderLabel.innerHTML = originalText;
           folderLabel.classList.remove("uploading");
-          folderInput.value = "";
+         folderInput.value = "";
         }
       });
 
@@ -584,6 +581,12 @@
         messageDiv.appendChild(messageText);
         messageDiv.appendChild(dismissButton);
         messageContainer.appendChild(messageDiv);
+		
+		// Scroll to the bottom of the page
+		window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth",
+          });
       }
 
       // Add this to your existing script
@@ -1940,7 +1943,6 @@
 
           // Clear the file list
           fileList.innerHTML = "";
-          fileIdMap.clear();
 
           // Clear all containers
           const resultsContainer = document.getElementById("resultsContainer");
@@ -2294,8 +2296,6 @@
         }
       });
 
-      // Add this at the start of your script
-      const fileIdMap = new Map(); // Store file IDs for deletion
 
       function addFileToList(
         file,
@@ -2309,10 +2309,6 @@
           li.classList.add(status);
         }
 
-        // Store the fileId in our map
-        if (fileId) {
-          fileIdMap.set(file.name, fileId);
-        }
 
         const fileInfo = document.createElement("div");
         fileInfo.className = "file-info";
@@ -2354,8 +2350,6 @@
         deleteButton.title = "מחק";
         deleteButton.addEventListener("click", async () => {
           try {
-            const fileId = fileIdMap.get(file.name);
-            if (fileId) {
               const response = await fetch(
                 `${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`,
                 {
@@ -2372,8 +2366,6 @@
               }
 
               fileList.removeChild(li);
-              fileIdMap.delete(file.name);
-            }
           } catch (error) {
             console.error("Delete failed:", error);
             addMessage("שגיאה במחיקת הקובץ: " + error.message, "error");
@@ -2618,18 +2610,6 @@
         }
       }
 
-      // Setup more info button functionality
-      function setupMoreInfoButton() {
-        const moreInfoButton = document.querySelector(".more-info-button");
-        const content = document.querySelector(".more-info-content");
-
-        if (moreInfoButton && content) {
-          moreInfoButton.addEventListener("click", function () {
-            this.classList.toggle("active");
-            content.classList.toggle("active");
-          });
-        }
-      }
 
       // Setup document hover functionality
       function initializeDocumentHovers() {
@@ -2668,7 +2648,6 @@
       // Initialize when DOM is ready
       document.addEventListener("DOMContentLoaded", async () => {
         await initializeAuthState();
-        //setupMoreInfoButton();
         initializeDocumentHovers();
 
         // Check if the questionnaire was open or closed last time
