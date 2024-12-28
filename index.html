@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<!-- Set language to Hebrew -->
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>העלאת קבצים אינטראקטיבית</title>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="data:image/x-icon;base64,AAA..."
+    />
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="css/index.css" />
+  </head>
+  <body>
+    <!-- Login and questionnaire overlays stay outside main container -->
+    <div id="loginOverlay" class="login-overlay">
+      <div class="login-modal">
+        <div class="login-header">
+          <h2 id="modalTitle">התחברות</h2>
+          <button class="close-button">✕</button>
+        </div>
+        <div class="login-options">
+          <!-- Add mode toggle buttons -->
+          <div class="mode-toggle">
+            <button class="toggle-button active" data-mode="signin">
+              התחברות
+            </button>
+            <button class="toggle-button" data-mode="signup">הרשמה</button>
+          </div>
+
+          <form class="login-form" id="loginForm">
+            <input type="email" id="email" placeholder="דוא״ל" required />
+            <input type="password" id="password" placeholder="סיסמה" required />
+            <button type="submit" id="submitButton">התחבר</button>
+          </form>
+
+          <div class="login-divider">
+            <span>או</span>
+          </div>
+
+          <div class="social-login">
+            <button class="google-login">
+              <img
+                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNOSAxOGM0LjQgMCA4LjEtMS40IDEwLjItNC4yTDE1IDE0LjJjLTEuNCAxLTMuMiAxLjYtNiAxLjYtNC42IDAtOC41LTMuMS05LjktNy4zTDIgOS4ydjIuMkE5IDkgMCAwIDAgOSAxOHoiLz48cGF0aCBmaWxsPSIjRkJCQzA1IiBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDlsMy0zLjN6Ii8+PHBhdGggZmlsbD0iI0VBNDMzNSIgZD0iTTkgMy42YzEuMyAwIDIuNS40IDMuNC4xbDEuNi0xLjZDMTIuNS45IDEwLjkgMCA5IDAgNS40IDAgMi4yIDIuMiAxIDUuNGwzIDIuM2MxLjQtNC4yIDUuMy03LjMgOS45LTcuM3oiLz48L3N2Zz4="
+                alt="Google"
+              />
+              <span id="googleButtonText">התחבר עם Google</span>
+            </button>
+            <button class="github-login">
+              <img
+                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjMjQyOTJlIiBkPSJNMTIgLjI5N2MtNi42MyAwLTEyIDUuMzczLTEyIDEyIDAgNS4zMDMgMy40MzggOS44IDguMjA1IDExLjM4NS42LjExMy44Mi0uMjU4LjgyLS41NzcgMC0uMjg1LS4wMS0xLjA0LS4wMTUtMi4wNC0zLjMzOC43MjQtNC4wNDItMS42MS00LjA0Mi0xLjYxQzQuNDIyIDE4LjA3IDMuNjMzIDE3LjcgMy42MzMgMTcuN2MtMS4wODctLjc0NC4wODQtLjcyOS4wODQtLjcyOSAxLjIwNS4wODQgMS44MzggMS4yMzYgMS44MzggMS4yMzYgMS4wNyAxLjgzNSAyLjgwOSAxLjMwNSAzLjQ5NS45OTguMTA4LS43NzYuNDE3LTEuMzA1Ljc2LTEuNjA1LTIuNjY1LS4zLTUuNDY2LTEuMzMyLTUuNDY2LTUuOTMgMC0xLjMxLjQ2NS0yLjM4IDEuMjM1LTMuMjItLjEzNS0uMzAzLS41NC0xLjUyMy4xMDUtMy4xNzYgMCAwIDEuMDA1LS4zMjIgMy4zIDEuMjMuOTYtLjI2NyAxLjk4LS40IDMtLjQwNXMyLjA0LjEzOCAzIC40MDVjMi4yOC0xLjU1MiAzLjI4NS0xLjIzIDMuMjg1LTEuMjMuNjQ1IDEuNjUzLjI0IDIuODczLjEyIDMuMTc2Ljc2NS44NCAxLjIzIDEuOTEgMS4yMyAzLjIyIDAgNC42MS0yLjgwNSA1LjYyNS01LjQ3NSA1LjkyLjQyLjM2LjgxIDEuMDk2LjgxIDIuMjIgMCAxLjYwNi0uMDE1IDIuODk2LS4wMTUgMy4yODYgMCAuMzE1LjIxLjY5LjgyNS41N0MyMC41NjUgMjIuMDkyIDI0IDE3LjU5MiAyNCAxMi4yOTdjMC02LjYyNy01LjM3My0xMi0xMi0xMiIvPjwvc3ZnPg=="
+                alt="GitHub"
+              />
+              <span id="githubButtonText">התחבר עם GitHub</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="questionnaireOverlay" class="questionnaire-overlay">
+      <div class="questionnaire-modal">
+        <div class="questionnaire-header">
+          <h2>שאלון מקדים</h2>
+          <button class="close-button">✕</button>
+        </div>
+        <div class="questionnaire-content">
+          <form id="questionnaireForm" method="post" class="questionnaire-form">
+            <div class="year-selector-container">
+              <div class="year-selector">
+                <label for="taxYear">שנת מס:</label>
+                <select id="taxYear" name="taxYear">
+                  <!-- Years will be added dynamically -->
+                </select>
+              </div>
+              <button type="submit" class="save-button">שמור תשובות</button>
+            </div>
+            <div class="questions-container">
+              <!-- Questions will be inserted here dynamically -->
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-container">
+      <div class="header-container">
+        <h1>דו"ח שנתי - עשה זאת עצמך</h1>
+        <div class="auth-container">
+          <span id="userEmail" class="user-email"></span>
+          <button class="login-button">התחברות</button>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h2>מסמכים נדרשים להשת הדו"ח</h2>
+        <div class="required-docs">
+          <div class="doc-item" data-doc-type="form106">
+            <span class="doc-icon">📄</span>
+            <div class="doc-details">
+              <h3>טופס 106</h3>
+              <p>תלושי משכורת שנתיים מכל מעסיק</p>
+            </div>
+          </div>
+          <div class="doc-item" data-doc-type="capital-gains">
+            <span class="doc-icon">📊</span>
+            <div class="doc-details">
+              <h3>אישורי רווח הון</h3>
+              <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
+            </div>
+          </div>
+          <div class="doc-item" data-doc-type="residency">
+            <span class="doc-icon">🏠</span>
+            <div class="doc-details">
+              <h3>אישור תושב</h3>
+              <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
+            </div>
+          </div>
+          <div class="doc-item" data-doc-type="donations">
+            <span class="doc-icon">💝</span>
+            <div class="doc-details">
+              <h3>אישורי תרומות</h3>
+              <p>קבלות על ררומות למוסדות מוכרים</p>
+            </div>
+          </div>
+          <div class="doc-item" data-doc-type="national-insurance">
+            <span class="doc-icon">🏛️</span>
+            <div class="doc-details">
+              <h3>ביטוח לאומי</h3>
+              <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
+            </div>
+          </div>
+          <div class="doc-item" data-doc-type="medical">
+            <span class="doc-icon">🏥</span>
+            <div class="doc-details">
+              <h3>הוצאות רפואיות</h3>
+              <p>קבלות על הוצאות רפואיות חריגות</p>
+            </div>
+          </div>
+        </div>
+        <div class="more-info-container">
+          <button class="more-info-button">עוד מסמכים אפשריים...</button>
+          <div class="more-info-content">
+            <div class="required-docs">
+              <div class="doc-item" data-doc-type="education">
+                <span class="doc-icon">🏫</span>
+                <div class="doc-details">
+                  <h3>לימודים אקדמאיים</h3>
+                  <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="childcare">
+                <span class="doc-icon">👶</span>
+                <div class="doc-details">
+                  <h3>הוצאות טיפול בילדים</h3>
+                  <p>קבלות ממעונות יום או משפחתונים מוכרים לילדים עד גיל 5.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Add taxpayer ID input after info section -->
+      <div class="taxpayer-input-container">
+        <label for="taxpayerId">מספר זהות של בן הזוג הרשום:</label>
+        <input
+          type="text"
+          id="taxpayerId"
+          pattern="\d{9}"
+          maxlength="9"
+          placeholder="הכנס 9 ספרות"
+        />
+      </div>
+      <!-- Container for the list of uploaded files -->
+      <ul class="file-list" id="fileList"></ul>
+
+      <!-- File input and process button container -->
+      <div class="button-container">
+        <div class="file-buttons">
+          <div class="custom-file-input">
+            <input
+              type="file"
+              id="fileInput"
+              accept=".pdf,.jpg,.jpeg"
+              multiple
+              disabled
+            />
+            <label for="fileInput">העלאת מסמכים...</label>
+            <input
+              type="file"
+              id="folderInput"
+              accept=".pdf,.jpg,.jpeg"
+              webkitdirectory
+              directory
+              multiple
+              disabled
+            />
+            <label for="folderInput">העלאת תיקיי...</label>
+          </div>
+          <div class="action-buttons">
+            <button
+              id="questionnaireButton"
+              class="questionnaire-button"
+              disabled
+            >
+              שאלון
+            </button>
+            <button id="processButton" class="process-button" disabled>
+              עיבוד קבצים
+            </button>
+          </div>
+        </div>
+        <button id="deleteAllButton" class="delete-all-button">מחק הכל</button>
+      </div>
+
+      <div id="questionnaireContainer" class="questionnaire-container"></div>
+      <!-- Add new message container -->
+      <div id="messageContainer" class="message-container"></div>
+
+      <!-- Update the results container structure -->
+      <div id="resultsContainer" class="results-container">
+        <div class="results-title">תוצאות</div>
+        <ul id="resultsList" class="results-list"></ul>
+        <div class="calculate-tax-container">
+          <button id="calculateTaxButton" class="calculate-tax-button">
+            חשב מס
+          </button>
+        </div>
+      </div>
+
+      <!-- Add new tax results container -->
+      <div id="taxResultsContainer" class="tax-results-container">
+        <div class="tax-results-title">תוצאות חישוב מס</div>
+        <div id="taxResultsContent"></div>
+      </div>
+    </div>
+
+    <!-- Loading overlay and cookie consent stay outside main container -->
+    <div id="loadingOverlay" class="loading-overlay">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <div>מחשב מס...</div>
+      </div>
+    </div>
+
+    <div id="cookieConsent" class="cookie-consent">
+      <div class="cookie-content">
+        <span>אר זה משתמש בקבצי Cookie כדי לשפר את חווית המשתמש שלך.</span>
+        <button id="acceptCookies" class="cookie-button">אישור</button>
+      </div>
+    </div>
+
+    <!-- Add this right after the main-container div -->
+    <div id="docDetailsModal" class="doc-details-modal">
+      <div class="doc-details-title"></div>
+      <div class="doc-details-body"></div>
+    </div>
+
+	<script src="js/index.js"></script>
+	
+
+  </body>
+</html>

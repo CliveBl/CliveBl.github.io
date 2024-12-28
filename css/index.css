@@ -1,0 +1,1203 @@
+      /* Add these color variables at the top of the style section */
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #000000;
+        --border-color: #ccc;
+        --item-bg: #f8f9fa;
+        --warning-bg: #fef9e7;
+        --error-bg: #fde9e7;
+        --default-border: #95a5a6;
+        --warning-border: #f1c40f;
+        --error-border: #e74c3c;
+        --warning-text: #b7950b;
+        --error-text: #c0392b;
+        --button-text: white;
+        --message-text: #666;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-color: #1a1a1a;
+          --text-color: #ffffff;
+          --border-color: #404040;
+          --item-bg: #2d2d2d;
+          --warning-bg: #3d3415;
+          --error-bg: #3d1f1d;
+          --default-border: #606060;
+          --warning-border: #b7950b;
+          --error-border: #c0392b;
+          --warning-text: #f1c40f;
+          --error-text: #e74c3c;
+          --button-text: #ffffff;
+          --message-text: #b0b0b0;
+        }
+      }
+
+      /* Update existing styles to use variables */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        direction: rtl;
+        text-align: right;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      /* Add main container */
+      .main-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Remove default list styling */
+      .file-list {
+        list-style: none;
+        padding: 0;
+      }
+      /* Style for each file item container */
+      .file-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        padding: 6px 8px;
+        margin-bottom: 6px;
+        border-left: none; /* Remove default left border */
+        border-right: 4px solid var(--default-border); /* Default gray border */
+        background-color: var(--item-bg);
+      }
+      /* File name styling */
+      .file-item span {
+        flex-grow: 1;
+        margin-left: 0;
+        margin-right: 10px;
+      }
+      /* Delete button styling */
+      .delete-button {
+        background-color: #e74c3c;
+        color: var(--button-text);
+        border: none;
+        padding: 4px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+      }
+      /* Delete button hover effect */
+      .delete-button:hover {
+        background-color: #c0392b;
+      }
+      /* Add these new styles */
+      .button-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .process-button {
+        background-color: #2ecc71;
+        color: var(--button-text);
+        border: none;
+        padding: 5px 15px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      .process-button:hover {
+        background-color: #27ae60;
+      }
+
+      /* Style for custom file input */
+      .custom-file-input {
+        display: flex;
+        gap: 10px;
+      }
+
+      .custom-file-input input[type="file"] {
+        display: none;
+      }
+
+      .custom-file-input label {
+        background-color: #3498db;
+        color: var(--button-text);
+        padding: 5px 15px;
+        border-radius: 3px;
+        cursor: pointer;
+        display: inline-block;
+        transition: background-color 0.2s;
+      }
+
+      .custom-file-input label:hover {
+        background-color: #2980b9;
+      }
+
+      /* Style for the second button */
+      .custom-file-input label:nth-of-type(2) {
+        background-color: #3498db;
+      }
+
+      .custom-file-input label:nth-of-type(2):hover {
+        background-color: #2980b9;
+      }
+
+      /* Add these new styles */
+      .message-container {
+        margin-top: 20px;
+      }
+
+      .message-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: var(--item-bg);
+        border-right: 4px solid var(--default-border);
+        border-radius: 3px;
+      }
+
+      .message-text {
+        flex-grow: 1;
+        margin-right: 0;
+        margin-left: 10px;
+      }
+
+      .dismiss-button {
+        background-color: #95a5a6;
+        color: var(--button-text);
+        border: none;
+        padding: 3px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.8em;
+      }
+
+      .dismiss-button:hover {
+        background-color: #7f8c8d;
+      }
+
+      /* Add these new styles */
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .login-button {
+        background-color: #3498db;
+        color: var(--button-text);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .login-button:hover {
+        background-color: #2980b9;
+      }
+
+      /* Add these new styles for file status */
+      .file-item.warning {
+        border-right-color: var(--warning-border);
+        background-color: var(--warning-bg);
+      }
+
+      .file-item.error {
+        border-right-color: var(--error-border);
+        background-color: var(--error-bg);
+      }
+
+      .status-icon {
+        margin-left: 6px;
+        font-size: 14px;
+      }
+
+      .status-message {
+        font-size: 0.8em;
+        color: var(--message-text);
+        margin-right: 20px;
+        display: block;
+        margin-top: 2px;
+        width: 100%;
+      }
+
+      .warning .status-message {
+        color: var(--warning-text);
+      }
+
+      .error .status-message {
+        color: var(--error-text);
+      }
+
+      /* Add icon and message container */
+      .file-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .file-header {
+        display: flex;
+        align-items: center;
+        font-size: 0.9em;
+      }
+
+      /* Add these new styles */
+      .login-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .login-overlay.active {
+        display: flex;
+      }
+
+      .login-modal {
+        background-color: var(--bg-color);
+        border-radius: 8px;
+        padding: 20px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .login-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .login-header h2 {
+        margin: 0;
+      }
+
+      .close-button {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: var(--text-color);
+        padding: 5px;
+      }
+
+      .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .login-form input {
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--item-bg);
+        color: var(--text-color);
+      }
+
+      .login-submit {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .login-submit:hover {
+        background-color: #2980b9;
+      }
+
+      .login-divider {
+        text-align: center;
+        margin: 20px 0;
+        position: relative;
+      }
+
+      .login-divider::before,
+      .login-divider::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        width: 45%;
+        height: 1px;
+        background-color: var(--border-color);
+      }
+
+      .login-divider::before {
+        right: 0;
+      }
+
+      .login-divider::after {
+        left: 0;
+      }
+
+      .login-divider span {
+        background-color: var(--bg-color);
+        padding: 0 10px;
+        color: var(--text-color);
+      }
+
+      .social-login {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .social-login button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--item-bg);
+        color: var(--text-color);
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .social-login button:hover {
+        background-color: var(--border-color);
+      }
+
+      .social-login img {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* Add these new styles */
+      .mode-toggle {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        justify-content: center;
+      }
+
+      .toggle-button {
+        padding: 8px 16px;
+        border: 1px solid var(--border-color);
+        background: none;
+        color: var(--text-color);
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+
+      .toggle-button.active {
+        background-color: #3498db;
+        color: white;
+        border-color: #3498db;
+      }
+
+      .signup-field {
+        transition: all 0.3s ease;
+      }
+
+      .message-item.error {
+        background-color: var(--error-bg);
+        border-right: 4px solid var(--error-border);
+      }
+
+      .message-item.error .message-text {
+        color: var(--error-text);
+      }
+
+      .message-item.warning {
+        background-color: var(--warning-bg);
+        border-right: 4px solid var(--warning-border);
+      }
+
+      .message-item.warning .message-text {
+        color: var(--warning-text);
+      }
+
+      .message-item.info {
+        background-color: var(--item-bg);
+        border-right: 4px solid var(--default-border);
+      }
+
+      /* Add these styles to your existing CSS */
+      .results-container {
+        display: none;
+        margin-top: 20px;
+        border-top: 1px solid var(--border-color);
+        padding-top: 20px;
+      }
+
+      .results-container.active {
+        display: block;
+      }
+
+      .results-title {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .results-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .result-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px;
+        margin-bottom: 6px;
+        background-color: var(--item-bg);
+        border-radius: 4px;
+        border-right: 4px solid var(--default-border);
+      }
+
+      .download-button {
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 3px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .download-button:hover {
+        background-color: #27ae60;
+      }
+
+      /* Add these styles */
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .delete-all-button {
+        background-color: #e74c3c;
+        color: var(--button-text);
+        border: none;
+        padding: 5px 15px;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      .delete-all-button:hover {
+        background-color: #c0392b;
+      }
+
+      /* Add these styles for the loading spinner */
+      .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-left: 8px;
+        border: 3px solid var(--border-color);
+        border-radius: 50%;
+        border-top-color: #3498db;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .process-button.processing {
+        background-color: #7f8c8d;
+        cursor: not-allowed;
+      }
+
+      /* Add this CSS for the folder upload button */
+      .uploading {
+        background-color: #f0f0f0;
+        cursor: not-allowed;
+      }
+
+      .custom-file-input label.uploading {
+        background-color: #7f8c8d;
+        cursor: not-allowed;
+      }
+
+      /* Add info section styling */
+      .info-section {
+        background-color: var(--item-bg);
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .info-section h2 {
+        margin: 0 0 20px 0;
+        color: var(--text-color);
+        font-size: 1.3em;
+        border-right: 4px solid var(--tax-green);
+        padding-right: 10px;
+      }
+
+      .required-docs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .doc-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px;
+        background-color: var(--bg-color);
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+      }
+
+      .doc-icon {
+        font-size: 24px;
+      }
+
+      .doc-details h3 {
+        margin: 0 0 5px 0;
+        font-size: 1.1em;
+        color: var(--text-color);
+      }
+
+      .doc-details p {
+        margin: 0;
+        font-size: 0.9em;
+        color: var(--message-text);
+      }
+
+      /* Update the questionnaire button styling */
+      .questionnaire-button {
+        background-color: #3498db; /* Use the same blue as other buttons */
+        color: var(--button-text);
+        border: none;
+        padding: 5px 15px;
+        border-radius: 3px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .questionnaire-button:hover {
+        background-color: #2980b9;
+      }
+
+      /* Add questionnaire dialog styling */
+      .questionnaire-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .questionnaire-overlay.active {
+        display: flex;
+      }
+
+      .questionnaire-modal {
+        background-color: var(--bg-color);
+        border-radius: 8px;
+        padding: 20px;
+        width: 100%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .questionnaire-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .questionnaire-header h2 {
+        margin: 0;
+      }
+
+      .questionnaire-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .question-group {
+        border: 1px solid var(--border-color);
+        padding: 15px;
+        border-radius: 6px;
+        background-color: var(--item-bg);
+      }
+
+      .question-text {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .question-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .question-controls input[type="text"],
+      .question-controls input[type="number"],
+      .question-controls input[type="date"] {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      .question-controls input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+      }
+
+      .question-controls input[type="radio"] {
+        width: 20px;
+        height: 20px;
+      }
+
+      .save-button {
+        background-color: var(--tax-green);
+        color: var(--button-text);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+      }
+
+      .save-button:hover {
+        background-color: #27ae60;
+      }
+
+      .questionnaire-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .year-selector {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .year-selector label {
+        font-weight: bold;
+      }
+
+      .year-selector select {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-size: 1em;
+        min-width: 100px;
+      }
+
+      .more-info-container {
+        margin-top: 10px;
+        text-align: center;
+        border-top: 1px solid var(--border-color);
+        padding-top: 10px;
+      }
+
+      .more-info-button {
+        background: none;
+        border: none;
+        color: var(--tax-blue);
+        cursor: pointer;
+        font-size: 0.9em;
+        padding: 5px 10px;
+        position: relative;
+        transition: color 0.3s;
+        opacity: 0.8;
+      }
+
+      .more-info-button:hover {
+        color: #2980b9;
+        opacity: 1;
+      }
+
+      .more-info-button::after {
+        content: "▼";
+        font-size: 0.7em;
+        margin-right: 5px;
+        transition: transform 0.3s;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .more-info-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease-out;
+        opacity: 0;
+      }
+
+      .more-info-content.active {
+        max-height: 1000px;
+        margin-top: 15px;
+        opacity: 1;
+      }
+
+      .more-info-content .required-docs {
+        gap: 15px;
+      }
+
+      .more-info-content .doc-item {
+        padding: 12px;
+      }
+
+      .additional-info {
+        text-align: right;
+        padding: 20px;
+        background-color: var(--bg-color);
+        border-radius: 6px;
+        margin-top: 10px;
+      }
+
+      .additional-info ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .additional-info li {
+        margin-bottom: 15px;
+      }
+
+      .additional-info li:last-child {
+        margin-bottom: 0;
+      }
+
+      .additional-info strong {
+        color: var(--tax-blue);
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .additional-info p {
+        margin: 0;
+        color: var(--text-color);
+        line-height: 1.4;
+      }
+
+      .taxpayer-input-container {
+        background-color: var(--item-bg);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .taxpayer-input-container label {
+        font-weight: bold;
+        white-space: nowrap;
+      }
+
+      .taxpayer-input-container input {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-size: 1em;
+        width: 150px;
+        direction: ltr;
+        text-align: left;
+      }
+
+      .taxpayer-input-container input:focus {
+        outline: none;
+        border-color: var(--tax-blue);
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+      }
+
+      .taxpayer-input-container input::placeholder {
+        color: var(--message-text);
+        opacity: 0.7;
+      }
+
+      .doc-details-modal {
+        position: fixed;
+        display: none;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px;
+        max-width: 300px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .doc-details-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .doc-details-body {
+        font-size: 0.9em;
+      }
+
+      .doc-details-body h4 {
+        color: var(--tax-blue);
+        margin: 10px 0 5px 0;
+      }
+
+      .doc-details-body p {
+        margin: 0 0 10px 0;
+        line-height: 1.4;
+      }
+
+      .doc-details-body ul {
+        margin: 5px 0;
+        padding-right: 20px;
+      }
+
+      /* Add styles for the info section container */
+      .info-section {
+        position: relative;
+      }
+
+      /* Update the document item hover behavior */
+      .doc-item {
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .doc-item:hover {
+        background-color: rgba(52, 152, 219, 0.1);
+      }
+
+      .year-selector-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 20px;
+      }
+
+      .year-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .questions-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .calculate-tax-container {
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      /* Add styles for the calculate tax button */
+      .calculate-tax-button {
+        background-color: #2ecc71;
+        color: var(--button-text);
+        border: none;
+        padding: 7.5px 22.5px; /* 50% bigger padding */
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 1.5em; /* 50% bigger font */
+        min-width: 150px; /* Ensure minimum width */
+      }
+
+      .calculate-tax-button:hover {
+        background-color: #27ae60;
+      }
+
+      .calculate-tax-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #95a5a6;
+      }
+
+      .tax-results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        direction: rtl;
+      }
+
+      .tax-results-table th,
+      .tax-results-table td {
+        padding: 10px;
+        text-align: right;
+        border: 1px solid var(--border-color);
+      }
+
+      .tax-results-table th {
+        background-color: var(--tax-blue);
+        color: white;
+        font-weight: bold;
+      }
+
+      .tax-results-table tr:nth-child(even) {
+        background-color: var(--item-bg);
+      }
+
+      .tax-results-table tr:hover {
+        background-color: rgba(52, 152, 219, 0.1);
+      }
+
+      .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+
+      .loading-overlay.active {
+        display: flex;
+      }
+
+      .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: var(--bg-color);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid var(--border-color);
+        border-top: 5px solid var(--tax-blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .tax-results-container {
+        background: var(--bg-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+        display: none;
+      }
+
+      .tax-results-container.active {
+        display: block;
+      }
+
+      .tax-results-title {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        color: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+
+      /* Add these styles to your existing <style> section */
+      .cookie-consent {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-color);
+        padding: 15px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        border-top: 1px solid var(--border-color);
+        z-index: 9999;
+      }
+
+      .cookie-consent.active {
+        display: block;
+      }
+
+      .cookie-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .cookie-button {
+        background-color: var(--tax-blue);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .cookie-button:hover {
+        background-color: #2980b9;
+      }
+
+      /* Update container styles */
+      .header-container,
+      .info-section,
+      .taxpayer-input-container,
+      .button-container,
+      .message-container,
+      .results-container,
+      .tax-results-container {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      /* Add styles for disabled state */
+      .custom-file-input label.disabled,
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .custom-file-input input[type="file"]:disabled + label {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #95a5a6;
+      }
+
+      .auth-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .user-email {
+        font-size: 0.9em;
+        color: var(--message-text);
+      }
+
+      /* Update login button styles */
+      .login-button.logged-in {
+        background-color: #e74c3c;
+      }
+
+      /* Add styles for button groups */
+      .file-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+    </style>
+
+      .doc-details-modal {
+        position: fixed;
+        display: none;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 15px;
+        max-width: 300px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .doc-details-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .doc-details-body {
+        font-size: 0.9em;
+      }
+
+      .doc-details-body h4 {
+        color: var(--tax-blue);
+        margin: 10px 0 5px 0;
+      }
+
+      .doc-details-body p {
+        margin: 0 0 10px 0;
+        line-height: 1.4;
+      }
+
+      .doc-details-body ul {
+        margin: 5px 0;
+        padding-right: 20px;
+      }
