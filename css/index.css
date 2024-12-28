@@ -68,6 +68,7 @@
         border-left: none; /* Remove default left border */
         border-right: 4px solid var(--default-border); /* Default gray border */
         background-color: var(--item-bg);
+        transition: all 0.3s ease;
       }
       /* File name styling */
       .file-item span {
@@ -1199,4 +1200,33 @@
       .doc-details-body ul {
         margin: 5px 0;
         padding-right: 20px;
+      }
+
+      /* Add styles for accordion */
+      .file-item {
+        transition: all 0.3s ease;
+      }
+      
+      .accordion-content {
+        background-color: var(--item-bg);
+        border-radius: 0 0 4px 4px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        font-size: 0.9em;
+      }
+      
+      .file-header:hover {
+        background-color: var(--border-color);
+      }
+
+      .accordion-content em {
+        color: var(--message-text);
+        font-style: normal;
+        font-weight: 500;
+      }
+      
+      .accordion-content strong {
+        color: var(--tax-blue);
+        display: inline-block;
+        margin-bottom: 5px;
       }

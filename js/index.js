@@ -1,4 +1,3 @@
-
       document.querySelectorAll(".doc-item").forEach((item) => {
         item.addEventListener("mouseenter", () => {
           const docType = item.dataset.docType;
@@ -1947,7 +1946,8 @@ async function uploadFiles(validFiles) {
 
       // Save state before the page unloads
       window.addEventListener("beforeunload", () => {
-        if (answersMap) {
+		const questionnaireOpen = localStorage.getItem("questionnaireOpen");
+        if (answersMap && questionnaireOpen === "true") {
           updateAnswersMapFromControls();
           saveAnswersMapToLocalStorage();
         }
@@ -2188,7 +2188,7 @@ async function uploadFiles(validFiles) {
         .addEventListener("click", () => {
           questionnaireOverlay.classList.remove("active");
           // Save the open/close state of the questionnaire
-          localStorage.setItem("questionnaireOpen", false);
+          localStorage.setItem("questionnaireOpen", "false");
         });
 
       // Update the questionnaire form submission handler
@@ -2240,7 +2240,7 @@ async function uploadFiles(validFiles) {
 			status = "error";
 			statusMessage = fileInfo.reason;
 		} else {
-			fileName =  { name: fileInfo.fileName, size: 0 }
+          fileName = { name: fileInfo.fileName, size: 0 }
 			status = null;
 			statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`;
 		}
@@ -2256,6 +2256,7 @@ async function uploadFiles(validFiles) {
 
         const fileHeader = document.createElement("div");
         fileHeader.className = "file-header";
+        fileHeader.style.cursor = 'pointer';
 
         // Create status icon
         const statusIcon = document.createElement("span");
@@ -2274,8 +2275,16 @@ async function uploadFiles(validFiles) {
         const fileNameElement = document.createElement("span");
         fileNameElement.textContent = fileName.path || fileName.name;
 
+        // Add expand/collapse indicator
+        const expandIcon = document.createElement("span");
+        expandIcon.textContent = "▼";
+        expandIcon.style.marginRight = "10px";
+        expandIcon.style.transition = "transform 0.3s";
+        expandIcon.style.display = "inline-block";
+
         fileHeader.appendChild(statusIcon);
         fileHeader.appendChild(fileNameElement);
+        fileHeader.appendChild(expandIcon);
         fileInfoElement.appendChild(fileHeader);
 
         if (statusMessage) {
@@ -2284,6 +2293,97 @@ async function uploadFiles(validFiles) {
           statusMessageSpan.textContent = statusMessage;
           fileInfoElement.appendChild(statusMessageSpan);
         }
+
+        // Create accordion content
+        const accordionContent = document.createElement("div");
+        accordionContent.className = "accordion-content";
+        accordionContent.style.display = "none";
+        accordionContent.style.padding = "10px";
+        accordionContent.style.marginTop = "10px";
+        accordionContent.style.borderTop = "1px solid var(--border-color)";
+        
+        // Add all fileInfo fields that aren't already displayed
+        const excludedFields = ['fileName', 'type', 'taxYear', 'fileId'];
+        Object.entries(fileInfo).forEach(([key, value]) => {
+          if (!excludedFields.includes(key) && value !== null) {
+            // Check if value is an object (embedded field)
+            if (value && typeof value === 'object') {
+              // Skip if object is empty or has no non-null values
+              const hasNonNullValues = Object.values(value).some(v => v !== null);
+              if (Object.keys(value).length === 0 || !hasNonNullValues) return;
+              
+              const fieldGroup = document.createElement("div");
+              fieldGroup.style.marginBottom = "15px";
+              fieldGroup.innerHTML = `<strong>${key}:</strong>`;
+              
+              // Create nested list for embedded fields
+              const nestedList = document.createElement("ul");
+              nestedList.style.listStyle = "none";
+              nestedList.style.paddingRight = "20px";
+              nestedList.style.marginTop = "5px";
+              
+              // Handle arrays of objects
+              if (Array.isArray(value)) {
+                value.forEach((item, index) => {
+                  if (item && typeof item === 'object') {
+                    const arrayItem = document.createElement("li");
+                    arrayItem.style.marginBottom = "10px";
+                    arrayItem.innerHTML = `<strong>פריט ${index + 1}:</strong>`;
+                    
+                    const itemList = document.createElement("ul");
+                    itemList.style.listStyle = "none";
+                    itemList.style.paddingRight = "20px";
+                    itemList.style.marginTop = "5px";
+                    
+                    Object.entries(item).forEach(([itemKey, itemValue]) => {
+                      if (itemValue !== null) {
+                        const itemField = document.createElement("li");
+                        itemField.style.marginBottom = "3px";
+                        itemField.innerHTML = `<em>${itemKey}:</em> ${itemValue}`;
+                        itemList.appendChild(itemField);
+                      }
+                    });
+                    
+                    if (itemList.children.length > 0) {
+                      arrayItem.appendChild(itemList);
+                      nestedList.appendChild(arrayItem);
+                    }
+                  }
+                });
+              } else {
+                Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+                  if (nestedValue !== null) {
+                    const nestedItem = document.createElement("li");
+                    nestedItem.style.marginBottom = "3px";
+                    nestedItem.innerHTML = `<em>${nestedKey}:</em> ${nestedValue}`;
+                    nestedList.appendChild(nestedItem);
+                  }
+                });
+              }
+              
+              fieldGroup.appendChild(nestedList);
+              accordionContent.appendChild(fieldGroup);
+            } else {
+              // Regular field
+              const field = document.createElement("div");
+              field.style.marginBottom = "5px";
+              field.innerHTML = `<strong>${key}:</strong> ${value}`;
+              accordionContent.appendChild(field);
+            }
+          }
+        });
+        
+        fileInfoElement.appendChild(accordionContent);
+        
+        // Add click handler for accordion
+        fileHeader.addEventListener('click', (e) => {
+          // Don't toggle if clicking delete button
+          if (e.target.closest('.delete-button')) return;
+          
+          const isExpanded = accordionContent.style.display === "block";
+          accordionContent.style.display = isExpanded ? "none" : "block";
+          expandIcon.style.transform = isExpanded ? "rotate(0deg)" : "rotate(180deg)";
+        });
 
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "🗑️";
