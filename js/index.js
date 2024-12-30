@@ -271,7 +271,7 @@
         if (!validTypes.includes(file.type)) {
           return {
             valid: false,
-            message: "סוג קובץ לא נתמך - רק קבצי PDF או JPG מותרים",
+            message: `סוג קובץ לא נתמך - רק קבצי PDF או JPG מותרים. שם הקובץ: ${file.name} (${file.webkitRelativePath})`,
           };
         }
         return { valid: true };
