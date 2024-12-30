@@ -42,7 +42,19 @@
         text-align: right;
         background-color: var(--bg-color);
         color: var(--text-color);
+		width: 100%;
+		overflow-x: hidden; /* Prevent horizontal scrolling */
+		box-sizing: border-box;
       }
+
+	  * {
+		box-sizing: inherit; /* Apply box-sizing to all elements */
+	  }
+	  
+	  .container {
+		max-width: 100%; /* Prevent content from exceeding the screen width */
+		margin: 0 auto;
+	  }
 
       /* Add main container */
       .main-container {
@@ -1255,5 +1267,96 @@
         .cookie-button {
           width: 100%;
           margin: 10px 0;
+        }
+      }
+
+      /* Feedback section styles */
+      .feedback-container {
+        background: var(--bg-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+      }
+
+      .feedback-title {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        color: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+
+      .feedback-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .feedback-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .feedback-input-group label {
+        font-weight: bold;
+      }
+
+      .feedback-input-group input,
+      .feedback-input-group textarea {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-size: 1em;
+      }
+
+      .feedback-input-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .feedback-privacy {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .feedback-privacy input[type="checkbox"] {
+        margin-top: 3px;
+      }
+
+      .feedback-privacy label {
+        font-size: 0.9em;
+        color: var(--message-text);
+      }
+
+      .send-feedback-button {
+        background-color: #3498db;
+        color: var(--button-text);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+        align-self: flex-end;
+      }
+
+      .send-feedback-button:hover {
+        background-color: #2980b9;
+      }
+
+      .send-feedback-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #95a5a6;
+      }
+
+      @media screen and (max-width: 480px) {
+        .send-feedback-button {
+          align-self: stretch;
         }
       }

@@ -238,6 +238,26 @@
         <div class="tax-results-title">תוצאות חישוב מס</div>
         <div id="taxResultsContent"></div>
       </div>
+
+      <!-- Add feedback section -->
+      <div id="feedbackContainer" class="feedback-container">
+        <div class="feedback-title">משוב</div>
+        <div class="feedback-form">
+          <div class="feedback-input-group">
+            <label for="feedbackEmail">דוא"ל:</label>
+            <input type="email" id="feedbackEmail" placeholder="הכנס את כתובת הדוא״ל שלך">
+          </div>
+          <div class="feedback-input-group">
+            <label for="feedbackMessage">הודעה:</label>
+            <textarea id="feedbackMessage" rows="4" placeholder="כתוב את המשוב שלך כאן"></textarea>
+          </div>
+          <div class="feedback-privacy">
+            <input type="checkbox" id="privacyAgreement">
+            <label for="privacyAgreement">אני מסכים למדיניות הפרטיות ולשימוש בנתונים שלי</label>
+          </div>
+          <button id="sendFeedbackButton" class="send-feedback-button" disabled>שלח משוב</button>
+        </div>
+      </div>
     </div>
 
     <!-- Loading overlay and cookie consent stay outside main container -->
