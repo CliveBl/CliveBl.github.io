@@ -212,7 +212,6 @@
           document.getElementById("folderInput").disabled = false;
           document.getElementById("questionnaireButton").disabled = false;
           document.getElementById("processButton").disabled = false;
-          document.getElementById("deleteAllButton").disabled = false;
 
           // Also enable their labels for better visual feedback
           document
@@ -286,15 +285,13 @@
 
       // Add this function to update the file list from server response
       function updateFileList(fileInfoList) {
-        // Clear existing files (except example file)
-        const files = Array.from(fileList.children);
         fileList.innerHTML = '';
-        // Add all files from the response
-        if (Array.isArray(fileInfoList)) {
-          fileInfoList.forEach((fileInfo) => {
-			addFileToList(fileInfo);
-          });
-        }
+        fileInfoList.forEach(fileInfo => {
+          addFileToList(fileInfo);
+        });
+        
+        // Enable/disable delete all button based on file list
+        updateDeleteAllButton();
       }
 
       // Update file input handler to always use individual uploads
@@ -1875,6 +1872,8 @@ async function uploadFiles(validFiles) {
 
           // Clear the file list
           fileList.innerHTML = "";
+          // Disable delete all button since list is now empty
+          deleteAllButton.disabled = true;
 
           // Clear all containers
           const resultsContainer = document.getElementById("resultsContainer");
@@ -2405,6 +2404,8 @@ async function uploadFiles(validFiles) {
               }
 
               fileList.removeChild(li);
+			  // Update delete all button state
+			  updateDeleteAllButton();
           } catch (error) {
             console.error("Delete failed:", error);
             addMessage("שגיאה במחיקת הקובץ: " + error.message, "error");
@@ -2481,6 +2482,10 @@ async function uploadFiles(validFiles) {
             document.getElementById("calculateTaxButton").disabled = false;
           }
         });
+
+		function updateDeleteAllButton() {
+			document.getElementById("deleteAllButton").disabled = fileList.children.length === 0;
+		}
 
       // Add these helper functions for date formatting and validation
       function formatDateInput(e) {
