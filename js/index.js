@@ -211,7 +211,6 @@
           document.getElementById("fileInput").disabled = false;
           document.getElementById("folderInput").disabled = false;
           document.getElementById("questionnaireButton").disabled = false;
-          document.getElementById("processButton").disabled = false;
 
           // Also enable their labels for better visual feedback
           document
@@ -292,6 +291,13 @@
         
         // Enable/disable delete all button based on file list
         updateDeleteAllButton();
+        // Enable/disable process button based on file list
+        updateProcessButton();
+      }
+
+      // Add function to update process button state
+      function updateProcessButton() {
+        document.getElementById("processButton").disabled = fileList.children.length === 0;
       }
 
       // Update file input handler to always use individual uploads
@@ -1873,7 +1879,9 @@ async function uploadFiles(validFiles) {
           // Clear the file list
           fileList.innerHTML = "";
           // Disable delete all button since list is now empty
-          deleteAllButton.disabled = true;
+          updateDeleteAllButton();
+          // Disable process button since list is now empty
+          updateProcessButton();
 
           // Clear all containers
           const resultsContainer = document.getElementById("resultsContainer");
@@ -2404,8 +2412,10 @@ async function uploadFiles(validFiles) {
               }
 
               fileList.removeChild(li);
-			  // Update delete all button state
-			  updateDeleteAllButton();
+              // Update delete all button state
+              updateDeleteAllButton();
+              // Update process button state
+              updateProcessButton();
           } catch (error) {
             console.error("Delete failed:", error);
             addMessage("שגיאה במחיקת הקובץ: " + error.message, "error");
