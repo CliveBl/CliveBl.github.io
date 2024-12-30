@@ -72,7 +72,7 @@
       }
       /* File name styling */
       .file-item span {
-        flex-grow: 1;
+        flex-grow: 0;
         margin-left: 0;
         margin-right: 10px;
       }
@@ -219,7 +219,7 @@
       }
 
       .status-icon {
-        margin-left: 6px;
+        margin-left: 0;
         font-size: 14px;
       }
 

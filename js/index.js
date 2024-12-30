@@ -300,30 +300,30 @@
       // Update file input handler to always use individual uploads
       fileInput.addEventListener("change", async () => {
 
-		// Filter out invalid files first
+          // Filter out invalid files first
 		const files = Array.from(fileInput.files);
-		const validFiles = files.filter((file) => {
+          const validFiles = files.filter((file) => {
 
-		const validation = isValidFileType(file);
-		if (!validation.valid) {
-			addMessage(validation.message, "error");
-			return false;
-		}
-		return true;
-		});
+            const validation = isValidFileType(file);
+            if (!validation.valid) {
+              addMessage(validation.message, "error");
+              return false;
+            }
+            return true;
+          });
 
-		if (validFiles.length === 0) {
-			return;
-		}
+          if (validFiles.length === 0) {
+            return;
+          }
 
 		await uploadFilesWithButtonProgress(validFiles, fileInput);
-      });	
+      });
 
       // Update folder upload handler to always use individual uploads
       folderInput.addEventListener("change", async () => {
         const files = Array.from(folderInput.files);
 
-           // Sort and filter files
+          // Sort and filter files
           const validFiles = files
             .sort((a, b) => {
               const pathA = a.webkitRelativePath || a.name;
@@ -353,7 +353,7 @@
           }
 
 		  await uploadFilesWithButtonProgress(validFiles, folderInput);
-		});	
+      });
 
       // Update the process button handler
       processButton.addEventListener("click", async () => {
@@ -2231,16 +2231,14 @@ async function uploadFiles(validFiles) {
 
 
       function addFileToList(fileInfo) {
-		let fileName; 
 		let status;
 		let statusMessage;
 		const fileId = fileInfo.fileId;
+		const fileName = { name: fileInfo.fileName, size: 0 }
 		if (fileInfo.type === "FormError") {
-			fileName = fileInfo.fileName || "Unknown file";
 			status = "error";
 			statusMessage = fileInfo.reason;
 		} else {
-          fileName = { name: fileInfo.fileName, size: 0 }
 			status = null;
 			statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`;
 		}
@@ -2282,10 +2280,10 @@ async function uploadFiles(validFiles) {
         expandIcon.style.transition = "transform 0.3s";
         expandIcon.style.display = "inline-block";
 
-        fileHeader.appendChild(statusIcon);
-        fileHeader.appendChild(fileNameElement);
         fileHeader.appendChild(expandIcon);
+        fileHeader.appendChild(fileNameElement);
         fileInfoElement.appendChild(fileHeader);
+        fileHeader.appendChild(statusIcon);
 
         if (statusMessage) {
           const statusMessageSpan = document.createElement("span");
