@@ -1,4 +1,9 @@
-      document.querySelectorAll(".doc-item").forEach((item) => {
+      // Add these variables at the top of your script
+      let cachedQuestions = null;
+      let answersMap = {};
+      let currentlySelectedTaxYear;
+	  
+	  document.querySelectorAll(".doc-item").forEach((item) => {
         item.addEventListener("mouseenter", () => {
           const docType = item.dataset.docType;
           const details = docDetails[docType];
@@ -251,7 +256,7 @@
             await loadResults();
           }
           // Load stored tax results
-          loadStoredTaxResults();
+          loadStoredTaxCalculation();
         } catch (error) {
           debug("Error during initialization:", error);
           // If loading files failed, try anonymous sign in
@@ -260,7 +265,7 @@
             await signInAnonymous();
             await loadExistingFiles();
             await loadResults();
-            loadStoredTaxResults();
+            loadStoredTaxCalculation();
           }
         }
       });
@@ -628,10 +633,10 @@ async function uploadFiles(validFiles) {
             const taxResultsContainer = document.getElementById(
               "taxResultsContainer"
             );
-            const taxResultsContent =
-              document.getElementById("taxResultsContent");
+            const taxCalculationContent =
+              document.getElementById("taxCalculationContent");
             taxResultsContainer.classList.remove("active");
-            taxResultsContent.innerHTML = "";
+            taxCalculationContent.innerHTML = "";
 
             // Handle signin
             await loadExistingFiles(); // Load files with new token
@@ -955,7 +960,12 @@ async function uploadFiles(validFiles) {
               break;
           }
 
-          yearAnswers[questionName] = answer;
+		  // Get question from cache
+		  const question = cachedQuestions.find(q => q.name === questionName);
+		  // Add the answer only if it is different from the default answer.
+		  if (answer !== question.defaultAnswer) {
+			yearAnswers[questionName] = answer;
+		  }
         });
 
         // Update the Map with the current year's answers
@@ -965,7 +975,7 @@ async function uploadFiles(validFiles) {
         });
       } // updateAnswersMapFromControls
 
-      async function createQuestionnaire() {
+      async function createQuestionnaire(requiredQuestionsList = []) {
         try {
           if (!authToken) {
             await signInAnonymous();
@@ -978,30 +988,7 @@ async function uploadFiles(validFiles) {
             throw new Error("Questionnaire form not found");
           }
 
-          if (!hasLocalAnswersMap()) {
-            // Get the answers map
-            const answersResponse = await fetch(
-              `${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`,
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                  Accept: "application/json",
-                },
-                ...fetchConfig,
-              }
-            );
-
-            if (!answersResponse.ok) {
-              throw new Error(`HTTP error! status: ${answersResponse.status}`);
-            }
-
-            const answersData = await answersResponse.json();
-            answersMap = new Map(Object.entries(answersData));
-            saveAnswersMapToLocalStorage();
-          } else {
-            loadAnswersMapFromLocalStorage();
-          }
+          await getAnswersMap();
 
           // Set initial current year
           const endYear = 2023;
@@ -1012,25 +999,7 @@ async function uploadFiles(validFiles) {
           let currentYearAnswers = yearAnswers?.answers || {};
 
           // Get questions from cache or fetch if not cached
-          if (!cachedQuestions) {
-            const response = await fetch(
-              `${AUTH_BASE_URL}/getQuestionDefinitions`,
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                  Accept: "application/json",
-                },
-                ...fetchConfig,
-              }
-            );
-
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            cachedQuestions = await response.json();
-          }
+          await loadQuestions();
 
           // Clear the entire form before adding new questions
           questionnaireForm.innerHTML = "";
@@ -1087,6 +1056,11 @@ async function uploadFiles(validFiles) {
             const questionText = document.createElement("div");
             questionText.className = "question-text";
             questionText.textContent = question.text;
+			// If the question is in the list of required questions, add a red asterisk to the question text
+			if (requiredQuestionsList.includes(question.name)) {
+				questionText.innerHTML += "<span>*</span>";
+				questionText.classList.add('highlight-questions');
+			}
             questionGroup.appendChild(questionText);
 
             const controls = document.createElement("div");
@@ -1890,8 +1864,8 @@ async function uploadFiles(validFiles) {
           const taxResultsContainer = document.getElementById(
             "taxResultsContainer"
           );
-          const taxResultsContent =
-            document.getElementById("taxResultsContent");
+          const taxCalculationContent =
+            document.getElementById("taxCalculationContent");
 
           // Hide containers
           resultsContainer.classList.remove("active");
@@ -1900,7 +1874,7 @@ async function uploadFiles(validFiles) {
           // Clear content
           resultsList.innerHTML = "";
           messageContainer.innerHTML = "";
-          taxResultsContent.innerHTML = "";
+          taxCalculationContent.innerHTML = "";
 
           // Clear stored results
           localStorage.removeItem("taxResults");
@@ -1961,10 +1935,7 @@ async function uploadFiles(validFiles) {
       });
 
 
-      // Add these variables at the top of your script
-      let cachedQuestions = null;
-      let answersMap = {};
-      let currentlySelectedTaxYear;
+
 
       // Keep the docDetails object for hover functionality
       const docDetails = {
@@ -2237,6 +2208,55 @@ async function uploadFiles(validFiles) {
       });
 
 
+async function getAnswersMap() {
+	if (!hasLocalAnswersMap()) {
+		// Get the answers map
+		const answersResponse = await fetch(
+			`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authToken}`,
+					Accept: "application/json",
+				},
+				...fetchConfig,
+			}
+		);
+
+		if (!answersResponse.ok) {
+			throw new Error(`HTTP error! status: ${answersResponse.status}`);
+		}
+
+		const answersData = await answersResponse.json();
+		answersMap = new Map(Object.entries(answersData));
+		saveAnswersMapToLocalStorage();
+	} else {
+		loadAnswersMapFromLocalStorage();
+	}
+}
+
+async function loadQuestions() {
+	if (!cachedQuestions) {
+		const response = await fetch(
+			`${AUTH_BASE_URL}/getQuestionDefinitions`,
+			{
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${authToken}`,
+					Accept: "application/json",
+				},
+				...fetchConfig,
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		cachedQuestions = await response.json();
+	}
+}
+
       function addFileToList(fileInfo) {
 		let status;
 		let statusMessage;
@@ -2434,7 +2454,7 @@ async function uploadFiles(validFiles) {
               await signInAnonymous();
             }
 
-            const taxCalcTaxYear = 2023;
+            const taxCalcTaxYear = "2023";
             // // Check if we have a taxpaer ID in the answers map for this year
             // const answersMap = JSON.parse(localStorage.getItem('answersMap'));
             // const taxpayerId = answersMap[taxCalcTaxYear]?.answers?.taxpayerId;
@@ -2445,7 +2465,39 @@ async function uploadFiles(validFiles) {
             //   		throw new Error('נדרש מספר זהות תקין של 9 ספרות');
             // 	}
             // }
+			// Check if required questions have been answered by iterating over the answersMap
+			// for taxCalcTaxYear and checking if the answers that exists in the json are not the same
+			// as the default values found in the cachedQuestions.
+			// If any required question is not answered then add a message.
+			//const answersMap = JSON.parse(localStorage.getItem('answersMap'));
+			// Get questions from cache or fetch if not cached
+			await getAnswersMap();
 
+			await loadQuestions();
+			// Returns all questions that have required field equal to REQUIRED
+			const requiredQuestions = cachedQuestions.filter(question => question.required === "REQUIRED");
+			let requiredQuestionsList = [];
+			const yearAnswers = answersMap.get(taxCalcTaxYear);
+			const currentYearAnswers = yearAnswers?.answers || {};
+			// Check unanswered questions by comparing to the default values.
+			requiredQuestions.forEach(question => {
+				if (!currentYearAnswers || currentYearAnswers[question.name] === undefined || 
+					currentYearAnswers[question.name] === null || 
+					currentYearAnswers[question.name] === question.defaultAnswer) {
+					console.log("Required question not answered: " + question.name + ":" + currentYearAnswers[question.name] + " " + question.defaultAnswer);
+					// the question name to a list of required questions	
+					requiredQuestionsList.push(question.name);
+				}
+			});
+
+			if (requiredQuestionsList.length > 0) {
+				// create the questions dialog
+				createQuestionnaire(requiredQuestionsList);
+				// Save the open/close state of the questionnaire
+				localStorage.setItem("questionnaireOpen", "false");
+				removeAnswersMapFromLocalStorage();
+			}
+			else {
             // Show loading overlay
             document.getElementById("loadingOverlay").classList.add("active");
             // Disable calculate button
@@ -2478,11 +2530,12 @@ async function uploadFiles(validFiles) {
             addMessage("חישוב המס הושלם בהצלחה", "info");
 
             // Store and display results with scroll
-            displayTaxResults(result, true);
-            storeTaxResults(result);
-          } catch (error) {
-            console.error("Calculate tax failed:", error);
-            addMessage("שגיאה בחישוב המס: " + error.message, "error");
+            displayTaxCalculation(result, true);
+            storeTaxCalculation(result);
+          }
+        } catch (error) {
+          console.error("Calculate tax failed:", error);
+          addMessage("שגיאה בחישוב המס: " + error.message, "error");
           } finally {
             // Hide loading overlay
             document
@@ -2544,7 +2597,7 @@ async function uploadFiles(validFiles) {
       }
 
       // Add this function to store tax results
-      function storeTaxResults(results) {
+      function storeTaxCalculation(results) {
         try {
           localStorage.setItem("taxResults", JSON.stringify(results));
         } catch (error) {
@@ -2553,12 +2606,12 @@ async function uploadFiles(validFiles) {
       }
 
       // Add this function to load stored tax results
-      function loadStoredTaxResults() {
+      function loadStoredTaxCalculation() {
         try {
           const storedResults = localStorage.getItem("taxResults");
           if (storedResults) {
             const results = JSON.parse(storedResults);
-            displayTaxResults(results);
+            displayTaxCalculation(results);
           }
         } catch (error) {
           console.error("Failed to load stored tax results:", error);
@@ -2566,9 +2619,9 @@ async function uploadFiles(validFiles) {
       }
 
       // Add this function to display tax results
-      function displayTaxResults(result, shouldScroll = false) {
-        const taxResultsContent = document.getElementById("taxResultsContent");
-        taxResultsContent.innerHTML = ""; // Clear existing results
+      function displayTaxCalculation(result, shouldScroll = false) {
+        const taxCalculationContent = document.getElementById("taxCalculationContent");
+        taxCalculationContent.innerHTML = ""; // Clear existing results
 
         // Create table
         const table = document.createElement("table");
@@ -2600,7 +2653,7 @@ async function uploadFiles(validFiles) {
         });
         table.appendChild(tbody);
 
-        taxResultsContent.appendChild(table);
+        taxCalculationContent.appendChild(table);
         document.getElementById("taxResultsContainer").classList.add("active");
 
         // Only scroll if explicitly requested (i.e., after calculation)

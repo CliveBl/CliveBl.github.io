@@ -1360,3 +1360,5 @@
           align-self: stretch;
         }
       }
+
+	  .highlight-questions { color: red; font-weight: bold; }
