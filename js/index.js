@@ -460,6 +460,8 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
 		buttonLabel.innerHTML = originalText;
 		buttonLabel.classList.remove("uploading");
 		button.value = "";
+		// Clear all containers
+		clearResultsControls();
 	}
 }
 
@@ -1818,8 +1820,7 @@ async function uploadFiles(validFiles) {
           }
 
           // Show questionnaire dialog
-          questionnaireOverlay.classList.add("active");
-          localStorage.setItem("questionnaireOpen", "true");
+          openQuestionaire();
         } catch (error) {
           console.error("Failed to load questionnaire:", error);
           addMessage("שגיאה בטעינת השאלון: " + error.message, "error");
@@ -1858,26 +1859,7 @@ async function uploadFiles(validFiles) {
           updateProcessButton();
 
           // Clear all containers
-          const resultsContainer = document.getElementById("resultsContainer");
-          const resultsList = document.getElementById("resultsList");
-          const messageContainer = document.getElementById("messageContainer");
-          const taxResultsContainer = document.getElementById(
-            "taxResultsContainer"
-          );
-          const taxCalculationContent =
-            document.getElementById("taxCalculationContent");
-
-          // Hide containers
-          resultsContainer.classList.remove("active");
-          taxResultsContainer.classList.remove("active");
-
-          // Clear content
-          resultsList.innerHTML = "";
-          messageContainer.innerHTML = "";
-          taxCalculationContent.innerHTML = "";
-
-          // Clear stored results
-          localStorage.removeItem("taxResults");
+          clearResultsControls();
 
           addMessage("כל הקבצים נמחקו בהצלחה");
         } catch (error) {
@@ -2086,14 +2068,14 @@ async function uploadFiles(validFiles) {
             {
               title: "מהו האישור השנתי מביטוח לאומי?",
               content:
-                "אישו�� המפרט את כל התשלומים וההחזרים שהתקבלו מביטוח לאומי במהלך השנה.",
+                "אישור שנתי מביטוח לאומי מפרט את כל התשלומים וההחזרים שהתקבלו מביטוח לאומי במהלך השנה.",
             },
             {
               title: "איזה מסמכים נדרשים?",
               content: `
               - אישור שנתי מביטוח לאומי
               - פירוט כל סוגי התשלומים וההחזרים
-              - סכומים ות��ריכי תשלום
+              - סכום מספרים ותריכי תשלום
             `,
             },
           ],
@@ -2142,8 +2124,7 @@ async function uploadFiles(validFiles) {
         .getElementById("questionnaireButton")
         .addEventListener("click", async () => {
           createQuestionnaire();
-          // Save the open/close state of the questionnaire
-          localStorage.setItem("questionnaireOpen", "false");
+		  // TBD Why do we do this here
 		  removeAnswersMapFromLocalStorage();
         });
 
@@ -2153,20 +2134,14 @@ async function uploadFiles(validFiles) {
       // Close questionnaire on overlay click
       questionnaireOverlay.addEventListener("click", (e) => {
         if (e.target === questionnaireOverlay) {
-          questionnaireOverlay.classList.remove("active");
-          // Save the open/close state of the questionnaire
-          localStorage.setItem("questionnaireOpen", "false");
+          closeQuestionaire();
 		  removeAnswersMapFromLocalStorage();
         }
       });
 
       // Close questionnaire on close button click
-      questionnaireOverlay
-        .querySelector(".close-button")
-        .addEventListener("click", () => {
-          questionnaireOverlay.classList.remove("active");
-          // Save the open/close state of the questionnaire
-          localStorage.setItem("questionnaireOpen", "false");
+      questionnaireOverlay.querySelector(".close-button").addEventListener("click", () => {
+          closeQuestionaire();
         });
 
       // Update the questionnaire form submission handler
@@ -2198,6 +2173,9 @@ async function uploadFiles(validFiles) {
 
           // Close the questionnaire dialog
           questionnaireOverlay.classList.remove("active");
+		  // Save the open/close state of the questionnaire
+		  localStorage.setItem("questionnaireOpen", "false");
+
 
           // Show success message
           addMessage("התשובות נשמרו בהצלחה", "info");
@@ -2207,6 +2185,37 @@ async function uploadFiles(validFiles) {
         }
       });
 
+// Open the questionnaire
+function openQuestionaire() {
+	questionnaireOverlay.classList.add("active");
+	localStorage.setItem("questionnaireOpen", "true");
+}
+
+function closeQuestionaire() {
+	questionnaireOverlay.classList.remove("active");
+	// Save the open/close state of the questionnaire
+	localStorage.setItem("questionnaireOpen", "false");
+}
+
+function clearResultsControls() {
+	const resultsContainer = document.getElementById("resultsContainer");
+	const resultsList = document.getElementById("resultsList");
+	const messageContainer = document.getElementById("messageContainer");
+	const taxResultsContainer = document.getElementById("taxResultsContainer");
+	const taxCalculationContent = document.getElementById("taxCalculationContent");
+
+	// Hide containers
+	resultsContainer.classList.remove("active");
+	taxResultsContainer.classList.remove("active");
+
+	// Clear content
+	resultsList.innerHTML = "";
+	messageContainer.innerHTML = "";
+	taxCalculationContent.innerHTML = "";
+
+	// Clear stored results
+	localStorage.removeItem("taxResults");
+}
 
 async function getAnswersMap() {
 	if (!hasLocalAnswersMap()) {
@@ -2436,6 +2445,10 @@ async function loadQuestions() {
               updateDeleteAllButton();
               // Update process button state
               updateProcessButton();
+
+			// Clear all containers
+			clearResultsControls();
+
           } catch (error) {
             console.error("Delete failed:", error);
             addMessage("שגיאה במחיקת הקובץ: " + error.message, "error");
@@ -2493,8 +2506,6 @@ async function loadQuestions() {
 			if (requiredQuestionsList.length > 0) {
 				// create the questions dialog
 				createQuestionnaire(requiredQuestionsList);
-				// Save the open/close state of the questionnaire
-				localStorage.setItem("questionnaireOpen", "false");
 				removeAnswersMapFromLocalStorage();
 			}
 			else {
