@@ -1236,6 +1236,11 @@
         overflow: hidden;
         transition: all 0.3s ease;
         font-size: 0.9em;
+		display: none;
+        padding: 10px;
+        margin-top: 10px;
+        border-top: 1px solid var(--border-color);
+			
       }
       
       .file-header:hover {
@@ -1252,6 +1257,35 @@
         color: var(--tax-blue);
         display: inline-block;
         margin-bottom: 5px;
+      }
+
+      /* Nested list styles */
+      .nested-list {
+        list-style: none;
+        padding-right: 20px;
+        margin-top: 5px;
+      }
+
+      .nested-list li {
+        margin-bottom: 3px;
+      }
+
+      .nested-list .array-item {
+        margin-bottom: 10px;
+      }
+
+      .nested-list .array-item ul {
+        list-style: none;
+        padding-right: 20px;
+        margin-top: 5px;
+      }
+
+      .field-group {
+        margin-bottom: 15px;
+      }
+
+      .nestedListItemField {
+        margin-bottom: 3px;
       }
 
       @media screen and (max-width: 480px) {

@@ -2,8 +2,8 @@
       let cachedQuestions = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
-	  
-	  document.querySelectorAll(".doc-item").forEach((item) => {
+
+      document.querySelectorAll(".doc-item").forEach((item) => {
         item.addEventListener("mouseenter", () => {
           const docType = item.dataset.docType;
           const details = docDetails[docType];
@@ -1089,16 +1089,16 @@ async function uploadFiles(validFiles) {
                   label1.style.marginBottom = "3px";
                   label1.style.fontSize = "0.9em";
 
-                  const input1 = document.createElement("input");
-                  input1.type = "text";
-                  input1.name = question.name + "_1";
-                  input1.pattern = "\\d{9}";
-                  input1.maxLength = 9;
-                  input1.placeholder = "הכנס 9 ספרות";
-                  input1.style.direction = "ltr";
-                  input1.style.textAlign = "left";
-                  input1.style.width = "120px";
-                  input1.style.padding = "4px 8px";
+                  const idNumberInput = document.createElement("input");
+                  idNumberInput.type = "text";
+                  idNumberInput.name = question.name + "_1";
+                  idNumberInput.pattern = "\\d{9}";
+                  idNumberInput.maxLength = 9;
+                  idNumberInput.placeholder = "הכנס 9 ספרות";
+                  idNumberInput.style.direction = "ltr";
+                  idNumberInput.style.textAlign = "left";
+                  idNumberInput.style.width = "120px";
+                  idNumberInput.style.padding = "4px 8px";
 
                   // Second ID input (partner)
                   const idInput2 = document.createElement("div");
@@ -1122,7 +1122,7 @@ async function uploadFiles(validFiles) {
                   input2.style.padding = "4px 8px";
 
                   // Add validation to both inputs
-                  [input1, input2].forEach((input) => {
+                  [idNumberInput, input2].forEach((input) => {
                     input.addEventListener("input", (e) => {
                       e.target.value = e.target.value.replace(/[^\d]/g, "");
                       if (e.target.value.length > 9) {
@@ -1132,7 +1132,7 @@ async function uploadFiles(validFiles) {
                   });
 
                   idInput1.appendChild(label1);
-                  idInput1.appendChild(input1);
+                  idInput1.appendChild(idNumberInput);
                   idInput2.appendChild(label2);
                   idInput2.appendChild(input2);
 
@@ -1141,25 +1141,25 @@ async function uploadFiles(validFiles) {
                   controls.appendChild(pairContainer);
                 } else {
                   // Single ID input
-                  const idInput = document.createElement("input");
-                  idInput.type = "text";
-                  idInput.name = question.name;
-                  idInput.pattern = "\\d{9}";
-                  idInput.maxLength = 9;
-                  idInput.placeholder = "הכנס 9 ספרות";
-                  idInput.style.direction = "ltr";
-                  idInput.style.textAlign = "left";
-                  idInput.style.width = "120px";
-                  idInput.style.padding = "4px 8px";
+                  const idNumberInput = document.createElement("input");
+                  idNumberInput.type = "text";
+                  idNumberInput.name = question.name;
+                  idNumberInput.pattern = "\\d{9}";
+                  idNumberInput.maxLength = 9;
+                  idNumberInput.placeholder = "הכנס 9 ספרות";
+                  idNumberInput.style.direction = "ltr";
+                  idNumberInput.style.textAlign = "left";
+                  idNumberInput.style.width = "120px";
+                  idNumberInput.style.padding = "4px 8px";
 
-                  idInput.addEventListener("input", (e) => {
+                  idNumberInput.addEventListener("input", (e) => {
                     e.target.value = e.target.value.replace(/[^\d]/g, "");
                     if (e.target.value.length > 9) {
                       e.target.value = e.target.value.slice(0, 9);
                     }
                   });
 
-                  controls.appendChild(idInput);
+                  controls.appendChild(idNumberInput);
                 }
                 break;
 
@@ -2331,11 +2331,7 @@ async function loadQuestions() {
         // Create accordion content
         const accordionContent = document.createElement("div");
         accordionContent.className = "accordion-content";
-        accordionContent.style.display = "none";
-        accordionContent.style.padding = "10px";
-        accordionContent.style.marginTop = "10px";
-        accordionContent.style.borderTop = "1px solid var(--border-color)";
-        
+       
         // Add all fileInfo fields that aren't already displayed
         const excludedFields = ['fileName', 'type', 'taxYear', 'fileId'];
         Object.entries(fileInfo).forEach(([key, value]) => {
@@ -2347,32 +2343,28 @@ async function loadQuestions() {
               if (Object.keys(value).length === 0 || !hasNonNullValues) return;
               
               const fieldGroup = document.createElement("div");
-              fieldGroup.style.marginBottom = "15px";
+              fieldGroup.className = "field-group";
               fieldGroup.innerHTML = `<strong>${key}:</strong>`;
               
               // Create nested list for embedded fields
               const nestedList = document.createElement("ul");
-              nestedList.style.listStyle = "none";
-              nestedList.style.paddingRight = "20px";
-              nestedList.style.marginTop = "5px";
+              nestedList.className = "nested-list";
               
               // Handle arrays of objects
               if (Array.isArray(value)) {
                 value.forEach((item, index) => {
                   if (item && typeof item === 'object') {
                     const arrayItem = document.createElement("li");
-                    arrayItem.style.marginBottom = "10px";
+                    arrayItem.className = "array-item";
                     arrayItem.innerHTML = `<strong>פריט ${index + 1}:</strong>`;
                     
                     const itemList = document.createElement("ul");
-                    itemList.style.listStyle = "none";
-                    itemList.style.paddingRight = "20px";
-                    itemList.style.marginTop = "5px";
+                    itemList.className = "nested-list";
                     
                     Object.entries(item).forEach(([itemKey, itemValue]) => {
                       if (itemValue !== null) {
                         const itemField = document.createElement("li");
-                        itemField.style.marginBottom = "3px";
+                        itemField.className = "nestedListItemField";
                         itemField.innerHTML = `<em>${itemKey}:</em> ${itemValue}`;
                         itemList.appendChild(itemField);
                       }
@@ -2388,7 +2380,7 @@ async function loadQuestions() {
                 Object.entries(value).forEach(([nestedKey, nestedValue]) => {
                   if (nestedValue !== null) {
                     const nestedItem = document.createElement("li");
-                    nestedItem.style.marginBottom = "3px";
+                    nestedItem.className = "nestedListItemField";
                     nestedItem.innerHTML = `<em>${nestedKey}:</em> ${nestedValue}`;
                     nestedList.appendChild(nestedItem);
                   }
@@ -2544,9 +2536,9 @@ async function loadQuestions() {
             displayTaxCalculation(result, true);
             storeTaxCalculation(result);
           }
-        } catch (error) {
-          console.error("Calculate tax failed:", error);
-          addMessage("שגיאה בחישוב המס: " + error.message, "error");
+          } catch (error) {
+            console.error("Calculate tax failed:", error);
+            addMessage("שגיאה בחישוב המס: " + error.message, "error");
           } finally {
             // Hide loading overlay
             document
