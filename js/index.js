@@ -2766,10 +2766,72 @@ async function loadQuestions() {
         await initializeAuthState();
         initializeDocumentHovers();
 
+        // Pre-fill feedback email if user is logged in
+        if (authToken) {
+          const decodedToken = jwt_decode(authToken);
+          if (decodedToken.email) {
+            document.getElementById("feedbackEmail").value = decodedToken.email;
+            updateFeedbackButtonState();
+          }
+        }
+
         // Check if the questionnaire was open or closed last time
         const questionnaireOpen = localStorage.getItem("questionnaireOpen");
         if (questionnaireOpen && questionnaireOpen === "true") {
           createQuestionnaire();
+        }
+      });
+
+      // Function to validate email format
+      function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      }
+
+      // Function to update feedback button state
+      function updateFeedbackButtonState() {
+        const emailInput = document.getElementById("feedbackEmail");
+        const privacyCheckbox = document.getElementById("privacyAgreement");
+        const sendButton = document.getElementById("sendFeedbackButton");
+        
+        sendButton.disabled = !isValidEmail(emailInput.value) || !privacyCheckbox.checked;
+      }
+
+      // Add event listeners for both email input and privacy checkbox
+      document.getElementById("feedbackEmail").addEventListener("input", updateFeedbackButtonState);
+      document.getElementById("privacyAgreement").addEventListener("change", updateFeedbackButtonState);
+
+      // Add feedback submission handler
+      document.getElementById("sendFeedbackButton").addEventListener("click", async () => {
+        try {
+          const email = document.getElementById("feedbackEmail").value;
+          const message = document.getElementById("feedbackMessage").value;
+          
+          const response = await fetch(`${API_BASE_URL}/feedback`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              email: email,
+              message: message
+            }),
+            ...fetchConfig
+          });
+
+          if (!response.ok) {
+            throw new Error(`Feedback submission failed: ${response.status}`);
+          }
+
+          addMessage("תודה על המשוב שלך!", "success");
+          // Clear the form
+          document.getElementById("feedbackEmail").value = "";
+          document.getElementById("feedbackMessage").value = "";
+          document.getElementById("privacyAgreement").checked = false;
+          updateFeedbackButtonState();
+        } catch (error) {
+          console.error("Failed to submit feedback:", error);
+          addMessage("שגיאה בשליחת המשוב: " + error.message, "error");
         }
       });
 
