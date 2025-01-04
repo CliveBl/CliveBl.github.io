@@ -120,7 +120,9 @@
           debug("Sign in response:", response.status);
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const errorData = await response.json();
+			console.log(errorData);	
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
           const result = await response.json();
@@ -152,7 +154,9 @@
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const errorData = await response.json();
+			console.log(errorData);	
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
           const result = await response.json();
@@ -206,7 +210,9 @@
           );
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const errorData = await response.json();	
+			console.log(errorData);	
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
           const fileInfoList = await response.json();
@@ -395,7 +401,9 @@
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const errorData = await response.json();	
+			console.log(errorData);	
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
           const result = await response.json();
@@ -612,7 +620,9 @@ async function uploadFiles(validFiles) {
             });
 
             if (!response.ok) {
-              throw new Error("התחברות נכשלה");
+				const errorData = await response.json();
+				console.log(errorData);		
+              throw new Error("התחברות נכשלה: " + errorData.detail);
             }
 
             const data = await response.json();
@@ -676,7 +686,9 @@ async function uploadFiles(validFiles) {
           );
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const errorData = await response.json();	
+			console.log(errorData);	
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
           const results = await response.json();
@@ -810,7 +822,9 @@ async function uploadFiles(validFiles) {
           );
 
           if (!response.ok) {
-            throw new Error(`Download failed: ${response.status}`);
+			const errorData = await response.json();
+			console.log(errorData);	
+            throw new Error(`Download failed: ${errorData.detail} ${response.status}`);
           }
 
           // Create blob from response
@@ -1848,7 +1862,9 @@ async function uploadFiles(validFiles) {
           );
 
           if (!response.ok) {
-            throw new Error(`Delete failed: ${response.status}`);
+			const errorData = await response.json();
+			console.log(errorData);	
+            throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
           }
 
           // Clear the file list
@@ -2168,7 +2184,9 @@ async function uploadFiles(validFiles) {
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+			const errorData = await response.json();	
+			console.log(errorData);	
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
           // Close the questionnaire dialog
@@ -2259,7 +2277,9 @@ async function loadQuestions() {
 		);
 
 		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
+			const errorData = await response.json();	
+			console.log(errorData);	
+			throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
 		}
 
 		cachedQuestions = await response.json();
@@ -2429,7 +2449,9 @@ async function loadQuestions() {
               );
 
               if (!response.ok) {
-                throw new Error(`Delete failed: ${response.status}`);
+				const errorData = await response.json();
+				console.log(errorData);	
+                throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
               }
 
               fileList.removeChild(li);
@@ -2524,7 +2546,9 @@ async function loadQuestions() {
             );
 
             if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+				const errorData = await response.json();
+				console.log(errorData);	
+              throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
             }
 
             const result = await response.json();
@@ -2812,7 +2836,9 @@ async function loadQuestions() {
           });
 
           if (!response.ok) {
-            throw new Error(`Feedback submission failed: ${response.status}`);
+			const errorData = await response.json();
+			console.log(errorData);
+            throw new Error(`Feedback submission failed: ${errorData.detail} ${response.status}`);
           }
 
           addMessage("תודה על המשוב שלך!", "success");
