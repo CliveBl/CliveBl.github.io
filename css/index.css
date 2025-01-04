@@ -588,6 +588,23 @@
         background-color: var(--bg-color);
         border-radius: 6px;
         border: 1px solid var(--border-color);
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .doc-item.selected {
+        border-color: var(--tax-blue);
+        background-color: rgba(52, 152, 219, 0.1);
+      }
+
+      .doc-item.selected::after {
+        content: "✓";
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: var(--tax-blue);
+        font-weight: bold;
       }
 
       .doc-icon {

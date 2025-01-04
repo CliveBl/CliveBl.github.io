@@ -2853,3 +2853,47 @@ async function loadQuestions() {
         }
       });
 
+      // Add click handlers for document items
+      document.querySelectorAll('.doc-item').forEach(item => {
+        item.addEventListener('click', () => {
+          // Toggle selected state
+          item.classList.toggle('selected');
+          
+          // Update file input state based on selections
+          const hasSelections = document.querySelectorAll('.doc-item.selected').length > 0;
+          document.getElementById('fileInput').disabled = !hasSelections;
+          document.getElementById('folderInput').disabled = !hasSelections;
+          
+          // Save selection state
+          saveSelectedDocTypes();
+        });
+      });
+
+      // Function to save selected doc types to localStorage
+      function saveSelectedDocTypes() {
+        const selectedDocs = Array.from(document.querySelectorAll('.doc-item.selected'))
+          .map(item => item.dataset.docType);
+        localStorage.setItem('selectedDocTypes', JSON.stringify(selectedDocs));
+      }
+
+      // Function to restore selected doc types from localStorage
+      function restoreSelectedDocTypes() {
+        const savedDocs = JSON.parse(localStorage.getItem('selectedDocTypes') || '[]');
+        savedDocs.forEach(docType => {
+          const docItem = document.querySelector(`.doc-item[data-doc-type="${docType}"]`);
+          if (docItem) {
+            docItem.classList.add('selected');
+          }
+        });
+        
+        // Update file input state based on restored selections
+        const hasSelections = document.querySelectorAll('.doc-item.selected').length > 0;
+        document.getElementById('fileInput').disabled = !hasSelections;
+        document.getElementById('folderInput').disabled = !hasSelections;
+      }
+
+      // Restore selections when page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        restoreSelectedDocTypes();
+      });
+
