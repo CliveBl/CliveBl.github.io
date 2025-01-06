@@ -61,30 +61,7 @@
       </div>
     </div>
 
-    <div id="questionnaireOverlay" class="questionnaire-overlay">
-      <div class="questionnaire-modal">
-        <div class="questionnaire-header">
-          <h2>שאלון מקדים</h2>
-          <button class="close-button">✕</button>
-        </div>
-        <div class="questionnaire-content">
-          <form id="questionnaireForm" method="post" class="questionnaire-form">
-            <div class="year-selector-container">
-              <div class="year-selector">
-                <label for="taxYear">שנת מס:</label>
-                <select id="taxYear" name="taxYear">
-                  <!-- Years will be added dynamically -->
-                </select>
-              </div>
-              <button type="submit" class="save-button">שמור תשובות</button>
-            </div>
-            <div class="questions-container">
-              <!-- Questions will be inserted here dynamically -->
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+
 
     <div class="main-container">
       <div class="header-container">
@@ -214,8 +191,30 @@
         <button id="deleteAllButton" class="delete-all-button" disabled>מחק הכל</button>
       </div>
 
-      <div id="questionnaireContainer" class="questionnaire-container"></div>
-      <!-- Add new message container -->
+	  <div id="questionnaireContainer" class="questionnaire-container">
+		<div class="questionnaire-modal">
+		  <div class="questionnaire-header">
+			<h2>שאלון מקדים</h2>
+		  </div>
+		  <div class="questionnaire-content">
+			<form id="questionnaireForm" method="post" class="questionnaire-form">
+			  <div class="year-selector-container">
+				<div class="year-selector">
+				  <label for="taxYear">שנת מס:</label>
+				  <select id="taxYear" name="taxYear">
+					<!-- Years will be added dynamically -->
+				  </select>
+				</div>
+				<button type="submit" class="save-button">שמור תשובות</button>
+			  </div>
+			  <div id="questionsContainer" class="questions-container">
+				<!-- Questions will be inserted here dynamically -->
+			  </div>
+			</form>
+		  </div>
+		</div>
+	  </div>
+	        <!-- Add new message container -->
       <div id="messageContainer" class="message-container"></div>
 	  <div class="process-button-container">	
 	  <button id="processButton" class="process-button" disabled>

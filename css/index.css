@@ -640,33 +640,27 @@
         background-color: #2980b9;
       }
 
-      /* Add questionnaire dialog styling */
-      .questionnaire-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
+      /* Update questionnaire styles */
+      .questionnaire-container {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin 0.3s ease-out;
+        margin: 0;
       }
-
-      .questionnaire-overlay.active {
-        display: flex;
+      
+      .questionnaire-container.active {
+        max-height: 2000px; /* Large enough to fit content */
+        opacity: 1;
+        margin: 20px 0;
       }
-
+      
       .questionnaire-modal {
         background-color: var(--bg-color);
         border-radius: 8px;
         padding: 20px;
-        width: 100%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
       }
 
       .questionnaire-header {

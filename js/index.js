@@ -66,7 +66,7 @@
         "העיבוד הושלם!",
       ];
 
-      // Add these cookie utility functions at the start of your script section
+      // Add these cookie utility functions at the start of your script
       const cookieUtils = {
         set: function (name, value, days = 7) {
           const d = new Date();
@@ -190,7 +190,8 @@
         resultsContainer.classList.remove("active");
         document.getElementById("resultsList").innerHTML = "";
 
-        addMessage("התנתקת בהצלחה");
+		removeAnswersMapFromLocalStorage();
+        //addMessage("התנתקת בהצלחה");
       }
 
       // Add this function to load files with existing token
@@ -447,30 +448,39 @@
       });
 
 async function uploadFilesWithButtonProgress(validFiles, button) {
-	const buttonLabel = button.nextElementSibling;
-	const originalText = buttonLabel.textContent;
+    const buttonLabel = button.nextElementSibling;
+    const originalText = buttonLabel.textContent;
 
-	buttonLabel.innerHTML = "⏳ מעלה...";
-	buttonLabel.classList.add("uploading");
+    // Disable the upload buttons
+    document.getElementById("fileInput").disabled = true;
+    document.getElementById("folderInput").disabled = true;
 
-	try {
-		if (!authToken) {
-			await signInAnonymous();
-		}
+    buttonLabel.innerHTML = "⏳ מעלה...";
+    buttonLabel.classList.add("uploading");
 
-		// Upload files one by one
-		await uploadFiles(validFiles);
-	} catch (error) {
-		console.error("Authentication failed:", error);
-		addMessage("שגיאה באימות: " + error.message, "error");
-	} finally {
-		// Restore button text
-		buttonLabel.innerHTML = originalText;
-		buttonLabel.classList.remove("uploading");
-		button.value = "";
-		// Clear all containers
-		clearResultsControls();
-	}
+    try {
+        if (!authToken) {
+            await signInAnonymous();
+        }
+
+        // Upload files one by one
+        await uploadFiles(validFiles);
+    } catch (error) {
+        console.error("Authentication failed:", error);
+        addMessage("שגיאה באימות: " + error.message, "error");
+    } finally {
+        // Restore button text
+        buttonLabel.innerHTML = originalText;
+        buttonLabel.classList.remove("uploading");
+        button.value = "";
+
+        // Re-enable the upload buttons
+        document.getElementById("fileInput").disabled = false;
+        document.getElementById("folderInput").disabled = false;
+
+        // Clear all containers
+        clearResultsControls();
+    }
 }
 
 async function uploadFiles(validFiles) {
@@ -598,9 +608,7 @@ async function uploadFiles(validFiles) {
       });
 
       // Update the login form submit handler
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", async (e) => {
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
           e.preventDefault();
           const email = document.getElementById("email").value;
           const password = document.getElementById("password").value;
@@ -642,11 +650,8 @@ async function uploadFiles(validFiles) {
             localStorage.removeItem("taxResults");
 
             // Clear tax results display
-            const taxResultsContainer = document.getElementById(
-              "taxResultsContainer"
-            );
-            const taxCalculationContent =
-              document.getElementById("taxCalculationContent");
+            const taxResultsContainer = document.getElementById("taxResultsContainer");
+            const taxCalculationContent = document.getElementById("taxCalculationContent");
             taxResultsContainer.classList.remove("active");
             taxCalculationContent.innerHTML = "";
 
@@ -654,7 +659,7 @@ async function uploadFiles(validFiles) {
             await loadExistingFiles(); // Load files with new token
             await loadResults();
 
-            addMessage("התחברת בהצלחה!");
+            //addMessage("התחברת בהצלחה!");
             document.getElementById("loginOverlay").classList.remove("active");
           } catch (error) {
             console.error("Login failed:", error);
@@ -849,6 +854,7 @@ async function uploadFiles(validFiles) {
 	  
       function saveAnswersMapToLocalStorage() {
         if (answersMap) {
+		  console.log("saveAnswersMapToLocalStorage");
 		  const mapArray = Array.from(answersMap.entries());
           const answersMapJson = JSON.stringify(mapArray);
           localStorage.setItem("answersMap", answersMapJson);
@@ -862,6 +868,7 @@ async function uploadFiles(validFiles) {
 
       // Update the loadAnswersMapFromLocalStorage function
       function loadAnswersMapFromLocalStorage() {
+        console.log("loadAnswersMapFromLocalStorage");
         const answersMapJson = localStorage.getItem("answersMap");
         if (answersMapJson) {
           answersMap = new Map(JSON.parse(answersMapJson));
@@ -869,10 +876,14 @@ async function uploadFiles(validFiles) {
       }
 
 	  function removeAnswersMapFromLocalStorage() {
+		console.log("removeAnswersMapFromLocalStorage");
 		localStorage.removeItem("answersMap");
+		// Delete answersMap
+		answersMap = {};
 	  }	
 
       function updateAnswersMapFromControls() {
+		console.log("updateAnswersMapFromControls");
         const selectedYear = parseInt(document.getElementById("taxYear").value);
         const yearAnswers = {};
 
@@ -980,7 +991,7 @@ async function uploadFiles(validFiles) {
 		  const question = cachedQuestions.find(q => q.name === questionName);
 		  // Add the answer only if it is different from the default answer.
 		  if (answer !== question.defaultAnswer) {
-			yearAnswers[questionName] = answer;
+          yearAnswers[questionName] = answer;
 		  }
         });
 
@@ -993,16 +1004,34 @@ async function uploadFiles(validFiles) {
 
       async function createQuestionnaire(requiredQuestionsList = []) {
         try {
+			console.log("createQuestionnaire");
           if (!authToken) {
             await signInAnonymous();
           }
-
+          // Get the questionnaire container
+          const questionnaireContainer = document.getElementById("questionnaireContainer");
           // Get reference to the questionnaire form
-          const questionnaireForm =
-            document.getElementById("questionnaireForm");
+          const questionnaireForm = document.getElementById("questionnaireForm");
           if (!questionnaireForm) {
             throw new Error("Questionnaire form not found");
           }
+
+          await loadQuestions();
+
+		  // Get the container to which we will add the dynamic questions container child
+		  const questionsContainer = document.getElementById("questionsContainer");
+		  // If questionsContainerChild already exists, remove it
+		  const questionsContainerChildOld = document.getElementById("questionsContainerChild");
+		  if (questionsContainerChildOld) {
+			console.log("questionsContainerChildOld found");
+			questionsContainer.removeChild(questionsContainerChildOld);
+		  }	
+          // Create the questions container child to which we will add the question controls.
+          const questionsContainerChild = document.createElement("div");
+		  questionsContainerChild.id = "questionsContainerChild";
+          questionsContainerChild.className = "questions-container";
+          questionsContainerChild.innerHTML = ""; // Clear existing questions
+          questionsContainer.appendChild(questionsContainerChild);
 
           await getAnswersMap();
 
@@ -1013,31 +1042,6 @@ async function uploadFiles(validFiles) {
           // Use let for currentYearAnswers since we need to update it
           let yearAnswers = answersMap.get(currentlySelectedTaxYear.toString());
           let currentYearAnswers = yearAnswers?.answers || {};
-
-          // Get questions from cache or fetch if not cached
-          await loadQuestions();
-
-          // Clear the entire form before adding new questions
-          questionnaireForm.innerHTML = "";
-
-          // Create year selector container
-          const yearSelectorContainer = document.createElement("div");
-          yearSelectorContainer.className = "year-selector-container";
-          yearSelectorContainer.innerHTML = `
-	          <div class="year-selector">
-	            <label for="taxYear">שנת מס:</label>
-	            <select id="taxYear" name="taxYear">
-	              <!-- Years will be added dynamically -->
-	            </select>
-	          </div>
-	          <button type="submit" class="save-button">שמור תשובות</button>
-	        `;
-          questionnaireForm.appendChild(yearSelectorContainer);
-
-          // Create container for questions
-          const questionsContainer = document.createElement("div");
-          questionsContainer.className = "questions-container";
-          questionnaireForm.appendChild(questionsContainer);
 
           // Populate year selector
           const yearSelect = document.getElementById("taxYear");
@@ -1074,6 +1078,7 @@ async function uploadFiles(validFiles) {
             questionText.textContent = question.text;
 			// If the question is in the list of required questions, add a red asterisk to the question text
 			if (requiredQuestionsList.includes(question.name)) {
+				console.log("Required question.name:", question.name);
 				questionText.innerHTML += "<span>*</span>";
 				questionText.classList.add('highlight-questions');
 			}
@@ -1184,10 +1189,11 @@ async function uploadFiles(validFiles) {
                   pairContainer.className = "checkbox-pair-container";
                   pairContainer.style.display = "flex";
                   pairContainer.style.gap = "10px";
+                  pairContainer.style.whiteSpace = "nowrap"; // Add this
 
-                  // Partner checkbox
+                  // Partner container
                   const partnerContainer = document.createElement("div");
-                  partnerContainer.style.flex = "1";
+                  partnerContainer.style.flex = "0 0 auto"; // Add this
 
                   const partnerLabel = document.createElement("label");
                   partnerLabel.textContent = "בן/בת זוג";
@@ -1199,9 +1205,9 @@ async function uploadFiles(validFiles) {
                   partnerCheckbox.type = "checkbox";
                   partnerCheckbox.name = question.name + "_1";
 
-                  // Registered partner checkbox
+                  // Registered container
                   const registeredContainer = document.createElement("div");
-                  registeredContainer.style.flex = "1";
+                  registeredContainer.style.flex = "0 0 auto"; // Add this
 
                   const registeredLabel = document.createElement("label");
                   registeredLabel.textContent = "בן זוג רשום";
@@ -1388,7 +1394,7 @@ async function uploadFiles(validFiles) {
             }
 
             questionGroup.appendChild(controls);
-            questionnaireForm.appendChild(questionGroup);
+            questionsContainerChild.appendChild(questionGroup);
 
             // After creating all controls for a question, populate with saved answers
             let savedAnswer = currentYearAnswers[question.name];
@@ -1534,6 +1540,7 @@ async function uploadFiles(validFiles) {
               // First save current year's answers to the answersMap
               const previousYearAnswers = {};
 
+			  //const questionnaireForm = document.getElementById("questionnaireForm");
               cachedQuestions.forEach((question) => {
                 const controls = questionnaireForm.querySelector(
                   `.question-group[data-question="${question.name}"] .question-controls`
@@ -1834,7 +1841,9 @@ async function uploadFiles(validFiles) {
           }
 
           // Show questionnaire dialog
-          openQuestionaire();
+          showQuestionaire();
+		  localStorage.setItem("questionnaireExists", "true");
+
         } catch (error) {
           console.error("Failed to load questionnaire:", error);
           addMessage("שגיאה בטעינת השאלון: " + error.message, "error");
@@ -1862,7 +1871,7 @@ async function uploadFiles(validFiles) {
           );
 
           if (!response.ok) {
-			const errorData = await response.json();
+			const errorData = await response.json();	
 			console.log(errorData);	
             throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
           }
@@ -1925,8 +1934,8 @@ async function uploadFiles(validFiles) {
 
       // Save state before the page unloads
       window.addEventListener("beforeunload", () => {
-		const questionnaireOpen = localStorage.getItem("questionnaireOpen");
-        if (answersMap && questionnaireOpen === "true") {
+		const questionnaireExists = localStorage.getItem("questionnaireExists");
+        if (answersMap && questionnaireExists === "true") {
           updateAnswersMapFromControls();
           saveAnswersMapToLocalStorage();
         }
@@ -2100,11 +2109,10 @@ async function uploadFiles(validFiles) {
 
       // Keep the hover functionality
       document.addEventListener("DOMContentLoaded", () => {
+		console.log("DOMContentLoaded 1");
         const docDetailsModal = document.getElementById("docDetailsModal");
-        const docDetailsTitle =
-          docDetailsModal.querySelector(".doc-details-title");
-        const docDetailsBody =
-          docDetailsModal.querySelector(".doc-details-body");
+        const docDetailsTitle = docDetailsModal.querySelector(".doc-details-title");
+        const docDetailsBody = docDetailsModal.querySelector(".doc-details-body");
 
         // Add hover event listeners for document items
         document.querySelectorAll(".doc-item").forEach((item) => {
@@ -2136,29 +2144,39 @@ async function uploadFiles(validFiles) {
       });
 
       // Update the questionnaire button click handler
-      document
-        .getElementById("questionnaireButton")
-        .addEventListener("click", async () => {
-          createQuestionnaire();
-		  // TBD Why do we do this here
-		  removeAnswersMapFromLocalStorage();
+      document.getElementById("questionnaireButton").addEventListener("click", async () => {
+          //const questionnaireContainer = document.getElementById("questionnaireContainer");
+          const isCurrentlyActive = questionnaireContainer.classList.contains("active");
+          
+          if (isCurrentlyActive) {
+            // Hide questionnaire if it's currently shown
+            hideQuestionaire();
+          } else {
+			// Check if the questionnaire is already created
+			if (!document.getElementById("questionsContainerChild")) {
+				await createQuestionnaire();
+			}
+			else {
+				showQuestionaire();
+			}
+          }
         });
 
       // Make sure the form has an ID and method
       questionnaireForm.setAttribute("method", "post");
 
       // Close questionnaire on overlay click
-      questionnaireOverlay.addEventListener("click", (e) => {
-        if (e.target === questionnaireOverlay) {
-          closeQuestionaire();
-		  removeAnswersMapFromLocalStorage();
-        }
-      });
+    //   questionnaireOverlay.addEventListener("click", (e) => {
+    //     if (e.target === questionnaireOverlay) {
+    //       closeQuestionaire();
+	// 	  removeAnswersMapFromLocalStorage();
+    //     }
+    //   });
 
       // Close questionnaire on close button click
-      questionnaireOverlay.querySelector(".close-button").addEventListener("click", () => {
-          closeQuestionaire();
-        });
+    //   questionnaireOverlay.querySelector(".close-button").addEventListener("click", () => {
+    //       closeQuestionaire();
+    //     });
 
       // Update the questionnaire form submission handler
       questionnaireForm.addEventListener("submit", async (e) => {
@@ -2190,10 +2208,7 @@ async function uploadFiles(validFiles) {
           }
 
           // Close the questionnaire dialog
-          questionnaireOverlay.classList.remove("active");
-		  // Save the open/close state of the questionnaire
-		  localStorage.setItem("questionnaireOpen", "false");
-
+		  hideQuestionaire();
 
           // Show success message
           addMessage("התשובות נשמרו בהצלחה", "info");
@@ -2203,16 +2218,15 @@ async function uploadFiles(validFiles) {
         }
       });
 
-// Open the questionnaire
-function openQuestionaire() {
-	questionnaireOverlay.classList.add("active");
-	localStorage.setItem("questionnaireOpen", "true");
+function hideQuestionaire() {
+	questionnaireContainer.classList.remove("active");
+	localStorage.setItem("questionnaireOpen", "false");
 }
 
-function closeQuestionaire() {
-	questionnaireOverlay.classList.remove("active");
-	// Save the open/close state of the questionnaire
-	localStorage.setItem("questionnaireOpen", "false");
+// Open the questionnaire
+function showQuestionaire() {
+	questionnaireContainer.classList.add("active");
+	localStorage.setItem("questionnaireOpen", "true");
 }
 
 function clearResultsControls() {
@@ -2285,6 +2299,14 @@ async function loadQuestions() {
 		cachedQuestions = await response.json();
 	}
 }
+
+function formatNumber(key, value) {
+  if (!isNaN(value)) {
+    return `<em>${key}:</em> ${new Intl.NumberFormat(undefined, { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value)}`;
+  } else {
+    return `<em>${key}:</em> ${value}`;
+  }
+}	
 
       function addFileToList(fileInfo) {
 		let status;
@@ -2382,13 +2404,11 @@ async function loadQuestions() {
                     itemList.className = "nested-list";
                     
                     Object.entries(item).forEach(([itemKey, itemValue]) => {
-                      if (itemValue !== null) {
                         const itemField = document.createElement("li");
                         itemField.className = "nestedListItemField";
-                        itemField.innerHTML = `<em>${itemKey}:</em> ${itemValue}`;
+                        itemField.innerHTML = formatNumber(itemKey, itemValue);
                         itemList.appendChild(itemField);
-                      }
-                    });
+				    });
                     
                     if (itemList.children.length > 0) {
                       arrayItem.appendChild(itemList);
@@ -2401,7 +2421,7 @@ async function loadQuestions() {
                   if (nestedValue !== null) {
                     const nestedItem = document.createElement("li");
                     nestedItem.className = "nestedListItemField";
-                    nestedItem.innerHTML = `<em>${nestedKey}:</em> ${nestedValue}`;
+                    nestedItem.innerHTML = formatNumber(nestedKey, nestedValue);
                     nestedList.appendChild(nestedItem);
                   }
                 });
@@ -2520,7 +2540,7 @@ async function loadQuestions() {
 			if (requiredQuestionsList.length > 0) {
 				// create the questions dialog
 				createQuestionnaire(requiredQuestionsList);
-				removeAnswersMapFromLocalStorage();
+				//removeAnswersMapFromLocalStorage();
 			}
 			else {
             // Show loading overlay
@@ -2779,8 +2799,20 @@ async function loadQuestions() {
 
       // Initialize when DOM is ready
       document.addEventListener("DOMContentLoaded", async () => {
+		console.log("DOMContentLoaded 2");
+
+		localStorage.setItem("questionnaireExists", "false");
+
         await initializeAuthState();
         initializeDocumentHovers();
+		restoreSelectedDocTypes();
+
+        // Initialize questionnaire state
+        const questionnaireContainer = document.getElementById("questionnaireContainer");
+        // const wasQuestionnaireOpen = localStorage.getItem("questionnaireOpen") === "true";
+        // if (!wasQuestionnaireOpen) {
+        //   hideQuestionaire();
+        // }
 
         // Pre-fill feedback email if user is logged in
         if (authToken) {
@@ -2792,8 +2824,8 @@ async function loadQuestions() {
         }
 
         // Check if the questionnaire was open or closed last time
-        const questionnaireOpen = localStorage.getItem("questionnaireOpen");
-        if (questionnaireOpen && questionnaireOpen === "true") {
+        const questionnaireExists = localStorage.getItem("questionnaireExists");
+        if (questionnaireExists && questionnaireExists === "true") {
           createQuestionnaire();
         }
       });
@@ -2860,9 +2892,9 @@ async function loadQuestions() {
           item.classList.toggle('selected');
           
           // Update file input state based on selections
-          const hasSelections = document.querySelectorAll('.doc-item.selected').length > 0;
-          document.getElementById('fileInput').disabled = !hasSelections;
-          document.getElementById('folderInput').disabled = !hasSelections;
+        //   const hasSelections = document.querySelectorAll('.doc-item.selected').length > 0;
+        //   document.getElementById('fileInput').disabled = !hasSelections;
+        //   document.getElementById('folderInput').disabled = !hasSelections;
           
           // Save selection state
           saveSelectedDocTypes();
@@ -2887,13 +2919,24 @@ async function loadQuestions() {
         });
         
         // Update file input state based on restored selections
-        const hasSelections = document.querySelectorAll('.doc-item.selected').length > 0;
-        document.getElementById('fileInput').disabled = !hasSelections;
-        document.getElementById('folderInput').disabled = !hasSelections;
+        // const hasSelections = document.querySelectorAll('.doc-item.selected').length > 0;
+        // document.getElementById('fileInput').disabled = !hasSelections;
+        // document.getElementById('folderInput').disabled = !hasSelections;
       }
 
       // Restore selections when page loads
-      document.addEventListener('DOMContentLoaded', () => {
-        restoreSelectedDocTypes();
-      });
+    //   document.addEventListener('DOMContentLoaded', () => {
+    //     restoreSelectedDocTypes();
+    //   });
+
+    //   // Add questionnaire button click handler
+    //   document.getElementById('questionnaireButton').addEventListener('click', () => {
+    //     const questionnaireContainer = document.getElementById('questionnaireContainer');
+    //     questionnaireContainer.classList.add('active');
+        
+    //     // Create questionnaire if not already created
+    //     if (!document.querySelector('.questions-container .question-group')) {
+    //       createQuestionnaire();
+    //     }
+    //   });
 
