@@ -586,7 +586,7 @@ async function uploadFiles(validFiles) {
         // Update UI elements
         modalTitle.textContent = isSignup ? "הרשמה" : "התחברות";
         submitButton.textContent = isSignup ? "הירשם" : "התחבר";
-        confirmPassword.style.display = isSignup ? "block" : "none";
+        //confirmPassword.style.display = isSignup ? "block" : "none";
         googleButtonText.textContent = isSignup
           ? "הרשמה עם Google"
           : "התחבר עם Google";
@@ -603,7 +603,7 @@ async function uploadFiles(validFiles) {
       // Add click handlers for mode toggle buttons
       toggleButtons.forEach((button) => {
         button.addEventListener("click", () => {
-          switchMode(button.dataset.mode);
+          switchMode(button.dataset.mode);  // This reads the data-mode attribute
         });
       });
 
@@ -612,60 +612,90 @@ async function uploadFiles(validFiles) {
           e.preventDefault();
           const email = document.getElementById("email").value;
           const password = document.getElementById("password").value;
+          const isSignup = document.querySelector('.toggle-button.active').dataset.mode === 'signup';
 
           try {
-            // Call the signIn API
-            const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: email,
-                password: password,
-              }),
-              ...fetchConfig,
-            });
+            if (isSignup) {
+              // Call the registration API
+              const response = await fetch(`${AUTH_BASE_URL}/createAccount`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  email: email,
+                  password: password,
+                  role: "USER"
+                }),
+                ...fetchConfig,
+              });
 
-            if (!response.ok) {
-				const errorData = await response.json();
-				console.log(errorData);		
-              throw new Error("התחברות נכשלה: " + errorData.detail);
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error("הרשמה נכשלה: " + errorData.detail);
+              }
+
+              // Show verification message and close login dialog
+              addMessage("נרשמת בהצלחה! אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.", "success");
+              document.getElementById("loginOverlay").classList.remove("active");
+              
+              // Clear the form
+              document.getElementById("email").value = "";
+              document.getElementById("password").value = "";
+
+            } else {
+              // Call the signIn API
+              const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  email: email,
+                  password: password,
+                }),
+                ...fetchConfig,
+              });
+
+              if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error("התחברות נכשלה: " + errorData.detail);
+              }
+
+              const data = await response.json();
+
+              // Store the token
+              authToken = data.token;
+              cookieUtils.set("authToken", authToken);
+			}
+
+              // Update UI to show logged in user
+              const userEmail = document.getElementById("userEmail");
+              const loginButton = document.querySelector(".login-button");
+              userEmail.textContent = email;
+              loginButton.textContent = "התנתק";
+              loginButton.classList.add("logged-in");
+
+              // Clear stored tax results
+              localStorage.removeItem("taxResults");
+
+              // Clear tax results display
+              const taxResultsContainer = document.getElementById("taxResultsContainer");
+              const taxCalculationContent = document.getElementById("taxCalculationContent");
+              taxResultsContainer.classList.remove("active");
+              taxCalculationContent.innerHTML = "";
+
+              // Handle signin
+              await loadExistingFiles(); // Load files with new token
+              await loadResults();
+
+              //addMessage("התחברת בהצלחה!");
+              document.getElementById("loginOverlay").classList.remove("active");
+            } catch (error) {
+              console.error("Login failed:", error);
+              addMessage("שגיאה בהתחברות: " + error.message, "error");
             }
-
-            const data = await response.json();
-
-            // Store the token
-            authToken = data.token;
-            cookieUtils.set("authToken", authToken);
-
-            // Update UI to show logged in user
-            const userEmail = document.getElementById("userEmail");
-            const loginButton = document.querySelector(".login-button");
-            userEmail.textContent = email;
-            loginButton.textContent = "התנתק";
-            loginButton.classList.add("logged-in");
-
-            // Clear stored tax results
-            localStorage.removeItem("taxResults");
-
-            // Clear tax results display
-            const taxResultsContainer = document.getElementById("taxResultsContainer");
-            const taxCalculationContent = document.getElementById("taxCalculationContent");
-            taxResultsContainer.classList.remove("active");
-            taxCalculationContent.innerHTML = "";
-
-            // Handle signin
-            await loadExistingFiles(); // Load files with new token
-            await loadResults();
-
-            //addMessage("התחברת בהצלחה!");
-            document.getElementById("loginOverlay").classList.remove("active");
-          } catch (error) {
-            console.error("Login failed:", error);
-            addMessage("שגיאה בהתחברות: " + error.message, "error");
-          }
-        });
+          });
 
       document.querySelector(".google-login").addEventListener("click", () => {
         console.log("Google login clicked");
