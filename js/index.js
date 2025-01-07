@@ -1,5 +1,5 @@
       // Add these variables at the top of your script
-      let cachedQuestions = null;
+      let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
 
@@ -988,7 +988,7 @@ async function uploadFiles(validFiles) {
           }
 
 		  // Get question from cache
-		  const question = cachedQuestions.find(q => q.name === questionName);
+		  const question = configurationData.questionList.find(q => q.name === questionName);
 		  // Add the answer only if it is different from the default answer.
 		  if (answer !== question.defaultAnswer) {
           yearAnswers[questionName] = answer;
@@ -1036,7 +1036,8 @@ async function uploadFiles(validFiles) {
           await getAnswersMap();
 
           // Set initial current year
-          const endYear = 2023;
+          const endYear = configurationData.supportedTaxYears[0];
+		  const startYear = configurationData.supportedTaxYears[configurationData.supportedTaxYears.length - 1];
           currentlySelectedTaxYear = endYear;
 
           // Use let for currentYearAnswers since we need to update it
@@ -1048,7 +1049,7 @@ async function uploadFiles(validFiles) {
           yearSelect.innerHTML = "";
 
           // Add supported years (2017-2023)
-          for (let year = endYear; year >= 2017; year--) {
+          for (let year = endYear; year >= startYear; year--) {
             const option = document.createElement("option");
             option.value = year;
             option.textContent = year;
@@ -1060,7 +1061,8 @@ async function uploadFiles(validFiles) {
           //console.log('Set year selector to:', currentlySelectedTaxYear); // Debug log
 
           // Create questions and populate with answers
-          cachedQuestions.forEach((question) => {
+		  const questions = configurationData.questionList;
+          questions.forEach((question) => {
             const questionGroup = document.createElement("div");
             questionGroup.className = "question-group";
             questionGroup.setAttribute("data-question", question.name);
@@ -1541,7 +1543,8 @@ async function uploadFiles(validFiles) {
               const previousYearAnswers = {};
 
 			  //const questionnaireForm = document.getElementById("questionnaireForm");
-              cachedQuestions.forEach((question) => {
+			  const questions = configurationData.questionList;
+              questions.forEach((question) => {
                 const controls = questionnaireForm.querySelector(
                   `.question-group[data-question="${question.name}"] .question-controls`
                 );
@@ -1679,7 +1682,7 @@ async function uploadFiles(validFiles) {
               }
 
               // iterate over the questions
-              cachedQuestions.forEach((question) => {
+              questions.forEach((question) => {
                 let savedAnswer;
                 if (selectedYearAnswers) {
                   savedAnswer = selectedYearAnswers[question.name];
@@ -2277,7 +2280,7 @@ async function getAnswersMap() {
 }
 
 async function loadQuestions() {
-	if (!cachedQuestions) {
+	if (!configurationData) {
 		const response = await fetch(
 			`${AUTH_BASE_URL}/getQuestionDefinitions`,
 			{
@@ -2296,7 +2299,7 @@ async function loadQuestions() {
 			throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
 		}
 
-		cachedQuestions = await response.json();
+		configurationData = await response.json();
 	}
 }
 
@@ -2522,7 +2525,7 @@ function formatNumber(key, value) {
 
 			await loadQuestions();
 			// Returns all questions that have required field equal to REQUIRED
-			const requiredQuestions = cachedQuestions.filter(question => question.required === "REQUIRED");
+			const requiredQuestions = configurationData.questionList.filter(question => question.required === "REQUIRED");
 			let requiredQuestionsList = [];
 			const yearAnswers = answersMap.get(taxCalcTaxYear);
 			const currentYearAnswers = yearAnswers?.answers || {};
