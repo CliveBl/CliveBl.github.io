@@ -132,6 +132,7 @@
           authToken = result.token;
           cookieUtils.set("authToken", authToken); // Save token to cookie
           debug("Token received and saved:", authToken);
+		  updateSignInUI();
           return authToken;
         } catch (error) {
           debug("Sign in error:", error);
@@ -163,6 +164,8 @@
           authToken = result.token;
           cookieUtils.set("authToken", authToken); // Save token to cookie
           console.log("Sign in successful");
+		  // Update UI to show  state
+		  updateSignInUI();
           return authToken;
         } catch (error) {
           console.error("Sign in failed:", error);
@@ -170,27 +173,38 @@
         }
       }
 
+	  function updateSignInUI() {
+		const userEmail = document.getElementById("userEmail");
+		const loginButton = document.querySelector(".login-button");
+		if(authToken) {
+			userEmail.textContent = authToken.email;
+			loginButton.textContent = "התנתק";
+			loginButton.classList.add("logged-in");
+		}
+		else
+		{
+			userEmail.textContent = "";
+			loginButton.textContent = "התחברות";
+			loginButton.classList.remove("logged-in");
+		}
+	}
       // Update the sign out function
       function signOut() {
         authToken = null;
         cookieUtils.delete("authToken");
 
         // Update UI to show logged out state
-        const userEmail = document.getElementById("userEmail");
-        const loginButton = document.querySelector(".login-button");
-        userEmail.textContent = "";
-        loginButton.textContent = "התחברות";
-        loginButton.classList.remove("logged-in");
+		updateSignInUI();
 
         // Clear the file list
         fileList.innerHTML = "";
+		removeQuestionaire();
 
         // Clear results
-        const resultsContainer = document.getElementById("resultsContainer");
-        resultsContainer.classList.remove("active");
-        document.getElementById("resultsList").innerHTML = "";
+		clearResultsControls();
 
 		removeAnswersMapFromLocalStorage();
+		localStorage.setItem("questionnaireExists", "false");
         //addMessage("התנתקת בהצלחה");
       }
 
@@ -1048,14 +1062,11 @@ async function uploadFiles(validFiles) {
 
           await loadQuestions();
 
+		  // Remove the old questionnaire if it exists because the controls will have old values.
+		  removeQuestionaire();
 		  // Get the container to which we will add the dynamic questions container child
 		  const questionsContainer = document.getElementById("questionsContainer");
-		  // If questionsContainerChild already exists, remove it
-		  const questionsContainerChildOld = document.getElementById("questionsContainerChild");
-		  if (questionsContainerChildOld) {
-			console.log("questionsContainerChildOld found");
-			questionsContainer.removeChild(questionsContainerChildOld);
-		  }	
+
           // Create the questions container child to which we will add the question controls.
           const questionsContainerChild = document.createElement("div");
 		  questionsContainerChild.id = "questionsContainerChild";
@@ -1972,6 +1983,9 @@ async function uploadFiles(validFiles) {
           updateAnswersMapFromControls();
           saveAnswersMapToLocalStorage();
         }
+		else {
+			localStorage.setItem("questionnaireExists", "false");
+		}
       });
 
 
@@ -2214,6 +2228,7 @@ async function uploadFiles(validFiles) {
       // Update the questionnaire form submission handler
       questionnaireForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+		console.log("setAnswersMap");
         try {
           updateAnswersMapFromControls();
           // Convert Map to object for JSON serialization
@@ -2251,18 +2266,28 @@ async function uploadFiles(validFiles) {
         }
       });
 
+function removeQuestionaire() {
+	const questionsContainer = document.getElementById("questionsContainer");
+	hideQuestionaire()
+	// If questionsContainerChild already exists, remove it
+	const questionsContainerChildOld = document.getElementById("questionsContainerChild");
+	if (questionsContainerChildOld) {
+		console.log("questionsContainerChildOld found");
+		questionsContainer.removeChild(questionsContainerChildOld);
+	}
+}
+
 function hideQuestionaire() {
 	questionnaireContainer.classList.remove("active");
-	localStorage.setItem("questionnaireOpen", "false");
 }
 
 // Open the questionnaire
 function showQuestionaire() {
 	questionnaireContainer.classList.add("active");
-	localStorage.setItem("questionnaireOpen", "true");
 }
 
 function clearResultsControls() {
+	console.log("clearResultsControls");
 	const resultsContainer = document.getElementById("resultsContainer");
 	const resultsList = document.getElementById("resultsList");
 	const messageContainer = document.getElementById("messageContainer");
@@ -2285,6 +2310,7 @@ function clearResultsControls() {
 async function getAnswersMap() {
 	if (!hasLocalAnswersMap()) {
 		// Get the answers map
+		console.log("Getting answers map");
 		const answersResponse = await fetch(
 			`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`,
 			{
@@ -2795,7 +2821,6 @@ function formatNumber(key, value) {
         }
       }
 
-
       // Setup document hover functionality
       function initializeDocumentHovers() {
         const docDetailsModal = document.getElementById("docDetailsModal");
@@ -2834,7 +2859,7 @@ function formatNumber(key, value) {
       document.addEventListener("DOMContentLoaded", async () => {
 		console.log("DOMContentLoaded 2");
 
-		localStorage.setItem("questionnaireExists", "false");
+		//localStorage.setItem("questionnaireExists", "false");
 
         await initializeAuthState();
         initializeDocumentHovers();
@@ -2842,10 +2867,6 @@ function formatNumber(key, value) {
 
         // Initialize questionnaire state
         const questionnaireContainer = document.getElementById("questionnaireContainer");
-        // const wasQuestionnaireOpen = localStorage.getItem("questionnaireOpen") === "true";
-        // if (!wasQuestionnaireOpen) {
-        //   hideQuestionaire();
-        // }
 
         // Pre-fill feedback email if user is logged in
         if (authToken) {
@@ -2923,12 +2944,6 @@ function formatNumber(key, value) {
         item.addEventListener('click', () => {
           // Toggle selected state
           item.classList.toggle('selected');
-          
-          // Update file input state based on selections
-        //   const hasSelections = document.querySelectorAll('.doc-item.selected').length > 0;
-        //   document.getElementById('fileInput').disabled = !hasSelections;
-        //   document.getElementById('folderInput').disabled = !hasSelections;
-          
           // Save selection state
           saveSelectedDocTypes();
         });
@@ -2950,26 +2965,6 @@ function formatNumber(key, value) {
             docItem.classList.add('selected');
           }
         });
-        
-        // Update file input state based on restored selections
-        // const hasSelections = document.querySelectorAll('.doc-item.selected').length > 0;
-        // document.getElementById('fileInput').disabled = !hasSelections;
-        // document.getElementById('folderInput').disabled = !hasSelections;
       }
 
-      // Restore selections when page loads
-    //   document.addEventListener('DOMContentLoaded', () => {
-    //     restoreSelectedDocTypes();
-    //   });
-
-    //   // Add questionnaire button click handler
-    //   document.getElementById('questionnaireButton').addEventListener('click', () => {
-    //     const questionnaireContainer = document.getElementById('questionnaireContainer');
-    //     questionnaireContainer.classList.add('active');
-        
-    //     // Create questionnaire if not already created
-    //     if (!document.querySelector('.questions-container .question-group')) {
-    //       createQuestionnaire();
-    //     }
-    //   });
 
