@@ -556,11 +556,13 @@ async function uploadFiles(validFiles) {
         messageDiv.appendChild(dismissButton);
         messageContainer.appendChild(messageDiv);
 		
-		// Scroll to the bottom of the page
-		window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth",
-          });
+		// Scroll to the bottom of the page if type is not "success" or "info"
+		if (type !== "success" && type !== "info") {
+			window.scrollTo({
+				top: document.body.scrollHeight,
+				behavior: "smooth",
+			});
+		}
       }
 
       // Add this to your existing script
@@ -1888,6 +1890,23 @@ async function uploadFiles(validFiles) {
           showQuestionaire();
 		  localStorage.setItem("questionnaireExists", "true");
 
+          // Duplicate answers handler
+          document.querySelector('.duplicate-button').addEventListener('click', () => {
+            const currentYear = yearSelect.value;
+			updateAnswersMapFromControls();
+
+			// Duplicate the answers to all years
+			yearSelect.querySelectorAll('option').forEach(option => {
+				if (option.value !== currentYear) {
+					answersMap.set(option.value,answersMap.get(currentYear));
+				}
+			});
+            // Save to localStorage
+            saveAnswersMapToLocalStorage();
+            
+            addMessage("התשובות שוכפלו לכל השנים", "success");
+          });
+
         } catch (error) {
           console.error("Failed to load questionnaire:", error);
           addMessage("שגיאה בטעינת השאלון: " + error.message, "error");
@@ -2966,5 +2985,3 @@ function formatNumber(key, value) {
           }
         });
       }
-
-
