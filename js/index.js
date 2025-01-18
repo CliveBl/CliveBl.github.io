@@ -2922,20 +2922,30 @@ function formatNumber(key, value) {
 
       // Function to save selected doc types to localStorage
       function saveSelectedDocTypes() {
-        const selectedDocs = Array.from(document.querySelectorAll('.doc-item.selected'))
-          .map(item => item.dataset.docType);
-        localStorage.setItem('selectedDocTypes', JSON.stringify(selectedDocs));
+        const docSelections = {};
+        document.querySelectorAll('.doc-controls select').forEach(select => {
+          const docItem = select.closest('.doc-item');
+          const docType = docItem.dataset.docType;
+          docSelections[docType] = select.value;
+        });
+        localStorage.setItem('docSelections', JSON.stringify(docSelections));
       }
 
       // Function to restore selected doc types from localStorage
       function restoreSelectedDocTypes() {
-        const savedDocs = JSON.parse(localStorage.getItem('selectedDocTypes') || '[]');
-        savedDocs.forEach(docType => {
+        const savedSelections = JSON.parse(localStorage.getItem('docSelections') || '{}');
+        Object.entries(savedSelections).forEach(([docType, value]) => {
           const docItem = document.querySelector(`.doc-item[data-doc-type="${docType}"]`);
           if (docItem) {
             const select = docItem.querySelector('select');
-            if (select && parseInt(select.value) > 0) {
-              docItem.classList.add('selected');
+            if (select) {
+              select.value = value;
+              // Update selected class based on value
+              if (parseInt(value) > 0) {
+                docItem.classList.add('selected');
+              } else {
+                docItem.classList.remove('selected');
+              }
             }
           }
         });
