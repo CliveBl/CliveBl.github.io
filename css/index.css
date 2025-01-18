@@ -53,6 +53,28 @@
 		box-sizing: border-box;
       }
 
+	  h1 {
+		color: var(--tax-blue);
+		margin-bottom: 30px;
+		text-align: center;
+	}
+
+	h2 {
+		color: var(--tax-blue);
+		margin-top: 30px;
+		margin-bottom: 15px;
+	}
+
+	p {
+		line-height: 1.6;
+		margin-bottom: 15px;
+	}
+
+	ul {
+		line-height: 1.6;
+		margin-bottom: 20px;
+	}
+	
 	  * {
 		box-sizing: inherit; /* Apply box-sizing to all elements */
 	  }
