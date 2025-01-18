@@ -2147,16 +2147,26 @@ async function uploadFiles(validFiles) {
         const docDetailsTitle = docDetailsModal.querySelector(".doc-details-title");
         const docDetailsBody = docDetailsModal.querySelector(".doc-details-body");
 
-        // Add click handlers for info buttons
-        document.querySelectorAll(".info-button").forEach((button) => {
-          button.addEventListener("click", (e) => {
-            e.stopPropagation(); // Prevent event bubbling
-            const docItem = button.closest(".doc-item");
+        // Add click handlers for doc items
+        document.querySelectorAll(".doc-item").forEach((docItem) => {
+          docItem.addEventListener("click", (e) => {
+            // Don't show info if clicking on select or within doc-controls
+            if (e.target.closest('.doc-controls')) {
+              return;
+            }
+            
             const docType = docItem.dataset.docType;
             const details = docDetails[docType];
-            
+
             if (details) {
-              const buttonBounds = button.getBoundingClientRect();
+              // If clicking the same panel that's already showing info, close it
+              if (docDetailsModal.style.display === "block" && 
+                  docDetailsModal.dataset.currentDocType === docType) {
+                docDetailsModal.style.display = "none";
+                return;
+              }
+
+              const itemBounds = docItem.getBoundingClientRect();
               docDetailsTitle.textContent = details.title;
               docDetailsBody.innerHTML = details.sections
                 .map(
@@ -2167,8 +2177,9 @@ async function uploadFiles(validFiles) {
                 )
                 .join("");
               
-              docDetailsModal.style.top = `${buttonBounds.bottom + 5}px`;
-              docDetailsModal.style.left = `${buttonBounds.left}px`;
+              docDetailsModal.style.top = `${itemBounds.bottom + 5}px`;
+              docDetailsModal.style.left = `${itemBounds.left}px`;
+              docDetailsModal.dataset.currentDocType = docType;
               docDetailsModal.style.display = "block";
             }
           });
@@ -2177,7 +2188,7 @@ async function uploadFiles(validFiles) {
         // Close modal when clicking outside
         document.addEventListener("click", (e) => {
           if (!docDetailsModal.contains(e.target) && 
-              !e.target.classList.contains('info-button')) {
+              !e.target.closest('.doc-item')) {
             docDetailsModal.style.display = "none";
           }
         });
