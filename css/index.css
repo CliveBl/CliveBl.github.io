@@ -615,13 +615,14 @@
       }
 
       .doc-icon {
-        font-size: 24px;
+        font-size: 1.2em;
+        vertical-align: middle;
       }
 
       .doc-details h3 {
         margin: 0 0 5px 0;
-        font-size: 1.1em;
-        color: var(--text-color);
+        display: inline-block;
+        margin-left: 10px;
       }
 
       .doc-details p {
@@ -904,8 +905,7 @@
         max-width: 300px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         z-index: 1000;
-        left: 50%;
-        transform: translateX(-50%);
+        transform: translateY(10px);
       }
 
       .doc-details-title {
@@ -1212,8 +1212,7 @@
         max-width: 300px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         z-index: 1000;
-        left: 50%;
-        transform: translateX(-50%);
+        transform: translateY(10px);
       }
 
       .doc-details-title {
@@ -1432,4 +1431,42 @@
 
       .duplicate-button:hover {
         background-color: #2980b9;
+      }
+
+      .doc-controls {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        min-width: 45px;
+        margin-left: 15px;
+      }
+
+      .doc-controls select {
+        padding: 4px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        width: 35px;
+        height: 28px;
+        color: var(--text-color);
+        text-align: center;
+      }
+
+      .info-button {
+        background: var(--tax-blue);
+        color: white;
+        border: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .info-button:hover {
+        background: #2980b9;
       }

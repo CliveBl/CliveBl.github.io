@@ -76,44 +76,96 @@
         <h2>מסמכים נדרשים להשת הדו"ח</h2>
         <div class="required-docs">
           <div class="doc-item" data-doc-type="form106">
-            <span class="doc-icon">📄</span>
+            <div class="doc-controls">
+              <select name="form106-count" id="form106-count">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+              <button class="info-button">?</button>
+            </div>
             <div class="doc-details">
               <h3>טופס 106</h3>
+              <span class="doc-icon">📄</span>
               <p>תלושי משכורת שנתיים מכל מעסיק</p>
             </div>
           </div>
           <div class="doc-item" data-doc-type="capital-gains">
-            <span class="doc-icon">📊</span>
+            <div class="doc-controls">
+              <select name="capital-gains-count">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+              <button class="info-button">?</button>
+            </div>
             <div class="doc-details">
               <h3>אישורי רווח הון</h3>
+              <span class="doc-icon">📊</span>
               <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
             </div>
           </div>
           <div class="doc-item" data-doc-type="residency">
-            <span class="doc-icon">🏠</span>
+            <div class="doc-controls">
+              <select name="residency-count">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+              </select>
+              <button class="info-button">?</button>
+            </div>
             <div class="doc-details">
               <h3>אישור תושב</h3>
+			  <span class="doc-icon">🏠</span>
               <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
             </div>
           </div>
           <div class="doc-item" data-doc-type="donations">
-            <span class="doc-icon">💝</span>
+             <div class="doc-controls">
+              <select name="donations-count">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+              <button class="info-button">?</button>
+            </div>
             <div class="doc-details">
               <h3>אישורי תרומות</h3>
+              <span class="doc-icon">💝</span>
               <p>קבלות על ררומות למוסדות מוכרים</p>
             </div>
           </div>
           <div class="doc-item" data-doc-type="national-insurance">
-            <span class="doc-icon">🏛️</span>
+            <div class="doc-controls">
+              <select name="national-insurance-count">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+              </select>
+              <button class="info-button">?</button>
+            </div>
             <div class="doc-details">
               <h3>ביטוח לאומי</h3>
+              <span class="doc-icon">🏛️</span>
               <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
             </div>
           </div>
           <div class="doc-item" data-doc-type="medical">
-            <span class="doc-icon">🏥</span>
-            <div class="doc-details">
+            <div class="doc-controls">
+              <select name="medical-count">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+              <button class="info-button">?</button>
+            </div>
+           <div class="doc-details">
               <h3>הוצאות רפואיות</h3>
+              <span class="doc-icon">🏥</span>
               <p>קבלות על הוצאות רפואיות חריגות</p>
             </div>
           </div>
@@ -123,16 +175,31 @@
           <div class="more-info-content">
             <div class="required-docs">
               <div class="doc-item" data-doc-type="education">
-                <span class="doc-icon">🏫</span>
-                <div class="doc-details">
+                <div class="doc-controls">
+                  <select name="education-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                  </select>
+                  <button class="info-button">?</button>
+                </div>
+               <div class="doc-details">
                   <h3>לימודים אקדמאיים</h3>
+                  <span class="doc-icon">🏫</span>
                   <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
                 </div>
               </div>
               <div class="doc-item" data-doc-type="childcare">
-                <span class="doc-icon">👶</span>
+                <div class="doc-controls">
+                  <select name="childcare-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                  </select>
+                  <button class="info-button">?</button>
+                </div>
                 <div class="doc-details">
                   <h3>הוצאות טיפול בילדים</h3>
+                  <span class="doc-icon">👶</span>
                   <p>קבלות ממעונות יום או משפחתונים מוכרים לילדים עד גיל 5.</p>
                 </div>
               </div>

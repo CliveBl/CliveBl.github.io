@@ -3,39 +3,6 @@
       let answersMap = {};
       let currentlySelectedTaxYear;
 
-      document.querySelectorAll(".doc-item").forEach((item) => {
-        item.addEventListener("mouseenter", () => {
-          const docType = item.dataset.docType;
-          const details = docDetails[docType];
-          if (details) {
-            const itemBounds = item.getBoundingClientRect();
-            const modalWidth = 300;
-            const docDetailsModal = document.getElementById("docDetailsModal");
-
-            // Update modal content
-            docDetailsModal.querySelector(".doc-details-title").textContent =
-              details.title;
-            docDetailsModal.querySelector(".doc-details-body").innerHTML =
-              details.sections
-                .map(
-                  (section) => `
-            <h4>${section.title}</h4>
-            <p>${section.content}</p>
-          `
-                )
-                .join("");
-
-            // Position vertically aligned with the hovered item
-            docDetailsModal.style.top = `${itemBounds.top}px`;
-
-            docDetailsModal.style.display = "block";
-          }
-        });
-
-        item.addEventListener("mouseleave", () => {
-          docDetailsModal.style.display = "none";
-        });
-      });
 
       // Add these constants at the start of your script section, after DEBUG
       const API_BASE_URL = "https://localhost:443/api/v1";
@@ -2175,37 +2142,44 @@ async function uploadFiles(validFiles) {
 
       // Keep the hover functionality
       document.addEventListener("DOMContentLoaded", () => {
-		console.log("DOMContentLoaded 1");
+        console.log("DOMContentLoaded 1");
         const docDetailsModal = document.getElementById("docDetailsModal");
         const docDetailsTitle = docDetailsModal.querySelector(".doc-details-title");
         const docDetailsBody = docDetailsModal.querySelector(".doc-details-body");
 
-        // Add hover event listeners for document items
-        document.querySelectorAll(".doc-item").forEach((item) => {
-          item.addEventListener("mouseenter", () => {
-            const docType = item.dataset.docType;
+        // Add click handlers for info buttons
+        document.querySelectorAll(".info-button").forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            const docItem = button.closest(".doc-item");
+            const docType = docItem.dataset.docType;
             const details = docDetails[docType];
+            
             if (details) {
-              const itemBounds = item.getBoundingClientRect();
-
+              const buttonBounds = button.getBoundingClientRect();
               docDetailsTitle.textContent = details.title;
               docDetailsBody.innerHTML = details.sections
                 .map(
                   (section) => `
-              <h4>${section.title}</h4>
-              <p>${section.content}</p>
-            `
+                    <h4>${section.title}</h4>
+                    <p>${section.content}</p>
+                  `
                 )
                 .join("");
-
-              docDetailsModal.style.top = `${itemBounds.top}px`;
+              
+              docDetailsModal.style.top = `${buttonBounds.bottom + 5}px`;
+              docDetailsModal.style.left = `${buttonBounds.left}px`;
               docDetailsModal.style.display = "block";
             }
           });
+        });
 
-          item.addEventListener("mouseleave", () => {
+        // Close modal when clicking outside
+        document.addEventListener("click", (e) => {
+          if (!docDetailsModal.contains(e.target) && 
+              !e.target.classList.contains('info-button')) {
             docDetailsModal.style.display = "none";
-          });
+          }
         });
       });
 
@@ -2881,7 +2855,7 @@ function formatNumber(key, value) {
 		//localStorage.setItem("questionnaireExists", "false");
 
         await initializeAuthState();
-        initializeDocumentHovers();
+        //initializeDocumentHovers();
 		restoreSelectedDocTypes();
 
         // Initialize questionnaire state
@@ -2958,12 +2932,15 @@ function formatNumber(key, value) {
         }
       });
 
-      // Add click handlers for document items
-      document.querySelectorAll('.doc-item').forEach(item => {
-        item.addEventListener('click', () => {
-          // Toggle selected state
-          item.classList.toggle('selected');
-          // Save selection state
+      // Add change handlers for document count selects
+      document.querySelectorAll('.doc-controls select').forEach(select => {
+        select.addEventListener('change', () => {
+          const docItem = select.closest('.doc-item');
+          if (parseInt(select.value) > 0) {
+            docItem.classList.add('selected');
+          } else {
+            docItem.classList.remove('selected');
+          }
           saveSelectedDocTypes();
         });
       });
@@ -2981,7 +2958,10 @@ function formatNumber(key, value) {
         savedDocs.forEach(docType => {
           const docItem = document.querySelector(`.doc-item[data-doc-type="${docType}"]`);
           if (docItem) {
-            docItem.classList.add('selected');
+            const select = docItem.querySelector('select');
+            if (select && parseInt(select.value) > 0) {
+              docItem.classList.add('selected');
+            }
           }
         });
       }
