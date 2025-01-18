@@ -82,6 +82,32 @@
             background-color: var(--border-color);
             cursor: not-allowed;
         }
+
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .cookie-button {
+            background-color: var(--tax-blue);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .cookie-button:hover {
+            background-color: var(--tax-blue-hover);
+        }
     </style>
 </head>
 <body>
@@ -112,9 +138,16 @@
         <button id="startButton" class="start-button" disabled>התחל עכשיו</button>
     </div>
 
+    <div id="cookieBanner" class="cookie-banner">
+        אתר זה משתמש בקובצי Cookie כדי להבטיח לך את החוויה הטובה ביותר באתר שלנו.
+        <button id="acceptCookies" class="cookie-button">אני מסכים</button>
+    </div>
+
     <script>
         const checkbox = document.getElementById('termsCheckbox');
         const startButton = document.getElementById('startButton');
+        const cookieBanner = document.getElementById('cookieBanner');
+        const acceptCookiesButton = document.getElementById('acceptCookies');
 
         checkbox.addEventListener('change', () => {
             startButton.disabled = !checkbox.checked;
@@ -122,6 +155,36 @@
 
         startButton.addEventListener('click', () => {
             window.location.href = 'tax_return.html';
+        });
+
+        // Cookie handling
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "; expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Show cookie banner if not accepted
+        if (!getCookie('cookiesAccepted')) {
+            cookieBanner.style.display = 'block';
+        }
+
+        // Handle cookie acceptance
+        acceptCookiesButton.addEventListener('click', () => {
+            setCookie('cookiesAccepted', 'true', 365);
+            cookieBanner.style.display = 'none';
         });
     </script>
 </body>
