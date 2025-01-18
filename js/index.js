@@ -1924,17 +1924,6 @@ async function uploadFiles(validFiles) {
       });
 
       // Add this with your other event listeners
-      document
-        .querySelector(".more-info-button")
-        .addEventListener("click", function () {
-          const content = document.querySelector(".more-info-content");
-          const button = this;
-
-          button.classList.toggle("active");
-          content.classList.toggle("active");
-        });
-
-      // Add this with your other event listeners
       const taxpayerIdInput = document.getElementById("taxpayerId");
 
       taxpayerIdInput.addEventListener("input", (e) => {

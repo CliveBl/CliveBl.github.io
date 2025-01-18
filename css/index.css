@@ -770,60 +770,6 @@
         min-width: 100px;
       }
 
-      .more-info-container {
-        margin-top: 10px;
-        text-align: center;
-        border-top: 1px solid var(--border-color);
-        padding-top: 10px;
-      }
-
-      .more-info-button {
-        background: none;
-        border: none;
-        color: var(--tax-blue);
-        cursor: pointer;
-        font-size: 0.9em;
-        padding: 5px 10px;
-        position: relative;
-        transition: color 0.3s;
-        opacity: 0.8;
-      }
-
-      .more-info-button:hover {
-        color: #2980b9;
-        opacity: 1;
-      }
-
-      .more-info-button::after {
-        content: "▼";
-        font-size: 0.7em;
-        margin-right: 5px;
-        transition: transform 0.3s;
-        display: inline-block;
-        vertical-align: middle;
-      }
-
-      .more-info-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: all 0.3s ease-out;
-        opacity: 0;
-      }
-
-      .more-info-content.active {
-        max-height: 1000px;
-        margin-top: 15px;
-        opacity: 1;
-      }
-
-      .more-info-content .required-docs {
-        gap: 15px;
-      }
-
-      .more-info-content .doc-item {
-        padding: 12px;
-      }
-
       .additional-info {
         text-align: right;
         padding: 20px;
