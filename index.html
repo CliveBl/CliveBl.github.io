@@ -9,18 +9,28 @@
 	<link rel="stylesheet" href="css/index.css" />
 
     <style>
+		
+body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        direction: rtl;
+        text-align: right;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        width: 100%;
+        overflow-x: hidden; /* Prevent horizontal scrolling */
+        box-sizing: border-box;
+        min-height: 100vh;
+         display: flex; 
+        flex-direction: column;
+        align-items: center;
+      }
+	  
         .landing-container {
             max-width: 800px;
             padding: 40px 20px;
             text-align: center;
-        }
-
-        .hero-image {
-            max-width: 100%;
-            height: auto;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .explanation {
@@ -76,7 +86,24 @@
     <div class="landing-container">
         <h1>דו"ח שנתי - עשה זאת בעצמך</h1>
         
-        <img src="splash.png" alt="דו״ח שנתי" class="hero-image">
+        <div class="slideshow-container">
+            <div class="slideshow-arrows">
+                <button class="arrow prev">❮</button>
+                <button class="arrow next">❯</button>
+            </div>
+            <div class="slides">
+                <img src="splash.png" alt="דו״ח שנתי" class="hero-image">
+                <img src="slideshow2.png" alt="דו״ח שנתי" class="hero-image">
+                <img src="slideshow3.png" alt="דו״ח שנתי" class="hero-image">
+				<img src="slideshow4.png" alt="דו״ח שנתי" class="hero-image">
+            </div>
+            <div class="slideshow-dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
         
         <div class="explanation">
             <h2>איך זה עובד?</h2>
@@ -105,6 +132,7 @@
         <button id="acceptCookies" class="cookie-button">אני מסכים</button>
     </div>
 
+    <script src="js/slideshow.js"></script>
     <script>
         const checkbox = document.getElementById('termsCheckbox');
         const startButton = document.getElementById('startButton');
