@@ -1426,6 +1426,21 @@
         text-align: center;
       }
 
+      .form-select {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .form-select:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
       .hero-image {
         max-width: 100%;
         height: auto;

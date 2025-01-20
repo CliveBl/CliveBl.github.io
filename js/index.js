@@ -203,6 +203,7 @@
           // Enable all buttons after successful file info retrieval
           document.getElementById("fileInput").disabled = false;
           document.getElementById("folderInput").disabled = false;
+		  document.getElementById("createFormSelect").disabled = false;
           document.getElementById("questionnaireButton").disabled = false;
 
           // Also enable their labels for better visual feedback
@@ -435,6 +436,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
     // Disable the upload buttons
     document.getElementById("fileInput").disabled = true;
     document.getElementById("folderInput").disabled = true;
+    document.getElementById("createFormSelect").disabled = true;
 
     buttonLabel.innerHTML = "⏳ מעלה...";
     buttonLabel.classList.add("uploading");
@@ -457,8 +459,8 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
 
         // Re-enable the upload buttons
         document.getElementById("fileInput").disabled = false;
-        document.getElementById("folderInput").disabled = false;
-
+		document.getElementById("folderInput").disabled = false;
+		document.getElementById("createFormSelect").disabled = false;
         // Clear all containers
         clearResultsControls();
     }
@@ -2391,10 +2393,11 @@ function formatNumber(key, value) {
         accordionContent.className = "accordion-content";
        
         // Add all fileInfo fields that aren't already displayed
-        const excludedFields = ['fileName', 'type', 'taxYear', 'fileId'];
+        const excludedFields = ['fileName', 'type', 'fileId', 'matchTag'];
         Object.entries(fileInfo).forEach(([key, value]) => {
-          if (!excludedFields.includes(key) && value !== null) {
-            // Check if value is an object (embedded field)
+			//if (!excludedFields.includes(key) && value !== null) {
+			if (!excludedFields.includes(key)) {
+					// Check if value is an object (embedded field)
             if (value && typeof value === 'object') {
               // Skip if object is empty or has no non-null values
               const hasNonNullValues = Object.values(value).some(v => v !== null);
@@ -2939,3 +2942,42 @@ function formatNumber(key, value) {
           }
         });
       }
+
+     // Add change handler for form select
+     document.getElementById("createFormSelect").addEventListener("change", async (e) => {
+       const formType = e.target.value;
+       if (!formType) return;
+
+       try {
+         const response = await fetch(`${API_BASE_URL}/createForm`, {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+             Authorization: `Bearer ${authToken}`,
+           },
+           body: JSON.stringify({
+             customerDataEntryName: "Default",
+             formType: formType
+           }),
+           ...fetchConfig,
+         });
+
+         if (!response.ok) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+         }
+
+		 const fileInfoList = await response.json();
+		 console.log("createForm response:", fileInfoList);
+		 updateFileList(fileInfoList);
+
+         addMessage("הטופס נוצר בהצלחה", "success");
+         
+         // Reset select to default option
+         e.target.value = "";
+       } catch (error) {
+         console.error("Failed to create form:", error);
+         addMessage("שגיאה ביצירת הטופס: " + error.message, "error");
+       }
+	   // return the control to its first option
+	   e.target.value = "";
+     });
