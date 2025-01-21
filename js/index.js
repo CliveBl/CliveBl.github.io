@@ -2297,7 +2297,7 @@ async function getAnswersMap() {
 async function loadQuestions() {
 	if (!configurationData) {
 		const response = await fetch(
-			`${AUTH_BASE_URL}/getQuestionDefinitions`,
+			`${AUTH_BASE_URL}/getConfigurationData`,
 			{
 				method: "GET",
 				headers: {
