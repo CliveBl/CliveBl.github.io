@@ -2,6 +2,7 @@
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
+	  let latestFileInfoList = [];
 
 
       // Add these constants at the start of your script section, after DEBUG
@@ -278,6 +279,8 @@
 
       // Add this function to update the file list from server response
       function updateFileList(fileInfoList) {
+		// Store the latest fileInfoList for later reference	
+		latestFileInfoList = fileInfoList; 
         fileList.innerHTML = '';
         fileInfoList.forEach(fileInfo => {
           addFileToList(fileInfo);
@@ -527,10 +530,10 @@ async function uploadFiles(validFiles) {
 		
 		// Scroll to the bottom of the page if type is not "success" or "info"
 		if (type !== "success" && type !== "info") {
-			window.scrollTo({
-				top: document.body.scrollHeight,
-				behavior: "smooth",
-			});
+		window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth",
+          });
 		}
       }
 
@@ -1962,7 +1965,7 @@ async function uploadFiles(validFiles) {
         }
 		else {
 			localStorage.setItem("questionnaireExists", "false");
-		}
+        }
       });
 
 
@@ -2460,14 +2463,64 @@ function formatNumber(key, value) {
         
         fileInfoElement.appendChild(accordionContent);
         
+        // Create edit button
+        const editButton = document.createElement("button");
+        editButton.textContent = "✏️";
+        editButton.className = "edit-button";
+        editButton.title = "ערוך";
+        editButton.style.display = "none"; // Initially hidden
+        editButton.addEventListener("click", async () => {
+            try {
+                // Handle edit action here
+                console.log("Edit clicked for file:", fileId);
+				// Get the entry that from the latestFileInfoList with the same fileId
+				const formJson = latestFileInfoList.find(file => file.fileId === fileId);
+                // Collect all field values from the accordion content
+                // accordionContent.querySelectorAll('div').forEach(div => {
+                //     const text = div.textContent;
+                //     const [key, value] = text.split(':').map(s => s.trim());
+                //     if (key && value) {
+                //         formJson[key.replace('<strong>', '').replace('</strong>', '')] = value;
+                //     }
+                // });
+
+                const response = await fetch(`${API_BASE_URL}/updateForm`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({
+                        customerDataEntryName: "Default",
+                        formAsJSON: formJson
+                    }),
+                    ...fetchConfig,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Update failed: ${errorData.detail} ${response.status}`);
+                }
+
+                const fileInfoList = await response.json();
+                updateFileList(fileInfoList);
+                addMessage("הטופס עודכן בהצלחה", "success");
+
+            } catch (error) {
+                console.error("Edit failed:", error);
+                addMessage("שגיאה בעריכת הקובץ: " + error.message, "error");
+            }
+        });
+
         // Add click handler for accordion
         fileHeader.addEventListener('click', (e) => {
           // Don't toggle if clicking delete button
-          if (e.target.closest('.delete-button')) return;
+          if (e.target.closest('.delete-button') || e.target.closest('.edit-button')) return;
           
           const isExpanded = accordionContent.style.display === "block";
           accordionContent.style.display = isExpanded ? "none" : "block";
           expandIcon.style.transform = isExpanded ? "rotate(0deg)" : "rotate(180deg)";
+          editButton.style.display = isExpanded ? "none" : "block";
         });
 
         const deleteButton = document.createElement("button");
@@ -2509,6 +2562,7 @@ function formatNumber(key, value) {
         });
 
         li.appendChild(fileInfoElement);
+        li.appendChild(editButton);
         li.appendChild(deleteButton);
         fileList.appendChild(li);
       }

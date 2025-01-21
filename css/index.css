@@ -1530,3 +1530,23 @@
       .dot.active {
         background-color: white;
       }
+
+      .edit-button {
+        background-color: var(--tax-blue);
+        color: var(--button-text);
+        border: none;
+        padding: 4px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        margin-right: 5px;
+      }
+
+      .edit-button:hover {
+        background-color: #2980b9;
+      }
