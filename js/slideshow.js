@@ -16,6 +16,16 @@ function showSlide(n) {
     // Show active slide and dot
     slides[currentSlide].classList.add('active');
     dots[currentSlide].classList.add('active');
+
+    // Disable/enable navigation buttons
+    const prevButton = document.querySelector('.prev');
+    const nextButton = document.querySelector('.next');
+    prevButton.disabled = currentSlide === 0;
+    nextButton.disabled = currentSlide === slides.length - 1;
+    
+    // Update button opacity for visual feedback
+    prevButton.style.opacity = currentSlide === 0 ? '0.5' : '1';
+    nextButton.style.opacity = currentSlide === slides.length - 1 ? '0.5' : '1';
 }
 
 // Add click handlers for arrows
