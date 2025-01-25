@@ -1107,6 +1107,35 @@ async function uploadFiles(validFiles) {
             controls.setAttribute("data-is-pair", question.pair === "PAIR");
 
             switch (question.controlType) {
+				case "CHILDREN":
+					const childrenButton = document.createElement("button");
+					childrenButton.textContent = "פרטי ילדים";
+					childrenButton.className = "children-button";
+					childrenButton.type = "button"; // Prevent form submission
+					childrenButton.addEventListener("click", () => {
+					  const modal = document.getElementById("childrenModal");
+					  modal.style.display = "block";
+					  
+					  // Close modal when clicking the close button
+					  const closeBtn = modal.querySelector(".close-button");
+					  closeBtn.onclick = () => modal.style.display = "none";
+					  
+					  // Close modal when clicking outside
+					  window.onclick = (event) => {
+						if (event.target === modal) {
+						  modal.style.display = "none";
+						}
+					  };
+					  
+					  // Handle save button click
+					  const saveBtn = modal.querySelector(".save-button");
+					  saveBtn.onclick = () => {
+						// TODO: Save the children data
+						modal.style.display = "none";
+					  };
+					});
+					controls.appendChild(childrenButton);
+					break;
               case "ID":
                 if (question.pair === "PAIR") {
                   // Create container for pair of inputs
@@ -3035,3 +3064,46 @@ function formatNumber(key, value) {
 	   // return the control to its first option
 	   e.target.value = "";
      });
+
+      // Add event handlers for children modal
+      function setupChildrenModalInputs() {
+          const inputs = document.querySelectorAll('#childrenModal input[type="number"]');
+          
+          inputs.forEach(input => {
+              // Prevent non-numeric key presses
+              input.addEventListener('keypress', (e) => {
+                  if (!/[0-9]/.test(e.key)) {
+                      e.preventDefault();
+                  }
+              });
+
+              // Handle paste events
+              input.addEventListener('paste', (e) => {
+                  e.preventDefault();
+                  const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                  if (/^\d+$/.test(pastedText)) {
+                      const value = Math.min(parseInt(pastedText), 26);
+                      input.value = value;
+                  }
+              });
+
+              // Clean up invalid values on blur
+              input.addEventListener('blur', () => {
+                  const value = input.value.replace(/[^\d]/g, '');
+                  if (value === '') {
+                      input.value = '0';
+                  } else {
+                      input.value = Math.min(parseInt(value), 26);
+                  }
+              });
+          });
+      }
+
+      // Call setup when document is loaded
+      document.addEventListener('DOMContentLoaded', setupChildrenModalInputs);
+
+      // Handle children button click
+      childrenButton.addEventListener("click", () => {
+        const modal = document.getElementById("childrenModal");
+        modal.style.display = "block";
+      });

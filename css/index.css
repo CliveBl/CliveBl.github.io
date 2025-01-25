@@ -1550,3 +1550,92 @@
       .edit-button:hover {
         background-color: #2980b9;
       }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background-color: var(--bg-color);
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        width: 90%;
+        max-width: 1200px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .children-table {
+        width: 100%;
+      }
+
+      .children-table td:first-child {
+        text-align: right;
+        width: 40%;
+        white-space: normal;
+        line-height: 1.3;
+      }
+
+      .children-table input {
+        width: 30px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        padding: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        -moz-appearance: textfield;  /* Firefox */
+      }
+
+      .children-table input::-webkit-outer-spin-button,
+      .children-table input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+      }
+
+      .codes-info {
+        background-color: var(--item-bg);
+        padding: 15px;
+        border-radius: 8px;
+      }
+
+      .code-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-weight: bold;
+      }
+
+      .code-details {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .code-details div {
+        padding: 5px 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .children-button {
+        background-color: var(--tax-blue);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s;
+      }
+
+      .children-button:hover {
+        background-color: #2980b9;
+      }
