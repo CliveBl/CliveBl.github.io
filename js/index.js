@@ -371,6 +371,8 @@
 
           // Clear previous messages
           messageContainer.innerHTML = "";
+		  // Tax results may now be invalid
+		  clearTaxResults();
 
           // Show initial processing message
           addMessage("מתחיל בעיבוד המסמכים...", "info");
@@ -412,7 +414,7 @@
 
           // If no fatal errors, load results
           if (!result.fatalProcessingError) {
-            addMessage("טוען תוצאות...", "info");
+            //addMessage("טוען תוצאות...", "info");
             // Wait a moment for processing to complete on server
             await new Promise((resolve) => setTimeout(resolve, 1000));
             await loadResults();
@@ -899,7 +901,7 @@ async function uploadFiles(validFiles) {
 		// Delete answersMap
 		answersMap = {};
 	  }	
-	  
+
 	  function getChildrenModal() {
 		let childrenModalId;
 		if (currentlySelectedTaxYear >= 2022) {
@@ -2318,25 +2320,29 @@ function showQuestionaire() {
 	questionnaireContainer.classList.add("active");
 }
 
+function clearTaxResults() {
+	console.log("clearTaxResults");
+	const taxResultsContainer = document.getElementById("taxResultsContainer");
+	const taxCalculationContent = document.getElementById("taxCalculationContent");
+	// Hide containers
+	taxResultsContainer.classList.remove("active");
+	// Clear content
+	taxCalculationContent.innerHTML = "";
+	// Clear stored results
+	localStorage.removeItem("taxResults");
+}
+
 function clearResultsControls() {
 	console.log("clearResultsControls");
 	const resultsContainer = document.getElementById("resultsContainer");
 	const resultsList = document.getElementById("resultsList");
 	const messageContainer = document.getElementById("messageContainer");
-	const taxResultsContainer = document.getElementById("taxResultsContainer");
-	const taxCalculationContent = document.getElementById("taxCalculationContent");
-
+	clearTaxResults();
 	// Hide containers
 	resultsContainer.classList.remove("active");
-	taxResultsContainer.classList.remove("active");
-
 	// Clear content
 	resultsList.innerHTML = "";
 	messageContainer.innerHTML = "";
-	taxCalculationContent.innerHTML = "";
-
-	// Clear stored results
-	localStorage.removeItem("taxResults");
 }
 
 async function getAnswersMap() {
