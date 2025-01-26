@@ -899,6 +899,16 @@ async function uploadFiles(validFiles) {
 		// Delete answersMap
 		answersMap = {};
 	  }	
+	  
+	  function getChildrenModal() {
+		let childrenModalId;
+		if (currentlySelectedTaxYear >= 2022) {
+			childrenModalId = "childrenModal_2023";
+		} else {
+			childrenModalId = "childrenModal_2018";
+		}
+		return childrenModalId;
+	}
 
       function updateAnswersMapFromControls() {
 		console.log("updateAnswersMapFromControls");
@@ -921,6 +931,19 @@ async function uploadFiles(validFiles) {
           let answer = "";
 
           switch (controlType) {
+			case "CHILDREN":
+				// Get the children modal	
+				const childrenModalId = getChildrenModal();
+				const childrenModal = document.getElementById(childrenModalId);
+				// Get the values of the input fields into a string of pairs separated by commas
+				// The pairs are of the form <code>:<value>
+				let childrenData = "";	
+				childrenModal.querySelectorAll('input[data-code]').forEach(input => {
+					childrenData += input.dataset.code + ":" + input.value + ",";
+				});	
+				console.log("childrenData:", childrenData);
+				answer = childrenData;
+				break;
             case "ID":
               if (isPair) {
                 const partnerIdField =
@@ -1074,7 +1097,7 @@ async function uploadFiles(validFiles) {
           // Set the year selector to match currentlySelectedTaxYear
           yearSelect.value = currentlySelectedTaxYear;
           //console.log('Set year selector to:', currentlySelectedTaxYear); // Debug log
-
+		  let childrenModalId = getChildrenModal();
           // Create questions and populate with answers
 		  const questions = configurationData.questionList;
           questions.forEach((question) => {
@@ -1112,8 +1135,12 @@ async function uploadFiles(validFiles) {
 					childrenButton.textContent = "פרטי ילדים";
 					childrenButton.className = "children-button";
 					childrenButton.type = "button"; // Prevent form submission
+
 					childrenButton.addEventListener("click", () => {
-					  const modal = document.getElementById("childrenModal");
+					  childrenModalId = getChildrenModal();
+					  setupChildrenModalInputs();
+
+					  const modal = document.getElementById(childrenModalId);
 					  modal.style.display = "block";
 					  
 					  // Close modal when clicking the close button
@@ -1458,6 +1485,10 @@ async function uploadFiles(validFiles) {
               const isPair = question.pair === "PAIR";
 
               switch (controlType) {
+				case "CHILDREN":
+					const childrenModal = getChildrenModal();
+					// Populate the controls with the 2d array in the savedAnswer
+
                 case "ID":
                   if (isPair) {
                     const [value1, value2] = savedAnswer.split(",");
@@ -1867,6 +1898,15 @@ async function uploadFiles(validFiles) {
           // Add helper function to clear controls
           function clearControls(controls, controlType) {
             switch (controlType) {
+			case "CHILDREN":
+				controls.querySelectorAll("input[data-code='260']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='262']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='190']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='191']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='022']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='361']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='362']").forEach((input) => (input.value = ""));
+				break;
               case "ID":
               case "DATE":
               case "NUMERIC":
@@ -2256,6 +2296,7 @@ async function uploadFiles(validFiles) {
           addMessage("שגיאה בשמירת התשובות: " + error.message, "error");
         }
       });
+
 
 function removeQuestionaire() {
 	const questionsContainer = document.getElementById("questionsContainer");
@@ -3067,7 +3108,8 @@ function formatNumber(key, value) {
 
       // Add event handlers for children modal
       function setupChildrenModalInputs() {
-          const inputs = document.querySelectorAll('#childrenModal input[type="number"]');
+		const modalId = getChildrenModal();
+          const inputs = document.querySelectorAll(`#${modalId} input[type="number"]`);
           
           inputs.forEach(input => {
               // Prevent non-numeric key presses
@@ -3098,12 +3140,3 @@ function formatNumber(key, value) {
               });
           });
       }
-
-      // Call setup when document is loaded
-      document.addEventListener('DOMContentLoaded', setupChildrenModalInputs);
-
-      // Handle children button click
-      childrenButton.addEventListener("click", () => {
-        const modal = document.getElementById("childrenModal");
-        modal.style.display = "block";
-      });
