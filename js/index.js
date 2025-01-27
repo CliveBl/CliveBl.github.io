@@ -935,23 +935,12 @@ async function uploadFiles(validFiles) {
           switch (controlType) {
 			case "CHILDREN":
 				// Get the children modal	
-				const childrenModalId = getChildrenModal();
-				const childrenModal = document.getElementById(childrenModalId);
-				// Get the values of the input fields into a string of pairs separated by commas
-				// The pairs are of the form <code>:<value>
-				let childrenData = "";	
-				childrenModal.querySelectorAll('input[data-code]').forEach(input => {
-					childrenData += input.dataset.code + ":" + input.value + ",";
-				});	
-				console.log("childrenData:", childrenData);
-				answer = childrenData;
+				answer = getAnswerFromChildrenControls();
 				break;
             case "ID":
               if (isPair) {
-                const partnerIdField =
-                  controls.querySelector('input[name$="_1"]');
-                const registeredPartnerIdField =
-                  controls.querySelector('input[name$="_2"]');
+                const partnerIdField = controls.querySelector(`input[name$="${questionName}_1"]`);
+                const registeredPartnerIdField = controls.querySelector(`input[name$="${questionName}_2"]`);
                 answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
               } else {
                 const idField = controls.querySelector("input");
@@ -961,10 +950,8 @@ async function uploadFiles(validFiles) {
 
             case "DATE":
               if (isPair) {
-                const partnerDateField =
-                  controls.querySelector('input[name$="_1"]');
-                const registeredPartnerDateField =
-                  controls.querySelector('input[name$="_2"]');
+                const partnerDateField = controls.querySelector(`input[name$="${questionName}_1"]`);
+                const registeredPartnerDateField = controls.querySelector(`input[name$="${questionName}_2"]`);
                 answer = `${partnerDateField.value.trim()},${registeredPartnerDateField.value.trim()}`;
               } else {
                 const dateField = controls.querySelector("input");
@@ -974,10 +961,8 @@ async function uploadFiles(validFiles) {
 
             case "NUMERIC":
               if (isPair) {
-                const partnerNumField =
-                  controls.querySelector('input[name$="_1"]');
-                const registeredPartnerNumField =
-                  controls.querySelector('input[name$="_2"]');
+                const partnerNumField = controls.querySelector(`input[name$="${questionName}_1"]`);
+                const registeredPartnerNumField = controls.querySelector(`input[name$="${questionName}_2"]`);
                 const value1 = partnerNumField.value.trim() || "0";
                 const value2 = registeredPartnerNumField.value.trim() || "0";
                 answer = `${value1},${value2}`;
@@ -989,14 +974,9 @@ async function uploadFiles(validFiles) {
 
             case "CHECKBOX":
               if (isPair) {
-                const partnerCheckbox =
-                  controls.querySelector('input[name$="_1"]');
-                const registeredPartnerCheckbox =
-                  controls.querySelector('input[name$="_2"]');
-                if (
-                  registeredPartnerCheckbox.checked &&
-                  partnerCheckbox.checked
-                ) {
+                const partnerCheckbox = controls.querySelector(`input[name$="${questionName}_1"]`);
+                const registeredPartnerCheckbox = controls.querySelector(`input[name$="${questionName}_2"]`);
+                if (registeredPartnerCheckbox.checked && partnerCheckbox.checked) {
                   answer = "both";
                 } else if (registeredPartnerCheckbox.checked) {
                   answer = "registeredPartner";
@@ -1015,12 +995,8 @@ async function uploadFiles(validFiles) {
               // The value can be none or one of two values in the tooltip separated by a colon
               // We need to calculate the answer based on the radio buttons
               // Get the radio buttons by index
-              const yesButton = controls.querySelectorAll(
-                'input[type="radio"]'
-              )[0];
-              const noButton = controls.querySelectorAll(
-                'input[type="radio"]'
-              )[1];
+              const yesButton = controls.querySelectorAll('input[type="radio"]')[0];
+              const noButton = controls.querySelectorAll('input[type="radio"]')[1];
               // Answer is the value of the checked radio button or none
               answer = yesButton.checked
                 ? yesButton.value
@@ -1044,6 +1020,19 @@ async function uploadFiles(validFiles) {
           answers: yearAnswers,
         });
       } // updateAnswersMapFromControls
+
+function getAnswerFromChildrenControls() {
+	const childrenModal = document.getElementById(getChildrenModal());
+	// Get the values of the input fields into a string of pairs separated by commas
+	// The pairs are of the form <code>:<value>
+	let childrenData = "";
+	childrenModal.querySelectorAll('input[data-code]').forEach(input => {
+		childrenData += input.dataset.code + ":" + input.value + ",";
+	});
+	//console.log("childrenData:", childrenData);
+	return childrenData;
+}
+
 
       async function createQuestionnaire(requiredQuestionsList = []) {
         try {
@@ -1106,14 +1095,8 @@ async function uploadFiles(validFiles) {
             const questionGroup = document.createElement("div");
             questionGroup.className = "question-group";
             questionGroup.setAttribute("data-question", question.name);
-            questionGroup.setAttribute(
-              "data-control-type",
-              question.controlType
-            );
-            questionGroup.setAttribute(
-              "data-is-pair",
-              question.pair === "PAIR"
-            );
+            questionGroup.setAttribute("data-control-type", question.controlType);
+            questionGroup.setAttribute("data-is-pair", question.pair === "PAIR");
 
             const questionText = document.createElement("div");
             questionText.className = "question-text";
@@ -1488,35 +1471,23 @@ async function uploadFiles(validFiles) {
 
               switch (controlType) {
 				case "CHILDREN":
-					const childrenModal = getChildrenModal();
-					// Populate the controls with the 2d array in the savedAnswer
-
+					setChildrenControls(savedAnswer, controlType);
+					break;
                 case "ID":
                   if (isPair) {
                     const [value1, value2] = savedAnswer.split(",");
-                    const input1 = controls.querySelector(
-                      `input[name="${question.name}_1"]`
-                    );
-                    const input2 = controls.querySelector(
-                      `input[name="${question.name}_2"]`
-                    );
-                    //console.log(`Found ID inputs for ${question.name}:`, input1, input2); // Debug log
+                    const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                    const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                     if (input1) {
                       input1.value = value1 || "";
-                      //console.log(`Set ${question.name}_1 to:`, value1);
                     }
                     if (input2) {
                       input2.value = value2 || "";
-                      //console.log(`Set ${question.name}_2 to:`, value2);
                     }
                   } else {
-                    const input = controls.querySelector(
-                      `input[name="${question.name}"]`
-                    );
-                    //console.log(`Found single ID input for ${question.name}:`, input); // Debug log
+                    const input = controls.querySelector(`input[name="${question.name}"]`);
                     if (input) {
                       input.value = savedAnswer;
-                      //console.log(`Set ${question.name} to:`, savedAnswer);
                     }
                   }
                   break;
@@ -1524,18 +1495,12 @@ async function uploadFiles(validFiles) {
                 case "DATE":
                   if (isPair) {
                     const [value1, value2] = savedAnswer.split(",");
-                    const input1 = controls.querySelector(
-                      `input[name="${question.name}_1"]`
-                    );
-                    const input2 = controls.querySelector(
-                      `input[name="${question.name}_2"]`
-                    );
+                    const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                    const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                     if (input1) input1.value = value1 || "";
                     if (input2) input2.value = value2 || "";
                   } else {
-                    const input = controls.querySelector(
-                      `input[name="${question.name}"]`
-                    );
+                    const input = controls.querySelector(`input[name="${question.name}"]`);
                     if (input) input.value = savedAnswer;
                   }
                   break;
@@ -1543,12 +1508,8 @@ async function uploadFiles(validFiles) {
                 case "NUMERIC":
                   if (isPair) {
                     const [value1, value2] = savedAnswer.split(",");
-                    const input1 = controls.querySelector(
-                      `input[name="${question.name}_1"]`
-                    );
-                    const input2 = controls.querySelector(
-                      `input[name="${question.name}_2"]`
-                    );
+                    const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                    const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                     if (input1) input1.value = value1 === "0" ? "" : value1;
                     if (input2) input2.value = value2 === "0" ? "" : value2;
                   } else {
@@ -1562,12 +1523,8 @@ async function uploadFiles(validFiles) {
 
                 case "CHECKBOX":
                   if (isPair) {
-                    const checkbox1 = controls.querySelector(
-                      `input[name="${question.name}_1"]`
-                    );
-                    const checkbox2 = controls.querySelector(
-                      `input[name="${question.name}_2"]`
-                    );
+                    const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                    const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
                     if (checkbox1)
                       checkbox1.checked =
                         savedAnswer === "partner" || savedAnswer === "both";
@@ -1576,9 +1533,7 @@ async function uploadFiles(validFiles) {
                         savedAnswer === "registeredPartner" ||
                         savedAnswer === "both";
                   } else {
-                    const checkbox = controls.querySelector(
-                      `input[name="${question.name}"]`
-                    );
+                    const checkbox = controls.querySelector(`input[name="${question.name}"]`);
                     if (checkbox)
                       checkbox.checked = savedAnswer === "registeredPartner";
                   }
@@ -1588,16 +1543,10 @@ async function uploadFiles(validFiles) {
                   // The value can be none or one of two values in the tooltip separated by a colon
                   // We need to check if the value is one of the two values or none
                   const options = question.tooltip.split(":");
-                  const yesButton = controls.querySelector(
-                    `input[value="${options[0]}"]`
-                  );
-                  const noButton = controls.querySelector(
-                    `input[value="${options[1]}"]`
-                  );
+                  const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
+                  const noButton = controls.querySelector(`input[value="${options[1]}"]`);
                   // Clear the radio buttons
-                  controls
-                    .querySelectorAll('input[type="radio"]')
-                    .forEach((radio) => (radio.checked = false));
+                  controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
                   // Check the correct radio button
                   if (yesButton) yesButton.checked = savedAnswer === options[0];
                   if (noButton) noButton.checked = savedAnswer === options[1];
@@ -1627,23 +1576,20 @@ async function uploadFiles(validFiles) {
                 );
 
                 if (controls) {
-                  const controlType =
-                    controls.getAttribute("data-control-type");
-                  const isPair =
-                    controls.getAttribute("data-is-pair") === "true";
+                  const controlType = controls.getAttribute("data-control-type");
+                  const isPair = controls.getAttribute("data-is-pair") === "true";
 
                   let answer = "";
 
                   // Get answer from controls using the same logic as form submission
                   switch (controlType) {
+					case "CHILDREN":
+						answer = getAnswerFromChildrenControls();
+						break;
                     case "ID":
                       if (isPair) {
-                        const input1 = controls.querySelector(
-                          `input[name="${question.name}_1"]`
-                        );
-                        const input2 = controls.querySelector(
-                          `input[name="${question.name}_2"]`
-                        );
+                        const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                         answer = `${input1.value.trim()},${input2.value.trim()}`;
                       } else {
                         const input = controls.querySelector(
@@ -1655,49 +1601,32 @@ async function uploadFiles(validFiles) {
 
                     case "DATE":
                       if (isPair) {
-                        const input1 = controls.querySelector(
-                          `input[name="${question.name}_1"]`
-                        );
-                        const input2 = controls.querySelector(
-                          `input[name="${question.name}_2"]`
-                        );
+                        const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                         answer = `${input1.value.trim()},${input2.value.trim()}`;
                       } else {
-                        const input = controls.querySelector(
-                          `input[name="${question.name}"]`
-                        );
+                        const input = controls.querySelector(`input[name="${question.name}"]`);
                         answer = input.value.trim();
                       }
                       break;
 
                     case "NUMERIC":
                       if (isPair) {
-                        const input1 = controls.querySelector(
-                          `input[name="${question.name}_1"]`
-                        );
-                        const input2 = controls.querySelector(
-                          `input[name="${question.name}_2"]`
-                        );
+                        const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                         const value1 = input1.value.trim() || "0";
                         const value2 = input2.value.trim() || "0";
                         answer = `${value1},${value2}`;
                       } else {
-                        const input = controls.querySelector(
-                          `input[name="${question.name}"]`
-                        );
+                        const input = controls.querySelector(`input[name="${question.name}"]`);
                         answer = input.value.trim() || "0";
                       }
                       break;
 
                     case "CHECKBOX":
                       if (isPair) {
-                        const partnerCheckbox = controls.querySelector(
-                          `input[name="${question.name}_1"]`
-                        );
-                        const registeredPartnerCheckbox =
-                          controls.querySelector(
-                            `input[name="${question.name}_2"]`
-                          );
+                        const partnerCheckbox = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const registeredPartnerCheckbox = controls.querySelector(`input[name="${question.name}_2"]`);
                         if (
                           registeredPartnerCheckbox.checked &&
                           partnerCheckbox.checked
@@ -1711,9 +1640,7 @@ async function uploadFiles(validFiles) {
                           answer = "none";
                         }
                       } else {
-                        const checkbox = controls.querySelector(
-                          `input[name="${question.name}"]`
-                        );
+                        const checkbox = controls.querySelector(`input[name="${question.name}"]`);
                         answer = checkbox.checked
                           ? "registeredPartner"
                           : "none";
@@ -1724,12 +1651,8 @@ async function uploadFiles(validFiles) {
                       // The value can be none or one of two values in the tooltip separated by a colon
                       // We need to calculate the answer based on the radio buttons
                       const options = question.tooltip.split(":");
-                      const yesButton = controls.querySelector(
-                        `input[value="${options[0]}"]`
-                      );
-                      const noButton = controls.querySelector(
-                        `input[value="${options[1]}"]`
-                      );
+                      const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
+                      const noButton = controls.querySelector(`input[value="${options[1]}"]`);
                       // Check the correct radio button
                       answer = yesButton.checked
                         ? options[0]
@@ -1773,25 +1696,21 @@ async function uploadFiles(validFiles) {
 
                 if (controls) {
                   // Update controls using same logic as initial population
-                  const controlType =
-                    controls.getAttribute("data-control-type");
+                  const controlType =  controls.getAttribute("data-control-type");
                   if (savedAnswer) {
                     switch (controlType) {
+						case "CHILDREN":
+							setChildrenControls(savedAnswer, controlType);
+							break;
                       case "ID":
                         if (question.pair === "PAIR") {
                           const [value1, value2] = savedAnswer.split(",");
-                          const input1 = controls.querySelector(
-                            `input[name="${question.name}_1"]`
-                          );
-                          const input2 = controls.querySelector(
-                            `input[name="${question.name}_2"]`
-                          );
+                          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                           if (input1) input1.value = value1 || "";
                           if (input2) input2.value = value2 || "";
                         } else {
-                          const input = controls.querySelector(
-                            `input[name="${question.name}"]`
-                          );
+                          const input = controls.querySelector(`input[name="${question.name}"]`);
                           if (input) input.value = savedAnswer;
                         }
                         break;
@@ -1799,18 +1718,12 @@ async function uploadFiles(validFiles) {
                       case "DATE":
                         if (question.pair === "PAIR") {
                           const [value1, value2] = savedAnswer.split(",");
-                          const input1 = controls.querySelector(
-                            `input[name="${question.name}_1"]`
-                          );
-                          const input2 = controls.querySelector(
-                            `input[name="${question.name}_2"]`
-                          );
+                          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                           if (input1) input1.value = value1 || "";
                           if (input2) input2.value = value2 || "";
                         } else {
-                          const input = controls.querySelector(
-                            `input[name="${question.name}"]`
-                          );
+                          const input = controls.querySelector(`input[name="${question.name}"]`);
                           if (input) input.value = savedAnswer;
                         }
                         break;
@@ -1818,20 +1731,14 @@ async function uploadFiles(validFiles) {
                       case "NUMERIC":
                         if (question.pair === "PAIR") {
                           const [value1, value2] = savedAnswer.split(",");
-                          const input1 = controls.querySelector(
-                            `input[name="${question.name}_1"]`
-                          );
-                          const input2 = controls.querySelector(
-                            `input[name="${question.name}_2"]`
-                          );
+                          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                           if (input1)
                             input1.value = value1 === "0" ? "" : value1;
                           if (input2)
                             input2.value = value2 === "0" ? "" : value2;
                         } else {
-                          const input = controls.querySelector(
-                            `input[name="${question.name}"]`
-                          );
+                          const input = controls.querySelector(`input[name="${question.name}"]`);
                           if (input)
                             input.value =
                               savedAnswer === "0" ? "" : savedAnswer;
@@ -1840,12 +1747,8 @@ async function uploadFiles(validFiles) {
 
                       case "CHECKBOX":
                         if (question.pair === "PAIR") {
-                          const checkbox1 = controls.querySelector(
-                            `input[name="${question.name}_1"]`
-                          );
-                          const checkbox2 = controls.querySelector(
-                            `input[name="${question.name}_2"]`
-                          );
+                          const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
+                          const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
                           if (checkbox1)
                             checkbox1.checked =
                               savedAnswer === "partner" ||
@@ -1855,9 +1758,7 @@ async function uploadFiles(validFiles) {
                               savedAnswer === "registeredPartner" ||
                               savedAnswer === "both";
                         } else {
-                          const checkbox = controls.querySelector(
-                            `input[name="${question.name}"]`
-                          );
+                          const checkbox = controls.querySelector(`input[name="${question.name}"]`);
                           if (checkbox)
                             checkbox.checked =
                               savedAnswer === "registeredPartner";
@@ -1868,16 +1769,10 @@ async function uploadFiles(validFiles) {
                         // The value can be none or one of two values in the tooltip separated by a colon
                         // We need to check if the value is one of the two values or none
                         const options = question.tooltip.split(":");
-                        const yesButton = controls.querySelector(
-                          `input[value="${options[0]}"]`
-                        );
-                        const noButton = controls.querySelector(
-                          `input[value="${options[1]}"]`
-                        );
+                        const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
+                        const noButton = controls.querySelector(`input[value="${options[1]}"]`);
                         // Clear the radio buttons
-                        controls
-                          .querySelectorAll('input[type="radio"]')
-                          .forEach((radio) => (radio.checked = false));
+                        controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
                         // Check the correct radio button
                         if (yesButton)
                           yesButton.checked = savedAnswer === options[0];
@@ -1912,19 +1807,13 @@ async function uploadFiles(validFiles) {
               case "ID":
               case "DATE":
               case "NUMERIC":
-                controls
-                  .querySelectorAll("input")
-                  .forEach((input) => (input.value = ""));
+                controls.querySelectorAll("input").forEach((input) => (input.value = ""));
                 break;
               case "CHECKBOX":
-                controls
-                  .querySelectorAll('input[type="checkbox"]')
-                  .forEach((cb) => (cb.checked = false));
+                controls.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
                 break;
               case "RADIO":
-                controls
-                  .querySelectorAll('input[type="radio"]')
-                  .forEach((radio) => (radio.checked = false));
+                controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
                 break;
             }
           }
@@ -1954,6 +1843,33 @@ async function uploadFiles(validFiles) {
           console.error("Failed to load questionnaire:", error);
           addMessage("שגיאה בטעינת השאלון: " + error.message, "error");
         }
+
+		  function setChildrenControls(savedAnswer, controlType) {
+			function getValueFromPair(pair) {
+				const pairArray = pair.split(":");
+				if(pairArray.length == 2) {
+					return parseInt(pairArray[1]);
+				}
+				else {
+					return 0;
+				}
+			}
+			  const childrenModal = document.getElementById(getChildrenModal());
+			  // Populate the controls with the 2d array in the savedAnswer
+			  // 		 The string is of the format "260:1,260:,260:,260:,260:1,262:1,262:1,262:1,262:,262:,190:1,190:,190:,190:,190:,291:1,291:,291:,291:,291:,022:,022:,022:1,022:,022:1,361:1,362:1,
+			  //Where the first number is the code and the second is the number of children. Each code has 5 values.
+			  if (savedAnswer.length > 0) {
+				  const childrenData = savedAnswer.split(",");
+				  let index = 0;
+				  for (let i = 0; i < 7; i++) {
+					  const fieldCode = childrenData[index].split(":")[0];
+					  // Set the ith row of the input controls.
+					  childrenModal.querySelectorAll(`input[data-code='${fieldCode}']`).forEach((input) => (input.value = getValueFromPair(childrenData[index++])));
+				  }
+			  } else {
+				  clearControls(childrenModal, controlType);
+			  }
+		  }
       } // createQuestionnaire
       // Add this after the other button references
       const deleteAllButton = document.getElementById("deleteAllButton");
