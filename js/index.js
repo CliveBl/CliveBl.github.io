@@ -297,7 +297,7 @@
         document.getElementById("processButton").disabled = fileList.children.length === 0;
       }
 
-      // Update file input handler to always use individual uploads
+      // File upload handler 
       fileInput.addEventListener("change", async () => {
 
           // Filter out invalid files first
@@ -319,7 +319,7 @@
 		await uploadFilesWithButtonProgress(validFiles, fileInput);
       });
 
-      // Update folder upload handler to always use individual uploads
+      // Folder upload handler. Always use individual uploads
       folderInput.addEventListener("change", async () => {
         const files = Array.from(folderInput.files);
 
@@ -334,7 +334,7 @@
               if (
                 isInGeneratedTaxFormsFolder(
                   file.webkitRelativePath || file.name
-                )
+                ) || file.name.match(/TaxAnalysis_\d{4}\.xlsx/)
               ) {
                 return false;
               }
@@ -528,8 +528,13 @@ async function uploadFiles(validFiles) {
 
         messageDiv.appendChild(messageText);
         messageDiv.appendChild(dismissButton);
+		// In case of success we clear all the old messages
+		// if (type === "success") {
+		// 	messageContainer.innerHTML = "";
+		// }
         messageContainer.appendChild(messageDiv);
 		
+
 		// Scroll to the bottom of the page if type is not "success" or "info"
 		if (type !== "success" && type !== "info") {
 		window.scrollTo({
@@ -1010,7 +1015,9 @@ async function uploadFiles(validFiles) {
 		  const question = configurationData.questionList.find(q => q.name === questionName);
 		  // Add the answer only if it is different from the default answer.
 		  if (answer !== question.defaultAnswer) {
-          yearAnswers[questionName] = answer;
+            yearAnswers[questionName] = answer;
+		  }else {
+			delete yearAnswers[questionName];
 		  }
         });
 
@@ -1047,9 +1054,6 @@ function getAnswerFromChildrenControls() {
           if (!questionnaireForm) {
             throw new Error("Questionnaire form not found");
           }
-
-          await loadQuestions();
-
 		  // Remove the old questionnaire if it exists because the controls will have old values.
 		  removeQuestionaire();
 		  // Get the container to which we will add the dynamic questions container child
@@ -2585,7 +2589,6 @@ function formatNumber(key, value) {
 			// Get questions from cache or fetch if not cached
 			await getAnswersMap();
 
-			await loadQuestions();
 			// Returns all questions that have required field equal to REQUIRED
 			const requiredQuestions = configurationData.questionList.filter(question => question.required === "REQUIRED");
 			let requiredQuestionsList = [];
@@ -2605,6 +2608,12 @@ function formatNumber(key, value) {
 			if (requiredQuestionsList.length > 0) {
 				// create the questions dialog
 				createQuestionnaire(requiredQuestionsList);
+				// Scroll to the top of the questionaire section
+				window.scrollTo({
+					top: document.getElementById("questionnaireContainer").offsetTop,
+					behavior: "smooth",
+				  });
+
 				//removeAnswersMapFromLocalStorage();
 			}
 			else {
@@ -2866,6 +2875,7 @@ function formatNumber(key, value) {
 		console.log("DOMContentLoaded 2");
 
 		//localStorage.setItem("questionnaireExists", "false");
+		await loadQuestions();
 
         await initializeAuthState();
         //initializeDocumentHovers();
@@ -2882,6 +2892,11 @@ function formatNumber(key, value) {
             updateFeedbackButtonState();
           }
         }
+
+		// Update form creation select elements according to the form types
+		const createFormSelect = document.getElementById("createFormSelect");
+		createFormSelect.innerHTML = `<option value="">צור טופס חדש</option>`;
+		createFormSelect.innerHTML += configurationData.formTypes.map(formType => `<option value="${formType.formType}">${formType.formName}</option>`).join('');	
 
         // Check if the questionnaire was open or closed last time
         const questionnaireExists = localStorage.getItem("questionnaireExists");
