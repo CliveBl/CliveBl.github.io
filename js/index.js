@@ -958,8 +958,8 @@ async function uploadFiles(validFiles) {
 				break;
             case "ID":
               if (isPair) {
-                const partnerIdField = controls.querySelector(`input[name$="${questionName}_1"]`);
-                const registeredPartnerIdField = controls.querySelector(`input[name$="${questionName}_2"]`);
+                const registeredPartnerIdField = controls.querySelector(`input[name$="${questionName}_1"]`);
+                const partnerIdField = controls.querySelector(`input[name$="${questionName}_2"]`);
                 answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
               } else {
                 const idField = controls.querySelector("input");
@@ -969,8 +969,8 @@ async function uploadFiles(validFiles) {
 
             case "DATE":
               if (isPair) {
-                const partnerDateField = controls.querySelector(`input[name$="${questionName}_1"]`);
-                const registeredPartnerDateField = controls.querySelector(`input[name$="${questionName}_2"]`);
+                const registeredPartnerDateField = controls.querySelector(`input[name$="${questionName}_1"]`);
+                const partnerDateField = controls.querySelector(`input[name$="${questionName}_2"]`);
                 answer = `${partnerDateField.value.trim()},${registeredPartnerDateField.value.trim()}`;
               } else {
                 const dateField = controls.querySelector("input");
@@ -980,8 +980,8 @@ async function uploadFiles(validFiles) {
 
             case "NUMERIC":
               if (isPair) {
-                const partnerNumField = controls.querySelector(`input[name$="${questionName}_1"]`);
-                const registeredPartnerNumField = controls.querySelector(`input[name$="${questionName}_2"]`);
+                const registeredPartnerNumField = controls.querySelector(`input[name$="${questionName}_1"]`);
+                const partnerNumField = controls.querySelector(`input[name$="${questionName}_2"]`);
                 const value1 = partnerNumField.value.trim() || "0";
                 const value2 = registeredPartnerNumField.value.trim() || "0";
                 answer = `${value1},${value2}`;
@@ -993,8 +993,8 @@ async function uploadFiles(validFiles) {
 
             case "CHECKBOX":
               if (isPair) {
-                const partnerCheckbox = controls.querySelector(`input[name$="${questionName}_1"]`);
-                const registeredPartnerCheckbox = controls.querySelector(`input[name$="${questionName}_2"]`);
+                const registeredPartnerCheckbox = controls.querySelector(`input[name$="${questionName}_1"]`);
+                const partnerCheckbox = controls.querySelector(`input[name$="${questionName}_2"]`);
                 if (registeredPartnerCheckbox.checked && partnerCheckbox.checked) {
                   answer = "both";
                 } else if (registeredPartnerCheckbox.checked) {
@@ -1172,21 +1172,17 @@ function getAnswerFromChildrenControls() {
 					break;
               case "ID":
                 if (question.pair === "PAIR") {
-                  // Create container for pair of inputs
+                  // Create container for pair of ID inputs
                   const pairContainer = document.createElement("div");
-                  pairContainer.className = "id-pair-container";
-                  pairContainer.style.display = "flex";
-                  pairContainer.style.gap = "10px";
+                  pairContainer.className = "id-input-container";
 
                   // First ID input (registered partner)
                   const idInput1 = document.createElement("div");
-                  idInput1.style.flex = "1";
+                  idInput1.className = "id-input-group";
 
                   const label1 = document.createElement("label");
+                  label1.className = "question-sub-label";
                   label1.textContent = "בן זוג רשום";
-                  label1.style.display = "block";
-                  label1.style.marginBottom = "3px";
-                  label1.style.fontSize = "0.9em";
 
                   const idNumberInput = document.createElement("input");
                   idNumberInput.type = "text";
@@ -1194,20 +1190,15 @@ function getAnswerFromChildrenControls() {
                   idNumberInput.pattern = "\\d{9}";
                   idNumberInput.maxLength = 9;
                   idNumberInput.placeholder = "הכנס 9 ספרות";
-                  idNumberInput.style.direction = "ltr";
-                  idNumberInput.style.textAlign = "left";
-                  idNumberInput.style.width = "120px";
-                  idNumberInput.style.padding = "4px 8px";
+                  idNumberInput.className = "id-input";
 
                   // Second ID input (partner)
                   const idInput2 = document.createElement("div");
-                  idInput2.style.flex = "1";
+                  idInput2.className = "id-input-group";
 
                   const label2 = document.createElement("label");
+                  label2.className = "question-sub-label";
                   label2.textContent = "בן/בת זוג";
-                  label2.style.display = "block";
-                  label2.style.marginBottom = "3px";
-                  label2.style.fontSize = "0.9em";
 
                   const input2 = document.createElement("input");
                   input2.type = "text";
@@ -1215,10 +1206,7 @@ function getAnswerFromChildrenControls() {
                   input2.pattern = "\\d{9}";
                   input2.maxLength = 9;
                   input2.placeholder = "הכנס 9 ספרות";
-                  input2.style.direction = "ltr";
-                  input2.style.textAlign = "left";
-                  input2.style.width = "120px";
-                  input2.style.padding = "4px 8px";
+                  input2.className = "id-input";
 
                   // Add validation to both inputs
                   [idNumberInput, input2].forEach((input) => {
@@ -1246,10 +1234,7 @@ function getAnswerFromChildrenControls() {
                   idNumberInput.pattern = "\\d{9}";
                   idNumberInput.maxLength = 9;
                   idNumberInput.placeholder = "הכנס 9 ספרות";
-                  idNumberInput.style.direction = "ltr";
-                  idNumberInput.style.textAlign = "left";
-                  idNumberInput.style.width = "120px";
-                  idNumberInput.style.padding = "4px 8px";
+				  idNumberInput.className = "id-input";
 
                   idNumberInput.addEventListener("input", (e) => {
                     e.target.value = e.target.value.replace(/[^\d]/g, "");
@@ -1275,11 +1260,9 @@ function getAnswerFromChildrenControls() {
                   const partnerContainer = document.createElement("div");
                   partnerContainer.style.flex = "0 0 auto"; // Add this
 
-                  const partnerLabel = document.createElement("label");
-                  partnerLabel.textContent = "בן/בת זוג";
-                  partnerLabel.style.display = "block";
-                  partnerLabel.style.marginBottom = "3px";
-                  partnerLabel.style.fontSize = "0.9em";
+                  const registeredLabel = document.createElement("label");
+				  registeredLabel.textContent = "בן זוג רשום";
+                  registeredLabel.className = "question-sub-label";
 
                   const partnerCheckbox = document.createElement("input");
                   partnerCheckbox.type = "checkbox";
@@ -1289,33 +1272,29 @@ function getAnswerFromChildrenControls() {
                   const registeredContainer = document.createElement("div");
                   registeredContainer.style.flex = "0 0 auto"; // Add this
 
-                  const registeredLabel = document.createElement("label");
-                  registeredLabel.textContent = "בן זוג רשום";
-                  registeredLabel.style.display = "block";
-                  registeredLabel.style.marginBottom = "3px";
-                  registeredLabel.style.fontSize = "0.9em";
+                  const partnerLabel = document.createElement("label");
+				  partnerLabel.textContent = "בן/בת זוג";
+                  partnerLabel.className = "question-sub-label";
 
                   const registeredCheckbox = document.createElement("input");
                   registeredCheckbox.type = "checkbox";
                   registeredCheckbox.name = question.name + "_2";
 
-                  partnerContainer.appendChild(partnerLabel);
-                  partnerContainer.appendChild(partnerCheckbox);
                   registeredContainer.appendChild(registeredLabel);
                   registeredContainer.appendChild(registeredCheckbox);
+                  partnerContainer.appendChild(partnerLabel);
+                  partnerContainer.appendChild(partnerCheckbox);
 
-                  pairContainer.appendChild(partnerContainer);
-                  pairContainer.appendChild(registeredContainer);
-                  controls.appendChild(pairContainer);
+                   pairContainer.appendChild(registeredContainer);
+				   pairContainer.appendChild(partnerContainer);
+				   controls.appendChild(pairContainer);
                 } else {
                   // Single checkbox
                   const container = document.createElement("div");
 
                   const label = document.createElement("label");
                   label.textContent = "בן זוג רשום";
-                  label.style.display = "block";
-                  label.style.marginBottom = "3px";
-                  label.style.fontSize = "0.9em";
+                  label.className = "question-sub-label";
 
                   const checkbox = document.createElement("input");
                   checkbox.type = "checkbox";
@@ -1341,13 +1320,11 @@ function getAnswerFromChildrenControls() {
 
                   const partnerLabel = document.createElement("label");
                   partnerLabel.textContent = "בן/בת זוג";
-                  partnerLabel.style.display = "block";
-                  partnerLabel.style.marginBottom = "3px";
-                  partnerLabel.style.fontSize = "0.9em";
+                  partnerLabel.className = "question-sub-label";
 
                   const partnerInput = document.createElement("input");
                   partnerInput.type = "number";
-                  partnerInput.name = question.name + "_1";
+                  partnerInput.name = question.name + "_2";
                   partnerInput.style.width = "120px";
                   partnerInput.style.padding = "4px 8px";
 
@@ -1357,23 +1334,21 @@ function getAnswerFromChildrenControls() {
 
                   const registeredLabel = document.createElement("label");
                   registeredLabel.textContent = "בן זוג רשום";
-                  registeredLabel.style.display = "block";
-                  registeredLabel.style.marginBottom = "3px";
-                  registeredLabel.style.fontSize = "0.9em";
+                  registeredLabel.className = "question-sub-label";
 
                   const registeredInput = document.createElement("input");
                   registeredInput.type = "number";
-                  registeredInput.name = question.name + "_2";
+                  registeredInput.name = question.name + "_1";
                   registeredInput.style.width = "120px";
                   registeredInput.style.padding = "4px 8px";
 
-                  partnerContainer.appendChild(partnerLabel);
-                  partnerContainer.appendChild(partnerInput);
                   registeredContainer.appendChild(registeredLabel);
                   registeredContainer.appendChild(registeredInput);
+                  partnerContainer.appendChild(partnerLabel);
+                  partnerContainer.appendChild(partnerInput);
 
-                  pairContainer.appendChild(partnerContainer);
                   pairContainer.appendChild(registeredContainer);
+                  pairContainer.appendChild(partnerContainer);
                   controls.appendChild(pairContainer);
                 } else {
                   // Single numeric input
@@ -1400,9 +1375,7 @@ function getAnswerFromChildrenControls() {
 
                   const dateLabel1 = document.createElement("label");
                   dateLabel1.textContent = "בן זוג רשום";
-                  dateLabel1.style.display = "block";
-                  dateLabel1.style.marginBottom = "3px";
-                  dateLabel1.style.fontSize = "0.9em";
+                  dateLabel1.className = "question-sub-label";
 
                   const input1 = document.createElement("input");
                   input1.type = "text";
@@ -1424,9 +1397,7 @@ function getAnswerFromChildrenControls() {
 
                   const dateLabel2 = document.createElement("label");
                   dateLabel2.textContent = "בן/בת זוג";
-                  dateLabel2.style.display = "block";
-                  dateLabel2.style.marginBottom = "3px";
-                  dateLabel2.style.fontSize = "0.9em";
+                  dateLabel2.className = "question-sub-label";
 
                   const input2 = document.createElement("input");
                   input2.type = "text";

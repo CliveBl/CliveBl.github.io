@@ -1680,3 +1680,29 @@
       .tax-calculate-button:hover {
         background-color: var(--tax-green-hover);
       }
+
+      .id-input-container {
+        display: flex;
+        gap: 10px;
+      }
+
+      .id-input-group {
+        flex: 1;
+      }
+
+      .question-sub-label {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 0.9em;
+      }
+
+      .id-input {
+        direction: ltr;
+        text-align: left;
+        width: 120px;
+        padding: 4px 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
