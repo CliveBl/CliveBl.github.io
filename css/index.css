@@ -510,13 +510,18 @@
 
       .result-item {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        padding: 8px;
-        margin-bottom: 6px;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 8px;
         background-color: var(--item-bg);
         border-radius: 4px;
-        border-right: 4px solid var(--default-border);
+        border: 1px solid var(--border-color);
+        gap: 10px;
+      }
+
+      .result-item span {
+        flex: 1;
       }
 
       .download-button {
@@ -1638,4 +1643,40 @@
 
       .children-button:hover {
         background-color: #2980b9;
+      }
+
+      .result-buttons {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: nowrap;
+      }
+
+      .action-button {
+        background-color: var(--tax-blue);
+        color: var(--button-text);
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background-color 0.2s;
+        min-width: fit-content;
+      }
+
+      .action-button:hover {
+        background-color: #2980b9;
+      }
+
+      .tax-calculate-button {
+        background-color: var(--tax-green);
+      }
+
+      .tax-calculate-button:hover {
+        background-color: var(--tax-green-hover);
       }

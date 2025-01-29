@@ -27,12 +27,6 @@
       const fileList = document.getElementById("fileList");
       const processButton = document.getElementById("processButton");
       const messageContainer = document.getElementById("messageContainer");
-      const messages = [
-        "מתחיל בעיבוד המסמכים...",
-        "בואק את פורמט הקבצים...",
-        "ממת א הוכן...",
-        "העיבוד הושלם!",
-      ];
 
       // Add these cookie utility functions at the start of your script
       const cookieUtils = {
@@ -673,6 +667,7 @@ async function uploadFiles(validFiles) {
 
               // Clear stored tax results
               localStorage.removeItem("taxResults");
+			  localStorage.removeItem("taxResultsYear");
 
               // Clear tax results display
               const taxResultsContainer = document.getElementById("taxResultsContainer");
@@ -798,6 +793,7 @@ async function uploadFiles(validFiles) {
         const resultsList = document.getElementById("resultsList");
         resultsList.innerHTML = ""; // Clear existing results
 
+		// If there are no results, hide the results container.
         if (!Array.isArray(results) || results.length === 0) {
           resultsContainer.classList.remove("active");
           return;
@@ -816,15 +812,29 @@ async function uploadFiles(validFiles) {
               result.file.fileName
             );
 
+            const buttonContainer = document.createElement("div");
+            buttonContainer.className = "result-buttons";
+
+			// Add a tax calculate button
+			const taxCalculateButton = document.createElement("button");
+			taxCalculateButton.className = "action-button tax-calculate-button";
+			taxCalculateButton.innerHTML = "💰 חשב מס";
+			taxCalculateButton.addEventListener("click", () => {
+				calculateTax(result.file.fileName);
+			});
+
             const downloadButton = document.createElement("button");
-            downloadButton.className = "download-button";
+            downloadButton.className = "action-button download-button";
             downloadButton.innerHTML = "⬇️ הורדה";
             downloadButton.addEventListener("click", () =>
               downloadResult(result.file.fileName)
             );
 
+            buttonContainer.appendChild(taxCalculateButton);
+            buttonContainer.appendChild(downloadButton);
+
             li.appendChild(fileDescription);
-            li.appendChild(downloadButton);
+            li.appendChild(buttonContainer);
             resultsList.appendChild(li);
           }
         });
@@ -2210,7 +2220,7 @@ function getAnswerFromChildrenControls() {
 
           // Close the questionnaire dialog
 		  hideQuestionaire();
-
+		  clearResultsControls();
           // Show success message
           addMessage("התשובות נשמרו בהצלחה", "info");
         } catch (error) {
@@ -2250,19 +2260,18 @@ function clearTaxResults() {
 	taxCalculationContent.innerHTML = "";
 	// Clear stored results
 	localStorage.removeItem("taxResults");
+	localStorage.removeItem("taxResultsYear");	
 }
 
 function clearResultsControls() {
 	console.log("clearResultsControls");
 	const resultsContainer = document.getElementById("resultsContainer");
 	const resultsList = document.getElementById("resultsList");
-	const messageContainer = document.getElementById("messageContainer");
 	clearTaxResults();
 	// Hide containers
 	resultsContainer.classList.remove("active");
 	// Clear content
 	resultsList.innerHTML = "";
-	messageContainer.innerHTML = "";
 }
 
 async function getAnswersMap() {
@@ -2563,109 +2572,112 @@ function formatNumber(key, value) {
         fileList.appendChild(li);
       }
 
-      // Add this with your other event listeners
-      document.getElementById("calculateTaxButton").addEventListener("click", async () => {
-          try {
-            if (!authToken) {
-              await signInAnonymous();
-            }
 
-            const taxCalcTaxYear = "2023";
-            // // Check if we have a taxpaer ID in the answers map for this year
-            // const answersMap = JSON.parse(localStorage.getItem('answersMap'));
-            // const taxpayerId = answersMap[taxCalcTaxYear]?.answers?.taxpayerId;
-            // if (!taxpayerId || taxpayerId.length !== 9) {
-            // 	// Get taxpayer ID
-            // 	taxpayerId = document.getElementById('taxpayerId').value;
-            // 	if (!taxpayerId || taxpayerId.length !== 9) {
-            //   		throw new Error('נדרש מספר זהות תקין של 9 ספרות');
-            // 	}
-            // }
-			// Check if required questions have been answered by iterating over the answersMap
-			// for taxCalcTaxYear and checking if the answers that exists in the json are not the same
-			// as the default values found in the cachedQuestions.
-			// If any required question is not answered then add a message.
-			//const answersMap = JSON.parse(localStorage.getItem('answersMap'));
-			// Get questions from cache or fetch if not cached
-			await getAnswersMap();
+async function calculateTax(fileName) {
+	try {
+		if (!authToken) {
+			await signInAnonymous();
+		}
+		console.log("calculateTax", fileName);
+		// Extract <name>_<year>.dat
+		const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
+		// // Check if we have a taxpaer ID in the answers map for this year
+		// const answersMap = JSON.parse(localStorage.getItem('answersMap'));
+		// const taxpayerId = answersMap[taxCalcTaxYear]?.answers?.taxpayerId;
+		// if (!taxpayerId || taxpayerId.length !== 9) {
+		// 	// Get taxpayer ID
+		// 	taxpayerId = document.getElementById('taxpayerId').value;
+		// 	if (!taxpayerId || taxpayerId.length !== 9) {
+		//   		throw new Error('נדרש מספר זהות תקין של 9 ספרות');
+		// 	}
+		// }
+		// Check if required questions have been answered by iterating over the answersMap
+		// for taxCalcTaxYear and checking if the answers that exists in the json are not the same
+		// as the default values found in the cachedQuestions.
+		// If any required question is not answered then add a message.
+		//const answersMap = JSON.parse(localStorage.getItem('answersMap'));
+		// Get questions from cache or fetch if not cached
+		await getAnswersMap();
 
-			// Returns all questions that have required field equal to REQUIRED
-			const requiredQuestions = configurationData.questionList.filter(question => question.required === "REQUIRED");
-			let requiredQuestionsList = [];
-			const yearAnswers = answersMap.get(taxCalcTaxYear);
-			const currentYearAnswers = yearAnswers?.answers || {};
-			// Check unanswered questions by comparing to the default values.
-			requiredQuestions.forEach(question => {
-				if (!currentYearAnswers || currentYearAnswers[question.name] === undefined || 
-					currentYearAnswers[question.name] === null || 
-					currentYearAnswers[question.name] === question.defaultAnswer) {
-					console.log("Required question not answered: " + question.name + ":" + currentYearAnswers[question.name] + " " + question.defaultAnswer);
-					// the question name to a list of required questions	
-					requiredQuestionsList.push(question.name);
-				}
+		// Returns all questions that have required field equal to REQUIRED
+		const requiredQuestions = configurationData.questionList.filter(question => question.required === "REQUIRED");
+		let requiredQuestionsList = [];
+		const yearAnswers = answersMap.get(taxCalcTaxYear);
+		const currentYearAnswers = yearAnswers?.answers || {};
+		// Check unanswered questions by comparing to the default values.
+		requiredQuestions.forEach(question => {
+			if (!currentYearAnswers || currentYearAnswers[question.name] === undefined ||
+				currentYearAnswers[question.name] === null ||
+				currentYearAnswers[question.name] === question.defaultAnswer) {
+				console.log("Required question not answered: " + question.name + ":" + currentYearAnswers[question.name] + " " + question.defaultAnswer);
+				// the question name to a list of required questions	
+				requiredQuestionsList.push(question.name);
+			}
+		});
+
+		if (requiredQuestionsList.length > 0) {
+			// create the questions dialog
+			createQuestionnaire(requiredQuestionsList);
+			// Scroll to the top of the questionaire section
+			window.scrollTo({
+				top: document.getElementById("questionnaireContainer").offsetTop,
+				behavior: "smooth",
 			});
 
-			if (requiredQuestionsList.length > 0) {
-				// create the questions dialog
-				createQuestionnaire(requiredQuestionsList);
-				// Scroll to the top of the questionaire section
-				window.scrollTo({
-					top: document.getElementById("questionnaireContainer").offsetTop,
-					behavior: "smooth",
-				  });
+			//removeAnswersMapFromLocalStorage();
+		}
+		else {
+			// Show loading overlay
+			document.getElementById("loadingOverlay").classList.add("active");
+			// Disable calculate button
+			//document.getElementById("calculateTaxButton").disabled = true;
 
-				//removeAnswersMapFromLocalStorage();
-			}
-			else {
-            // Show loading overlay
-            document.getElementById("loadingOverlay").classList.add("active");
-            // Disable calculate button
-            document.getElementById("calculateTaxButton").disabled = true;
+			const response = await fetch(
+				`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`,
+				{
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${authToken}`,
+						"Content-Type": "application/json",
+						Accept: "application/json",
+					},
+					body: JSON.stringify({
+						customerDataEntryName: "Default",
+						taxYear: taxCalcTaxYear,
+					}),
+					...fetchConfig,
+				}
+			);
 
-            const response = await fetch(
-              `${API_BASE_URL}/calculateTax?customerDataEntryName=Default`,
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                  "Content-Type": "application/json",
-                  Accept: "application/json",
-                },
-                body: JSON.stringify({
-                  customerDataEntryName: "Default",
-                  taxYear: taxCalcTaxYear,
-                }),
-                ...fetchConfig,
-              }
-            );
-
-            if (!response.ok) {
+			if (!response.ok) {
 				const errorData = await response.json();
-				console.log(errorData);	
-              throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-            }
+				console.log(errorData);
+				throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
+			}
 
-            const result = await response.json();
+			const result = await response.json();
 
-            // Show success message
-            addMessage("חישוב המס הושלם בהצלחה", "info");
+			// Show success message
+			addMessage("חישוב המס הושלם בהצלחה", "info");
 
-            // Store and display results with scroll
-            displayTaxCalculation(result, true);
-            storeTaxCalculation(result);
-          }
-          } catch (error) {
-            console.error("Calculate tax failed:", error);
-            addMessage("שגיאה בחישוב המס: " + error.message, "error");
-          } finally {
-            // Hide loading overlay
-            document
-              .getElementById("loadingOverlay")
-              .classList.remove("active");
-            // Re-enable calculate button
-            document.getElementById("calculateTaxButton").disabled = false;
-          }
-        });
+			// Store and display results with scroll
+			displayTaxCalculation(result, taxCalcTaxYear, true);
+			// Add this function to store tax results
+			localStorage.setItem("taxResultsYear", taxCalcTaxYear);
+			localStorage.setItem("taxResults", JSON.stringify(result));
+		}
+	} catch (error) {
+		console.error("Calculate tax failed:", error);
+		addMessage("שגיאה בחישוב המס: " + error.message, "error");
+	} finally {
+		// Hide loading overlay
+		document
+			.getElementById("loadingOverlay")
+			.classList.remove("active");
+		// Re-enable calculate button
+		document.getElementById("calculateTaxButton").disabled = false;
+	}
+}
 
 		function updateDeleteAllButton() {
 			document.getElementById("deleteAllButton").disabled = fileList.children.length === 0;
@@ -2717,22 +2729,14 @@ function formatNumber(key, value) {
         }
       }
 
-      // Add this function to store tax results
-      function storeTaxCalculation(results) {
-        try {
-          localStorage.setItem("taxResults", JSON.stringify(results));
-        } catch (error) {
-          console.error("Failed to store tax results:", error);
-        }
-      }
-
       // Add this function to load stored tax results
       function loadStoredTaxCalculation() {
         try {
           const storedResults = localStorage.getItem("taxResults");
+		  const storedYear = localStorage.getItem("taxResultsYear");
           if (storedResults) {
             const results = JSON.parse(storedResults);
-            displayTaxCalculation(results);
+            displayTaxCalculation(results, storedYear);
           }
         } catch (error) {
           console.error("Failed to load stored tax results:", error);
@@ -2740,9 +2744,11 @@ function formatNumber(key, value) {
       }
 
       // Add this function to display tax results
-      function displayTaxCalculation(result, shouldScroll = false) {
+      function displayTaxCalculation(result, year, shouldScroll = false) {
         const taxCalculationContent = document.getElementById("taxCalculationContent");
         taxCalculationContent.innerHTML = ""; // Clear existing results
+		// Append year to the title id taxResultsTitle
+		document.getElementById("taxResultsTitle").innerHTML = "תוצאות חישוב מס עבור שנה " + year;
 
         // Create table
         const table = document.createElement("table");
