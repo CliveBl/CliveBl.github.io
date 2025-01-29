@@ -364,7 +364,7 @@
           processButton.appendChild(spinner);
 
           // Clear previous messages
-          messageContainer.innerHTML = "";
+          clearMessages();
 		  // Tax results may now be invalid
 		  clearTaxResults();
 
@@ -719,7 +719,7 @@ async function uploadFiles(validFiles) {
           const results = await response.json();
 
           // Clear previous messages
-          messageContainer.innerHTML = "";
+          clearMessages();
 
           // Handle messages if present
           results.forEach((result) => {
@@ -754,6 +754,10 @@ async function uploadFiles(validFiles) {
           }
         }
       }
+
+		function clearMessages() {
+			messageContainer.innerHTML = "";
+		}
 
       function descriptionFromFileName(fileName) {
         // A filename consists of <name>_<year>.<type>
@@ -888,7 +892,7 @@ async function uploadFiles(validFiles) {
       }
 	  
       function saveAnswersMapToLocalStorage() {
-        if (answersMap) {
+		if (answersMap) {
 		  console.log("saveAnswersMapToLocalStorage");
 		  const mapArray = Array.from(answersMap.entries());
           const answersMapJson = JSON.stringify(mapArray);
@@ -1051,7 +1055,7 @@ function getAnswerFromChildrenControls() {
 }
 
 
-      async function createQuestionnaire(requiredQuestionsList = []) {
+      async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         try {
 			console.log("createQuestionnaire");
           if (!authToken) {
@@ -1078,10 +1082,14 @@ function getAnswerFromChildrenControls() {
 
           await getAnswersMap();
 
-          // Set initial current year
-          const endYear = configurationData.supportedTaxYears[0];
+		  const endYear = configurationData.supportedTaxYears[0];
 		  const startYear = configurationData.supportedTaxYears[configurationData.supportedTaxYears.length - 1];
-          currentlySelectedTaxYear = endYear;
+		// Set initial current year
+		  if (taxYear) {	
+			currentlySelectedTaxYear = taxYear;
+		  } else {
+			currentlySelectedTaxYear = endYear;
+		  }
 
           // Use let for currentYearAnswers since we need to update it
           let yearAnswers = answersMap.get(currentlySelectedTaxYear.toString());
@@ -2194,6 +2202,7 @@ function getAnswerFromChildrenControls() {
 		console.log("setAnswersMap");
         try {
           updateAnswersMapFromControls();
+		  saveAnswersMapToLocalStorage();
           // Convert Map to object for JSON serialization
           const answersObject = Object.fromEntries(answersMap);
           const answersMapJson = JSON.stringify(answersObject);
@@ -2309,7 +2318,6 @@ async function loadQuestions() {
 			{
 				method: "GET",
 				headers: {
-					Authorization: `Bearer ${authToken}`,
 					Accept: "application/json",
 				},
 				...fetchConfig,
@@ -2599,6 +2607,8 @@ async function calculateTax(fileName) {
 		// Get questions from cache or fetch if not cached
 		await getAnswersMap();
 
+		clearMessages();
+
 		// Returns all questions that have required field equal to REQUIRED
 		const requiredQuestions = configurationData.questionList.filter(question => question.required === "REQUIRED");
 		let requiredQuestionsList = [];
@@ -2617,7 +2627,7 @@ async function calculateTax(fileName) {
 
 		if (requiredQuestionsList.length > 0) {
 			// create the questions dialog
-			createQuestionnaire(requiredQuestionsList);
+			createQuestionnaire(requiredQuestionsList, taxCalcTaxYear);
 			// Scroll to the top of the questionaire section
 			window.scrollTo({
 				top: document.getElementById("questionnaireContainer").offsetTop,
@@ -2675,7 +2685,7 @@ async function calculateTax(fileName) {
 			.getElementById("loadingOverlay")
 			.classList.remove("active");
 		// Re-enable calculate button
-		document.getElementById("calculateTaxButton").disabled = false;
+		//document.getElementById("calculateTaxButton").disabled = false;
 	}
 }
 
