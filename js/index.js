@@ -1057,7 +1057,7 @@ function getAnswerFromChildrenControls() {
 
       async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         try {
-			console.log("createQuestionnaire");
+          console.log("createQuestionnaire");
           if (!authToken) {
             await signInAnonymous();
           }
@@ -1068,10 +1068,46 @@ function getAnswerFromChildrenControls() {
           if (!questionnaireForm) {
             throw new Error("Questionnaire form not found");
           }
-		  // Remove the old questionnaire if it exists because the controls will have old values.
-		  removeQuestionaire();
-		  // Get the container to which we will add the dynamic questions container child
-		  const questionsContainer = document.getElementById("questionsContainer");
+
+          // Add cancel button handler
+          const cancelButton = document.getElementById("cancelAnswersButton");
+          cancelButton.addEventListener("click", async () => {
+            try {
+              // Get the current year's answers from the server
+              const response = await fetch(
+                `${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`,
+                {
+                  method: "GET",
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    Accept: "application/json",
+                  },
+                  ...fetchConfig,
+                }
+              );
+
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const answersData = await response.json();
+              // Update the answersMap with server data
+              answersMap = new Map(Object.entries(answersData));
+              saveAnswersMapToLocalStorage();
+
+              // Remove the questionnaire and recreate it to show the restored data
+              removeQuestionaire();
+
+            } catch (error) {
+              console.error("Failed to cancel changes:", error);
+              addMessage("שגיאה בביטול השינויים: " + error.message, "error");
+            }
+          });
+
+          // Remove the old questionnaire if it exists because the controls will have old values.
+          removeQuestionaire();
+          // Get the container to which we will add the dynamic questions container child
+          const questionsContainer = document.getElementById("questionsContainer");
 
           // Create the questions container child to which we will add the question controls.
           const questionsContainerChild = document.createElement("div");
@@ -1816,7 +1852,7 @@ function getAnswerFromChildrenControls() {
 		  localStorage.setItem("questionnaireExists", "true");
 
           // Duplicate answers handler
-          document.querySelector('.duplicate-button').addEventListener('click', () => {
+          document.getElementById('duplicateAnswersButton').addEventListener('click', () => {
             const currentYear = yearSelect.value;
 			updateAnswersMapFromControls();
 
@@ -2211,6 +2247,7 @@ function getAnswerFromChildrenControls() {
 
 
 function removeQuestionaire() {
+	console.log("removeQuestionaire");
 	const questionsContainer = document.getElementById("questionsContainer");
 	hideQuestionaire()
 	// If questionsContainerChild already exists, remove it
