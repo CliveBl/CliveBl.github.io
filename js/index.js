@@ -2890,6 +2890,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
       // Initialize when DOM is ready
       document.addEventListener("DOMContentLoaded", async () => {
 		console.log("DOMContentLoaded 2");
+		const versionNumber = document.getElementById("versionNumber");
 
 		// Get and display version number
 		try {
@@ -2902,9 +2903,11 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 			});
 			if (response.ok) {
 				const version = await response.text();
-				document.getElementById("versionNumber").textContent = `גרסה ${version}`;
+				versionNumber.textContent = `גרסה ${version}`;
 			}
+
 		} catch (error) {
+			versionNumber.textContent = `גרסה  Beta Version 2023_1.68`;
 			console.error("Failed to fetch version:", error);
 		}
 
