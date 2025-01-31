@@ -172,9 +172,9 @@
         //addMessage("התנתקת בהצלחה");
       }
 
-function removeFileList() {
-	fileList.innerHTML = "";
-}
+	function removeFileList() {
+		fileList.innerHTML = "";
+	}
 
       // Add this function to load files with existing token
       async function loadExistingFiles() {
@@ -3023,7 +3023,10 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 
      // Add change handler for form select
      document.getElementById("createFormSelect").addEventListener("change", async (e) => {
-       const formType = e.target.value;
+        if (!authToken) {
+            await signInAnonymous();
+        }
+		const formType = e.target.value;
        if (!formType) return;
 
        try {
