@@ -355,6 +355,21 @@
           if (!authToken) {
             await signInAnonymous();
           }
+		await getAnswersMap();
+
+		// Returns all questions that have requiredProcessing field equal to REQUIRED
+		let requiredProcessingQuestionsList = getRequiredQuestions(String(configurationData.supportedTaxYears[0]),"requiredProcessing");
+
+		if (requiredProcessingQuestionsList.length > 0) {
+			// create the questions dialog
+			createQuestionnaire(requiredProcessingQuestionsList, configurationData.supportedTaxYears[0]);
+			// Scroll to the top of the questionaire section
+			window.scrollTo({
+				top: document.getElementById("questionnaireContainer").offsetTop,
+				behavior: "smooth",
+			});
+		}
+		else {
 
           // Disable button and show spinner
           processButton.disabled = true;
@@ -414,6 +429,7 @@
             await loadResults();
             addMessage("העיבוד הושלם", "info");
           }
+		}
         } catch (error) {
           console.error("Processing failed:", error);
           addMessage("שגיאה בעיבוד הקבצים: " + error.message, "error");
@@ -1074,27 +1090,7 @@ function getAnswerFromChildrenControls() {
           cancelButton.addEventListener("click", async () => {
             try {
               // Get the current year's answers from the server
-              const response = await fetch(
-                `${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`,
-                {
-                  method: "GET",
-                  headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    Accept: "application/json",
-                  },
-                  ...fetchConfig,
-                }
-              );
-
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-
-              const answersData = await response.json();
-              // Update the answersMap with server data
-              answersMap = new Map(Object.entries(answersData));
-              saveAnswersMapToLocalStorage();
-
+			  await getAnswersMap();
               // Remove the questionnaire and recreate it to show the restored data
               removeQuestionaire();
 
@@ -1350,6 +1346,20 @@ function getAnswerFromChildrenControls() {
                   pairContainer.style.display = "flex";
                   pairContainer.style.gap = "10px";
 
+					// Registered partner numeric input
+					const registeredContainer = document.createElement("div");
+					registeredContainer.style.flex = "1";
+	
+					const registeredLabel = document.createElement("label");
+					registeredLabel.textContent = "בן זוג רשום";
+					registeredLabel.className = "question-sub-label";
+	
+					const registeredInput = document.createElement("input");
+					registeredInput.type = "number";
+					registeredInput.name = question.name + "_1";
+					registeredInput.style.width = "120px";
+					registeredInput.style.padding = "4px 8px";
+
                   // Partner numeric input
                   const partnerContainer = document.createElement("div");
                   partnerContainer.style.flex = "1";
@@ -1363,20 +1373,6 @@ function getAnswerFromChildrenControls() {
                   partnerInput.name = question.name + "_2";
                   partnerInput.style.width = "120px";
                   partnerInput.style.padding = "4px 8px";
-
-                  // Registered partner numeric input
-                  const registeredContainer = document.createElement("div");
-                  registeredContainer.style.flex = "1";
-
-                  const registeredLabel = document.createElement("label");
-                  registeredLabel.textContent = "בן זוג רשום";
-                  registeredLabel.className = "question-sub-label";
-
-                  const registeredInput = document.createElement("input");
-                  registeredInput.type = "number";
-                  registeredInput.name = question.name + "_1";
-                  registeredInput.style.width = "120px";
-                  registeredInput.style.padding = "4px 8px";
 
                   registeredContainer.appendChild(registeredLabel);
                   registeredContainer.appendChild(registeredInput);
@@ -1504,14 +1500,14 @@ function getAnswerFromChildrenControls() {
 					break;
                 case "ID":
                   if (isPair) {
-                    const [value1, value2] = savedAnswer.split(",");
+                    const [value1, value2] = savedAnswer.split(",",2);
                     const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
                     const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                     if (input1) {
-                      input1.value = value1 || "";
+                      input1.value = value2 || "";
                     }
                     if (input2) {
-                      input2.value = value2 || "";
+                      input2.value = value1 || "";
                     }
                   } else {
                     const input = controls.querySelector(`input[name="${question.name}"]`);
@@ -1523,11 +1519,11 @@ function getAnswerFromChildrenControls() {
 
                 case "DATE":
                   if (isPair) {
-                    const [value1, value2] = savedAnswer.split(",");
+                    const [value1, value2] = savedAnswer.split(",",2);
                     const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
                     const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                    if (input1) input1.value = value1 || "";
-                    if (input2) input2.value = value2 || "";
+                    if (input1) input1.value = value2 || "";
+                    if (input2) input2.value = value1 || "";
                   } else {
                     const input = controls.querySelector(`input[name="${question.name}"]`);
                     if (input) input.value = savedAnswer;
@@ -1536,11 +1532,11 @@ function getAnswerFromChildrenControls() {
 
                 case "NUMERIC":
                   if (isPair) {
-                    const [value1, value2] = savedAnswer.split(",");
+                    const [value1, value2] = savedAnswer.split(",",2);
                     const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
                     const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                    if (input1) input1.value = value1 === "0" ? "" : value1;
-                    if (input2) input2.value = value2 === "0" ? "" : value2;
+                    if (input1) input1.value = value2 === "0" ? "" : value1;
+                    if (input2) input2.value = value1 === "0" ? "" : value2;
                   } else {
                     const input = controls.querySelector(
                       `input[name="${question.name}"]`
@@ -1617,9 +1613,10 @@ function getAnswerFromChildrenControls() {
 						break;
                     case "ID":
                       if (isPair) {
-                        const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                        const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                        answer = `${input1.value.trim()},${input2.value.trim()}`;
+                        const registeredPartnerIdField = controls.querySelector(`input[name="${question.name}_1"]`);
+                        const partnerIdField = controls.querySelector(`input[name="${question.name}_2"]`);
+                        answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
+
                       } else {
                         const input = controls.querySelector(
                           `input[name="${question.name}"]`
@@ -1632,11 +1629,12 @@ function getAnswerFromChildrenControls() {
                       if (isPair) {
                         const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
                         const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                        answer = `${input1.value.trim()},${input2.value.trim()}`;
+                        answer = `${input2.value.trim()},${input1.value.trim()}`;
                       } else {
                         const input = controls.querySelector(`input[name="${question.name}"]`);
                         answer = input.value.trim();
                       }
+
                       break;
 
                     case "NUMERIC":
@@ -1645,7 +1643,7 @@ function getAnswerFromChildrenControls() {
                         const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                         const value1 = input1.value.trim() || "0";
                         const value2 = input2.value.trim() || "0";
-                        answer = `${value1},${value2}`;
+                        answer = `${value2},${value1}`;
                       } else {
                         const input = controls.querySelector(`input[name="${question.name}"]`);
                         answer = input.value.trim() || "0";
@@ -1679,7 +1677,7 @@ function getAnswerFromChildrenControls() {
                     case "RADIO":
                       // The value can be none or one of two values in the tooltip separated by a colon
                       // We need to calculate the answer based on the radio buttons
-                      const options = question.tooltip.split(":");
+                      const options = question.tooltip.split(":",2);
                       const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
                       const noButton = controls.querySelector(`input[value="${options[1]}"]`);
                       // Check the correct radio button
@@ -1733,11 +1731,11 @@ function getAnswerFromChildrenControls() {
 							break;
                       case "ID":
                         if (question.pair === "PAIR") {
-                          const [value1, value2] = savedAnswer.split(",");
+                          const [value1, value2] = savedAnswer.split(",",2);
                           const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
                           const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                          if (input1) input1.value = value1 || "";
-                          if (input2) input2.value = value2 || "";
+                          if (input1) input1.value = value2 || "";
+                          if (input2) input2.value = value1 || "";
                         } else {
                           const input = controls.querySelector(`input[name="${question.name}"]`);
                           if (input) input.value = savedAnswer;
@@ -1746,11 +1744,11 @@ function getAnswerFromChildrenControls() {
 
                       case "DATE":
                         if (question.pair === "PAIR") {
-                          const [value1, value2] = savedAnswer.split(",");
+                          const [value1, value2] = savedAnswer.split(",",2);
                           const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
                           const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                          if (input1) input1.value = value1 || "";
-                          if (input2) input2.value = value2 || "";
+                          if (input1) input1.value = value2 || "";
+                          if (input2) input2.value = value1 || "";
                         } else {
                           const input = controls.querySelector(`input[name="${question.name}"]`);
                           if (input) input.value = savedAnswer;
@@ -1759,13 +1757,13 @@ function getAnswerFromChildrenControls() {
 
                       case "NUMERIC":
                         if (question.pair === "PAIR") {
-                          const [value1, value2] = savedAnswer.split(",");
+                          const [value1, value2] = savedAnswer.split(",",2);
                           const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
                           const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
                           if (input1)
-                            input1.value = value1 === "0" ? "" : value1;
+                            input1.value = value2 === "0" ? "" : value2;
                           if (input2)
-                            input2.value = value2 === "0" ? "" : value2;
+                            input2.value = value1 === "0" ? "" : value1;
                         } else {
                           const input = controls.querySelector(`input[name="${question.name}"]`);
                           if (input)
@@ -1797,7 +1795,7 @@ function getAnswerFromChildrenControls() {
                       case "RADIO":
                         // The value can be none or one of two values in the tooltip separated by a colon
                         // We need to check if the value is one of the two values or none
-                        const options = question.tooltip.split(":");
+                        const options = question.tooltip.split(":",2);
                         const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
                         const noButton = controls.querySelector(`input[value="${options[1]}"]`);
                         // Clear the radio buttons
@@ -1885,13 +1883,14 @@ function getAnswerFromChildrenControls() {
 			}
 			  const childrenModal = document.getElementById(getChildrenModal());
 			  // Populate the controls with the 2d array in the savedAnswer
-			  // 		 The string is of the format "260:1,260:,260:,260:,260:1,262:1,262:1,262:1,262:,262:,190:1,190:,190:,190:,190:,291:1,291:,291:,291:,291:,022:,022:,022:1,022:,022:1,361:1,362:1,
+			  // The string is of the format "260:1,260:,260:,260:,260:1,262:1,262:1,262:1,262:,262:,190:1,190:,190:,190:,190:,291:1,291:,291:,291:,291:,022:,022:,022:1,022:,022:1,361:1,362:1,
 			  //Where the first number is the code and the second is the number of children. Each code has 5 values.
 			  if (savedAnswer.length > 0) {
 				  const childrenData = savedAnswer.split(",");
 				  let index = 0;
 				  for (let i = 0; i < 7; i++) {
 					  const fieldCode = childrenData[index].split(":")[0];
+
 					  // Set the ith row of the input controls.
 					  childrenModal.querySelectorAll(`input[data-code='${fieldCode}']`).forEach((input) => (input.value = getValueFromPair(childrenData[index++])));
 				  }
@@ -1933,44 +1932,17 @@ function getAnswerFromChildrenControls() {
           updateDeleteAllButton();
           // Disable process button since list is now empty
           updateProcessButton();
-
           // Clear all containers
           clearResultsControls();
-
+		  clearMessages();
           addMessage("כל הקבצים נמחקו בהצלחה");
+
         } catch (error) {
           console.error("Delete all failed:", error);
           addMessage("שגיאה במחיקת הקבצים: " + error.message, "error");
         }
       });
 
-      // Add this with your other event listeners
-      const taxpayerIdInput = document.getElementById("taxpayerId");
-
-      taxpayerIdInput.addEventListener("input", (e) => {
-        // Allow only numbers
-        e.target.value = e.target.value.replace(/[^\d]/g, "");
-
-        // Limit to 9 digits
-        if (e.target.value.length > 9) {
-          e.target.value = e.target.value.slice(0, 9);
-        }
-      });
-
-      // Store taxpayer ID when changed
-      taxpayerIdInput.addEventListener("change", () => {
-        if (taxpayerIdInput.value.length === 9) {
-          localStorage.setItem("taxpayerId", taxpayerIdInput.value);
-        }
-      });
-
-      // Load saved taxpayer ID on page load
-      window.addEventListener("load", () => {
-        const savedId = localStorage.getItem("taxpayerId");
-        if (savedId) {
-          taxpayerIdInput.value = savedId;
-        }
-      });
 
       // Save state before the page unloads
       window.addEventListener("beforeunload", () => {
@@ -1983,9 +1955,6 @@ function getAnswerFromChildrenControls() {
 			localStorage.setItem("questionnaireExists", "false");
         }
       });
-
-
-
 
       // Keep the docDetails object for hover functionality
       const docDetails = {
@@ -2294,7 +2263,7 @@ function clearResultsControls() {
 async function getAnswersMap() {
 	if (!hasLocalAnswersMap()) {
 		// Get the answers map
-		console.log("Getting answers map");
+		console.log("Getting answers map from server");
 		const answersResponse = await fetch(
 			`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`,
 			{
@@ -2320,6 +2289,7 @@ async function getAnswersMap() {
 }
 
 async function loadQuestions() {
+	console.log("loadQuestions");
 	if (!configurationData) {
 		const response = await fetch(
 			`${AUTH_BASE_URL}/getConfigurationData`,
@@ -2597,16 +2567,6 @@ async function calculateTax(fileName) {
 		console.log("calculateTax", fileName);
 		// Extract <name>_<year>.dat
 		const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
-		// // Check if we have a taxpaer ID in the answers map for this year
-		// const answersMap = JSON.parse(localStorage.getItem('answersMap'));
-		// const taxpayerId = answersMap[taxCalcTaxYear]?.answers?.taxpayerId;
-		// if (!taxpayerId || taxpayerId.length !== 9) {
-		// 	// Get taxpayer ID
-		// 	taxpayerId = document.getElementById('taxpayerId').value;
-		// 	if (!taxpayerId || taxpayerId.length !== 9) {
-		//   		throw new Error('נדרש מספר זהות תקין של 9 ספרות');
-		// 	}
-		// }
 		// Check if required questions have been answered by iterating over the answersMap
 		// for taxCalcTaxYear and checking if the answers that exists in the json are not the same
 		// as the default values found in the cachedQuestions.
@@ -2617,32 +2577,17 @@ async function calculateTax(fileName) {
 
 		clearMessages();
 
-		// Returns all questions that have required field equal to REQUIRED
-		const requiredQuestions = configurationData.questionList.filter(question => question.required === "REQUIRED");
-		let requiredQuestionsList = [];
-		const yearAnswers = answersMap.get(taxCalcTaxYear);
-		const currentYearAnswers = yearAnswers?.answers || {};
-		// Check unanswered questions by comparing to the default values.
-		requiredQuestions.forEach(question => {
-			if (!currentYearAnswers || currentYearAnswers[question.name] === undefined ||
-				currentYearAnswers[question.name] === null ||
-				currentYearAnswers[question.name] === question.defaultAnswer) {
-				console.log("Required question not answered: " + question.name + ":" + currentYearAnswers[question.name] + " " + question.defaultAnswer);
-				// the question name to a list of required questions	
-				requiredQuestionsList.push(question.name);
-			}
-		});
+		// Returns all questions that have requiredTaxCalc field equal to REQUIRED
+		let requiredTaxCalcQuestionsList = getRequiredQuestions(taxCalcTaxYear,"requiredTaxCalc");
 
-		if (requiredQuestionsList.length > 0) {
+		if (requiredTaxCalcQuestionsList.length > 0) {
 			// create the questions dialog
-			createQuestionnaire(requiredQuestionsList, taxCalcTaxYear);
+			createQuestionnaire(requiredTaxCalcQuestionsList, taxCalcTaxYear);
 			// Scroll to the top of the questionaire section
 			window.scrollTo({
 				top: document.getElementById("questionnaireContainer").offsetTop,
 				behavior: "smooth",
 			});
-
-			//removeAnswersMapFromLocalStorage();
 		}
 		else {
 			// Show loading overlay
@@ -2695,6 +2640,25 @@ async function calculateTax(fileName) {
 		// Re-enable calculate button
 		//document.getElementById("calculateTaxButton").disabled = false;
 	}
+}
+
+function getRequiredQuestions(taxCalcTaxYear, requiredType) {
+	const requiredQuestions = configurationData.questionList.filter(question => question[requiredType] === "REQUIRED");
+	let requiredQuestionsList = [];
+	
+	const yearAnswers = answersMap.get(taxCalcTaxYear);
+	const currentYearAnswers = yearAnswers?.answers || {};
+	// Check unanswered questions by comparing to the default values.
+	requiredQuestions.forEach(question => {
+		if (!currentYearAnswers || currentYearAnswers[question.name] === undefined ||
+			currentYearAnswers[question.name] === null ||
+			currentYearAnswers[question.name] === question.defaultAnswer) {
+			console.log("Required question not answered: " + question.name + ":" + currentYearAnswers[question.name] + " " + question.defaultAnswer);
+			// the question name to a list of required questions	
+			requiredQuestionsList.push(question.name);
+		}
+	});
+	return requiredQuestionsList;
 }
 
 		function updateDeleteAllButton() {
