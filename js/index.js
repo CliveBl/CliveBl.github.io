@@ -158,17 +158,23 @@
         // Update UI to show logged out state
 		updateSignInUI();
 
-        // Clear the file list
-        fileList.innerHTML = "";
+        removeFileList();
+
 		removeQuestionaire();
 
         // Clear results
 		clearResultsControls();
+		clearMessages();
+
 
 		removeAnswersMapFromLocalStorage();
 		localStorage.setItem("questionnaireExists", "false");
         //addMessage("התנתקת בהצלחה");
       }
+
+function removeFileList() {
+	fileList.innerHTML = "";
+}
 
       // Add this function to load files with existing token
       async function loadExistingFiles() {
@@ -1950,8 +1956,7 @@ function getAnswerFromChildrenControls() {
             throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
           }
 
-          // Clear the file list
-          fileList.innerHTML = "";
+          removeFileList();
           // Disable delete all button since list is now empty
           updateDeleteAllButton();
           // Disable process button since list is now empty
