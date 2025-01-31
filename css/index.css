@@ -145,6 +145,8 @@
       .button-container {
         margin-top: 20px;
         display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
         justify-content: space-between;
         align-items: center;
       }
@@ -165,6 +167,7 @@
       /* Style for custom file input */
       .custom-file-input {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
       }
 
@@ -180,6 +183,8 @@
         cursor: pointer;
         display: inline-block;
         transition: background-color 0.2s;
+        white-space: nowrap;
+        min-width: fit-content;
       }
 
       .custom-file-input label:hover {
@@ -1171,6 +1176,7 @@
       /* Add styles for button groups */
       .file-buttons {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         align-items: center;
       }
@@ -1759,4 +1765,24 @@
 
       .modal li {
         margin: 5px 0;
+      }
+
+      @media (max-width: 600px) {
+        .button-container {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .file-buttons {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .custom-file-input {
+          flex-direction: column;
+        }
+
+        .custom-file-input label {
+          text-align: center;
+        }
       }
