@@ -1731,3 +1731,32 @@
         background-color: var(--bg-color);
         color: var(--text-color);
       }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .confirm-button {
+        background-color: var(--tax-blue);
+        color: var(--button-text);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .confirm-button:hover {
+        background-color: #2980b9;
+      }
+
+      .modal ul {
+        margin: 10px 20px;
+        padding: 0;
+      }
+
+      .modal li {
+        margin: 5px 0;
+      }

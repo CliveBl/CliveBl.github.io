@@ -1851,19 +1851,43 @@ function getAnswerFromChildrenControls() {
 
           // Duplicate answers handler
           document.getElementById('duplicateAnswersButton').addEventListener('click', () => {
-            const currentYear = yearSelect.value;
-			updateAnswersMapFromControls();
+           const warningModal = document.getElementById('warningModal');
+           warningModal.style.display = "block";
+           
+           // Handle close button
+           warningModal.querySelector('.close-button').onclick = () => {
+               warningModal.style.display = "none";
+           };
+           
+           // Handle cancel button
+           warningModal.querySelector('.cancel-button').onclick = () => {
+               warningModal.style.display = "none";
+           };
+           
+           // Handle confirm button
+           warningModal.querySelector('.confirm-button').onclick = () => {
+               warningModal.style.display = "none";
+                const currentYear = yearSelect.value;
+                updateAnswersMapFromControls();
 
-			// Duplicate the answers to all years
-			yearSelect.querySelectorAll('option').forEach(option => {
-				if (option.value !== currentYear) {
-					answersMap.set(option.value,answersMap.get(currentYear));
-				}
-			});
-            // Save to localStorage
-            saveAnswersMapToLocalStorage();
-            
-            addMessage("התשובות שוכפלו לכל השנים", "success");
+                // Duplicate the answers to all years
+                yearSelect.querySelectorAll('option').forEach(option => {
+                    if (option.value !== currentYear) {
+                        answersMap.set(option.value, answersMap.get(currentYear));
+                    }
+                });
+                // Save to localStorage
+                saveAnswersMapToLocalStorage();
+                
+                addMessage("התשובות שוכפלו לכל השנים", "success");
+           };
+           
+           // Close if clicking outside
+           window.onclick = (event) => {
+               if (event.target === warningModal) {
+                   warningModal.style.display = "none";
+               }
+           };
           });
 
         } catch (error) {
