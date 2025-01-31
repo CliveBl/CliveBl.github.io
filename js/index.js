@@ -2891,6 +2891,23 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
       document.addEventListener("DOMContentLoaded", async () => {
 		console.log("DOMContentLoaded 2");
 
+		// Get and display version number
+		try {
+			const response = await fetch(`${AUTH_BASE_URL}/getVersion`, {
+				method: "GET",
+				headers: {
+					Accept: "application/json",
+				},
+				...fetchConfig,
+			});
+			if (response.ok) {
+				const version = await response.text();
+				document.getElementById("versionNumber").textContent = `גרסה ${version}`;
+			}
+		} catch (error) {
+			console.error("Failed to fetch version:", error);
+		}
+
 		//localStorage.setItem("questionnaireExists", "false");
 		await loadQuestions();
 
