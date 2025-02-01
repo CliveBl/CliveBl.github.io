@@ -2907,7 +2907,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 			}
 
 		} catch (error) {
-			versionNumber.textContent = `גרסה {uiVersion}`;
+			versionNumber.textContent = `גרסה ${uiVersion}`;
 			console.error("Failed to fetch version:", error);
 		}
 
