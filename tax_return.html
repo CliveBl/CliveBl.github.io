@@ -69,8 +69,14 @@
       <div class="info-section">
         <h2>מסמכים נדרשים להשת הדו"ח לשני בני הזוג</h2>
         <div class="required-docs">
-          <div class="doc-item" data-doc-type="form106">
+          <div class="doc-item" data-doc-type="form106" data-doc-typename="טופס 106">
+            <div class="doc-details">
+              <h3>טופס 106</h3>
+              <span class="doc-icon">📄</span>
+              <p>תלושי משכורת שנתיים מכל מעסיק</p>
+            </div>
             <div class="doc-controls">
+              <span>כמות</span>
               <select name="form106-count" id="form106-count">
                 <option value="0" selected>0</option>
                 <option value="1">1</option>
@@ -79,16 +85,19 @@
                 <option value="4">4</option>
                 <option value="5">5</option>
               </select>
-            </div>
-            <div class="doc-details">
-              <h3>טופס 106</h3>
-              <span class="doc-icon">📄</span>
-              <p>תלושי משכורת שנתיים מכל מעסיק</p>
+              <label for="form106-count" id="form106-missing" class="doc-status"></label>
             </div>
           </div>
-          <div class="doc-item" data-doc-type="capital-gains">
-            <div class="doc-controls">
-              <select name="capital-gains-count">
+          <div class="doc-item" data-doc-type="capital-gains" data-doc-typename="טופס 867">
+            <div class="doc-details">
+				<h3>טופס 867</h3>
+				<span class="doc-icon">📊</span>
+
+				<p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
+			  </div>
+			  <div class="doc-controls">
+				<span>כמות</span>
+				<select name="capital-gains-count" id="capital-gains-count">
                 <option value="0" selected>0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -101,30 +110,35 @@
                 <option value="9">9</option>
                 <option value="10">10</option>
               </select>
-            </div>
-            <div class="doc-details">
-              <h3>אישורי רווח הון</h3>
-              <span class="doc-icon">📊</span>
-              <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
+			  <label for="capital-gains-count" id="capital-gains-missing" class="doc-status"></label>
             </div>
           </div>
-          <div class="doc-item" data-doc-type="residency">
-            <div class="doc-controls">
-              <select name="residency-count">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select>
-            </div>
+          <div class="doc-item" data-doc-type="residency" data-doc-typename="אישור תושב">
             <div class="doc-details">
               <h3>אישור תושב</h3>
               <span class="doc-icon">🏠</span>
+
               <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
             </div>
-          </div>
-          <div class="doc-item" data-doc-type="donations">
             <div class="doc-controls">
-              <select name="donations-count">
+              <span>כמות</span>
+              <select name="residency-count" id="residency-count">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+              <label for="residency-count" id="residency-missing" class="doc-status"></label>
+            </div>
+          </div>
+          <div class="doc-item" data-doc-type="donations" data-doc-typename="קבלות על תרומות למוסדות מוכרים">
+            <div class="doc-details">
+              <h3>אישורי תרומות</h3>
+              <span class="doc-icon">💝</span>
+              <p>קבלות על תרומות למוסדות מוכרים</p>
+            </div>
+            <div class="doc-controls">
+              <span>כמות</span>
+              <select name="donations-count" id="donations-count">
                 <option value="0" selected>0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -137,46 +151,49 @@
                 <option value="9">9</option>
                 <option value="10">10</option>
               </select>
-            </div>
-            <div class="doc-details">
-              <h3>אישורי תרומות</h3>
-              <span class="doc-icon">💝</span>
-              <p>קבלות על ררומות למוסדות מוכרים</p>
+              <label for="donations-count" id="donations-missing" class="doc-status"></label>
             </div>
           </div>
-          <div class="doc-item" data-doc-type="national-insurance">
-            <div class="doc-controls">
-              <select name="national-insurance-count">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-              </select>
-            </div>
+          <div class="doc-item" data-doc-type="national-insurance" data-doc-typename="אישור ביטוח לאומי">
             <div class="doc-details">
               <h3>ביטוח לאומי</h3>
               <span class="doc-icon">🏛️</span>
               <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
             </div>
+            <div class="doc-controls">
+              <span>כמות</span>
+              <select name="national-insurance-count" id="national-insurance-count">
+                <option value="0" selected>0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+              <label for="national-insurance-count" id="national-insurance-missing" class="doc-status"></label>
+            </div>
           </div>
 		  <div class="doc-item" data-doc-type="education">
-			<div class="doc-controls">
-				<select name="education-count">
-					<option value="0" selected>0</option>
-					<option value="1">1</option>
-					<option value="2">2</option>
-				</select>
-			</div>
 			<div class="doc-details">
 			  <h3>לימודים אקדמאיים</h3>
 			  <span class="doc-icon">🏫</span>
 			  <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
 			</div>
+			<div class="doc-controls">
+			  <span>כמות</span>
+			  <select name="education-count" id="education-count">
+				<option value="0" selected>0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+			  </select>
+			  <label for="education-count" id="education-missing" class="doc-status"></label>
+			</div>
 		  </div>
-
         </div>
-
+        <div class="missing-docs-warning" id="missingDocsWarning">
+          <strong>שים לב!</strong> חסרים המסמכים הבאים:
+          <ul class="missing-docs-list" id="missingDocsList">
+          </ul>
+        </div>
       </div>
 
       <!-- Container for the list of uploaded files -->
@@ -477,8 +494,8 @@
     <div id="warningModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>אזהרה</h2>
                 <span class="close-button">&times;</span>
+                <h2>אזהרה</h2>
             </div>
             <div class="modal-body">
                 <p>שים לב: חלק מהשדות עשויים להשתנות משנה לשנה ויש להתאים אותם בנפרד לכל שנה.</p>

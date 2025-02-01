@@ -1,4 +1,4 @@
-      const uiVersion = '0.1'
+      const uiVersion = '0.2'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
@@ -83,7 +83,7 @@
 
           if (!response.ok) {
 			const errorData = await response.json();
-			console.log(errorData);	
+			debug(errorData);	
             throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
@@ -118,14 +118,14 @@
 
           if (!response.ok) {
 			const errorData = await response.json();
-			console.log(errorData);	
+			debug(errorData);
             throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
           const result = await response.json();
           authToken = result.token;
           cookieUtils.set("authToken", authToken); // Save token to cookie
-          console.log("Sign in successful");
+          debug("Sign in successful");
 		  // Update UI to show  state
 		  updateSignInUI();
           return authToken;
@@ -174,12 +174,12 @@
 
 	function removeFileList() {
 		fileList.innerHTML = "";
-	}
+      }
 
       // Add this function to load files with existing token
       async function loadExistingFiles() {
         try {
-          console.log("loadExistingFiles");
+          debug("loadExistingFiles");
           const response = await fetch(
             `${API_BASE_URL}/getFilesInfo?customerDataEntryName=Default`,
             {
@@ -194,7 +194,7 @@
 
           if (!response.ok) {
 			const errorData = await response.json();	
-			console.log(errorData);	
+			debug(errorData);
             throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
@@ -233,7 +233,7 @@
 
         try {
           // If we have a token, try to use it
-          console.log("load");
+          debug("load");
           if (authToken) {
             await loadExistingFiles();
             await loadResults();
@@ -290,6 +290,8 @@
         updateDeleteAllButton();
         // Enable/disable process button based on file list
         updateProcessButton();
+		updateMissingDocuments();
+
       }
 
       // Add function to update process button state
@@ -405,12 +407,12 @@
 
           if (!response.ok) {
 			const errorData = await response.json();	
-			console.log(errorData);	
+			debug(errorData);	
             throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
           const result = await response.json();
-          console.log("Processing response:", result);
+          debug("Processing response:", result);
 
           // Handle fatal error if present
           if (result.fatalProcessingError) {
@@ -435,7 +437,7 @@
             await loadResults();
             addMessage("העיבוד הושלם", "info");
           }
-		}
+          }
         } catch (error) {
           console.error("Processing failed:", error);
           addMessage("שגיאה בעיבוד הקבצים: " + error.message, "error");
@@ -513,7 +515,7 @@ async function uploadFiles(validFiles) {
 			});
 
 			const fileInfoList = await response.json();
-			console.log("Upload response:", fileInfoList);
+			debug("Upload response:", fileInfoList);
 			updateFileList(fileInfoList);
 		} catch (error) {
 			console.error("Upload failed:", error);
@@ -655,66 +657,66 @@ async function uploadFiles(validFiles) {
               document.getElementById("password").value = "";
 
             } else {
-              // Call the signIn API
-              const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  email: email,
-                  password: password,
-                }),
-                ...fetchConfig,
-              });
+            // Call the signIn API
+            const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: email,
+                password: password,
+              }),
+              ...fetchConfig,
+            });
 
-              if (!response.ok) {
+            if (!response.ok) {
                   const errorData = await response.json();
                   throw new Error("התחברות נכשלה: " + errorData.detail);
-              }
+            }
 
-              const data = await response.json();
+            const data = await response.json();
 
-              // Store the token
-              authToken = data.token;
-              cookieUtils.set("authToken", authToken);
+            // Store the token
+            authToken = data.token;
+            cookieUtils.set("authToken", authToken);
 			}
 
-              // Update UI to show logged in user
-              const userEmail = document.getElementById("userEmail");
-              const loginButton = document.querySelector(".login-button");
-              userEmail.textContent = email;
-              loginButton.textContent = "התנתק";
-              loginButton.classList.add("logged-in");
+            // Update UI to show logged in user
+            const userEmail = document.getElementById("userEmail");
+            const loginButton = document.querySelector(".login-button");
+            userEmail.textContent = email;
+            loginButton.textContent = "התנתק";
+            loginButton.classList.add("logged-in");
 
-              // Clear stored tax results
-              localStorage.removeItem("taxResults");
+            // Clear stored tax results
+            localStorage.removeItem("taxResults");
 			  localStorage.removeItem("taxResultsYear");
 
-              // Clear tax results display
+            // Clear tax results display
               const taxResultsContainer = document.getElementById("taxResultsContainer");
               const taxCalculationContent = document.getElementById("taxCalculationContent");
-              taxResultsContainer.classList.remove("active");
+            taxResultsContainer.classList.remove("active");
               taxCalculationContent.innerHTML = "";
 
-              // Handle signin
-              await loadExistingFiles(); // Load files with new token
-              await loadResults();
+            // Handle signin
+            await loadExistingFiles(); // Load files with new token
+            await loadResults();
 
               //addMessage("התחברת בהצלחה!");
-              document.getElementById("loginOverlay").classList.remove("active");
-            } catch (error) {
-              console.error("Login failed:", error);
-              addMessage("שגיאה בהתחברות: " + error.message, "error");
-            }
-          });
+            document.getElementById("loginOverlay").classList.remove("active");
+          } catch (error) {
+            console.error("Login failed:", error);
+            addMessage("שגיאה בהתחברות: " + error.message, "error");
+          }
+        });
 
       document.querySelector(".google-login").addEventListener("click", () => {
-        console.log("Google login clicked");
+        debug("Google login clicked");
       });
 
       document.querySelector(".github-login").addEventListener("click", () => {
-        console.log("GitHub login clicked");
+        debug("GitHub login clicked");
       });
 
       // Add these functions before the window load event listener
@@ -734,7 +736,7 @@ async function uploadFiles(validFiles) {
 
           if (!response.ok) {
 			const errorData = await response.json();	
-			console.log(errorData);	
+			debug(errorData);	
             throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
@@ -779,7 +781,7 @@ async function uploadFiles(validFiles) {
 
 		function clearMessages() {
 			messageContainer.innerHTML = "";
-		}
+      }
 
       function descriptionFromFileName(fileName) {
         // A filename consists of <name>_<year>.<type>
@@ -889,7 +891,7 @@ async function uploadFiles(validFiles) {
 
           if (!response.ok) {
 			const errorData = await response.json();
-			console.log(errorData);	
+			debug(errorData);	
             throw new Error(`Download failed: ${errorData.detail} ${response.status}`);
           }
 
@@ -914,8 +916,8 @@ async function uploadFiles(validFiles) {
       }
 	  
       function saveAnswersMapToLocalStorage() {
-		if (answersMap) {
-		  console.log("saveAnswersMapToLocalStorage");
+        if (answersMap) {
+		  debug("saveAnswersMapToLocalStorage");
 		  const mapArray = Array.from(answersMap.entries());
           const answersMapJson = JSON.stringify(mapArray);
           localStorage.setItem("answersMap", answersMapJson);
@@ -929,7 +931,7 @@ async function uploadFiles(validFiles) {
 
       // Update the loadAnswersMapFromLocalStorage function
       function loadAnswersMapFromLocalStorage() {
-        console.log("loadAnswersMapFromLocalStorage");
+        debug("loadAnswersMapFromLocalStorage");
         const answersMapJson = localStorage.getItem("answersMap");
         if (answersMapJson) {
           answersMap = new Map(JSON.parse(answersMapJson));
@@ -937,7 +939,7 @@ async function uploadFiles(validFiles) {
       }
 
 	  function removeAnswersMapFromLocalStorage() {
-		console.log("removeAnswersMapFromLocalStorage");
+		debug("removeAnswersMapFromLocalStorage");
 		localStorage.removeItem("answersMap");
 		// Delete answersMap
 		answersMap = {};
@@ -951,10 +953,10 @@ async function uploadFiles(validFiles) {
 			childrenModalId = "childrenModal_2018";
 		}
 		return childrenModalId;
-	}
+	  }	
 
       function updateAnswersMapFromControls() {
-		console.log("updateAnswersMapFromControls");
+		debug("updateAnswersMapFromControls");
         const selectedYear = parseInt(document.getElementById("taxYear").value);
         const yearAnswers = {};
 
@@ -1051,7 +1053,7 @@ async function uploadFiles(validFiles) {
 		  const question = configurationData.questionList.find(q => q.name === questionName);
 		  // Add the answer only if it is different from the default answer.
 		  if (answer !== question.defaultAnswer) {
-            yearAnswers[questionName] = answer;
+          yearAnswers[questionName] = answer;
 		  }else {
 			delete yearAnswers[questionName];
 		  }
@@ -1072,14 +1074,14 @@ function getAnswerFromChildrenControls() {
 	childrenModal.querySelectorAll('input[data-code]').forEach(input => {
 		childrenData += input.dataset.code + ":" + input.value + ",";
 	});
-	//console.log("childrenData:", childrenData);
+	//debug("childrenData:", childrenData);
 	return childrenData;
 }
 
 
       async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         try {
-          console.log("createQuestionnaire");
+          debug("createQuestionnaire");
           if (!authToken) {
             await signInAnonymous();
           }
@@ -1122,11 +1124,11 @@ function getAnswerFromChildrenControls() {
 
 		  const endYear = configurationData.supportedTaxYears[0];
 		  const startYear = configurationData.supportedTaxYears[configurationData.supportedTaxYears.length - 1];
-		// Set initial current year
+          // Set initial current year
 		  if (taxYear) {	
 			currentlySelectedTaxYear = taxYear;
 		  } else {
-			currentlySelectedTaxYear = endYear;
+          currentlySelectedTaxYear = endYear;
 		  }
 
           // Use let for currentYearAnswers since we need to update it
@@ -1147,7 +1149,7 @@ function getAnswerFromChildrenControls() {
 
           // Set the year selector to match currentlySelectedTaxYear
           yearSelect.value = currentlySelectedTaxYear;
-          //console.log('Set year selector to:', currentlySelectedTaxYear); // Debug log
+          //debug('Set year selector to:', currentlySelectedTaxYear); // Debug log
 		  let childrenModalId = getChildrenModal();
           // Create questions and populate with answers
 		  const questions = configurationData.questionList;
@@ -1163,7 +1165,7 @@ function getAnswerFromChildrenControls() {
             questionText.textContent = question.text;
 			// If the question is in the list of required questions, add a red asterisk to the question text
 			if (requiredQuestionsList.includes(question.name)) {
-				console.log("Required question.name:", question.name);
+				debug("Required question.name:", question.name);
 				questionText.innerHTML += "<span>*</span>";
 				questionText.classList.add('highlight-questions');
 			}
@@ -1323,9 +1325,9 @@ function getAnswerFromChildrenControls() {
                   partnerContainer.appendChild(partnerLabel);
                   partnerContainer.appendChild(partnerCheckbox);
 
-                   pairContainer.appendChild(registeredContainer);
+                  pairContainer.appendChild(registeredContainer);
 				   pairContainer.appendChild(partnerContainer);
-				   controls.appendChild(pairContainer);
+                  controls.appendChild(pairContainer);
                 } else {
                   // Single checkbox
                   const container = document.createElement("div");
@@ -1352,19 +1354,19 @@ function getAnswerFromChildrenControls() {
                   pairContainer.style.display = "flex";
                   pairContainer.style.gap = "10px";
 
-					// Registered partner numeric input
-					const registeredContainer = document.createElement("div");
-					registeredContainer.style.flex = "1";
-	
-					const registeredLabel = document.createElement("label");
-					registeredLabel.textContent = "בן זוג רשום";
+                  // Registered partner numeric input
+                  const registeredContainer = document.createElement("div");
+                  registeredContainer.style.flex = "1";
+
+                  const registeredLabel = document.createElement("label");
+                  registeredLabel.textContent = "בן זוג רשום";
 					registeredLabel.className = "question-sub-label";
-	
-					const registeredInput = document.createElement("input");
-					registeredInput.type = "number";
+
+                  const registeredInput = document.createElement("input");
+                  registeredInput.type = "number";
 					registeredInput.name = question.name + "_1";
-					registeredInput.style.width = "120px";
-					registeredInput.style.padding = "4px 8px";
+                  registeredInput.style.width = "120px";
+                  registeredInput.style.padding = "4px 8px";
 
                   // Partner numeric input
                   const partnerContainer = document.createElement("div");
@@ -1490,12 +1492,12 @@ function getAnswerFromChildrenControls() {
             if (!savedAnswer) {
               savedAnswer = question.defaultAnswer;
             }
-            //console.log(`Attempting to populate ${question.name}:`, savedAnswer); // Debug log
+            //debug(`Attempting to populate ${question.name}:`, savedAnswer); // Debug log
 
             if (savedAnswer) {
               const controls =
                 questionGroup.querySelector(".question-controls");
-              //console.log(`Found controls for ${question.name}:`, controls); // Debug log
+              //debug(`Found controls for ${question.name}:`, controls); // Debug log
 
               const controlType = question.controlType;
               const isPair = question.pair === "PAIR";
@@ -1587,8 +1589,8 @@ function getAnswerFromChildrenControls() {
           });
 
           // Add debug logging for the answers map and current year answers
-          //console.log('Full answers map:', answersMap);
-          //console.log('Current year answers:', currentYearAnswers);
+          //debug('Full answers map:', answersMap);
+          //debug('Current year answers:', currentYearAnswers);
 
           // Add year change handler to load answers for selected year
           yearSelect.addEventListener("change", () => {
@@ -1927,7 +1929,7 @@ function getAnswerFromChildrenControls() {
 			  } else {
 				  clearControls(childrenModal, controlType);
 			  }
-		  }
+        }
       } // createQuestionnaire
       // Add this after the other button references
       const deleteAllButton = document.getElementById("deleteAllButton");
@@ -1952,7 +1954,7 @@ function getAnswerFromChildrenControls() {
 
           if (!response.ok) {
 			const errorData = await response.json();	
-			console.log(errorData);	
+			debug(errorData);	
             throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
           }
 
@@ -2114,7 +2116,7 @@ function getAnswerFromChildrenControls() {
 
       // Keep the hover functionality
       document.addEventListener("DOMContentLoaded", () => {
-        console.log("DOMContentLoaded 1");
+        debug("DOMContentLoaded 1");
         const docDetailsModal = document.getElementById("docDetailsModal");
         const docDetailsTitle = docDetailsModal.querySelector(".doc-details-title");
         const docDetailsBody = docDetailsModal.querySelector(".doc-details-body");
@@ -2143,19 +2145,19 @@ function getAnswerFromChildrenControls() {
               docDetailsBody.innerHTML = details.sections
                 .map(
                   (section) => `
-                    <h4>${section.title}</h4>
-                    <p>${section.content}</p>
-                  `
+              <h4>${section.title}</h4>
+              <p>${section.content}</p>
+            `
                 )
                 .join("");
-              
+
               docDetailsModal.style.top = `${itemBounds.bottom + 5}px`;
               docDetailsModal.style.left = `${itemBounds.left}px`;
               docDetailsModal.dataset.currentDocType = docType;
               docDetailsModal.style.display = "block";
             }
           });
-        });
+          });
 
         // Close modal when clicking outside
         document.addEventListener("click", (e) => {
@@ -2204,7 +2206,7 @@ function getAnswerFromChildrenControls() {
       // Update the questionnaire form submission handler
       questionnaireForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-		console.log("setAnswersMap");
+		debug("setAnswersMap");
         try {
           updateAnswersMapFromControls();
 		  saveAnswersMapToLocalStorage();
@@ -2228,7 +2230,7 @@ function getAnswerFromChildrenControls() {
 
           if (!response.ok) {
 			const errorData = await response.json();	
-			console.log(errorData);	
+			debug(errorData);	
             throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
           }
 
@@ -2245,13 +2247,13 @@ function getAnswerFromChildrenControls() {
 
 
 function removeQuestionaire() {
-	console.log("removeQuestionaire");
+	debug("removeQuestionaire");
 	const questionsContainer = document.getElementById("questionsContainer");
 	hideQuestionaire()
 	// If questionsContainerChild already exists, remove it
 	const questionsContainerChildOld = document.getElementById("questionsContainerChild");
 	if (questionsContainerChildOld) {
-		console.log("questionsContainerChildOld found");
+		debug("questionsContainerChildOld found");
 		questionsContainer.removeChild(questionsContainerChildOld);
 	}
 }
@@ -2266,7 +2268,7 @@ function showQuestionaire() {
 }
 
 function clearTaxResults() {
-	console.log("clearTaxResults");
+	debug("clearTaxResults");
 	const taxResultsContainer = document.getElementById("taxResultsContainer");
 	const taxCalculationContent = document.getElementById("taxCalculationContent");
 	// Hide containers
@@ -2279,7 +2281,7 @@ function clearTaxResults() {
 }
 
 function clearResultsControls() {
-	console.log("clearResultsControls");
+	debug("clearResultsControls");
 	const resultsContainer = document.getElementById("resultsContainer");
 	const resultsList = document.getElementById("resultsList");
 	clearTaxResults();
@@ -2292,7 +2294,7 @@ function clearResultsControls() {
 async function getAnswersMap() {
 	if (!hasLocalAnswersMap()) {
 		// Get the answers map
-		console.log("Getting answers map from server");
+		debug("Getting answers map from server");
 		const answersResponse = await fetch(
 			`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`,
 			{
@@ -2318,7 +2320,7 @@ async function getAnswersMap() {
 }
 
 async function loadQuestions() {
-	console.log("loadQuestions");
+	debug("loadQuestions");
 	if (!configurationData) {
 		const response = await fetch(
 			`${AUTH_BASE_URL}/getConfigurationData`,
@@ -2333,7 +2335,7 @@ async function loadQuestions() {
 
 		if (!response.ok) {
 			const errorData = await response.json();	
-			console.log(errorData);	
+			debug(errorData);	
 			throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
 		}
 
@@ -2364,6 +2366,8 @@ function formatNumber(key, value) {
 
         const li = document.createElement("li");
         li.className = "file-item";
+		li.setAttribute('data-doc-typename', fileInfo.documentType);
+
         if (status) {
           li.classList.add(status);
         }
@@ -2492,7 +2496,7 @@ function formatNumber(key, value) {
         editButton.addEventListener("click", async () => {
             try {
                 // Handle edit action here
-                console.log("Edit clicked for file:", fileId);
+                debug("Edit clicked for file:", fileId);
 				// Get the entry that from the latestFileInfoList with the same fileId
 				const formJson = latestFileInfoList.find(file => file.fileId === fileId);
                 // Collect all field values from the accordion content
@@ -2562,7 +2566,7 @@ function formatNumber(key, value) {
 
               if (!response.ok) {
 				const errorData = await response.json();
-				console.log(errorData);	
+				debug(errorData);	
                 throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
               }
 
@@ -2589,11 +2593,11 @@ function formatNumber(key, value) {
 
 
 async function calculateTax(fileName) {
-	try {
-		if (!authToken) {
-			await signInAnonymous();
-		}
-		console.log("calculateTax", fileName);
+          try {
+            if (!authToken) {
+              await signInAnonymous();
+            }
+		debug("calculateTax", fileName);
 		// Extract <name>_<year>.dat
 		const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
 		// Check if required questions have been answered by iterating over the answersMap
@@ -2619,54 +2623,54 @@ async function calculateTax(fileName) {
 			});
 		}
 		else {
-			// Show loading overlay
-			document.getElementById("loadingOverlay").classList.add("active");
-			// Disable calculate button
+            // Show loading overlay
+            document.getElementById("loadingOverlay").classList.add("active");
+            // Disable calculate button
 			//document.getElementById("calculateTaxButton").disabled = true;
 
-			const response = await fetch(
-				`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`,
-				{
-					method: "POST",
-					headers: {
-						Authorization: `Bearer ${authToken}`,
-						"Content-Type": "application/json",
-						Accept: "application/json",
-					},
-					body: JSON.stringify({
-						customerDataEntryName: "Default",
-						taxYear: taxCalcTaxYear,
-					}),
-					...fetchConfig,
-				}
-			);
+            const response = await fetch(
+              `${API_BASE_URL}/calculateTax?customerDataEntryName=Default`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify({
+                  customerDataEntryName: "Default",
+                  taxYear: taxCalcTaxYear,
+                }),
+                ...fetchConfig,
+              }
+            );
 
-			if (!response.ok) {
+            if (!response.ok) {
 				const errorData = await response.json();
-				console.log(errorData);
+				debug(errorData);
 				throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-			}
+            }
 
-			const result = await response.json();
+            const result = await response.json();
 
-			// Show success message
-			addMessage("חישוב המס הושלם בהצלחה", "info");
+            // Show success message
+            addMessage("חישוב המס הושלם בהצלחה", "info");
 
-			// Store and display results with scroll
+            // Store and display results with scroll
 			displayTaxCalculation(result, taxCalcTaxYear, true);
 			// Add this function to store tax results
 			localStorage.setItem("taxResultsYear", taxCalcTaxYear);
 			localStorage.setItem("taxResults", JSON.stringify(result));
 		}
-	} catch (error) {
-		console.error("Calculate tax failed:", error);
-		addMessage("שגיאה בחישוב המס: " + error.message, "error");
-	} finally {
-		// Hide loading overlay
-		document
-			.getElementById("loadingOverlay")
-			.classList.remove("active");
-		// Re-enable calculate button
+          } catch (error) {
+            console.error("Calculate tax failed:", error);
+            addMessage("שגיאה בחישוב המס: " + error.message, "error");
+          } finally {
+            // Hide loading overlay
+            document
+              .getElementById("loadingOverlay")
+              .classList.remove("active");
+            // Re-enable calculate button
 		//document.getElementById("calculateTaxButton").disabled = false;
 	}
 }
@@ -2682,7 +2686,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 		if (!currentYearAnswers || currentYearAnswers[question.name] === undefined ||
 			currentYearAnswers[question.name] === null ||
 			currentYearAnswers[question.name] === question.defaultAnswer) {
-			console.log("Required question not answered: " + question.name + ":" + currentYearAnswers[question.name] + " " + question.defaultAnswer);
+			debug("Required question not answered: " + question.name + ":" + currentYearAnswers[question.name] + " " + question.defaultAnswer);
 			// the question name to a list of required questions	
 			requiredQuestionsList.push(question.name);
 		}
@@ -2814,7 +2818,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
         const storedToken = cookieUtils.get("authToken");
         if (storedToken) {
           try {
-            console.log("initializeAuthState");
+            debug("initializeAuthState");
             // Verify the token is still valid by making a test request
             const response = await fetch(
               `${API_BASE_URL}/getFilesInfo?customerDataEntryName=Default`,
@@ -2889,7 +2893,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 
       // Initialize when DOM is ready
       document.addEventListener("DOMContentLoaded", async () => {
-		console.log("DOMContentLoaded 2");
+		debug("DOMContentLoaded 2");
 		const versionNumber = document.getElementById("versionNumber");
 
 		// Get and display version number
@@ -2981,7 +2985,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 
           if (!response.ok) {
 			const errorData = await response.json();
-			console.log(errorData);
+			debug(errorData);
             throw new Error(`Feedback submission failed: ${errorData.detail} ${response.status}`);
           }
 
@@ -3007,6 +3011,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
             docItem.classList.remove('selected');
           }
           saveSelectedDocTypes();
+		  updateMissingDocuments();
         });
       });
 
@@ -3068,7 +3073,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
          }
 
 		 const fileInfoList = await response.json();
-		 console.log("createForm response:", fileInfoList);
+		 debug("createForm response:", fileInfoList);
 		 updateFileList(fileInfoList);
 
          addMessage("הטופס נוצר בהצלחה", "success");
@@ -3116,4 +3121,58 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
                   }
               });
           });
+      }
+
+      // Add this function to update missing document counts
+      function updateMissingDocuments() {
+        // Get all documents from file list
+        const fileListDocs = Array.from(document.querySelectorAll('#fileList li'))
+          .map(li => li.getAttribute('data-doc-typename'));
+        
+        // Count documents by type
+        const docCounts = fileListDocs.reduce((acc, type) => {
+          acc[type] = (acc[type] || 0) + 1;
+          return acc;
+        }, {});
+        
+        const missingDocs = [];
+        
+        // Check each doc-item and update missing count
+        document.querySelectorAll('.doc-item').forEach(item => {
+          const docType = item.dataset.docType;
+          const docTypename = item.dataset.docTypename;
+          const select = item.querySelector('select');
+          const missingLabel = document.getElementById(`${docType}-missing`);
+          
+          if (select && missingLabel) {
+            const required = parseInt(select.value);
+            const uploaded = docCounts[docTypename] || 0;
+			debug("docType:", docType, "docTypename:", docTypename, "required:", required, "uploaded:", uploaded);
+            const missing = Math.max(0, required - uploaded);
+			debug("missing:", missing);
+            
+            if (missing > 0) {
+              missingLabel.textContent = `חסר ${missing}`;
+              missingDocs.push({
+                name: item.querySelector('h3').textContent,
+                count: missing
+              });
+            } else {
+              missingLabel.textContent = '';
+            }
+          }
+        });
+
+        // Update warning section
+        const warningSection = document.getElementById('missingDocsWarning');
+        const warningList = document.getElementById('missingDocsList');
+        
+        if (missingDocs.length > 0) {
+          warningList.innerHTML = missingDocs
+            .map(doc => `<li>${doc.name}: חסר ${doc.count}</li>`)
+            .join('');
+          warningSection.classList.add('visible');
+        } else {
+          warningSection.classList.remove('visible');
+        }
       }

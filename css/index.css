@@ -609,6 +609,7 @@
         border-radius: 8px;
         margin: 20px 0;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
       }
 
       .info-section h2 {
@@ -626,7 +627,8 @@
       }
 
       .doc-item {
-        display: flex;
+		display: grid;
+		grid-template-rows: 20px 1fr 1;
         align-items: flex-start;
         gap: 15px;
         padding: 15px;
@@ -669,6 +671,16 @@
         color: var(--message-text);
       }
 
+      .doc-details {
+        flex-grow: 1;
+      }
+
+      .doc-status {
+        color: #e74c3c;  /* Red color */
+		font-size: 1rem;
+		padding-right: 10px;
+      }
+
       /* Update the questionnaire button styling */
       .questionnaire-button {
         background-color: #3498db; /* Use the same blue as other buttons */
@@ -677,9 +689,6 @@
         padding: 5px 15px;
         border-radius: 3px;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
       }
 
       .questionnaire-button:hover {
@@ -924,15 +933,27 @@
         position: relative;
       }
 
-      /* Update the document item hover behavior */
-      .doc-item {
-        position: relative;
-        cursor: pointer;
-        transition: background-color 0.2s;
+      .missing-docs-warning {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: var(--warning-bg);
+        border: 1px solid var(--warning-border);
+        border-radius: 6px;
+        color: var(--warning-text);
+        display: none;
       }
 
-      .doc-item:hover {
-        background-color: rgba(52, 152, 219, 0.1);
+      .missing-docs-warning.visible {
+        display: block;
+      }
+
+      .missing-docs-list {
+        margin: 10px 20px 0;
+        padding: 0;
+      }
+
+      .missing-docs-list li {
+        margin: 5px 0;
       }
 
       .year-selector-container {
