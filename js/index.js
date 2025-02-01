@@ -1,8 +1,8 @@
-      // Add these variables at the top of your script
+      const uiVersion = '0.1'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
-	  let latestFileInfoList = [];
+	let latestFileInfoList = [];
 
 
       // Add these constants at the start of your script section, after DEBUG
@@ -2903,11 +2903,11 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 			});
 			if (response.ok) {
 				const version = await response.text();
-				versionNumber.textContent = `גרסה ${version}`;
+				versionNumber.textContent = `גרסה ${version} ${uiVersion}`;
 			}
 
 		} catch (error) {
-			versionNumber.textContent = `גרסה  Beta Version 2023_1.68`;
+			versionNumber.textContent = `גרסה {uiVersion}`;
 			console.error("Failed to fetch version:", error);
 		}
 
