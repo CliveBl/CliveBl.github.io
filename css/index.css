@@ -151,6 +151,14 @@
         align-items: center;
       }
 
+      .file-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        flex: 1;
+      }
+
       .process-button {
         background-color: #2ecc71;
         color: var(--button-text);
@@ -169,6 +177,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+        flex: 1;
       }
 
       .custom-file-input input[type="file"] {
@@ -683,12 +692,14 @@
 
       /* Update the questionnaire button styling */
       .questionnaire-button {
-        background-color: #3498db; /* Use the same blue as other buttons */
+        background-color: #3498db;
         color: var(--button-text);
         border: none;
         padding: 5px 15px;
         border-radius: 3px;
         cursor: pointer;
+        white-space: nowrap;
+        min-width: fit-content;
       }
 
       .questionnaire-button:hover {
@@ -1801,6 +1812,15 @@
 
         .custom-file-input {
           flex-direction: column;
+        }
+
+        .action-buttons {
+          width: 100%;
+        }
+
+        .questionnaire-button {
+          width: 100%;
+          text-align: center;
         }
 
         .custom-file-input label {

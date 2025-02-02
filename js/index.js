@@ -1,4 +1,4 @@
-      const uiVersion = '0.2'
+      const uiVersion = '0.3'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
