@@ -1961,11 +1961,9 @@ function getAnswerFromChildrenControls() {
           }
 
           removeFileList();
-          // Disable delete all button since list is now empty
           updateDeleteAllButton();
-          // Disable process button since list is now empty
           updateProcessButton();
-          // Clear all containers
+		  updateMissingDocuments();
           clearResultsControls();
 		  clearMessages();
           addMessage("כל הקבצים נמחקו בהצלחה");
@@ -2573,12 +2571,9 @@ function formatNumber(key, value) {
               }
 
               fileList.removeChild(li);
-              // Update delete all button state
               updateDeleteAllButton();
-              // Update process button state
               updateProcessButton();
-
-			// Clear all containers
+			  updateMissingDocuments();
 			clearResultsControls();
 
           } catch (error) {
@@ -3149,9 +3144,9 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
           if (select && missingLabel) {
             const required = parseInt(select.value);
             const uploaded = docCounts[docTypename] || 0;
-			debug("docType:", docType, "docTypename:", docTypename, "required:", required, "uploaded:", uploaded);
+			//debug("docType:", docType, "docTypename:", docTypename, "required:", required, "uploaded:", uploaded);
             const missing = Math.max(0, required - uploaded);
-			debug("missing:", missing);
+			//debug("missing:", missing);
             
             if (missing > 0) {
               missingLabel.textContent = `חסר ${missing}`;
