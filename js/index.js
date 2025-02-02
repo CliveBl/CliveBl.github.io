@@ -1,4 +1,4 @@
-      const uiVersion = '0.3'
+      const uiVersion = '0.4'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
@@ -1494,100 +1494,7 @@ function getAnswerFromChildrenControls() {
             if (!savedAnswer) {
               savedAnswer = question.defaultAnswer;
             }
-            //debug(`Attempting to populate ${question.name}:`, savedAnswer); // Debug log
-
-            if (savedAnswer) {
-              const controls =
-                questionGroup.querySelector(".question-controls");
-              //debug(`Found controls for ${question.name}:`, controls); // Debug log
-
-              const controlType = question.controlType;
-              const isPair = question.pair === "PAIR";
-
-              switch (controlType) {
-				case "CHILDREN":
-					setChildrenControls(savedAnswer, controlType);
-					break;
-                case "ID":
-                  if (isPair) {
-                    const [value1, value2] = savedAnswer.split(",",2);
-                    const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                    const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                    if (input1) {
-                      input1.value = value2 || "";
-                    }
-                    if (input2) {
-                      input2.value = value1 || "";
-                    }
-                  } else {
-                    const input = controls.querySelector(`input[name="${question.name}"]`);
-                    if (input) {
-                      input.value = savedAnswer;
-                    }
-                  }
-                  break;
-
-                case "DATE":
-                  if (isPair) {
-                    const [value1, value2] = savedAnswer.split(",",2);
-                    const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                    const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                    if (input1) input1.value = value2 || "";
-                    if (input2) input2.value = value1 || "";
-                  } else {
-                    const input = controls.querySelector(`input[name="${question.name}"]`);
-                    if (input) input.value = savedAnswer;
-                  }
-                  break;
-
-                case "NUMERIC":
-                  if (isPair) {
-                    const [value1, value2] = savedAnswer.split(",",2);
-                    const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                    const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                    if (input1) input1.value = value2 === "0" ? "" : value1;
-                    if (input2) input2.value = value1 === "0" ? "" : value2;
-                  } else {
-                    const input = controls.querySelector(
-                      `input[name="${question.name}"]`
-                    );
-                    if (input)
-                      input.value = savedAnswer === "0" ? "" : savedAnswer;
-                  }
-                  break;
-
-                case "CHECKBOX":
-                  if (isPair) {
-                    const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                    const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                    if (checkbox1)
-                      checkbox1.checked =
-                        savedAnswer === "partner" || savedAnswer === "both";
-                    if (checkbox2)
-                      checkbox2.checked =
-                        savedAnswer === "registeredPartner" ||
-                        savedAnswer === "both";
-                  } else {
-                    const checkbox = controls.querySelector(`input[name="${question.name}"]`);
-                    if (checkbox)
-                      checkbox.checked = savedAnswer === "registeredPartner";
-                  }
-                  break;
-
-                case "RADIO":
-                  // The value can be none or one of two values in the tooltip separated by a colon
-                  // We need to check if the value is one of the two values or none
-                  const options = question.tooltip.split(":");
-                  const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
-                  const noButton = controls.querySelector(`input[value="${options[1]}"]`);
-                  // Clear the radio buttons
-                  controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
-                  // Check the correct radio button
-                  if (yesButton) yesButton.checked = savedAnswer === options[0];
-                  if (noButton) noButton.checked = savedAnswer === options[1];
-                  break;
-              }
-            }
+			updateControlFromAnswer(question, savedAnswer, controls);
           });
 
           // Add debug logging for the answers map and current year answers
@@ -1733,94 +1640,12 @@ function getAnswerFromChildrenControls() {
 
                 if (controls) {
                   // Update controls using same logic as initial population
-                  const controlType =  controls.getAttribute("data-control-type");
-                  if (savedAnswer) {
-                    switch (controlType) {
-						case "CHILDREN":
-							setChildrenControls(savedAnswer, controlType);
-							break;
-                      case "ID":
-                        if (question.pair === "PAIR") {
-                          const [value1, value2] = savedAnswer.split(",",2);
-                          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                          if (input1) input1.value = value2 || "";
-                          if (input2) input2.value = value1 || "";
-                        } else {
-                          const input = controls.querySelector(`input[name="${question.name}"]`);
-                          if (input) input.value = savedAnswer;
-                        }
-                        break;
-
-                      case "DATE":
-                        if (question.pair === "PAIR") {
-                          const [value1, value2] = savedAnswer.split(",",2);
-                          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                          if (input1) input1.value = value2 || "";
-                          if (input2) input2.value = value1 || "";
-                        } else {
-                          const input = controls.querySelector(`input[name="${question.name}"]`);
-                          if (input) input.value = savedAnswer;
-                        }
-                        break;
-
-                      case "NUMERIC":
-                        if (question.pair === "PAIR") {
-                          const [value1, value2] = savedAnswer.split(",",2);
-                          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                          if (input1)
-                            input1.value = value2 === "0" ? "" : value2;
-                          if (input2)
-                            input2.value = value1 === "0" ? "" : value1;
-                        } else {
-                          const input = controls.querySelector(`input[name="${question.name}"]`);
-                          if (input)
-                            input.value =
-                              savedAnswer === "0" ? "" : savedAnswer;
-                        }
-                        break;
-
-                      case "CHECKBOX":
-                        if (question.pair === "PAIR") {
-                          const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                          const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                          if (checkbox1)
-                            checkbox1.checked =
-                              savedAnswer === "partner" ||
-                              savedAnswer === "both";
-                          if (checkbox2)
-                            checkbox2.checked =
-                              savedAnswer === "registeredPartner" ||
-                              savedAnswer === "both";
-                        } else {
-                          const checkbox = controls.querySelector(`input[name="${question.name}"]`);
-                          if (checkbox)
-                            checkbox.checked =
-                              savedAnswer === "registeredPartner";
-                        }
-                        break;
-
-                      case "RADIO":
-                        // The value can be none or one of two values in the tooltip separated by a colon
-                        // We need to check if the value is one of the two values or none
-                        const options = question.tooltip.split(":",2);
-                        const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
-                        const noButton = controls.querySelector(`input[value="${options[1]}"]`);
-                        // Clear the radio buttons
-                        controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
-                        // Check the correct radio button
-                        if (yesButton)
-                          yesButton.checked = savedAnswer === options[0];
-                        if (noButton)
-                          noButton.checked = savedAnswer === options[1];
-                        break;
-                    }
-                  } else {
-                    // Clear controls if no saved answer
-                    clearControls(controls, controlType);
-                  }
+                  //if (savedAnswer) {
+					updateControlFromAnswer(question, savedAnswer, controls);
+                //   } else {
+                //     // Clear controls if no saved answer
+                //     clearControls(controls, question.controlType);
+                //   }
                 }
               });
 
@@ -1905,7 +1730,95 @@ function getAnswerFromChildrenControls() {
           addMessage("שגיאה בטעינת השאלון: " + error.message, "error");
         }
 
-		  function setChildrenControls(savedAnswer, controlType) {
+		  function updateControlFromAnswer(question, answer, controls) {
+			  const isPair = question.pair === "PAIR";
+			  const controlType = question.controlType;
+
+			  switch (controlType) {
+				  case "CHILDREN":
+					  setChildrenControls(answer, controlType);
+					  break;
+				  case "ID":
+					  if (isPair) {
+						  const [value1, value2] = answer.split(",", 2);
+						  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+						  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+						  if (input1) input1.value = value2 || "";
+						  if (input2) input2.value = value1 || "";
+					  } else {
+						  const input = controls.querySelector(`input[name="${question.name}"]`);
+						  if (input) input.value = answer;
+					  }
+					  break;
+
+				  case "DATE":
+					  if (isPair) {
+						  const [value1, value2] = answer.split(",", 2);
+						  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+						  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+						  if (input1) input1.value = value2 || "";
+						  if (input2) input2.value = value1 || "";
+					  } else {
+						  const input = controls.querySelector(`input[name="${question.name}"]`);
+						  if (input) input.value = answer;
+					  }
+					  break;
+
+				  case "NUMERIC":
+					  if (isPair) {
+						  const [value1, value2] = answer.split(",", 2);
+						  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
+						  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
+						  if (input1)
+							  input1.value = value2 === "0" ? "" : value2;
+						  if (input2)
+							  input2.value = value1 === "0" ? "" : value1;
+					  } else {
+						  const input = controls.querySelector(`input[name="${question.name}"]`);
+						  if (input)
+							  input.value =
+								  answer === "0" ? "" : answer;
+					  }
+					  break;
+
+				  case "CHECKBOX":
+					  if (isPair) {
+						  const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
+						  const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
+						  if (checkbox1)
+							  checkbox1.checked =
+								  answer === "partner" ||
+								  answer === "both";
+						  if (checkbox2)
+							  checkbox2.checked =
+								  answer === "registeredPartner" ||
+								  answer === "both";
+					  } else {
+						  const checkbox = controls.querySelector(`input[name="${question.name}"]`);
+						  if (checkbox)
+							  checkbox.checked =
+								  answer === "registeredPartner";
+					  }
+					  break;
+
+				  case "RADIO":
+					  // The value can be none or one of two values in the tooltip separated by a colon
+					  // We need to check if the value is one of the two values or none
+					  const options = question.tooltip.split(":", 2);
+					  const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
+					  const noButton = controls.querySelector(`input[value="${options[1]}"]`);
+					  // Clear the radio buttons
+					  controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
+					  // Check the correct radio button
+					  if (yesButton)
+						  yesButton.checked = answer === options[0];
+					  if (noButton)
+						  noButton.checked = answer === options[1];
+					  break;
+			  }
+		  }
+
+		  function setChildrenControls(answer, controlType) {
 			function getValueFromPair(pair) {
 				const pairArray = pair.split(":");
 				if(pairArray.length == 2) {
@@ -1919,8 +1832,8 @@ function getAnswerFromChildrenControls() {
 			  // Populate the controls with the 2d array in the savedAnswer
 			  // The string is of the format "260:1,260:,260:,260:,260:1,262:1,262:1,262:1,262:,262:,190:1,190:,190:,190:,190:,291:1,291:,291:,291:,291:,022:,022:,022:1,022:,022:1,361:1,362:1,
 			  //Where the first number is the code and the second is the number of children. Each code has 5 values.
-			  if (savedAnswer.length > 0) {
-				  const childrenData = savedAnswer.split(",");
+			  if (answer.length > 0) {
+				  const childrenData = answer.split(",");
 				  let index = 0;
 				  for (let i = 0; i < 7; i++) {
 					  const fieldCode = childrenData[index].split(":")[0];
