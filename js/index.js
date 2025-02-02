@@ -3049,7 +3049,10 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
             await signInAnonymous();
         }
 		const formType = e.target.value;
-       if (!formType) return;
+       if (!formType) 
+			return;
+
+		const identificationNumber = idFromAnswersMap();
 
        try {
          const response = await fetch(`${API_BASE_URL}/createForm`, {
@@ -3060,7 +3063,8 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
            },
            body: JSON.stringify({
              customerDataEntryName: "Default",
-             formType: formType
+             formType: formType,
+			 identificationNumber: identificationNumber
            }),
            ...fetchConfig,
          });
@@ -3084,6 +3088,23 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 	   // return the control to its first option
 	   e.target.value = "";
      });
+
+function idFromAnswersMap() {
+	let identificationNumber;
+	// Try to get the id from the answers map
+	const answers = answersMap.get(String(configurationData.supportedTaxYears[0]))?.answers;
+	if (answers) {
+		const [value1, value2] = answers?.TAXPAYER_ID.split(",", 2);
+		identificationNumber = value2;
+		if (identificationNumber.length != 9) {
+			identificationNumber = "000000000";
+		}
+	}
+	if(identificationNumber)
+		return identificationNumber;
+	else
+		return "000000000";
+}
 
       // Add event handlers for children modal
       function setupChildrenModalInputs() {
