@@ -639,8 +639,8 @@
 		display: grid;
 		grid-template-rows: 20px 1fr 1;
         align-items: flex-start;
-        gap: 15px;
-        padding: 15px;
+        gap: 1px;
+        padding: 10px;
         background-color: var(--bg-color);
         border-radius: 6px;
         border: 1px solid var(--border-color);
