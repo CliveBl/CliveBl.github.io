@@ -2,8 +2,8 @@
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
-	let latestFileInfoList = [];
-
+      let latestFileInfoList = [];
+      let documentIcons = {};
 
       // Add these constants at the start of your script section, after DEBUG
       const API_BASE_URL = "https://localhost:443/api/v1";
@@ -234,6 +234,7 @@
         try {
           // If we have a token, try to use it
           debug("load");
+          initializeDocumentIcons();
           if (authToken) {
             await loadExistingFiles();
             await loadResults();
@@ -242,6 +243,7 @@
             // No token, sign in anonymously
             debug("No token found, signing in anonymously");
             await signInAnonymous();
+
             await loadExistingFiles();
             await loadResults();
           }
@@ -2390,7 +2392,7 @@ function formatNumber(key, value) {
             statusIcon.textContent = "❌";
             break;
           default:
-            statusIcon.textContent = "✓";
+            statusIcon.textContent = documentIcons[fileInfo.documentType] || "📋";
         }
 
         const fileNameElement = document.createElement("span");
@@ -3176,3 +3178,15 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
           warningSection.classList.remove('visible');
         }
       }
+
+      // Function to initialize document icons from info panel
+      function initializeDocumentIcons() {
+        document.querySelectorAll('.doc-item').forEach(item => {
+          const docType = item.getAttribute('data-doc-typename');
+          const icon = item.querySelector('.doc-icon');
+          if (docType && icon) {
+            documentIcons[docType] = icon.textContent;
+          }
+        });
+      }
+
