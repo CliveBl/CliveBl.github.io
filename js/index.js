@@ -3133,6 +3133,8 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
         }, {});
         
         const missingDocs = [];
+        // const allDocsZero = Array.from(document.querySelectorAll('.doc-controls select'))
+        //   .every(select => select.value === '0');
         
         // Check each doc-item and update missing count
         document.querySelectorAll('.doc-item').forEach(item => {
@@ -3144,9 +3146,9 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
           if (select && missingLabel) {
             const required = parseInt(select.value);
             const uploaded = docCounts[docTypename] || 0;
-			//debug("docType:", docType, "docTypename:", docTypename, "required:", required, "uploaded:", uploaded);
+			debug("docType:", docType, "docTypename:", docTypename, "required:", required, "uploaded:", uploaded);
             const missing = Math.max(0, required - uploaded);
-			//debug("missing:", missing);
+			debug("missing:", missing);
             
             if (missing > 0) {
               missingLabel.textContent = `חסר ${missing}`;
@@ -3165,12 +3167,34 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
         const warningList = document.getElementById('missingDocsList');
         
         if (missingDocs.length > 0) {
-          warningList.innerHTML = missingDocs
-            .map(doc => `<li>${doc.name}: חסר ${doc.count}</li>`)
-            .join('');
+          warningList.innerHTML = `<strong>שים לב!</strong> חסרים המסמכים הבאים: ${missingDocs.map(doc => doc.name).join(', ')}`;
+          warningList.innerHTML += missingDocs.map(doc => `<li>${doc.name}: חסר ${doc.count}</li>`).join('');
           warningSection.classList.add('visible');
+          warningSection.classList.remove('success');
+        }
+		else if (Object.keys(docCounts).length > 0) 
+		{
+          // Show summary when no documents are missing and all selectors are zero
+          warningSection.classList.add('visible');
+          warningSection.classList.add('success');
+          const summary = Object.entries(docCounts).map(([type, count]) => {
+              const docItem = document.querySelector(`.doc-item[data-doc-typename="${type}"]`);
+			  if(docItem == null)
+			  {
+				debug("Unhandled type:", type);
+				if(type === "null")
+				  return "";
+			  }
+              //const docName = docItem ? docItem.querySelector('h3').textContent : type;
+              const docName =  type;
+			  //debug("docName:", docName, "docItem:", docItem, "type:", type, "count:", count);
+              return `<li>${docName}: ${count} מסמכים</li>`;
+            })
+            .join('');
+          warningList.innerHTML = `<strong>סיכום מסמכים:</strong>${summary}`;
         } else {
           warningSection.classList.remove('visible');
+          warningSection.classList.remove('success');
         }
       }
 

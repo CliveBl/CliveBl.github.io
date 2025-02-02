@@ -5,11 +5,14 @@
         --border-color: #ccc;
         --item-bg: #f8f9fa;
         --warning-bg: #fef9e7;
+        --success-bg: #e8f8f5;
         --error-bg: #fde9e7;
         --default-border: #95a5a6;
         --warning-border: #f1c40f;
+        --success-border: #2ecc71;
         --error-border: #e74c3c;
         --warning-text: #b7950b;
+        --success-text: #27ae60;
         --error-text: #c0392b;
         --button-text: white;
         --message-text: #666;
@@ -25,11 +28,14 @@
           --border-color: #404040;
           --item-bg: #2d2d2d;
           --warning-bg: #3d3415;
+          --success-bg: #1e3d32;
           --error-bg: #3d1f1d;
           --default-border: #606060;
           --warning-border: #b7950b;
+          --success-border: #27ae60;
           --error-border: #c0392b;
           --warning-text: #f1c40f;
+          --success-text: #2ecc71;
           --error-text: #e74c3c;
           --button-text: #ffffff;
           --message-text: #b0b0b0;
@@ -956,6 +962,12 @@
 
       .missing-docs-warning.visible {
         display: block;
+      }
+
+      .missing-docs-warning.success {
+        background-color: var(--success-bg);
+        border-color: var(--success-border);
+        color: var(--success-text);
       }
 
       .missing-docs-list {
