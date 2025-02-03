@@ -823,7 +823,7 @@ async function uploadFiles(validFiles) {
         const resultsList = document.getElementById("resultsList");
         resultsList.innerHTML = ""; // Clear existing results
 
-		// If there are no results, hide the results container.
+        // If there are no results, hide the results container.
         if (!Array.isArray(results) || results.length === 0) {
           resultsContainer.classList.remove("active");
           return;
@@ -837,6 +837,24 @@ async function uploadFiles(validFiles) {
             const li = document.createElement("li");
             li.className = "result-item";
 
+
+            // Add file icon based on extension
+			fileIcon= document.createElement("i");
+            const extension = result.file.fileName.split('.').pop().toLowerCase();
+			switch (extension) {
+              case 'pdf':
+                fileIcon.className = "fa fa-file-pdf-o";
+                break;
+              case 'xlsx':
+                fileIcon.className = "fa fa-file-excel-o";
+                break;
+			case 'dat':
+				fileIcon.className = "fa fa-database";
+				break;
+              default:
+                fileIcon.className = "fa fa-question";
+            }
+
             const fileDescription = document.createElement("span");
             fileDescription.textContent = descriptionFromFileName(
               result.file.fileName
@@ -845,25 +863,27 @@ async function uploadFiles(validFiles) {
             const buttonContainer = document.createElement("div");
             buttonContainer.className = "result-buttons";
 
-			// Add a tax calculate button
-			const taxCalculateButton = document.createElement("button");
-			taxCalculateButton.className = "action-button tax-calculate-button";
-			taxCalculateButton.innerHTML = "💰 חשב מס";
-			taxCalculateButton.addEventListener("click", () => {
-				calculateTax(result.file.fileName);
-			});
+            // Add a tax calculate button
+            const taxCalculateButton = document.createElement("button");
+            taxCalculateButton.className = "action-button tax-calculate-button";
+            taxCalculateButton.innerHTML = "💰 חשב מס";
+            taxCalculateButton.addEventListener("click", () => {
+              calculateTax(result.file.fileName);
+            });
 
             const downloadButton = document.createElement("button");
             downloadButton.className = "action-button download-button";
-            downloadButton.innerHTML = "⬇️ הורדה";
-            downloadButton.addEventListener("click", () =>
+			// add fileIcon to the downloadButton
+			downloadButton.innerHTML = "הורדה";
+			downloadButton.appendChild(fileIcon);
+             downloadButton.addEventListener("click", () =>
               downloadResult(result.file.fileName)
             );
 
             buttonContainer.appendChild(taxCalculateButton);
             buttonContainer.appendChild(downloadButton);
 
-            li.appendChild(fileDescription);
+			li.appendChild(fileDescription);
             li.appendChild(buttonContainer);
             resultsList.appendChild(li);
           }
@@ -1708,92 +1728,92 @@ function getAnswerFromChildrenControls() {
 			  const isPair = question.pair === "PAIR";
 			  const controlType = question.controlType;
 
-			  switch (controlType) {
+                    switch (controlType) {
 				  case "CHILDREN":
 					  setChildrenControls(answer, controlType);
 					  break;
-				  case "ID":
+                      case "ID":
 					  if (isPair) {
 						  const [value1, value2] = answer.split(",", 2);
 						  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
 						  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
 						  if (input1) input1.value = value2 || "";
 						  if (input2) input2.value = value1 || "";
-					  } else {
+                        } else {
 						  const input = controls.querySelector(`input[name="${question.name}"]`);
 						  if (input) input.value = answer;
-					  }
-					  break;
+                        }
+                        break;
 
-				  case "DATE":
+                      case "DATE":
 					  if (isPair) {
 						  const [value1, value2] = answer.split(",", 2);
 						  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
 						  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
 						  if (input1) input1.value = value2 || "";
 						  if (input2) input2.value = value1 || "";
-					  } else {
+                        } else {
 						  const input = controls.querySelector(`input[name="${question.name}"]`);
 						  if (input) input.value = answer;
-					  }
-					  break;
+                        }
+                        break;
 
-				  case "NUMERIC":
+                      case "NUMERIC":
 					  if (isPair) {
 						  const [value1, value2] = answer.split(",", 2);
 						  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
 						  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-						  if (input1)
+                          if (input1)
 							  input1.value = value2 === "0" ? "" : value2;
-						  if (input2)
+                          if (input2)
 							  input2.value = value1 === "0" ? "" : value1;
-					  } else {
+                        } else {
 						  const input = controls.querySelector(`input[name="${question.name}"]`);
-						  if (input)
-							  input.value =
+                          if (input)
+                            input.value =
 								  answer === "0" ? "" : answer;
-					  }
-					  break;
+                        }
+                        break;
 
-				  case "CHECKBOX":
+                      case "CHECKBOX":
 					  if (isPair) {
 						  const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
 						  const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
-						  if (checkbox1)
-							  checkbox1.checked =
+                          if (checkbox1)
+                            checkbox1.checked =
 								  answer === "partner" ||
 								  answer === "both";
-						  if (checkbox2)
-							  checkbox2.checked =
+                          if (checkbox2)
+                            checkbox2.checked =
 								  answer === "registeredPartner" ||
 								  answer === "both";
-					  } else {
+                        } else {
 						  const checkbox = controls.querySelector(`input[name="${question.name}"]`);
-						  if (checkbox)
-							  checkbox.checked =
+                          if (checkbox)
+                            checkbox.checked =
 								  answer === "registeredPartner";
-					  }
-					  break;
+                        }
+                        break;
 
-				  case "RADIO":
-					  // The value can be none or one of two values in the tooltip separated by a colon
-					  // We need to check if the value is one of the two values or none
+                      case "RADIO":
+                        // The value can be none or one of two values in the tooltip separated by a colon
+                        // We need to check if the value is one of the two values or none
 					  const options = question.tooltip.split(":", 2);
 					  const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
 					  const noButton = controls.querySelector(`input[value="${options[1]}"]`);
-					  // Clear the radio buttons
+                        // Clear the radio buttons
 					  controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
-					  // Check the correct radio button
-					  if (yesButton)
+                        // Check the correct radio button
+                        if (yesButton)
 						  yesButton.checked = answer === options[0];
-					  if (noButton)
+                        if (noButton)
 						  noButton.checked = answer === options[1];
-					  break;
-			  }
+                        break;
+                    }
 		  }
 
-		function clearControls(controls, controlType) {
-			switch (controlType) {
+          function clearControls(controls, controlType) {
+            switch (controlType) {
 			case "CHILDREN":
 				controls.querySelectorAll("input[data-code='260']").forEach((input) => (input.value = ""));
 				controls.querySelectorAll("input[data-code='262']").forEach((input) => (input.value = ""));
@@ -1803,19 +1823,19 @@ function getAnswerFromChildrenControls() {
 				controls.querySelectorAll("input[data-code='361']").forEach((input) => (input.value = ""));
 				controls.querySelectorAll("input[data-code='362']").forEach((input) => (input.value = ""));
 				break;
-				case "ID":
-				case "DATE":
-				case "NUMERIC":
+              case "ID":
+              case "DATE":
+              case "NUMERIC":
 				controls.querySelectorAll("input").forEach((input) => (input.value = ""));
-				break;
-				case "CHECKBOX":
+                break;
+              case "CHECKBOX":
 				controls.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
-				break;
-				case "RADIO":
+                break;
+              case "RADIO":
 				controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
-				break;
-			}
-			}
+                break;
+            }
+          }
 
 		  function setChildrenControls(answer, controlType) {
 			function getValueFromPair(pair) {
