@@ -863,13 +863,16 @@ async function uploadFiles(validFiles) {
             const buttonContainer = document.createElement("div");
             buttonContainer.className = "result-buttons";
 
-            // Add a tax calculate button
-            const taxCalculateButton = document.createElement("button");
-            taxCalculateButton.className = "action-button tax-calculate-button";
-            taxCalculateButton.innerHTML = "💰 חשב מס";
-            taxCalculateButton.addEventListener("click", () => {
-              calculateTax(result.file.fileName);
-            });
+            // Add a tax calculate button only for the excel file
+            if (result.file.fileName.endsWith(".xlsx")) {
+              const taxCalculateButton = document.createElement("button");
+              taxCalculateButton.className = "action-button tax-calculate-button";
+              taxCalculateButton.innerHTML = "💰 חשב מס";
+              taxCalculateButton.addEventListener("click", () => {
+                calculateTax(result.file.fileName);
+              });
+			  buttonContainer.appendChild(taxCalculateButton);
+            }
 
             const downloadButton = document.createElement("button");
             downloadButton.className = "action-button download-button";
@@ -888,7 +891,6 @@ async function uploadFiles(validFiles) {
               downloadResult(result.file.fileName)
             );
 
-            buttonContainer.appendChild(taxCalculateButton);
             buttonContainer.appendChild(downloadButton);
 
 			li.appendChild(fileDescription);
