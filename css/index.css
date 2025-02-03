@@ -1744,6 +1744,21 @@
         min-width: fit-content;
       }
 
+      .download-button-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 8px;
+      }
+
+      .download-button-icon i {
+        font-size: 1.1em;
+      }
+
+      .download-button-text {
+        margin-left: 4px;
+      }
+
       .action-button:hover {
         background-color: #2980b9;
       }

@@ -873,9 +873,17 @@ async function uploadFiles(validFiles) {
 
             const downloadButton = document.createElement("button");
             downloadButton.className = "action-button download-button";
-			// add fileIcon to the downloadButton
-			downloadButton.innerHTML = "הורדה";
-			downloadButton.appendChild(fileIcon);
+            // Create icon and text elements
+            const iconSpan = document.createElement("span");
+            iconSpan.className = "download-button-icon";
+            iconSpan.appendChild(fileIcon);
+            
+            const textSpan = document.createElement("span");
+            textSpan.className = "download-button-text";
+            textSpan.textContent = "הורדה";
+            
+            downloadButton.appendChild(textSpan);
+            downloadButton.appendChild(iconSpan);
              downloadButton.addEventListener("click", () =>
               downloadResult(result.file.fileName)
             );
