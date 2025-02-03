@@ -1654,32 +1654,6 @@ function getAnswerFromChildrenControls() {
             }
           });
 
-          // Add helper function to clear controls
-          function clearControls(controls, controlType) {
-            switch (controlType) {
-			case "CHILDREN":
-				controls.querySelectorAll("input[data-code='260']").forEach((input) => (input.value = ""));
-				controls.querySelectorAll("input[data-code='262']").forEach((input) => (input.value = ""));
-				controls.querySelectorAll("input[data-code='190']").forEach((input) => (input.value = ""));
-				controls.querySelectorAll("input[data-code='191']").forEach((input) => (input.value = ""));
-				controls.querySelectorAll("input[data-code='022']").forEach((input) => (input.value = ""));
-				controls.querySelectorAll("input[data-code='361']").forEach((input) => (input.value = ""));
-				controls.querySelectorAll("input[data-code='362']").forEach((input) => (input.value = ""));
-				break;
-              case "ID":
-              case "DATE":
-              case "NUMERIC":
-                controls.querySelectorAll("input").forEach((input) => (input.value = ""));
-                break;
-              case "CHECKBOX":
-                controls.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
-                break;
-              case "RADIO":
-                controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
-                break;
-            }
-          }
-
           // Show questionnaire dialog
           showQuestionaire();
 		  localStorage.setItem("questionnaireExists", "true");
@@ -1817,6 +1791,31 @@ function getAnswerFromChildrenControls() {
 					  break;
 			  }
 		  }
+
+		function clearControls(controls, controlType) {
+			switch (controlType) {
+			case "CHILDREN":
+				controls.querySelectorAll("input[data-code='260']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='262']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='190']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='191']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='022']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='361']").forEach((input) => (input.value = ""));
+				controls.querySelectorAll("input[data-code='362']").forEach((input) => (input.value = ""));
+				break;
+				case "ID":
+				case "DATE":
+				case "NUMERIC":
+				controls.querySelectorAll("input").forEach((input) => (input.value = ""));
+				break;
+				case "CHECKBOX":
+				controls.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
+				break;
+				case "RADIO":
+				controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
+				break;
+			}
+			}
 
 		  function setChildrenControls(answer, controlType) {
 			function getValueFromPair(pair) {
