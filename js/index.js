@@ -1,4 +1,4 @@
-      const uiVersion = '0.7'
+      const uiVersion = '0.8'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
@@ -813,8 +813,6 @@ async function uploadFiles(validFiles) {
         } else {
           description = `${year}: מסמך נוסף - ` + fileName;
         }
-
-        // Return the description
         return description;
       }
 
@@ -837,6 +835,8 @@ async function uploadFiles(validFiles) {
             const li = document.createElement("li");
             li.className = "result-item";
 
+            const fileDescription = document.createElement("span");
+            fileDescription.textContent = descriptionFromFileName(result.file.fileName);
 
             // Add file icon based on extension
 			fileIcon= document.createElement("i");
@@ -854,11 +854,6 @@ async function uploadFiles(validFiles) {
               default:
                 fileIcon.className = "fa fa-question";
             }
-
-            const fileDescription = document.createElement("span");
-            fileDescription.textContent = descriptionFromFileName(
-              result.file.fileName
-            );
 
             const buttonContainer = document.createElement("div");
             buttonContainer.className = "result-buttons";
@@ -1171,7 +1166,7 @@ function getAnswerFromChildrenControls() {
           const yearSelect = document.getElementById("taxYear");
           yearSelect.innerHTML = "";
 
-          // Add supported years (2017-2023)
+          // Create year options from the supported tax years
           for (let year = endYear; year >= startYear; year--) {
             const option = document.createElement("option");
             option.value = year;
