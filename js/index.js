@@ -1,4 +1,4 @@
-      const uiVersion = '0.4'
+      const uiVersion = '0.5'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
@@ -2107,6 +2107,31 @@ function getAnswerFromChildrenControls() {
               !e.target.closest('.doc-item')) {
             docDetailsModal.style.display = "none";
           }
+        });
+
+        // Add click handlers for more info buttons
+        document.querySelectorAll(".more-info-button").forEach((button) => {
+          button.addEventListener("click", (e) => {
+            e.stopPropagation(); // Prevent doc-item click
+            const docItem = button.closest('.doc-item');
+            const docType = docItem.dataset.docType;
+            const details = docDetails[docType];
+
+            if (details) {
+              const itemBounds = docItem.getBoundingClientRect();
+              docDetailsTitle.textContent = details.title;
+              docDetailsBody.innerHTML = details.sections
+                .map(section => `
+                  <h4>${section.title}</h4>
+                  <p>${section.content}</p>
+                `).join("");
+
+              docDetailsModal.style.top = `${itemBounds.bottom + 5}px`;
+              docDetailsModal.style.left = `${itemBounds.left}px`;
+              docDetailsModal.dataset.currentDocType = docType;
+              docDetailsModal.style.display = "block";
+            }
+          });
         });
       });
 
