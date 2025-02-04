@@ -1,4 +1,4 @@
-      const uiVersion = '0.6'
+      const uiVersion = '0.7'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
@@ -2293,8 +2293,8 @@ async function getAnswersMap() {
 	}
 }
 
-async function loadQuestions() {
-	debug("loadQuestions");
+async function loadConfiguration() {
+	debug("loadConfiguration");
 	if (!configurationData) {
 		const response = await fetch(
 			`${AUTH_BASE_URL}/getConfigurationData`,
@@ -2312,6 +2312,7 @@ async function loadQuestions() {
 			debug(errorData);	
 			throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
 		}
+		debug("loadConfiguration loaded");
 
 		configurationData = await response.json();
 	}
@@ -2887,7 +2888,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 		}
 
 		//localStorage.setItem("questionnaireExists", "false");
-		await loadQuestions();
+		await loadConfiguration();
 
         await initializeAuthState();
         //initializeDocumentHovers();
@@ -3065,6 +3066,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 
 function idFromAnswersMap() {
 	let identificationNumber;
+	getAnswersMap();
 	// Try to get the id from the answers map
 	const answers = answersMap.get(String(configurationData.supportedTaxYears[0]))?.answers;
 	if (answers) {
