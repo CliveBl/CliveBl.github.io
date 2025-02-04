@@ -1,4 +1,4 @@
-      const uiVersion = '0.5'
+      const uiVersion = '0.6'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
@@ -2118,6 +2118,13 @@ function getAnswerFromChildrenControls() {
             const details = docDetails[docType];
 
             if (details) {
+             // If clicking the same button that's already showing info, close it
+             if (docDetailsModal.style.display === "block" && 
+                 docDetailsModal.dataset.currentDocType === docType) {
+               docDetailsModal.style.display = "none";
+               return;
+             }
+
               const itemBounds = docItem.getBoundingClientRect();
               docDetailsTitle.textContent = details.title;
               docDetailsBody.innerHTML = details.sections
