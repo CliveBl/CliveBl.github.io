@@ -6,8 +6,8 @@
       let documentIcons = {};
 
       // Add these constants at the start of your script section, after DEBUG
-      const API_BASE_URL = "https://localhost:443/api/v1";
-      const AUTH_BASE_URL = "https://localhost:443/auth";
+      const API_BASE_URL = "https://87.69.105.231:443/api/v1";
+      const AUTH_BASE_URL = "https://87.69.105.231:443/auth";
       const fetchConfig = {
         credentials: "include",
         mode: "cors",
