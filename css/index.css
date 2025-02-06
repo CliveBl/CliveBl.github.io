@@ -49,7 +49,7 @@
       body {
         font-family: Arial, sans-serif;
         margin: 0;
-        padding: 20px;
+        padding: 0px;
         direction: rtl;
         text-align: right;
         background-color: var(--bg-color);
@@ -98,7 +98,7 @@
       .main-container {
         max-width: 800px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0 10px;
       }
 
       /* Remove default list styling */
@@ -730,7 +730,7 @@
       .questionnaire-modal {
         background-color: var(--bg-color);
         border-radius: 8px;
-        padding: 20px;
+        padding: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         border: 1px solid var(--border-color);
       }
