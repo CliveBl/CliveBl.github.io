@@ -1527,7 +1527,7 @@
       }
 
       .doc-controls select {
-        padding: 4px;
+        padding: 1px;
         border: 1px solid var(--border-color);
         border-radius: 4px;
         background-color: var(--bg-color);
