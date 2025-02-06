@@ -2906,6 +2906,9 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 		createFormSelect.innerHTML = `<option value="">צור טופס חדש</option>`;
 		createFormSelect.innerHTML += configurationData.formTypes.map(formType => `<option value="${formType.formType}">${formType.formName}</option>`).join('');	
 
+		// configurationData.formTypes.forEach(formType => {
+		// 	debug(formType.formName, formType.fieldTypes);
+		// });
         // Check if the questionnaire was open or closed last time
         const questionnaireExists = localStorage.getItem("questionnaireExists");
         if (questionnaireExists && questionnaireExists === "true") {

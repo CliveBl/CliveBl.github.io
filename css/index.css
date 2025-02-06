@@ -791,6 +791,37 @@
         height: 20px;
       }
 
+      .question-controls input[type="number"] {
+        width: 120px;
+        padding: 4px 8px;
+      }
+
+      /* Date input styling */
+      .question-controls input[type="text"][pattern] {
+        width: 120px;
+        padding: 4px 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        text-align: center;
+        font-family: inherit;
+      }
+
+      /* Date pair container styling */
+      .date-pair-container {
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+      }
+
+      .date-pair-container > div {
+        flex: 0 0 auto;
+      }
+
+      .date-pair-container input {
+        width: 100px;
+        margin-top: 4px;
+      }
+
       .save-button {
         background-color: var(--tax-green);
         color: var(--button-text);
@@ -1784,6 +1815,7 @@
         display: block;
         margin-bottom: 3px;
         font-size: 0.9em;
+        color: var(--text-color);
       }
 
       .id-input {
