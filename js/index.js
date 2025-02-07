@@ -1,4 +1,4 @@
-      const uiVersion = '0.12'
+      const uiVersion = '0.13'
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
@@ -2229,11 +2229,17 @@ function removeQuestionaire() {
 
 function hideQuestionaire() {
 	questionnaireContainer.classList.remove("active");
+	const button = document.getElementById("questionnaireButton");
+	button.classList.toggle("active");
+
 }
 
 // Open the questionnaire
 function showQuestionaire() {
 	questionnaireContainer.classList.add("active");
+	const button = document.getElementById("questionnaireButton");
+	button.classList.toggle("active");
+
 }
 
 function clearTaxResults() {

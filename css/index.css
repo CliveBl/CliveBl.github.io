@@ -699,14 +699,26 @@
 
       /* Update the questionnaire button styling */
       .questionnaire-button {
-        background-color: #3498db;
+        background-color: var(--tax-blue);
         color: var(--button-text);
         border: none;
-        padding: 5px 15px;
-        border-radius: 3px;
+        padding: 8px 16px;
+        border-radius: 4px;
         cursor: pointer;
-        white-space: nowrap;
-        min-width: fit-content;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+      }
+
+      .questionnaire-button::after {
+        content: "▼";
+        font-size: 0.8em;
+        transition: transform 0.3s ease;
+      }
+
+      .questionnaire-button.active::after {
+        transform: rotate(180deg);
       }
 
       .questionnaire-button:hover {
