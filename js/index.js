@@ -157,16 +157,10 @@
 
         // Update UI to show logged out state
 		updateSignInUI();
-
         removeFileList();
-
 		removeQuestionaire();
-
-        // Clear results
 		clearResultsControls();
 		clearMessages();
-
-
 		removeAnswersMapFromLocalStorage();
 		localStorage.setItem("questionnaireExists", "false");
         //addMessage("התנתקת בהצלחה");
@@ -3055,9 +3049,9 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 		 const fileInfoList = await response.json();
 		 debug("createForm response:", fileInfoList);
 		 updateFileList(fileInfoList);
-
-         addMessage("הטופס נוצר בהצלחה", "success");
-         
+		 clearResultsControls();
+		 clearMessages();
+         addMessage("הטופס נוצר בהצלחה", "success")    
          // Reset select to default option
          e.target.value = "";
        } catch (error) {
