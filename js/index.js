@@ -4,23 +4,38 @@
       let currentlySelectedTaxYear;
       let latestFileInfoList = [];
       let documentIcons = {};
-
-      // Add these constants at the start of your script section, after DEBUG
-      const API_BASE_URL = "https://srv.taxesil.top:443/api/v1";
-      const AUTH_BASE_URL = "https://srv.taxesil.top:443/auth";
-      const fetchConfig = {
+	  const fetchConfig = {
         credentials: "include",
         mode: "cors",
       };
 
-      // Add this near the top of your script
-      const DEBUG = true;
+	// Add this near the top of your script
+	const DEBUG = true;
 
-      function debug(...args) {
-        if (DEBUG) {
-          console.log(...args);
-        }
-      }
+	function debug(...args) {
+		if (DEBUG) {
+		console.log(...args);
+		}
+	}
+	const ENV = {
+		development: {
+			API_BASE_URL: "https://localhost:443/api/v1",
+			AUTH_BASE_URL: "https://localhost:443/auth"
+		},
+		production: {
+			API_BASE_URL: "https://srv.taxesil.top:443/api/v1",
+			AUTH_BASE_URL: "https://srv.taxesil.top:443/auth"
+		}
+	};
+	// Get environment from URL parameter
+	const urlParams = new URLSearchParams(window.location.search);
+	const envParam = urlParams.get('env');
+	const currentEnv = envParam || "production";
+	debug("Current environment:", currentEnv);
+
+
+	  const API_BASE_URL = ENV[currentEnv].API_BASE_URL;
+	  const AUTH_BASE_URL = ENV[currentEnv].AUTH_BASE_URL;
 
       // Get references to DOM elements
       const fileInput = document.getElementById("fileInput");
