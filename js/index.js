@@ -1,4 +1,5 @@
-      const uiVersion = '0.13'
+      const uiVersion = '0.14'
+      const defaultId = "000000000";
       let configurationData = null;
       let answersMap = {};
       let currentlySelectedTaxYear;
@@ -380,16 +381,18 @@
 		let requiredProcessingQuestionsList = getRequiredQuestions(String(configurationData.supportedTaxYears[0]),"requiredProcessing");
 
 		if (requiredProcessingQuestionsList.length > 0) {
+			// Warn that there are missing answers in the questionaire.
+			addMessage("יש ערכים חסרים בשאלון.", "warning");
 			// create the questions dialog
 			createQuestionnaire(requiredProcessingQuestionsList, configurationData.supportedTaxYears[0]);
 			// Scroll to the top of the questionaire section
 			window.scrollTo({
+
 				top: document.getElementById("questionnaireContainer").offsetTop,
 				behavior: "smooth",
 			});
 		}
 		else {
-
           // Disable button and show spinner
           processButton.disabled = true;
           processButton.classList.add("processing");
@@ -2297,10 +2300,12 @@ async function getAnswersMap() {
 
 		const answersData = await answersResponse.json();
 		answersMap = new Map(Object.entries(answersData));
+		debug("answersMap", answersMap);
 		saveAnswersMapToLocalStorage();
 	} else {
 		loadAnswersMapFromLocalStorage();
 	}
+	return answersMap;
 }
 
 async function loadConfiguration() {
@@ -3040,7 +3045,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
        if (!formType) 
 			return;
 
-		const identificationNumber = idFromAnswersMap();
+		const identificationNumber = await idFromAnswersMap();
 
        try {
          const response = await fetch(`${API_BASE_URL}/createForm`, {
@@ -3077,23 +3082,25 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 	   e.target.value = "";
      });
 
-function idFromAnswersMap() {
+async function idFromAnswersMap() {
 	let identificationNumber;
-	getAnswersMap();
+	await getAnswersMap();
 	// Try to get the id from the answers map
 	const answers = answersMap.get(String(configurationData.supportedTaxYears[0]))?.answers;
-	if (answers) {
+
+	if (answers && answers.TAXPAYER_ID) {
 		const [value1, value2] = answers?.TAXPAYER_ID.split(",", 2);
 		identificationNumber = value2;
 		if (identificationNumber.length != 9) {
-			identificationNumber = "000000000";
+			identificationNumber = defaultId;
 		}
 	}
 	if(identificationNumber)
 		return identificationNumber;
 	else
-		return "000000000";
+		return defaultId;
 }
+
 
       // Add event handlers for children modal
       function setupChildrenModalInputs() {
