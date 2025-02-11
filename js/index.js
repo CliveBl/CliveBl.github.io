@@ -381,16 +381,15 @@
 		let requiredProcessingQuestionsList = getRequiredQuestions(String(configurationData.supportedTaxYears[0]),"requiredProcessing");
 
 		if (requiredProcessingQuestionsList.length > 0) {
-			// Warn that there are missing answers in the questionaire.
-			addMessage("יש ערכים חסרים בשאלון.", "warning");
 			// create the questions dialog
 			createQuestionnaire(requiredProcessingQuestionsList, configurationData.supportedTaxYears[0]);
 			// Scroll to the top of the questionaire section
 			window.scrollTo({
-
-				top: document.getElementById("questionnaireContainer").offsetTop,
+				top: document.getElementById("questionnaireButton").offsetTop,
 				behavior: "smooth",
 			});
+			// Warn that there are missing answers in the questionaire.
+			addMessage("יש ערכים חסרים בשאלון.", "warning", false);
 		}
 		else {
           // Disable button and show spinner
@@ -540,7 +539,7 @@ async function uploadFiles(validFiles) {
 }
 
       // Update addMessage function to handle message types
-      function addMessage(text, type = "info") {
+      function addMessage(text, type = "info", scrollToBottom = true) {
         const messageDiv = document.createElement("div");
         messageDiv.className = "message-item";
         if (type) {
@@ -568,7 +567,7 @@ async function uploadFiles(validFiles) {
 		
 
 		// Scroll to the bottom of the page if type is not "success" or "info"
-		if (type !== "success" && type !== "info") {
+		if (type !== "success" && type !== "info" && scrollToBottom) {
 		window.scrollTo({
             top: document.body.scrollHeight,
             behavior: "smooth",
