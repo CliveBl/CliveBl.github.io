@@ -169,12 +169,14 @@
 	}
       // Update the sign out function
       function signOut() {
+		debug("signOut");
         authToken = null;
         cookieUtils.delete("authToken");
 
         // Update UI to show logged out state
 		updateSignInUI();
         removeFileList();
+		updateDeleteAllButton();
 		removeQuestionaire();
 		clearResultsControls();
 		clearMessages();
@@ -1894,7 +1896,8 @@ function getAnswerFromChildrenControls() {
       deleteAllButton.addEventListener("click", async () => {
         try {
           if (!authToken) {
-            await signInAnonymous();
+			debug("no auth token");
+            return;
           }
 
           const response = await fetch(
