@@ -5,6 +5,7 @@
       let currentlySelectedTaxYear;
       let latestFileInfoList = [];
       let documentIcons = {};
+	  let uploading = false;
 	  const fetchConfig = {
         credentials: "include",
         mode: "cors",
@@ -468,6 +469,7 @@
 async function uploadFilesWithButtonProgress(validFiles, button) {
     const buttonLabel = button.nextElementSibling;
     const originalText = buttonLabel.textContent;
+	uploading = true;
 
     // Disable the upload buttons
     document.getElementById("fileInput").disabled = true;
@@ -497,6 +499,8 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
         document.getElementById("fileInput").disabled = false;
 		document.getElementById("folderInput").disabled = false;
 		document.getElementById("createFormSelect").disabled = false;
+		uploading = false;
+		updateDeleteAllButton();
         // Clear all containers
         clearResultsControls();
     }
@@ -2681,7 +2685,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 }
 
 		function updateDeleteAllButton() {
-			document.getElementById("deleteAllButton").disabled = fileList.children.length === 0;
+			document.getElementById("deleteAllButton").disabled = fileList.children.length === 0 || uploading;
 		}
 
       // Add these helper functions for date formatting and validation
