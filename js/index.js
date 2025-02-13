@@ -2354,8 +2354,8 @@ function formatNumber(key, value) {
 			statusMessage = fileInfo.reason;
 		} else if (fileInfo.fileName.includes("ידני")) {
 			status = null;
-			// Fill it out by hand
-			statusMessage = "מלא ידני";
+			// Add clent name and id number
+			statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.identificationNumber}`;
 		} else {
 			status = null;
 			statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`;
