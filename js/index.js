@@ -2352,6 +2352,10 @@ function formatNumber(key, value) {
 		if (fileInfo.type === "FormError") {
 			status = "error";
 			statusMessage = fileInfo.reason;
+		} else if (fileInfo.fileName.includes("ידני")) {
+			status = null;
+			// Fill it out by hand
+			statusMessage = "מלא ידני";
 		} else {
 			status = null;
 			statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`;
