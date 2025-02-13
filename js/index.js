@@ -674,8 +674,8 @@ async function uploadFiles(validFiles) {
               document.getElementById("password").value = "";
 
             } else {
-            // Call the signIn API
-            const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
+              // Call the signIn API
+              const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -725,6 +725,8 @@ async function uploadFiles(validFiles) {
           } catch (error) {
             console.error("Login failed:", error);
             addMessage("שגיאה בהתחברות: " + error.message, "error");
+			// Dismiss the login overlay
+			document.getElementById("loginOverlay").classList.remove("active");
           }
         });
 
