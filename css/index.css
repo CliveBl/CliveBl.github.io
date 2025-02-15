@@ -251,13 +251,6 @@
         background-color: #7f8c8d;
       }
 
-      /* Add these new styles */
-      .header-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
 
       .login-button {
         background-color: #3498db;
@@ -276,22 +269,26 @@
 	.login-button.logged-in {
 		background-color: #e74c3c;
 		}
-		.logout-button {
-			background-color: #3498db;
-			color: var(--button-text);
-			border: none;
-			padding: 8px 8px;
-			border-radius: 3px;
-			cursor: pointer;
-			font-size: 12px;
-			margin-top: 10px;
-		  }
-	
-		  .logout-button:hover {
-			background-color: #2980b9;
+	.logout-button {
+		background-color: #3498db;
+		color: var(--button-text);
+		border: none;
+		padding: 8px 8px;
+		border-radius: 3px;
+		cursor: pointer;
+		font-size: 12px;
+		margin-top: 10px;
+		}
+
+		.logout-button:hover {
+		background-color: #2980b9;
+		}
+		.logout-button:disabled {
+			background-color: #ccc;
+			cursor: not-allowed;
+			opacity: 0.6;
 		  }
 
-      /* Add these new styles for file status */
       .file-item.warning {
         border-right-color: var(--warning-border);
         background-color: var(--warning-bg);
@@ -324,7 +321,6 @@
         color: var(--error-text);
       }
 
-      /* Add icon and message container */
       .file-info {
         flex-grow: 1;
         display: flex;
@@ -338,8 +334,7 @@
         font-size: 0.9em;
       }
 
-      /* Add these new styles */
-      .login-overlay {
+       .login-overlay {
         display: none;
         position: fixed;
         top: 0;
@@ -472,7 +467,6 @@
         height: 20px;
       }
 
-      /* Add these new styles */
       .mode-toggle {
         display: flex;
         gap: 10px;
@@ -635,8 +629,7 @@
         cursor: not-allowed;
       }
 
-      /* Add info section styling */
-      .info-section {
+       .info-section {
         background-color: var(--item-bg);
         padding: 20px;
         border-radius: 8px;
@@ -709,12 +702,11 @@
       }
 
       .doc-status {
-        color: #e74c3c;  /* Red color */
+        color: #e74c3c;
 		font-size: 1rem;
 		padding-right: 10px;
       }
 
-      /* Update the questionnaire button styling */
       .questionnaire-button {
         background-color: var(--tax-blue);
         color: var(--button-text);
@@ -742,7 +734,6 @@
         background-color: #2980b9;
       }
 
-      /* Update questionnaire styles */
       .questionnaire-container {
         display: none;
         background-color: var(--bg-color);
@@ -1011,7 +1002,6 @@
         padding-right: 20px;
       }
 
-      /* Add styles for the info section container */
       .info-section {
         position: relative;
       }
@@ -1063,8 +1053,7 @@
         text-align: center;
       }
 
-      /* Add styles for the calculate tax button */
-      .calculate-tax-button {
+       .calculate-tax-button {
         background-color: #2ecc71;
         color: var(--button-text);
         border: none;
@@ -1181,7 +1170,6 @@
         padding-bottom: 10px;
       }
 
-      /* Add these styles to your existing <style> section */
       .cookie-consent {
         display: none;
         position: fixed;
@@ -1233,7 +1221,6 @@
         background-color: #2980b9;
       }
 
-      /* Update container styles */
       .header-container,
       .info-section,
       .taxpayer-input-container,
@@ -1245,7 +1232,6 @@
         margin-bottom: 20px;
       }
 
-      /* Add styles for disabled state */
       .custom-file-input label.disabled,
       button:disabled {
         opacity: 0.6;
@@ -1260,8 +1246,9 @@
 
       .auth-container {
         display: flex;
+		flex-wrap: wrap;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: space-between;
         gap: 10px;
         margin-bottom: 20px;
       }
@@ -1275,9 +1262,6 @@
         color: var(--text-color);
       }
 
-
-
-      /* Add styles for button groups */
       .file-buttons {
         display: flex;
         flex-wrap: wrap;
@@ -1331,8 +1315,7 @@
         padding-right: 20px;
       }
 
-      /* Add styles for accordion */
-      .file-item {
+     .file-item {
         transition: all 0.3s ease;
       }
       
@@ -1410,7 +1393,6 @@
         }
       }
 
-      /* Feedback section styles */
       .feedback-container {
         background: var(--bg-color);
         border-radius: 8px;
@@ -1971,3 +1953,4 @@
           align-items: stretch;
         }
       }
+

@@ -1,15 +1,15 @@
-      const uiVersion = '0.15'
-      const defaultId = "000000000";
-      let configurationData = null;
-      let answersMap = {};
-      let currentlySelectedTaxYear;
-      let latestFileInfoList = [];
-      let documentIcons = {};
-	  let uploading = false;
-      const fetchConfig = {
-        credentials: "include",
-        mode: "cors",
-      };
+const uiVersion = '0.16'
+const defaultId = "000000000";
+let configurationData = null;
+let answersMap = {};
+let currentlySelectedTaxYear;
+let latestFileInfoList = [];
+let documentIcons = {};
+let uploading = false;
+const fetchConfig = {
+	credentials: "include",
+	mode: "cors",
+};
 
       // Add this near the top of your script
       const DEBUG = true;
@@ -55,6 +55,7 @@
       const confirmPassword = document.getElementById("confirmPassword");
       const googleButtonText = document.getElementById("googleButtonText");
       const githubButtonText = document.getElementById("githubButtonText");
+	  const userEmail = document.getElementById("userEmail");
 
       // Add these cookie utility functions at the start of your script
       const cookieUtils = {
@@ -96,7 +97,7 @@
       // Update signInAnonymous function
       async function signInAnonymous() {
         try {
-          debug("Attempting anonymous sign in...");
+          debug("Anonymous sign in...");
           const response = await fetch(`${AUTH_BASE_URL}/signInAnonymous`, {
             method: "POST",
             headers: {
@@ -164,26 +165,19 @@
       }
 
 	  function updateSignInUI() {
-		const userEmail = document.getElementById("userEmail");
 		if(authToken) {
 			const decodedToken = jwt_decode(authToken);
 			userEmail.textContent = decodedToken.email;
 			debug("authToken.email", decodedToken.email);
-			if(decodedToken.email == "Anonymous")
-			{
-				loginButton.textContent = "התחברות";
+			if(decodedToken.email == "Anonymous") {
+				signOutButton.disabled = true;
+				loginButton.disabled = false;
+			} else {
+				signOutButton.disabled = false;
 			}
-			else
-			{
-				loginButton.textContent = "התנתק";
-				loginButton.classList.add("logged-in");
-			}
-		}
-		else
-		{
+		} else {
 			userEmail.textContent = "";
-			loginButton.textContent = "התחברות";
-			loginButton.classList.remove("logged-in");
+			signOutButton.disabled = true;
 		}
 	}
       // Update the sign out function
@@ -584,13 +578,8 @@ async function uploadFiles(validFiles) {
 
         messageDiv.appendChild(messageText);
         messageDiv.appendChild(dismissButton);
-		// In case of success we clear all the old messages
-		// if (type === "success") {
-		// 	messageContainer.innerHTML = "";
-		// }
         messageContainer.appendChild(messageDiv);
 		
-
 		// Scroll to the bottom of the page if type is not "success" or "info"
 		if (type !== "success" && type !== "info" && scrollToBottom) {
 		window.scrollTo({
@@ -599,10 +588,6 @@ async function uploadFiles(validFiles) {
           });
 		}
       }
-
-
-      // Add event listener for login form submission
-      //loginForm.addEventListener("submit", handleLogin);
 
       let isAnonymousConversion = false;
       
@@ -613,13 +598,13 @@ async function uploadFiles(validFiles) {
       });
 
       loginButton.addEventListener("click", () => {
-        if (authToken) {
-			loginOverlay.classList.add("active");
+		loginOverlay.classList.add("active");
+        if (authToken && userEmail.textContent == "Anonymous") {
    		     document.querySelector(".toggle-button[data-mode='signup']").click();
    			isAnonymousConversion = true;
 		 } else {
-          loginOverlay.classList.add("active");
-          isAnonymousConversion = false;
+			document.querySelector(".toggle-button[data-mode='signin']").click();
+			isAnonymousConversion = false;
         }
       });
 
@@ -654,14 +639,14 @@ async function uploadFiles(validFiles) {
         });
       }
 
-      // Add click handlers for mode toggle buttons
+      // Handlers for mode toggle buttons
       toggleButtons.forEach((button) => {
         button.addEventListener("click", () => {
-          switchMode(button.dataset.mode);  // This reads the data-mode attribute
+          switchMode(button.dataset.mode);
         });
       });
 
-      // Update the login form submit handler
+      // login form submit handler
       document.getElementById("loginForm").addEventListener("submit", async (e) => {
           e.preventDefault();
           const email = document.getElementById("email").value;
@@ -673,24 +658,24 @@ async function uploadFiles(validFiles) {
 				if (isAnonymousConversion) {
 					await convertAnonymousAccount(email, password);
 				}else{
-              // Call the registration API
-              const response = await fetch(`${AUTH_BASE_URL}/createAccount`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  email: email,
-                  password: password,
-                  role: "USER"
-                }),
-                ...fetchConfig,
-              });
+					// Call the registration API
+					const response = await fetch(`${AUTH_BASE_URL}/createAccount`, {
+						method: "POST",
+						headers: {
+						"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+						email: email,
+						password: password,
+						role: "USER"
+						}),
+						...fetchConfig,
+					});
 
-              if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error("הרשמה נכשלה: " + errorData.detail);
-              }
+					if (!response.ok) {
+						const errorData = await response.json();
+						throw new Error("הרשמה נכשלה: " + errorData.detail);
+					}
 				}
               // Show verification message and close login dialog
               addMessage("נרשמת בהצלחה! אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.", "success");
@@ -716,7 +701,7 @@ async function uploadFiles(validFiles) {
 
               if (!response.ok) {
                   const errorData = await response.json();
-                  throw new Error("התחברות נכשלה: " + errorData.detail);
+                  throw new Error(errorData.detail);
               }
 
               const data = await response.json();
@@ -724,13 +709,9 @@ async function uploadFiles(validFiles) {
               // Store the token
               authToken = data.token;
               cookieUtils.set("authToken", authToken);
-			
 
-            // Update UI to show logged in user
-            const userEmail = document.getElementById("userEmail");
-             userEmail.textContent = email;
-            loginButton.textContent = "התנתק";
-            loginButton.classList.add("logged-in");
+			updateSignInUI();
+			 
 
             // Clear stored tax results
             localStorage.removeItem("taxResults");
@@ -2615,11 +2596,11 @@ function formatNumber(key, value) {
       }
 
 
-async function calculateTax(fileName) {
-          try {
-            if (!authToken) {
-              await signInAnonymous();
-            }
+	async function calculateTax(fileName) {
+		try {
+		if (!authToken) {
+			await signInAnonymous();
+		}
 		debug("calculateTax", fileName);
 		// Extract <name>_<year>.dat
 		const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
@@ -2685,18 +2666,14 @@ async function calculateTax(fileName) {
 			localStorage.setItem("taxResultsYear", taxCalcTaxYear);
 			localStorage.setItem("taxResults", JSON.stringify(result));
 		}
-          } catch (error) {
-            console.error("Calculate tax failed:", error);
-            addMessage("שגיאה בחישוב המס: " + error.message, "error");
-          } finally {
-            // Hide loading overlay
-            document
-              .getElementById("loadingOverlay")
-              .classList.remove("active");
-            // Re-enable calculate button
-		//document.getElementById("calculateTaxButton").disabled = false;
+		} catch (error) {
+			console.error("Calculate tax failed:", error);
+			addMessage("שגיאה בחישוב המס: " + error.message, "error");
+		} finally {
+			// Hide loading overlay
+			document.getElementById("loadingOverlay").classList.remove("active");
+		}
 	}
-}
 
 function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 	const requiredQuestions = configurationData.questionList.filter(question => question[requiredType] === "REQUIRED");
@@ -2857,18 +2834,8 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 
             if (response.ok) {
               // Token is valid, update UI
-              authToken = storedToken;
-              const userEmail = document.getElementById("userEmail");
- 
-              // Use jwt-decode to extract email
-              const decodedToken = jwt_decode(storedToken);
-              userEmail.textContent = decodedToken.email;
-
-			  if(decodedToken.email != "Anonymous")
-			  {
-                loginButton.textContent = "התנתק";
-                loginButton.classList.add("logged-in");
-              }
+              	authToken = storedToken;
+				updateSignInUI();
             } else {
               // Token is invalid, clear it
               cookieUtils.delete("authToken");
@@ -3283,13 +3250,8 @@ async function idFromAnswersMap() {
        }
 
        const result = await response.json();
-    //    authToken = result.token;
-    //    cookieUtils.set("authToken", authToken);
-       //updateSignInUI();
-	   // Check your email to verify your account and then signin
 	   signOut();
 	   updateSignInUI()
-	   addMessage("אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.", "success");
      }
 
 
