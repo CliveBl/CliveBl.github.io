@@ -273,6 +273,23 @@
       .login-button:hover {
         background-color: #2980b9;
       }
+	.login-button.logged-in {
+		background-color: #e74c3c;
+		}
+		.logout-button {
+			background-color: #3498db;
+			color: var(--button-text);
+			border: none;
+			padding: 8px 8px;
+			border-radius: 3px;
+			cursor: pointer;
+			font-size: 12px;
+			margin-top: 10px;
+		  }
+	
+		  .logout-button:hover {
+			background-color: #2980b9;
+		  }
 
       /* Add these new styles for file status */
       .file-item.warning {
@@ -1244,18 +1261,21 @@
       .auth-container {
         display: flex;
         align-items: center;
+        justify-content: flex-end;
         gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      #signOutButton {
+        margin-right: auto;  /* Push to the left */
       }
 
       .user-email {
-        font-size: 0.9em;
-        color: var(--message-text);
+        margin-right: 10px;
+        color: var(--text-color);
       }
 
-      /* Update login button styles */
-      .login-button.logged-in {
-        background-color: #e74c3c;
-      }
+
 
       /* Add styles for button groups */
       .file-buttons {
