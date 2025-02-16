@@ -4,7 +4,7 @@ name: Deploy static content to Pages
 on:
   # Runs on pushes targeting the main and staging branches
   push:
-    branches: ["main", "staging"]
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -47,34 +47,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  # Job for deploying the staging branch to the staging folder
-  deploy-staging:
-    needs: deploy-main  # This ensures deploy-staging runs after deploy-main
-    environment:
-      name: github-pages-staging
-      url: ${{ steps.deployment.outputs.page_url }}/staging
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set Runner Debug
-        run: echo "ACTIONS_RUNNER_DEBUG=true" >> $GITHUB_ENV
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Create staging folder
-        run: |
-           mkdir staging 
-           mv $(ls | grep -v staging) staging
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload the staging folder
-          path: 'staging'
-          name: staging-github-pages
-          retention-days: 1
-          include-hidden-files: false
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          folder: 'staging'
+
