@@ -40,7 +40,7 @@ jobs:
         with:
           # Upload entire repository
           path: '.'
-          artifact-name: main-artifact
+          artifact-name: main-github-pages
           retention-days: 1
           include-hidden-files: false
       - name: Deploy to GitHub Pages
@@ -69,7 +69,7 @@ jobs:
         with:
           # Upload the staging folder
           path: 'staging'
-          artifact-name: staging-artifact
+          artifact-name: staging-github-pages
           retention-days: 1
           include-hidden-files: false
       - name: Deploy to GitHub Pages
