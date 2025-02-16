@@ -25,7 +25,7 @@ jobs:
   # Job for deploying the main branch
   deploy-main:
     environment:
-      name: github-pages
+      name: github-pages-main
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
