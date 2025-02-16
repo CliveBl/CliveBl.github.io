@@ -40,6 +40,7 @@ jobs:
         with:
           # Upload entire repository
           path: '.'
+          artifact-name: main-artifact
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -66,6 +67,7 @@ jobs:
         with:
           # Upload the staging folder
           path: 'staging'
+          artifact-name: staging-artifact
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
