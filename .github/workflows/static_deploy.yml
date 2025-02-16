@@ -56,7 +56,9 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Create staging folder
-        run: mkdir staging && mv * staging
+        run: |
+           mkdir staging 
+           mv $(ls | grep -v staging) staging
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
