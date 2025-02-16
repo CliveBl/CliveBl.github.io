@@ -49,6 +49,7 @@ jobs:
 
   # Job for deploying the staging branch to the staging folder
   deploy-staging:
+    needs: deploy-main  # This ensures deploy-staging runs after deploy-main
     environment:
       name: github-pages-staging
       url: ${{ steps.deployment.outputs.page_url }}/staging
