@@ -30,6 +30,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Set Runner Debug
+        run: echo "ACTIONS_RUNNER_DEBUG=true" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Pages
@@ -51,6 +53,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}/staging
     runs-on: ubuntu-latest
     steps:
+      - name: Set Runner Debug
+        run: echo "ACTIONS_RUNNER_DEBUG=true" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Pages
