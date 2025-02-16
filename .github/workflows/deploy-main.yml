@@ -42,7 +42,6 @@ jobs:
           path: '.'
           name: main-github-pages
           retention-days: 1
-          include-hidden-files: false
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
