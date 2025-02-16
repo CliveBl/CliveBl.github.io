@@ -24,7 +24,6 @@ concurrency:
 jobs:
   # Job for deploying the main branch
   deploy-main:
-    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -47,7 +46,6 @@ jobs:
 
   # Job for deploying the staging branch to the staging folder
   deploy-staging:
-    if: github.ref == 'refs/heads/staging'
     environment:
       name: github-pages-staging
       url: ${{ steps.deployment.outputs.page_url }}/staging
