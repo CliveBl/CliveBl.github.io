@@ -1,24 +1,24 @@
-      const uiVersion = '0.14'
-      const defaultId = "000000000";
-      let configurationData = null;
-      let answersMap = {};
-      let currentlySelectedTaxYear;
-      let latestFileInfoList = [];
-      let documentIcons = {};
-	  let uploading = false;
-	  const fetchConfig = {
+const uiVersion = '0.16'
+const defaultId = "000000000";
+let configurationData = null;
+let answersMap = {};
+let currentlySelectedTaxYear;
+let latestFileInfoList = [];
+let documentIcons = {};
+let uploading = false;
+      const fetchConfig = {
         credentials: "include",
         mode: "cors",
       };
 
-	// Add this near the top of your script
-	const DEBUG = true;
+      // Add this near the top of your script
+      const DEBUG = true;
 
-	function debug(...args) {
-		if (DEBUG) {
-		console.log(...args);
-		}
-	}
+      function debug(...args) {
+        if (DEBUG) {
+          console.log(...args);
+        }
+      }
 	const ENV = {
 		development: {
 			API_BASE_URL: "https://localhost:443/api/v1",
@@ -44,6 +44,18 @@
       const fileList = document.getElementById("fileList");
       const processButton = document.getElementById("processButton");
       const messageContainer = document.getElementById("messageContainer");
+      const loginButton = document.getElementById("loginButton");
+      const signOutButton = document.getElementById("signOutButton");
+      const loginOverlay = document.getElementById("loginOverlay");
+      const closeButton = document.querySelector(".close-button");
+      const loginForm = document.querySelector(".login-form");
+      const toggleButtons = document.querySelectorAll(".toggle-button");
+      const modalTitle = document.getElementById("modalTitle");
+      const submitButton = document.getElementById("submitButton");
+      const confirmPassword = document.getElementById("confirmPassword");
+      const googleButtonText = document.getElementById("googleButtonText");
+      const githubButtonText = document.getElementById("githubButtonText");
+	  const userEmail = document.getElementById("userEmail");
 
       // Add these cookie utility functions at the start of your script
       const cookieUtils = {
@@ -85,7 +97,7 @@
       // Update signInAnonymous function
       async function signInAnonymous() {
         try {
-          debug("Attempting anonymous sign in...");
+          debug("Anonymous sign in...");
           const response = await fetch(`${AUTH_BASE_URL}/signInAnonymous`, {
             method: "POST",
             headers: {
@@ -153,28 +165,31 @@
       }
 
 	  function updateSignInUI() {
-		const userEmail = document.getElementById("userEmail");
-		const loginButton = document.querySelector(".login-button");
 		if(authToken) {
-			userEmail.textContent = authToken.email;
-			loginButton.textContent = "התנתק";
-			loginButton.classList.add("logged-in");
-		}
-		else
-		{
+			const decodedToken = jwt_decode(authToken);
+			userEmail.textContent = decodedToken.email;
+			debug("authToken.email", decodedToken.email);
+			if(decodedToken.email == "Anonymous") {
+				signOutButton.disabled = true;
+				loginButton.disabled = false;
+			} else {
+				signOutButton.disabled = false;
+			}
+		} else {
 			userEmail.textContent = "";
-			loginButton.textContent = "התחברות";
-			loginButton.classList.remove("logged-in");
+			signOutButton.disabled = true;
 		}
 	}
       // Update the sign out function
       function signOut() {
+		debug("signOut");
         authToken = null;
         cookieUtils.delete("authToken");
 
         // Update UI to show logged out state
 		updateSignInUI();
         removeFileList();
+		updateDeleteAllButton();
 		removeQuestionaire();
 		clearResultsControls();
 		clearMessages();
@@ -184,7 +199,7 @@
       }
 
 	function removeFileList() {
-		fileList.innerHTML = "";
+        fileList.innerHTML = "";
       }
 
       // Add this function to load files with existing token
@@ -253,22 +268,22 @@
           } else {
             // No token, sign in anonymously
             debug("No token found, signing in anonymously");
-            await signInAnonymous();
+            //await signInAnonymous();
 
-            await loadExistingFiles();
-            await loadResults();
+            //await loadExistingFiles();
+            //await loadResults();
           }
           // Load stored tax results
-          loadStoredTaxCalculation();
+        //   loadStoredTaxCalculation();
         } catch (error) {
           debug("Error during initialization:", error);
           // If loading files failed, try anonymous sign in
           if (error.message.includes("Invalid token")) {
-            debug("Token invalid, signing in anonymously");
-            await signInAnonymous();
-            await loadExistingFiles();
-            await loadResults();
-            loadStoredTaxCalculation();
+            // debug("Token invalid, signing in anonymously");
+            // await signInAnonymous();
+            // await loadExistingFiles();
+            // await loadResults();
+            // loadStoredTaxCalculation();
           }
         }
       });
@@ -563,13 +578,8 @@ async function uploadFiles(validFiles) {
 
         messageDiv.appendChild(messageText);
         messageDiv.appendChild(dismissButton);
-		// In case of success we clear all the old messages
-		// if (type === "success") {
-		// 	messageContainer.innerHTML = "";
-		// }
         messageContainer.appendChild(messageDiv);
 		
-
 		// Scroll to the bottom of the page if type is not "success" or "info"
 		if (type !== "success" && type !== "info" && scrollToBottom) {
 		window.scrollTo({
@@ -579,23 +589,22 @@ async function uploadFiles(validFiles) {
 		}
       }
 
-      // Add this to your existing script
-      const loginButton = document.querySelector(".login-button");
-      const loginOverlay = document.getElementById("loginOverlay");
-      const closeButton = document.querySelector(".close-button");
-      const loginForm = document.querySelector(".login-form");
-      const toggleButtons = document.querySelectorAll(".toggle-button");
-      const modalTitle = document.getElementById("modalTitle");
-      const submitButton = document.getElementById("submitButton");
-      const confirmPassword = document.getElementById("confirmPassword");
-      const googleButtonText = document.getElementById("googleButtonText");
-      const githubButtonText = document.getElementById("githubButtonText");
+      let isAnonymousConversion = false;
+      
+      // Add event listener for signup anonymous button
+      signOutButton.addEventListener("click", () => {
+          signOut();
+		updateSignInUI();
+      });
 
       loginButton.addEventListener("click", () => {
-        if (authToken) {
-          signOut();
+		loginOverlay.classList.add("active");
+        if (authToken && userEmail.textContent == "Anonymous") {
+   		     document.querySelector(".toggle-button[data-mode='signup']").click();
+   			isAnonymousConversion = true;
         } else {
-          document.getElementById("loginOverlay").classList.add("active");
+			document.querySelector(".toggle-button[data-mode='signin']").click();
+			isAnonymousConversion = false;
         }
       });
 
@@ -630,14 +639,14 @@ async function uploadFiles(validFiles) {
         });
       }
 
-      // Add click handlers for mode toggle buttons
+      // Handlers for mode toggle buttons
       toggleButtons.forEach((button) => {
         button.addEventListener("click", () => {
-          switchMode(button.dataset.mode);  // This reads the data-mode attribute
+          switchMode(button.dataset.mode);
         });
       });
 
-      // Update the login form submit handler
+      // login form submit handler
       document.getElementById("loginForm").addEventListener("submit", async (e) => {
           e.preventDefault();
           const email = document.getElementById("email").value;
@@ -646,25 +655,28 @@ async function uploadFiles(validFiles) {
 
           try {
             if (isSignup) {
-              // Call the registration API
-              const response = await fetch(`${AUTH_BASE_URL}/createAccount`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  email: email,
-                  password: password,
-                  role: "USER"
-                }),
-                ...fetchConfig,
-              });
+				if (isAnonymousConversion) {
+					await convertAnonymousAccount(email, password);
+				}else{
+					// Call the registration API
+					const response = await fetch(`${AUTH_BASE_URL}/createAccount`, {
+						method: "POST",
+						headers: {
+						"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+						email: email,
+						password: password,
+						role: "USER"
+						}),
+						...fetchConfig,
+					});
 
-              if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error("הרשמה נכשלה: " + errorData.detail);
-              }
-
+					if (!response.ok) {
+						const errorData = await response.json();
+						throw new Error("הרשמה נכשלה: " + errorData.detail);
+					}
+				}
               // Show verification message and close login dialog
               addMessage("נרשמת בהצלחה! אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.", "success");
               document.getElementById("loginOverlay").classList.remove("active");
@@ -689,7 +701,7 @@ async function uploadFiles(validFiles) {
 
             if (!response.ok) {
                   const errorData = await response.json();
-                  throw new Error("התחברות נכשלה: " + errorData.detail);
+                  throw new Error(errorData.detail);
             }
 
             const data = await response.json();
@@ -697,14 +709,9 @@ async function uploadFiles(validFiles) {
             // Store the token
             authToken = data.token;
             cookieUtils.set("authToken", authToken);
-			}
 
-            // Update UI to show logged in user
-            const userEmail = document.getElementById("userEmail");
-            const loginButton = document.querySelector(".login-button");
-            userEmail.textContent = email;
-            loginButton.textContent = "התנתק";
-            loginButton.classList.add("logged-in");
+			updateSignInUI();
+			 
 
             // Clear stored tax results
             localStorage.removeItem("taxResults");
@@ -719,12 +726,14 @@ async function uploadFiles(validFiles) {
             // Handle signin
             await loadExistingFiles(); // Load files with new token
             await loadResults();
-
+			}
               //addMessage("התחברת בהצלחה!");
             document.getElementById("loginOverlay").classList.remove("active");
           } catch (error) {
             console.error("Login failed:", error);
             addMessage("שגיאה בהתחברות: " + error.message, "error");
+			// Dismiss the login overlay
+			document.getElementById("loginOverlay").classList.remove("active");
           }
         });
 
@@ -897,13 +906,13 @@ async function uploadFiles(validFiles) {
             
             downloadButton.appendChild(textSpan);
             downloadButton.appendChild(iconSpan);
-             downloadButton.addEventListener("click", () =>
+            downloadButton.addEventListener("click", () =>
               downloadResult(result.file.fileName)
             );
 
             buttonContainer.appendChild(downloadButton);
 
-			li.appendChild(fileDescription);
+            li.appendChild(fileDescription);
             li.appendChild(buttonContainer);
             resultsList.appendChild(li);
           }
@@ -1892,7 +1901,8 @@ function getAnswerFromChildrenControls() {
       deleteAllButton.addEventListener("click", async () => {
         try {
           if (!authToken) {
-            await signInAnonymous();
+			debug("no auth token");
+            return;
           }
 
           const response = await fetch(
@@ -2586,7 +2596,7 @@ function formatNumber(key, value) {
       }
 
 
-async function calculateTax(fileName) {
+	async function calculateTax(fileName) {
           try {
             if (!authToken) {
               await signInAnonymous();
@@ -2661,13 +2671,9 @@ async function calculateTax(fileName) {
             addMessage("שגיאה בחישוב המס: " + error.message, "error");
           } finally {
             // Hide loading overlay
-            document
-              .getElementById("loadingOverlay")
-              .classList.remove("active");
-            // Re-enable calculate button
-		//document.getElementById("calculateTaxButton").disabled = false;
+			document.getElementById("loadingOverlay").classList.remove("active");
+		}
 	}
-}
 
 function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 	const requiredQuestions = configurationData.questionList.filter(question => question[requiredType] === "REQUIRED");
@@ -2829,15 +2835,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
             if (response.ok) {
               // Token is valid, update UI
               authToken = storedToken;
-              const userEmail = document.getElementById("userEmail");
-              const loginButton = document.querySelector(".login-button");
-
-              // Use jwt-decode to extract email
-              const decodedToken = jwt_decode(storedToken);
-              userEmail.textContent = decodedToken.email;
-
-              loginButton.textContent = "התנתק";
-              loginButton.classList.add("logged-in");
+				updateSignInUI();
             } else {
               // Token is invalid, clear it
               cookieUtils.delete("authToken");
@@ -2931,7 +2929,10 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 		// Update form creation select elements according to the form types
 		const createFormSelect = document.getElementById("createFormSelect");
 		createFormSelect.innerHTML = `<option value="">צור טופס חדש</option>`;
-		createFormSelect.innerHTML += configurationData.formTypes.map(formType => `<option value="${formType.formType}">${formType.formName}</option>`).join('');	
+		// Add the form types that the user can add only if the userCanAdd is true
+		createFormSelect.innerHTML += 
+			configurationData.formTypes.filter(formType => formType.userCanAdd).map(
+				formType => `<option value="${formType.formType}">${formType.formName}</option>`).join('');	
 
 		// configurationData.formTypes.forEach(formType => {
 		// 	debug(formType.formName, formType.fieldTypes);
@@ -3232,4 +3233,28 @@ async function idFromAnswersMap() {
           }
         });
       }
+
+     async function convertAnonymousAccount(email, password) {
+       const response = await fetch(`${API_BASE_URL}/convertAnonymousAccount`, {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json",
+           "Authorization": `Bearer ${authToken}`
+         },
+         body: JSON.stringify({
+           email: email,
+           password: password
+         })
+       });
+
+       if (!response.ok) {
+         const errorData = await response.json();
+         throw new Error(errorData.detail || "Failed to convert account");
+       }
+
+       const result = await response.json();
+	   signOut();
+	   updateSignInUI()
+     }
+
 

@@ -59,12 +59,11 @@
     </div>
 
     <div class="main-container">
-      <div class="header-container">
         <div class="auth-container">
           <span id="userEmail" class="user-email"></span>
-          <button class="login-button">התחברות</button>
+          <button id="loginButton" class="login-button">התחברות</button>
+          <button id="signOutButton" class="logout-button" disabled>התנתק</button>
         </div>
-      </div>
 	  <h1>דו"ח שנתי - עשה זאת עצמך</h1>
 
       <div class="info-section">
@@ -231,8 +230,7 @@
               id="fileInput"
               accept=".pdf,.jpg,.jpeg"
               multiple
-              disabled
-            />
+           />
             <label for="fileInput">העלאת מסמכים...</label>
             <input
               type="file"
@@ -241,10 +239,9 @@
               webkitdirectory
               directory
               multiple
-              disabled
             />
             <label for="folderInput">העלאת תיקיי...</label>
-            <select id="createFormSelect" class="form-select" disabled></select>
+            <select id="createFormSelect" class="form-select"></select>
 			<button id="deleteAllButton" class="delete-all-button" disabled>מחק הכל</button>
 		</div>
           <div class="action-buttons">
