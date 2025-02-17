@@ -6,10 +6,10 @@ let currentlySelectedTaxYear;
 let latestFileInfoList = [];
 let documentIcons = {};
 let uploading = false;
-const fetchConfig = {
-	credentials: "include",
-	mode: "cors",
-};
+      const fetchConfig = {
+        credentials: "include",
+        mode: "cors",
+      };
 
       // Add this near the top of your script
       const DEBUG = true;
@@ -593,7 +593,7 @@ async function uploadFiles(validFiles) {
       
       // Add event listener for signup anonymous button
       signOutButton.addEventListener("click", () => {
-		signOut();
+          signOut();
 		updateSignInUI();
       });
 
@@ -602,7 +602,7 @@ async function uploadFiles(validFiles) {
         if (authToken && userEmail.textContent == "Anonymous") {
    		     document.querySelector(".toggle-button[data-mode='signup']").click();
    			isAnonymousConversion = true;
-		 } else {
+        } else {
 			document.querySelector(".toggle-button[data-mode='signin']").click();
 			isAnonymousConversion = false;
         }
@@ -686,29 +686,29 @@ async function uploadFiles(validFiles) {
               document.getElementById("password").value = "";
 
             } else {
-              // Call the signIn API
-              const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  email: email,
-                  password: password,
-                }),
+            // Call the signIn API
+            const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: email,
+                password: password,
+              }),
               ...fetchConfig,
-              });
+            });
 
-              if (!response.ok) {
+            if (!response.ok) {
                   const errorData = await response.json();
                   throw new Error(errorData.detail);
-              }
+            }
 
-              const data = await response.json();
+            const data = await response.json();
 
-              // Store the token
-              authToken = data.token;
-              cookieUtils.set("authToken", authToken);
+            // Store the token
+            authToken = data.token;
+            cookieUtils.set("authToken", authToken);
 
 			updateSignInUI();
 			 
@@ -2597,10 +2597,10 @@ function formatNumber(key, value) {
 
 
 	async function calculateTax(fileName) {
-		try {
-		if (!authToken) {
-			await signInAnonymous();
-		}
+          try {
+            if (!authToken) {
+              await signInAnonymous();
+            }
 		debug("calculateTax", fileName);
 		// Extract <name>_<year>.dat
 		const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
@@ -2666,11 +2666,11 @@ function formatNumber(key, value) {
 			localStorage.setItem("taxResultsYear", taxCalcTaxYear);
 			localStorage.setItem("taxResults", JSON.stringify(result));
 		}
-		} catch (error) {
-			console.error("Calculate tax failed:", error);
-			addMessage("שגיאה בחישוב המס: " + error.message, "error");
-		} finally {
-			// Hide loading overlay
+          } catch (error) {
+            console.error("Calculate tax failed:", error);
+            addMessage("שגיאה בחישוב המס: " + error.message, "error");
+          } finally {
+            // Hide loading overlay
 			document.getElementById("loadingOverlay").classList.remove("active");
 		}
 	}
@@ -2834,7 +2834,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 
             if (response.ok) {
               // Token is valid, update UI
-              	authToken = storedToken;
+              authToken = storedToken;
 				updateSignInUI();
             } else {
               // Token is invalid, clear it
@@ -2929,7 +2929,10 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
 		// Update form creation select elements according to the form types
 		const createFormSelect = document.getElementById("createFormSelect");
 		createFormSelect.innerHTML = `<option value="">צור טופס חדש</option>`;
-		createFormSelect.innerHTML += configurationData.formTypes.map(formType => `<option value="${formType.formType}">${formType.formName}</option>`).join('');	
+		// Add the form types that the user can add only if the userCanAdd is true
+		createFormSelect.innerHTML += 
+			configurationData.formTypes.filter(formType => formType.userCanAdd).map(
+				formType => `<option value="${formType.formType}">${formType.formName}</option>`).join('');	
 
 		// configurationData.formTypes.forEach(formType => {
 		// 	debug(formType.formName, formType.fieldTypes);

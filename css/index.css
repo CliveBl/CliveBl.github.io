@@ -949,6 +949,8 @@
         width: 150px;
         direction: ltr;
         text-align: left;
+        appearance: textfield;
+        -moz-appearance: textfield;  /* Firefox */
       }
 
       .taxpayer-input-container input:focus {
@@ -1714,6 +1716,7 @@
         padding: 4px;
         background-color: var(--bg-color);
         color: var(--text-color);
+        appearance: textfield;
         -moz-appearance: textfield;  /* Firefox */
       }
 
