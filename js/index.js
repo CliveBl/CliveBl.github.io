@@ -1855,8 +1855,8 @@ deleteAllButton.addEventListener("click", async () => {
 
 // Save state before the page unloads
 window.addEventListener("beforeunload", () => {
-  const questionnaireExists = localStorage.getItem("questionnaireExists");
-  if (answersMap && questionnaireExists === "true") {
+  const doesQuestionnaireExist = localStorage.getItem("questionnaireExists");
+  if (answersMap && doesQuestionnaireExist &&doesQuestionnaireExist === "true") {
     updateAnswersMapFromControls();
     saveAnswersMapToLocalStorage();
   } else {
@@ -2076,12 +2076,14 @@ document.getElementById("questionnaireButton").addEventListener("click", async (
   if (isCurrentlyActive) {
     // Hide questionnaire if it's currently shown
     hideQuestionaire();
+	localStorage.setItem("questionnaireExists", "false");
   } else {
     // Check if the questionnaire is already created
     if (!document.getElementById("questionsContainerChild")) {
       await createQuestionnaire();
     } else {
       showQuestionaire();
+	  localStorage.setItem("questionnaireExists", "true");
     }
   }
 });
@@ -2805,13 +2807,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     .filter((formType) => formType.userCanAdd)
     .map((formType) => `<option value="${formType.formType}">${formType.formName}</option>`)
     .join("");
-
-  // configurationData.formTypes.forEach(formType => {
-  // 	debug(formType.formName, formType.fieldTypes);
-  // });
   // Check if the questionnaire was open or closed last time
-  const questionnaireExists = localStorage.getItem("questionnaireExists");
-  if (questionnaireExists && questionnaireExists === "true") {
+  const doesQuestionnaireExist = localStorage.getItem("questionnaireExists");
+  if (doesQuestionnaireExist && doesQuestionnaireExist === "true") {
     createQuestionnaire();
   }
 });
@@ -3038,9 +3036,9 @@ function updateMissingDocuments() {
     if (select && missingLabel) {
       const required = parseInt(select.value);
       const uploaded = docCounts[docTypename] || 0;
-      debug("docType:", docType, "docTypename:", docTypename, "required:", required, "uploaded:", uploaded);
+      //debug("docType:", docType, "docTypename:", docTypename, "required:", required, "uploaded:", uploaded);
       const missing = Math.max(0, required - uploaded);
-      debug("missing:", missing);
+      //debug("missing:", missing);
 
       if (missing > 0) {
         missingLabel.textContent = `חסר ${missing}`;
