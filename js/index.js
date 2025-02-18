@@ -1,4 +1,4 @@
-const uiVersion = "0.16";
+const uiVersion = "0.17";
 const defaultId = "000000000";
 let configurationData = null;
 let answersMap = {};
