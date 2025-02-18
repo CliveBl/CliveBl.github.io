@@ -649,7 +649,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error("הרשמה נכשלה: " + errorData.detail);
+          throw new Error("הרשמה נכשלה: " + errorData.description);
         }
       }
       // Show verification message and close login dialog
@@ -676,7 +676,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail);
+        throw new Error(errorData.description);
       }
 
       const data = await response.json();
@@ -705,6 +705,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     document.getElementById("loginOverlay").classList.remove("active");
   } catch (error) {
     console.error("Login failed:", error);
+    // Clear previous messages
+    clearMessages();
     addMessage("שגיאה בהתחברות: " + error.message, "error");
     // Dismiss the login overlay
     document.getElementById("loginOverlay").classList.remove("active");
