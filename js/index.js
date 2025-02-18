@@ -595,15 +595,19 @@ loginOverlay.addEventListener("click", (e) => {
 // Function to switch between signin and signup modes
 function switchMode(mode) {
   const isSignup = mode === "signup";
-
-  // Update UI elements
   modalTitle.textContent = isSignup ? "הרשמה" : "התחברות";
   submitButton.textContent = isSignup ? "הירשם" : "התחבר";
-  //confirmPassword.style.display = isSignup ? "block" : "none";
+  const fullNameInput = document.getElementById("fullName");
+  if (isSignup) {
+    document.getElementById("fullNameField").style.display = "block";
+    fullNameInput.setAttribute("required", "");
+  } else {
+    document.getElementById("fullNameField").style.display = "none";
+    fullNameInput.removeAttribute("required");
+  }
   googleButtonText.textContent = isSignup ? "הרשמה עם Google" : "התחבר עם Google";
   githubButtonText.textContent = isSignup ? "הרשמה עם GitHub" : "התחבר עם GitHub";
 
-  // Update active toggle button
   toggleButtons.forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.mode === mode);
   });
@@ -621,12 +625,13 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const fullName = document.getElementById("fullName").value;
   const isSignup = document.querySelector(".toggle-button.active").dataset.mode === "signup";
 
   try {
     if (isSignup) {
       if (isAnonymousConversion) {
-        await convertAnonymousAccount(email, password);
+        await convertAnonymousAccount(email, password, fullName);
       } else {
         // Call the registration API
         const response = await fetch(`${AUTH_BASE_URL}/createAccount`, {
@@ -637,7 +642,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
           body: JSON.stringify({
             email: email,
             password: password,
-            role: "USER",
+            fullName: fullName,
           }),
           ...fetchConfig,
         });
@@ -654,6 +659,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       // Clear the form
       document.getElementById("email").value = "";
       document.getElementById("password").value = "";
+      document.getElementById("fullName").value = "";
     } else {
       // Call the signIn API
       const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
@@ -3090,7 +3096,7 @@ function initializeDocumentIcons() {
   });
 }
 
-async function convertAnonymousAccount(email, password) {
+async function convertAnonymousAccount(email, password, fullName) {
   const response = await fetch(`${API_BASE_URL}/convertAnonymousAccount`, {
     method: "POST",
     headers: {
@@ -3100,6 +3106,7 @@ async function convertAnonymousAccount(email, password) {
     body: JSON.stringify({
       email: email,
       password: password,
+      fullName: fullName,
     }),
   });
 
