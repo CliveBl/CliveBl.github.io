@@ -299,10 +299,6 @@
         background-color: var(--error-bg);
       }
 
-      .status-icon {
-        margin-left: 0;
-        font-size: 14px;
-      }
 
       .status-message {
         font-size: 0.8em;
@@ -310,7 +306,7 @@
         margin-right: 20px;
         display: block;
         margin-top: 2px;
-        width: 100%;
+        /* width: 100%; */
       }
 
       .warning .status-message {
@@ -342,6 +338,7 @@
         display: flex;
         align-items: center;
         font-size: 0.9em;
+		cursor: pointer;
       }
 
       .fileNameElement {

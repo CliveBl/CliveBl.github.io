@@ -1,4 +1,4 @@
-const uiVersion = "0.18";
+const uiVersion = "0.19";
 const defaultId = "000000000";
 let configurationData = null;
 let answersMap = {};
@@ -2282,24 +2282,22 @@ function addFileToList(fileInfo) {
 
   const fileHeader = document.createElement("div");
   fileHeader.className = "file-header";
-  fileHeader.style.cursor = "pointer";
 
   // Create status icon
-  const statusIcon = document.createElement("span");
-  statusIcon.className = "status-icon";
+  let statusIcon;
   switch (status) {
     case "warning":
-      statusIcon.textContent = "⚠️";
+      statusIcon = "⚠️";
       break;
     case "error":
-      statusIcon.textContent = "❌";
+      statusIcon = "❌";
       break;
     default:
-      statusIcon.textContent = documentIcons[fileInfo.documentType] || "📋";
+      statusIcon = documentIcons[fileInfo.documentType] || "📋";
   }
 
   const fileNameElement = document.createElement("span");
-  fileNameElement.textContent = fileName.path || fileName.name;
+  fileNameElement.textContent = fileName.path || fileName.name + " " + statusIcon;
   fileNameElement.className = "fileNameElement";
   // Add expand/collapse indicator
   const expandIcon = document.createElement("span");
@@ -2310,7 +2308,6 @@ function addFileToList(fileInfo) {
   fileHeader.appendChild(expandIcon);
   fileHeader.appendChild(fileNameElement);
   fileInfoElement.appendChild(fileHeader);
-  fileHeader.appendChild(statusIcon);
 
   if (statusMessage) {
     const statusMessageSpan = document.createElement("span");
