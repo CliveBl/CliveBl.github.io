@@ -1,0 +1,12 @@
+/* * * * * * * * * * * * * * * * * * * *
+*
+* NagishLi Copyright (c) Localize* (http://www.nagish.li)
+
+! People & Disability Pictograms Copyright (c) 2016 anatom5 GmbH in cooperation with Natko (http://www.anatom5.de & http://www.natko.de)
+! Arrows icons from Flaticon by Dave Gandy (http://www.flaticon.com/authors/dave-gandy)
+! Star Of David icon from Flaticon by Scott de Jonge (http://www.flaticon.com/authors/scott-de-jonge)
+! Bounce animations from Animate.css Copyright (c) 2016 Daniel Eden (https://daneden.github.io/animate.css/)
+! Various icons (Cursor, audio ..) from Icons8 (https://icons8.com)
+
+*
+* * * * * * * * * * * * * * * * * * * */
