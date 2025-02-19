@@ -323,15 +323,37 @@
 
       .file-info {
         flex-grow: 1;
-        display: flex;
+		display: flex;
         flex-direction: column;
         gap: 2px;
+	    }
+
+      .expand-icon {
+        margin-right: 10px;
+        transition: transform 0.3s;
+        display: inline-block;
+      }
+
+      .expand-icon.expanded {
+        transform: rotate(180deg);
       }
 
       .file-header {
         display: flex;
         align-items: center;
         font-size: 0.9em;
+      }
+
+      .fileNameElement {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: calc(100% - 80px); /* Account for icons and buttons */
+		flex-grow: 1;
+      }
+	  .fileNameElement.expanded {
+			white-space: normal;
+			text-overflow: unset;
       }
 
        .login-overlay {

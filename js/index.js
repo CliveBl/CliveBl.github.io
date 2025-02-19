@@ -1,4 +1,4 @@
-const uiVersion = "0.17";
+const uiVersion = "0.18";
 const defaultId = "000000000";
 let configurationData = null;
 let answersMap = {};
@@ -2300,13 +2300,12 @@ function addFileToList(fileInfo) {
 
   const fileNameElement = document.createElement("span");
   fileNameElement.textContent = fileName.path || fileName.name;
-
+  fileNameElement.className = "fileNameElement";
   // Add expand/collapse indicator
   const expandIcon = document.createElement("span");
   expandIcon.textContent = "▼";
-  expandIcon.style.marginRight = "10px";
-  expandIcon.style.transition = "transform 0.3s";
-  expandIcon.style.display = "inline-block";
+  expandIcon.className = "expand-icon";
+
 
   fileHeader.appendChild(expandIcon);
   fileHeader.appendChild(fileNameElement);
@@ -2446,9 +2445,17 @@ function addFileToList(fileInfo) {
     if (e.target.closest(".delete-button") || e.target.closest(".edit-button")) return;
 
     const isExpanded = accordionContent.style.display === "block";
-    accordionContent.style.display = isExpanded ? "none" : "block";
-    expandIcon.style.transform = isExpanded ? "rotate(0deg)" : "rotate(180deg)";
-    editButton.style.display = isExpanded ? "none" : "block";
+	if(isExpanded) {
+		accordionContent.style.display = "none";
+		expandIcon.textContent = "▼";
+		fileNameElement.classList.remove("expanded");
+		editButton.style.display = "none";
+	} else {
+		accordionContent.style.display = "block";
+		expandIcon.textContent = "▲";
+		fileNameElement.classList.add("expanded");
+		editButton.style.display = "block";
+	}
   });
 
   const deleteButton = document.createElement("button");
