@@ -1,4 +1,4 @@
-const uiVersion = "0.19";
+const uiVersion = "0.20";
 const defaultId = "000000000";
 let configurationData = null;
 let answersMap = {};
@@ -2441,18 +2441,34 @@ function addFileToList(fileInfo) {
     // Don't toggle if clicking delete button
     if (e.target.closest(".delete-button") || e.target.closest(".edit-button")) return;
 
+    // Close any other open accordions first
+    const allAccordions = document.querySelectorAll('.accordion-content');
+    const allExpandIcons = document.querySelectorAll('.expand-icon');
+    const allEditButtons = document.querySelectorAll('.edit-button');
+    const allFileNames = document.querySelectorAll('.fileNameElement');
+    
+    allAccordions.forEach((acc, index) => {
+      if (acc !== accordionContent && acc.style.display === "block") {
+        acc.style.display = "none";
+        allExpandIcons[index].textContent = "▼";
+        allExpandIcons[index].classList.remove("expanded");
+        allEditButtons[index].style.display = "none";
+        allFileNames[index].classList.remove("expanded");
+      }
+    });
+
     const isExpanded = accordionContent.style.display === "block";
-	if(isExpanded) {
-		accordionContent.style.display = "none";
-		expandIcon.textContent = "▼";
-		fileNameElement.classList.remove("expanded");
-		editButton.style.display = "none";
-	} else {
-		accordionContent.style.display = "block";
-		expandIcon.textContent = "▲";
-		fileNameElement.classList.add("expanded");
-		editButton.style.display = "block";
-	}
+    if(isExpanded) {
+      accordionContent.style.display = "none";
+      expandIcon.textContent = "▼";
+      fileNameElement.classList.remove("expanded");
+      editButton.style.display = "none";
+    } else {
+      accordionContent.style.display = "block";
+      expandIcon.textContent = "▲";
+      fileNameElement.classList.add("expanded");
+      editButton.style.display = "block";
+    }
   });
 
   const deleteButton = document.createElement("button");
