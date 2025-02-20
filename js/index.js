@@ -2560,7 +2560,7 @@ async function calculateTax(fileName) {
       if (!response.ok) {
         const errorData = await response.json();
         debug(errorData);
-        throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
+        throw new Error(errorData.description);
       }
 
       const result = await response.json();
@@ -2591,9 +2591,23 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
   const currentYearAnswers = yearAnswers?.answers || {};
   // Check unanswered questions by comparing to the default values.
   requiredQuestions.forEach((question) => {
-    if (!currentYearAnswers || currentYearAnswers[question.name] === undefined || currentYearAnswers[question.name] === null || currentYearAnswers[question.name] === question.defaultAnswer) {
-      debug("Required question not answered: " + question.name + ":" + currentYearAnswers[question.name] + " " + question.defaultAnswer);
-      // the question name to a list of required questions
+	const answer = currentYearAnswers[question.name];
+	let numberOfDates = 0;
+	if(question.controlType === "DATE"){
+		// Check if both dates are present
+		const dates = answer.split(",");
+		if(dates[0].length > 0 && dates[1].length > 0){
+			numberOfDates = 2;
+		}
+    }
+    if (!currentYearAnswers || currentYearAnswers[question.name] === undefined || currentYearAnswers[question.name] === null || 
+		answer === question.defaultAnswer ||
+		// If the question is linked to MARITAL_STATUS and the answer is MARRIED and it is a PAIR, but both fields of the pair are not answered then it is also required
+		(question.pair === "PAIR" && question.linkedTo !== null && question.linkedTo === "MARITAL_STATUS" && question.controlType === "DATE" && numberOfDates !== 2)
+	)
+	{
+      debug("Required question not answered: " + question.name + ":" + answer + " " + question.defaultAnswer);
+      // Add the question name to a list of required questions
       requiredQuestionsList.push(question.name);
     }
   });
