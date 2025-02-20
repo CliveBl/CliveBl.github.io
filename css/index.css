@@ -1703,6 +1703,7 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 1000;
+        overflow-y: auto;
       }
 
       .modal-content {
@@ -1712,9 +1713,28 @@
         border: 1px solid var(--border-color);
         border-radius: 8px;
         width: 90%;
-        max-width: 1200px;
+        max-width: 600px; /* Set a reasonable max-width for larger screens */
         max-height: 90vh;
         overflow-y: auto;
+        box-sizing: border-box;
+      }
+
+      @media (max-width: 768px) {
+        .modal-content {
+          width: 95%; /* Increase width for smaller screens */
+          max-width: 95%; /* Ensure it doesn't exceed the screen width */
+          margin: 10px auto;
+          padding: 15px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .modal-content {
+          width: 98%; /* Further increase width for very small screens */
+          max-width: 98%;
+          margin: 5px auto;
+          padding: 10px;
+        }
       }
 
       .children-table {
