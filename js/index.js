@@ -363,6 +363,15 @@ folderInput.addEventListener("change", async () => {
   await uploadFilesWithButtonProgress(validFiles, folderInput);
 });
 
+function showLoadingOverlay(message) {
+	document.getElementById("loadingMessage").textContent = message;
+	document.getElementById("loadingOverlay").classList.add("active");
+  }
+  
+  function hideLoadingOverlay() {
+	document.getElementById("loadingOverlay").classList.remove("active");
+  }
+  
 // Update the process button handler
 processButton.addEventListener("click", async () => {
   try {
@@ -385,13 +394,7 @@ processButton.addEventListener("click", async () => {
       // Warn that there are missing answers in the questionaire.
       addMessage("יש ערכים חסרים בשאלון.", "warning", false);
     } else {
-      // Disable button and show spinner
-      processButton.disabled = true;
-      processButton.classList.add("processing");
-      const spinner = document.createElement("span");
-      spinner.className = "spinner";
-      processButton.appendChild(spinner);
-
+		showLoadingOverlay("מעבדת מסמכחם...");
       // Clear previous messages
       clearMessages();
       // Tax results may now be invalid
@@ -445,13 +448,7 @@ processButton.addEventListener("click", async () => {
     console.error("Processing failed:", error);
     addMessage("שגיאה בעיבוד הקבצים: " + error.message, "error");
   } finally {
-    // Re-enable button and remove spinner
-    processButton.disabled = false;
-    processButton.classList.remove("processing");
-    const spinner = processButton.querySelector(".spinner");
-    if (spinner) {
-      processButton.removeChild(spinner);
-    }
+	hideLoadingOverlay();
   }
 });
 
@@ -2538,10 +2535,7 @@ async function calculateTax(fileName) {
         behavior: "smooth",
       });
     } else {
-      // Show loading overlay
-      document.getElementById("loadingOverlay").classList.add("active");
-      // Disable calculate button
-      //document.getElementById("calculateTaxButton").disabled = true;
+      showLoadingOverlay("מחשב מס...");
 
       const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
         method: "POST",
@@ -2578,8 +2572,7 @@ async function calculateTax(fileName) {
     console.error("Calculate tax failed:", error);
     addMessage("שגיאה בחישוב המס: " + error.message, "error");
   } finally {
-    // Hide loading overlay
-    document.getElementById("loadingOverlay").classList.remove("active");
+    hideLoadingOverlay();
   }
 }
 
