@@ -1,4 +1,4 @@
-const uiVersion = "0.20";
+const uiVersion = "0.21";
 const defaultId = "000000000";
 let configurationData = null;
 let answersMap = {};
@@ -371,7 +371,7 @@ function showLoadingOverlay(message) {
   function hideLoadingOverlay() {
 	document.getElementById("loadingOverlay").classList.remove("active");
   }
-  
+
 // Update the process button handler
 processButton.addEventListener("click", async () => {
   try {
@@ -1643,22 +1643,22 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
 
     // Duplicate answers handler
     document.getElementById("duplicateAnswersButton").addEventListener("click", () => {
-      const warningModal = document.getElementById("warningModal");
-      warningModal.style.display = "block";
+      const duplicateAnswersWarningModal = document.getElementById("duplicateAnswersWarningModal");
+      duplicateAnswersWarningModal.style.display = "block";
 
       // Handle close button
-      warningModal.querySelector(".close-button").onclick = () => {
-        warningModal.style.display = "none";
+      duplicateAnswersWarningModal.querySelector(".close-button").onclick = () => {
+        duplicateAnswersWarningModal.style.display = "none";
       };
 
       // Handle cancel button
-      warningModal.querySelector(".cancel-button").onclick = () => {
-        warningModal.style.display = "none";
+      duplicateAnswersWarningModal.querySelector(".cancel-button").onclick = () => {
+        duplicateAnswersWarningModal.style.display = "none";
       };
 
       // Handle confirm button
-      warningModal.querySelector(".confirm-button").onclick = () => {
-        warningModal.style.display = "none";
+      duplicateAnswersWarningModal.querySelector(".confirm-button").onclick = () => {
+        duplicateAnswersWarningModal.style.display = "none";
         const currentYear = yearSelect.value;
         updateAnswersMapFromControls();
 
@@ -1676,8 +1676,8 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
 
       // Close if clicking outside
       window.onclick = (event) => {
-        if (event.target === warningModal) {
-          warningModal.style.display = "none";
+        if (event.target === duplicateAnswersWarningModal) {
+          duplicateAnswersWarningModal.style.display = "none";
         }
       };
     });
@@ -1822,6 +1822,10 @@ deleteAllButton.addEventListener("click", async () => {
       debug("no auth token");
       return;
     }
+    const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את כל המסמכים שהוזנו?");
+    if (!confirmed) 
+		return;
+
 
     const response = await fetch(`${API_BASE_URL}/deleteAllFiles?customerDataEntryName=Default`, {
       method: "DELETE",
@@ -3145,4 +3149,40 @@ async function convertAnonymousAccount(email, password, fullName) {
   const result = await response.json();
   signOut();
   updateSignInUI();
+}
+
+// General warning modal function that returns a promise
+function showWarningModal(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("generalWarningModal");
+    const warningMessage = document.getElementById("warningMessage");
+    warningMessage.textContent = message;
+    modal.style.display = "block";
+
+    // Handle close button
+    modal.querySelector(".close-button").onclick = () => {
+      modal.style.display = "none";
+      resolve(false);
+    };
+
+    // Handle cancel button
+    modal.querySelector(".cancel-button").onclick = () => {
+      modal.style.display = "none";
+      resolve(false);
+    };
+
+    // Handle confirm button
+    modal.querySelector(".confirm-button").onclick = () => {
+      modal.style.display = "none";
+      resolve(true);
+    };
+
+    // Close if clicking outside
+    window.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+        resolve(false);
+      }
+    };
+  });
 }

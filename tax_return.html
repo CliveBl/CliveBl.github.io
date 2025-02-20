@@ -507,7 +507,7 @@
 	<script src="js/index.js"></script>
 	
     <!-- Add warning modal -->
-    <div id="warningModal" class="modal">
+    <div id="duplicateAnswersWarningModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <span class="close-button">&times;</span>
@@ -526,6 +526,23 @@
             <div class="modal-footer">
                 <button class="cancel-button">ביטול</button>
                 <button class="confirm-button">המשך</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add warning modal -->
+    <div id="generalWarningModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-button">&times;</span>
+                <h2>אזהרה</h2>
+            </div>
+            <div class="modal-body">
+                <p id="warningMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-button">ביטול</button>
+                <button class="confirm-button">אישור</button>
             </div>
         </div>
     </div>
