@@ -1063,10 +1063,20 @@ function updateAnswersMapFromControls() {
   });
 
   // Update the Map with the current year's answers
+  debug("Updating answersMap with year: " + selectedYear);
   answersMap.set(selectedYear.toString(), {
     taxYear: selectedYear,
     answers: yearAnswers,
   });
+  // If there is any year with NaN in the answersMap remove it
+  for (const [key, value] of answersMap) {
+    if (isNaN(key)) {
+		// popup a message
+		alert("There is a year with NaN in the answersMap. Please remove it.");
+      debug("Removing year: " + key);
+      answersMap.delete(key);
+    }
+  }
 } // updateAnswersMapFromControls
 
 function getAnswerFromChildrenControls() {
@@ -1332,16 +1342,9 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
           } else {
             // Single checkbox
             const container = document.createElement("div");
-
-            const label = document.createElement("label");
-            label.textContent = "בן זוג רשום";
-            label.className = "question-sub-label";
-
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.name = question.name;
-
-            container.appendChild(label);
             container.appendChild(checkbox);
             controls.appendChild(container);
           }
@@ -1665,6 +1668,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         // Duplicate the answers to all years
         yearSelect.querySelectorAll("option").forEach((option) => {
           if (option.value !== currentYear) {
+			debug("Duplicating answers to year: " + option.value);
             answersMap.set(option.value, answersMap.get(currentYear));
           }
         });
