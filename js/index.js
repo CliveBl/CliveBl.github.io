@@ -2678,7 +2678,7 @@ function getRequiredQuestions(taxCalcTaxYear, requiredType) {
   requiredQuestions.forEach((question) => {
 	const answer = currentYearAnswers[question.name];
 	let numberOfDates = 0;
-	if(question.controlType === "DATE"){
+	if(question.controlType === "DATE" && answer != null){
 		// Check if both dates are present
 		const dates = answer.split(",");
 		if(dates[0].length > 0 && dates[1].length > 0){
@@ -2744,6 +2744,7 @@ function validateDateInput(e) {
 
 // Add this function to load stored tax results
 function loadStoredTaxCalculation() {
+	debug("loadStoredTaxCalculation");
   try {
     const storedResults = localStorage.getItem("taxResults");
     const storedYear = localStorage.getItem("taxResultsYear");
@@ -2758,6 +2759,7 @@ function loadStoredTaxCalculation() {
 
 // Add this function to display tax results
 function displayTaxCalculation(result, year, shouldScroll = false) {
+	debug("displayTaxCalculation");
   const taxCalculationContent = document.getElementById("taxCalculationContent");
   taxCalculationContent.innerHTML = ""; // Clear existing results
   // Append year to the title id taxResultsTitle
