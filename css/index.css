@@ -837,13 +837,13 @@
       }
 
       .question-controls input[type="number"] {
-        width: 120px;
+        /* width: 120px; */
         padding: 4px 8px;
       }
 
       /* Date input styling */
       .question-controls input[type="text"][pattern] {
-        width: 120px;
+        /* width: 120px; */
         padding: 4px 8px;
         border: 1px solid var(--border-color);
         border-radius: 4px;
@@ -1999,3 +1999,20 @@
 	  .question-sub-label {
 		margin-bottom: 0px;
 	  }
+
+      .small-integer-pair-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        white-space: nowrap;
+      }
+
+      .small-integer-pair-container select,
+      .question-controls select {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        /* min-width: 120px; */
+      }

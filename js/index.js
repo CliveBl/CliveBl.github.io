@@ -1,4 +1,4 @@
-const uiVersion = "0.22";
+const uiVersion = "0.23";
 const defaultId = "000000000";
 let configurationData = null;
 let answersMap = {};
@@ -1009,6 +1009,18 @@ function updateAnswersMapFromControls() {
         }
         break;
 
+
+		case "SMALL_INTEGER":
+			if (isPair) {
+				const registeredPartnerNumField = controls.querySelector(`select[name$="${questionName}_1"]`);
+				const partnerNumField = controls.querySelector(`select[name$="${questionName}_2"]`);
+				answer = `${partnerNumField.value.trim()},${registeredPartnerNumField.value.trim()}`;
+			} else {
+				const numField = controls.querySelector("select");
+				answer = numField.value.trim() || "0";
+			}
+			break;
+
       case "NUMERIC":
         if (isPair) {
           const registeredPartnerNumField = controls.querySelector(`input[name$="${questionName}_1"]`);
@@ -1097,9 +1109,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
     if (!authToken) {
       await signInAnonymous();
     }
-    // Get the questionnaire container
-    const questionnaireContainer = document.getElementById("questionnaireContainer");
-    // Get reference to the questionnaire form
+   // Get reference to the questionnaire form
     const questionnaireForm = document.getElementById("questionnaireForm");
     if (!questionnaireForm) {
       throw new Error("Questionnaire form not found");
@@ -1165,6 +1175,21 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
     // Create questions and populate with answers
     const questions = configurationData.questionList;
     questions.forEach((question) => {
+
+		function createPartnerLabel() {
+			const partnerLabel = document.createElement("label");
+			partnerLabel.textContent = "בן/בת זוג";
+			partnerLabel.className = "question-sub-label";
+			return partnerLabel;
+		}
+
+		function createRegisteredLabel() {
+			const registeredLabel = document.createElement("label");
+			registeredLabel.textContent = "בן זוג רשום";
+			registeredLabel.className = "question-sub-label";
+			return registeredLabel;
+		}
+
       const questionGroup = document.createElement("div");
       questionGroup.className = "question-group";
       questionGroup.setAttribute("data-question", question.name);
@@ -1231,10 +1256,6 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             const idInput1 = document.createElement("div");
             idInput1.className = "id-input-group";
 
-            const label1 = document.createElement("label");
-            label1.className = "question-sub-label";
-            label1.textContent = "בן זוג רשום";
-
             const idNumberInput = document.createElement("input");
             idNumberInput.type = "text";
             idNumberInput.name = question.name + "_1";
@@ -1246,10 +1267,6 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             // Second ID input (partner)
             const idInput2 = document.createElement("div");
             idInput2.className = "id-input-group";
-
-            const label2 = document.createElement("label");
-            label2.className = "question-sub-label";
-            label2.textContent = "בן/בת זוג";
 
             const input2 = document.createElement("input");
             input2.type = "text";
@@ -1269,9 +1286,9 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
               });
             });
 
-            idInput1.appendChild(label1);
+            idInput1.appendChild(createRegisteredLabel());
             idInput1.appendChild(idNumberInput);
-            idInput2.appendChild(label2);
+            idInput2.appendChild(createPartnerLabel());
             idInput2.appendChild(input2);
 
             pairContainer.appendChild(idInput1);
@@ -1311,10 +1328,6 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             const partnerContainer = document.createElement("div");
             partnerContainer.style.flex = "0 0 auto"; // Add this
 
-            const registeredLabel = document.createElement("label");
-            registeredLabel.textContent = "בן זוג רשום";
-            registeredLabel.className = "question-sub-label";
-
             const partnerCheckbox = document.createElement("input");
             partnerCheckbox.type = "checkbox";
             partnerCheckbox.name = question.name + "_1";
@@ -1323,17 +1336,13 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             const registeredContainer = document.createElement("div");
             registeredContainer.style.flex = "0 0 auto"; // Add this
 
-            const partnerLabel = document.createElement("label");
-            partnerLabel.textContent = "בן/בת זוג";
-            partnerLabel.className = "question-sub-label";
-
             const registeredCheckbox = document.createElement("input");
             registeredCheckbox.type = "checkbox";
             registeredCheckbox.name = question.name + "_2";
 
-            registeredContainer.appendChild(registeredLabel);
+            registeredContainer.appendChild(createRegisteredLabel());
             registeredContainer.appendChild(registeredCheckbox);
-            partnerContainer.appendChild(partnerLabel);
+            partnerContainer.appendChild(createPartnerLabel());
             partnerContainer.appendChild(partnerCheckbox);
 
             pairContainer.appendChild(registeredContainer);
@@ -1350,6 +1359,71 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
           }
           break;
 
+		case "SMALL_INTEGER":
+			// Small integer is a number between min and max as defined in jsonAttributes (key/value pairs as a json string	)
+			const jsonAttributes = JSON.parse(question.jsonAttributes);
+			const min = jsonAttributes.min;
+			const max = jsonAttributes.max;
+			if (question.pair === "PAIR") {
+				// Create container for pair of small integer inputs
+				const pairContainer = document.createElement("div");
+				pairContainer.className = "small-integer-pair-container";
+				// Registered partner 
+				const registeredContainer = document.createElement("div");
+				registeredContainer.style.flex = "1";
+				
+				// First small integer input (registered partner) selector control from min to max
+				const registeredPartnerSelector = document.createElement("select");
+				registeredPartnerSelector.name = question.name + "_1";
+				//registeredPartnerSelector.style.width = "120px";
+				registeredPartnerSelector.style.padding = "4px 8px";
+				for (let i = min; i <= max; i++) {
+					const option = document.createElement("option");
+					option.value = i;
+					option.textContent = i;
+					registeredPartnerSelector.appendChild(option);
+				}	
+				registeredContainer.appendChild(createRegisteredLabel());
+				registeredContainer.appendChild(registeredPartnerSelector);
+
+				// Second small integer input (partner) selector control from min to max
+				const partnerContainer = document.createElement("div");
+				partnerContainer.style.flex = "1";
+
+				const partnerSelector = document.createElement("select");
+				partnerSelector.name = question.name + "_2";
+				//partnerSelector.style.width = "120px";
+				partnerSelector.style.padding = "4px 8px";
+				for (let i = min; i <= max; i++) {
+					const option = document.createElement("option");	
+					option.value = i;
+					option.textContent = i;
+					partnerSelector.appendChild(option);
+				}
+				partnerContainer.appendChild(createPartnerLabel());
+				partnerContainer.appendChild(partnerSelector);
+
+				// Add the selector controls to the pair container
+				pairContainer.appendChild(registeredContainer);
+				pairContainer.appendChild(partnerContainer);
+				controls.appendChild(pairContainer);
+			}
+			else {
+				// Small integer input (registered partner) selector control from min to max
+				const selector = document.createElement("select");
+				selector.name = question.name;
+				//selector.style.width = "120px";
+				selector.style.padding = "4px 8px";
+				for (let i = min; i <= max; i++) {
+					const option = document.createElement("option");	
+					option.value = i;
+					option.textContent = i;
+					selector.appendChild(option);
+				}
+				controls.appendChild(selector);
+			}
+			break;
+ 
         case "NUMERIC":
           if (question.pair === "PAIR") {
             // Create container for pair of numeric inputs
@@ -1362,10 +1436,6 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             const registeredContainer = document.createElement("div");
             registeredContainer.style.flex = "1";
 
-            const registeredLabel = document.createElement("label");
-            registeredLabel.textContent = "בן זוג רשום";
-            registeredLabel.className = "question-sub-label";
-
             const registeredInput = document.createElement("input");
             registeredInput.type = "number";
             registeredInput.name = question.name + "_1";
@@ -1376,19 +1446,15 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             const partnerContainer = document.createElement("div");
             partnerContainer.style.flex = "1";
 
-            const partnerLabel = document.createElement("label");
-            partnerLabel.textContent = "בן/בת זוג";
-            partnerLabel.className = "question-sub-label";
-
             const partnerInput = document.createElement("input");
             partnerInput.type = "number";
             partnerInput.name = question.name + "_2";
             partnerInput.style.width = "120px";
             partnerInput.style.padding = "4px 8px";
 
-            registeredContainer.appendChild(registeredLabel);
+            registeredContainer.appendChild(createRegisteredLabel());
             registeredContainer.appendChild(registeredInput);
-            partnerContainer.appendChild(partnerLabel);
+            partnerContainer.appendChild(createPartnerLabel());
             partnerContainer.appendChild(partnerInput);
 
             pairContainer.appendChild(registeredContainer);
@@ -1417,10 +1483,6 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             const dateInput1 = document.createElement("div");
             dateInput1.style.flex = "1";
 
-            const dateLabel1 = document.createElement("label");
-            dateLabel1.textContent = "בן זוג רשום";
-            dateLabel1.className = "question-sub-label";
-
             const input1 = document.createElement("input");
             input1.type = "text";
             input1.placeholder = "dd/MM/yyyy";
@@ -1431,17 +1493,13 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             input1.addEventListener("input", formatDateInput);
             input1.addEventListener("blur", validateDateInput);
 
-            dateInput1.appendChild(dateLabel1);
+            dateInput1.appendChild(createRegisteredLabel());
             dateInput1.appendChild(input1);
             dateContainer.appendChild(dateInput1);
 
             // Second date input (partner)
             const dateInput2 = document.createElement("div");
             dateInput2.style.flex = "1";
-
-            const dateLabel2 = document.createElement("label");
-            dateLabel2.textContent = "בן/בת זוג";
-            dateLabel2.className = "question-sub-label";
 
             const input2 = document.createElement("input");
             input2.type = "text";
@@ -1453,7 +1511,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
             input2.addEventListener("input", formatDateInput);
             input2.addEventListener("blur", validateDateInput);
 
-            dateInput2.appendChild(dateLabel2);
+            dateInput2.appendChild(createPartnerLabel());
             dateInput2.appendChild(input2);
             dateContainer.appendChild(dateInput2);
 
@@ -1497,6 +1555,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         savedAnswer = question.defaultAnswer;
       }
       updateControlFromAnswer(question, savedAnswer, controls);
+
     });
 
     // Add debug logging for the answers map and current year answers
@@ -1550,7 +1609,17 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
                 }
 
                 break;
-
+			case "SMALL_INTEGER":
+				if (isPair) {
+					const registeredPartnerNumField = controls.querySelector(`select[name$="${question.name}_1"]`);
+					const partnerNumField = controls.querySelector(`select[name$="${question.name}_2"]`);
+					answer = `${partnerNumField.value.trim()},${registeredPartnerNumField.value.trim()}`;
+				} else {
+					const numField = controls.querySelector("select");
+					answer = numField.value.trim() || "0";
+				}
+				break;
+	
               case "NUMERIC":
                 if (isPair) {
                   const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
@@ -1626,12 +1695,12 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
 
           if (controls) {
             // Update controls using same logic as initial population
-            //if (savedAnswer) {
-            updateControlFromAnswer(question, savedAnswer, controls);
-            //   } else {
-            //     // Clear controls if no saved answer
-            //     clearControls(controls, question.controlType);
-            //   }
+            if (savedAnswer) {
+              updateControlFromAnswer(question, savedAnswer, controls);
+            } else {
+              // Clear controls if no saved answer
+              clearControls(controls, question.controlType);
+            }
           }
         });
 
@@ -1724,6 +1793,19 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         }
         break;
 
+		case "SMALL_INTEGER":
+			if (isPair) {
+			  const [value1, value2] = answer.split(",", 2);
+			  const selector1 = controls.querySelector(`select[name="${question.name}_1"]`);
+			  const selector2 = controls.querySelector(`select[name="${question.name}_2"]`);
+			  if (selector1) selector1.value = value2 === "0" ? "" : value2;
+			  if (selector2) selector2.value = value1 === "0" ? "" : value1;
+			} else {
+			  const selector = controls.querySelector(`select[name="${question.name}"]`);
+			  if (selector) selector.value = answer === "0" ? "" : answer;
+			}
+			break;
+
       case "NUMERIC":
         if (isPair) {
           const [value1, value2] = answer.split(",", 2);
@@ -1780,6 +1862,9 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
       case "NUMERIC":
         controls.querySelectorAll("input").forEach((input) => (input.value = ""));
         break;
+	  case "SMALL_INTEGER":
+		controls.querySelectorAll("select").forEach((select) => (select.value = ""));
+		break;
       case "CHECKBOX":
         controls.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
         break;
@@ -2075,7 +2160,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Update the questionnaire button click handler
 document.getElementById("questionnaireButton").addEventListener("click", async () => {
-  //const questionnaireContainer = document.getElementById("questionnaireContainer");
   const isCurrentlyActive = questionnaireContainer.classList.contains("active");
 
   if (isCurrentlyActive) {
@@ -2821,9 +2905,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await initializeAuthState();
   //initializeDocumentHovers();
   restoreSelectedDocTypes();
-
-  // Initialize questionnaire state
-  const questionnaireContainer = document.getElementById("questionnaireContainer");
 
   // Pre-fill feedback email if user is logged in
   if (authToken) {
