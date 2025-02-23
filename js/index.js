@@ -2352,7 +2352,7 @@ function addFileToList(fileInfo) {
   } else if (fileInfo.fileName.includes("ידני")) {
     status = null;
     // Add clent name and id number
-    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.identificationNumber}`;
+    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber}`;
   } else {
     status = null;
     statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`;
