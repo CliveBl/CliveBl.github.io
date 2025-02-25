@@ -2068,7 +2068,7 @@
         align-items: center;
         gap: 10px;
         background-color: var(--tax-green);
-        color: white;
+        color: var(--button-text);
         padding: 15px 30px;
         border-radius: 8px;
         text-decoration: none;
@@ -2093,6 +2093,6 @@
         }
       }
 
-      a:visited {
+      a:not(.submit-instructions-button):visited {
         color: var(--link-visited);
       }
