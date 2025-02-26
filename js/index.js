@@ -2607,11 +2607,8 @@ async function calculateTax(fileName) {
     if (requiredTaxCalcQuestionsList.length > 0) {
       // create the questions dialog
       createQuestionnaire(requiredTaxCalcQuestionsList, taxCalcTaxYear);
-      // Scroll to the top of the questionaire section
-      window.scrollTo({
-        top: document.getElementById("questionnaireContainer").offsetTop,
-        behavior: "smooth",
-      });
+      // Scroll to the top of the questionnaire section
+      document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
     } else {
       showLoadingOverlay("מחשב מס...");
 
