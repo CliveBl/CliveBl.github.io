@@ -1056,7 +1056,7 @@ function updateAnswersMapFromControls() {
   debug("Updating answersMap with year: " + selectedYear);
   answersMap.set(selectedYear.toString(), {
     taxYear: selectedYear,
-    answers: yearAnswers,
+    answers: yearAnswers
   });
   // If there is any year with NaN in the answersMap remove it
   for (const [key, value] of answersMap) {
@@ -1647,7 +1647,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         // Update answersMap with previous year's answers
         answersMap.set(currentlySelectedTaxYear.toString(), {
           taxYear: currentlySelectedTaxYear,
-          answers: previousYearAnswers,
+          answers: previousYearAnswers
         });
 
         // Now update controls with selected year's answers
