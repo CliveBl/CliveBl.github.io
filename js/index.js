@@ -562,6 +562,12 @@ function addMessage(text, type = "info", scrollToBottom = true) {
       behavior: "smooth",
     });
   }
+
+  // If the message type is "error", append it to the feedbackMessage in the feedback section
+  if (type === "error") {
+    const feedbackMessage = document.getElementById("feedbackMessage");
+    feedbackMessage.textContent = text;
+  }
 }
 
 let isAnonymousConversion = false;
