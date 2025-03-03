@@ -1,4 +1,4 @@
-const uiVersion = "0.23";
+const uiVersion = "0.24";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -533,7 +533,7 @@ async function uploadFiles(validFiles) {
 }
 
 // Update addMessage function to handle message types
-function addMessage(text, type = "info", scrollToBottom = true) {
+function addMessage(text, type = "info", scrollToMessageSection = true) {
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
   if (type) {
@@ -556,9 +556,9 @@ function addMessage(text, type = "info", scrollToBottom = true) {
   messageContainer.appendChild(messageDiv);
 
   // Scroll to the bottom of the page if type is not "success" or "info"
-  if (type !== "success" && type !== "info" && scrollToBottom) {
+  if (type !== "success" && type !== "info" && scrollToMessageSection) {
     window.scrollTo({
-      top: document.body.scrollHeight,
+      top: document.getElementById("messageContainer").offsetTop,
       behavior: "smooth",
     });
   }
@@ -566,7 +566,8 @@ function addMessage(text, type = "info", scrollToBottom = true) {
   // If the message type is "error", append it to the feedbackMessage in the feedback section
   if (type === "error") {
     const feedbackMessage = document.getElementById("feedbackMessage");
-    feedbackMessage.textContent = text;
+    const timestamp = new Date().toLocaleTimeString();
+    feedbackMessage.textContent = `${timestamp}: ${text}`;
   }
 }
 
@@ -683,7 +684,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
       // Handle signin
       await loadExistingFiles(); // Load files with new token
-      await loadResults();
+	  // Dont scroll
+      await loadResults(false);
     }
     //addMessage("התחברת בהצלחה!");
     document.getElementById("loginOverlay").classList.remove("active");
@@ -705,8 +707,7 @@ document.querySelector(".github-login").addEventListener("click", () => {
   debug("GitHub login clicked");
 });
 
-// Add these functions before the window load event listener
-async function loadResults() {
+async function loadResults(scrollToMessageSection = true) {
   try {
     const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=Default`, {
       method: "GET",
@@ -733,13 +734,13 @@ async function loadResults() {
       if (result.messages) {
         // Handle fatal error if present
         if (result.messages.fatalProcessingError) {
-          addMessage("שגיאה קריטית: " + result.messages.fatalProcessingError, "error");
+          addMessage("שגיאה קריטית: " + result.messages.fatalProcessingError, "error", scrollToMessageSection);
         }
 
         // Handle warnings if present
         if (result.messages.processingWarnings && result.messages.processingWarnings.length > 0) {
           result.messages.processingWarnings.forEach((warning) => {
-            addMessage("אזהרה: " + warning, "warning");
+            addMessage("אזהרה: " + warning, "warning", scrollToMessageSection);
           });
         }
       }
