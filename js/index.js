@@ -661,7 +661,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         }
       }
       // Show verification message and close login dialog
-      addMessage("נרשמת בהצלחה! אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.", "success");
+      showInfoModal("נרשמת בהצלחה! אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.");
       document.getElementById("loginOverlay").classList.remove("active");
 
       // Clear the form
@@ -3207,14 +3207,44 @@ async function convertAnonymousAccount(email, password, fullName) {
   signOut();
   updateSignInUI();
 }
+// General warning modal function that returns a promise
+function showInfoModal(message) {
+	return new Promise((resolve) => {
+	  const infoMessage = document.getElementById("infoMessage");
+	  infoMessage.textContent = message;
 
+	  const modal = document.getElementById("generalInfoModal");
+	  modal.style.display = "block";
+  
+	  // Handle close button
+	  modal.querySelector(".close-button").onclick = () => {
+		modal.style.display = "none";
+		resolve(false);
+	  };
+  
+	  // Handle confirm button
+	  modal.querySelector(".confirm-button").onclick = () => {
+		modal.style.display = "none";
+		resolve(true);
+	  };
+  
+	  // Close if clicking outside
+	  window.onclick = (event) => {
+		if (event.target === modal) {
+		  modal.style.display = "none";
+		  resolve(false);
+		}
+	  };
+	});
+	}
 // General warning modal function that returns a promise
 function showWarningModal(message) {
   return new Promise((resolve) => {
-    const modal = document.getElementById("generalWarningModal");
-    const warningMessage = document.getElementById("warningMessage");
+     const warningMessage = document.getElementById("warningMessage");
     warningMessage.textContent = message;
-    modal.style.display = "block";
+
+	const modal = document.getElementById("generalWarningModal");
+   modal.style.display = "block";
 
     // Handle close button
     modal.querySelector(".close-button").onclick = () => {
