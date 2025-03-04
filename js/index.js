@@ -1,4 +1,4 @@
-const uiVersion = "0.24";
+const uiVersion = "0.25";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -1039,13 +1039,16 @@ function updateAnswersMapFromControls() {
         break;
 
       case "RADIO":
-        // The value can be none or one of two values in the tooltip separated by a colon
-        // We need to calculate the answer based on the radio buttons
-        // Get the radio buttons by index
-        const yesButton = controls.querySelectorAll('input[type="radio"]')[0];
-        const noButton = controls.querySelectorAll('input[type="radio"]')[1];
+        // The value can be none or one of multiple values in the tooltip separated by a colon
+        // We need to calculate the answer which is one of the multiplebased on the radio buttons
+        // Get the radio buttons by question.name	
+		const radioButtons = controls.querySelectorAll(`input[name="${questionName}"]`);
+		// Get the value of the checked radio button if one is checked
+		const checkedRadioButton = Array.from(radioButtons).find(radio => radio.checked);
+		// Get the value of the checked radio button
+		const checkedRadioButtonValue = checkedRadioButton ? checkedRadioButton.value : "none";
         // Answer is the value of the checked radio button or none
-        answer = yesButton.checked ? yesButton.value : noButton.checked ? noButton.value : "none";
+        answer = checkedRadioButtonValue;
         break;
     }
 
@@ -1635,14 +1638,17 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
                 break;
 
               case "RADIO":
-                // The value can be none or one of two values in the tooltip separated by a colon
-                // We need to calculate the answer based on the radio buttons
-                const options = question.tooltip.split(":", 2);
-                const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
-                const noButton = controls.querySelector(`input[value="${options[1]}"]`);
-                // Check the correct radio button
-                answer = yesButton.checked ? options[0] : noButton.checked ? options[1] : "none";
-                break;
+				// The value can be none or one of multiple values in the tooltip separated by a colon
+				// We need to calculate the answer which is one of the multiplebased on the radio buttons
+				// Get the radio buttons by question.name
+				const radioButtons = controls.querySelectorAll(`input[name="${question.name}"]`);
+				// Get the value of the checked radio button if one is checked
+				const checkedRadioButton = Array.from(radioButtons).find(radio => radio.checked);
+				// Get the value of the checked radio button
+				const checkedRadioButtonValue = checkedRadioButton ? checkedRadioButton.value : "none";
+				// Answer is the value of the checked radio button or none
+				answer = checkedRadioButtonValue;
+				break;
             }
 
             // Only add the answer if it is not the default answer
@@ -1814,16 +1820,19 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         break;
 
       case "RADIO":
-        // The value can be none or one of two values in the tooltip separated by a colon
-        // We need to check if the value is one of the two values or none
-        const options = question.tooltip.split(":", 2);
-        const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
-        const noButton = controls.querySelector(`input[value="${options[1]}"]`);
-        // Clear the radio buttons
-        controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
-        // Check the correct radio button
-        if (yesButton) yesButton.checked = answer === options[0];
-        if (noButton) noButton.checked = answer === options[1];
+		// Check the radio button according to the answer.
+		// The value can be none or one of multiple values in the tooltip separated by a colon
+		// We need to calculate the answer which is one of the multiplebased on the radio buttons
+		// Get the radio buttons by question name
+		const radioButtons = controls.querySelectorAll(`input[name="${question.name}"]`);
+        // Check the correct radio button according to the answer
+        radioButtons.forEach((radio) => {
+          if (radio.value === answer) {
+            radio.checked = true;
+          } else {
+            radio.checked = false;
+          }
+        });
         break;
     }
   }
