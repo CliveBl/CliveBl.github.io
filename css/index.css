@@ -344,7 +344,7 @@
       }
 
       .fileNameElement {
-        white-space: nowrap;
+        /* white-space: nowrap; */
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: calc(100% - 80px); /* Account for icons and buttons */

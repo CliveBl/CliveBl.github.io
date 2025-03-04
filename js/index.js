@@ -2593,9 +2593,9 @@ function addFileToList(fileInfo) {
     }
   });
 
-  li.appendChild(fileInfoElement);
   li.appendChild(editButton);
   li.appendChild(deleteButton);
+  li.appendChild(fileInfoElement);
   fileList.appendChild(li);
 }
 
