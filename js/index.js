@@ -1,4 +1,4 @@
-const uiVersion = "0.28";
+const uiVersion = "0.29";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -245,35 +245,6 @@ window.addEventListener("load", async () => {
     document.getElementById("cookieConsent").classList.add("active");
   }
 
-  try {
-    // If we have a token, try to use it
-    debug("load");
-    // initializeDocumentIcons();
-    // if (authExpiration) {
-    //   await loadExistingFiles();
-    //   await loadResults();
-    //   debug("Successfully loaded files and results with existing token");
-    // } else {
-    //   // No token, sign in anonymously
-    //   debug("No token found, signing in anonymously");
-    //   //await signInAnonymous();
-
-    //   //await loadExistingFiles();
-    //   //await loadResults();
-    // }
-    // Load stored tax results
-    //   loadStoredTaxCalculation();
-  } catch (error) {
-    debug("Error during initialization:", error);
-    // If loading files failed, try anonymous sign in
-    if (error.message.includes("Invalid token")) {
-      // debug("Token invalid, signing in anonymously");
-      // await signInAnonymous();
-      // await loadExistingFiles();
-      // await loadResults();
-      // loadStoredTaxCalculation();
-    }
-  }
 });
 
 // Add this helper function at the start of your script
@@ -2396,14 +2367,6 @@ function addFileToList(fileInfo) {
       debug("Edit clicked for file:", fileId);
       // Get the entry that from the latestFileInfoList with the same fileId
       const formJson = latestFileInfoList.find((file) => file.fileId === fileId);
-      // Collect all field values from the accordion content
-      // accordionContent.querySelectorAll('div').forEach(div => {
-      //     const text = div.textContent;
-      //     const [key, value] = text.split(':').map(s => s.trim());
-      //     if (key && value) {
-      //         formJson[key.replace('<strong>', '').replace('</strong>', '')] = value;
-      //     }
-      // });
 
       const response = await fetch(`${API_BASE_URL}/updateForm`, {
         method: "POST",
@@ -2511,11 +2474,6 @@ async function calculateTax(fileName) {
     debug("calculateTax", fileName);
     // Extract <name>_<year>.dat
     const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
-    // Check if required questions have been answered by iterating over the answersMap
-    // for taxCalcTaxYear and checking if the answers that exists in the json are not the same
-    // as the default values found in the cachedQuestions.
-    // If any required question is not answered then add a message.
-    //const answersMap = JSON.parse(localStorage.getItem('answersMap'));
     // Get questions from cache or fetch if not cached
     await getAnswersMap();
 
@@ -2571,11 +2529,16 @@ async function calculateTax(fileName) {
   }
 }
 
-function getRequiredQuestions(taxCalcTaxYear, requiredType) {
+// Return a list of required questions for the requiredType.
+// Check if required questions have been answered by iterating over the answersMap
+// for taxYear and checking if the answers that exists in the json are not the same
+// as the default values found in the cachedQuestions.
+// If any required question is not answered then add a message.
+function getRequiredQuestions(taxYear, requiredType) {
   const requiredQuestions = configurationData.questionList.filter((question) => question[requiredType] === "REQUIRED");
   let requiredQuestionsList = [];
 
-  const yearAnswers = answersMap.get(taxCalcTaxYear);
+  const yearAnswers = answersMap.get(taxYear);
   const currentYearAnswers = yearAnswers?.answers || {};
   // Check unanswered questions by comparing to the default values.
   requiredQuestions.forEach((question) => {
