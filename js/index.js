@@ -1,4 +1,4 @@
-const uiVersion = "0.25";
+const uiVersion = "0.27";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -2386,12 +2386,16 @@ function addFileToList(fileInfo) {
       statusIcon = "❌";
       break;
     default:
-      statusIcon = documentIcons[fileInfo.documentType] || "📋";
+      statusIcon = null; //documentIcons[fileInfo.documentType] || "📋";
   }
 
   const fileNameElement = document.createElement("span");
-  fileNameElement.textContent = fileName.path || fileName.name + " " + statusIcon;
   fileNameElement.className = "fileNameElement";
+
+  fileNameElement.textContent = fileName.path || fileName.name;
+  if(statusIcon) {
+    fileNameElement.textContent = fileNameElement.textContent + " " + statusIcon;
+  }
   // Add expand/collapse indicator
   const expandIcon = document.createElement("span");
   expandIcon.textContent = "▼";
@@ -2593,9 +2597,9 @@ function addFileToList(fileInfo) {
     }
   });
 
+  li.appendChild(fileInfoElement);
   li.appendChild(editButton);
   li.appendChild(deleteButton);
-  li.appendChild(fileInfoElement);
   fileList.appendChild(li);
 }
 
