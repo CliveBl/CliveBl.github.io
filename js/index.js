@@ -1,4 +1,4 @@
-const uiVersion = "0.27";
+const uiVersion = "0.28";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -83,7 +83,6 @@ const cookieUtils = {
     document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/;Secure;SameSite=Strict";
   },
 };
-
 
 async function signInAnonymous() {
   try {
@@ -177,7 +176,7 @@ function signOut() {
   fetch(`${API_BASE_URL}/signOut`, {
     method: "POST",
     credentials: "include",
-  });	
+  });
 
   // Update UI to show logged out state
   updateSignInUI();
@@ -684,7 +683,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
       // Handle signin
       await loadExistingFiles(); // Load files with new token
-	  // Dont scroll
+      // Dont scroll
       await loadResults(false);
     }
     //addMessage("התחברת בהצלחה!");
@@ -949,18 +948,26 @@ function getChildrenModal() {
   return childrenModalId;
 }
 
-function updateAnswersMapFromControls() {
-  debug("updateAnswersMapFromControls");
-  const selectedYear = parseInt(document.getElementById("taxYear").value);
+function getAnswerFromChildrenControls() {
+  const childrenModal = document.getElementById(getChildrenModal());
+  // Get the values of the input fields into a string of pairs separated by commas
+  // The pairs are of the form <code>:<value>
+  let childrenData = "";
+  childrenModal.querySelectorAll("input[data-code]").forEach((input) => {
+    childrenData += input.dataset.code + ":" + input.value + ",";
+  });
+  //debug("childrenData:", childrenData);
+  return childrenData;
+}
+
+function getAnswersFromControls() {
   const yearAnswers = {};
 
-  // Get all question groups
-  const questionGroups = questionnaireForm.querySelectorAll(".question-group");
-
   // First collect all answers for current year
-  questionGroups.forEach((group) => {
-    const controls = group.querySelector(".question-controls");
-    const questionName = group.getAttribute("data-question");
+  const questions = configurationData.questionList;
+  questions.forEach((question) => {
+    const controls = questionnaireForm.querySelector(`.question-group[data-question="${question.name}"] .question-controls`);
+    const questionName = question.name;
 
     // Get control type from data attribute
     const controlType = controls.getAttribute("data-control-type");
@@ -979,7 +986,7 @@ function updateAnswersMapFromControls() {
           const partnerIdField = controls.querySelector(`input[name$="${questionName}_2"]`);
           answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
         } else {
-          const idField = controls.querySelector("input");
+          const idField = controls.querySelector(`input[name="${questionName}"]`);
           answer = idField.value.trim();
         }
         break;
@@ -990,7 +997,7 @@ function updateAnswersMapFromControls() {
           const partnerDateField = controls.querySelector(`input[name$="${questionName}_2"]`);
           answer = `${partnerDateField.value.trim()},${registeredPartnerDateField.value.trim()}`;
         } else {
-          const dateField = controls.querySelector("input");
+          const dateField = controls.querySelector(`input[name="${questionName}"]`);
           answer = dateField.value.trim();
         }
         break;
@@ -1001,7 +1008,7 @@ function updateAnswersMapFromControls() {
           const partnerNumField = controls.querySelector(`select[name$="${questionName}_2"]`);
           answer = `${partnerNumField.value.trim()},${registeredPartnerNumField.value.trim()}`;
         } else {
-          const numField = controls.querySelector("select");
+          const numField = controls.querySelector(`select[name="${questionName}"]`);
           answer = numField.value.trim() || "0";
         }
         break;
@@ -1014,7 +1021,7 @@ function updateAnswersMapFromControls() {
           const value2 = registeredPartnerNumField.value.trim() || "0";
           answer = `${value1},${value2}`;
         } else {
-          const numField = controls.querySelector("input");
+          const numField = controls.querySelector(`input[name="${questionName}"]`);
           answer = numField.value.trim() || "0";
         }
         break;
@@ -1033,7 +1040,7 @@ function updateAnswersMapFromControls() {
             answer = "none";
           }
         } else {
-          const checkbox = controls.querySelector("input");
+          const checkbox = controls.querySelector(`input[name="${questionName}"]`);
           answer = checkbox.checked ? "registeredPartner" : "none";
         }
         break;
@@ -1041,32 +1048,38 @@ function updateAnswersMapFromControls() {
       case "RADIO":
         // The value can be none or one of multiple values in the tooltip separated by a colon
         // We need to calculate the answer which is one of the multiplebased on the radio buttons
-        // Get the radio buttons by question.name	
-		const radioButtons = controls.querySelectorAll(`input[name="${questionName}"]`);
-		// Get the value of the checked radio button if one is checked
-		const checkedRadioButton = Array.from(radioButtons).find(radio => radio.checked);
-		// Get the value of the checked radio button
-		const checkedRadioButtonValue = checkedRadioButton ? checkedRadioButton.value : "none";
+        // Get the radio buttons by question.name
+        const radioButtons = controls.querySelectorAll(`input[name="${questionName}"]`);
+        // Get the value of the checked radio button if one is checked
+        const checkedRadioButton = Array.from(radioButtons).find((radio) => radio.checked);
+        // Get the value of the checked radio button
+        const checkedRadioButtonValue = checkedRadioButton ? checkedRadioButton.value : "none";
         // Answer is the value of the checked radio button or none
         answer = checkedRadioButtonValue;
         break;
     }
 
-    // Get question from cache
-    const question = configurationData.questionList.find((q) => q.name === questionName);
     // Add the answer only if it is different from the default answer.
-    if (answer !== question.defaultAnswer) {
+    if (question.defaultAnswer !== answer) {
       yearAnswers[questionName] = answer;
     } else {
       delete yearAnswers[questionName];
     }
   });
+  return yearAnswers;
+}
+
+function updateAnswersMapFromControls() {
+  debug("updateAnswersMapFromControls");
+  const selectedYear = parseInt(document.getElementById("taxYear").value);
+
+  const yearAnswers = getAnswersFromControls();
 
   // Update the Map with the current year's answers
   debug("Updating answersMap with year: " + selectedYear);
   answersMap.set(selectedYear.toString(), {
     taxYear: selectedYear,
-    answers: yearAnswers
+    answers: yearAnswers,
   });
   // If there is any year with NaN in the answersMap remove it
   for (const [key, value] of answersMap) {
@@ -1078,18 +1091,6 @@ function updateAnswersMapFromControls() {
     }
   }
 } // updateAnswersMapFromControls
-
-function getAnswerFromChildrenControls() {
-  const childrenModal = document.getElementById(getChildrenModal());
-  // Get the values of the input fields into a string of pairs separated by commas
-  // The pairs are of the form <code>:<value>
-  let childrenData = "";
-  childrenModal.querySelectorAll("input[data-code]").forEach((input) => {
-    childrenData += input.dataset.code + ":" + input.value + ",";
-  });
-  //debug("childrenData:", childrenData);
-  return childrenData;
-}
 
 async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
   try {
@@ -1554,113 +1555,12 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
       // If the selected year is different from the currently selected year
       if (selectedYear !== currentlySelectedTaxYear) {
         // First save current year's answers to the answersMap
-        const previousYearAnswers = {};
+        const previousYearAnswers = getAnswersFromControls();
 
-        //const questionnaireForm = document.getElementById("questionnaireForm");
-        const questions = configurationData.questionList;
-        questions.forEach((question) => {
-          const controls = questionnaireForm.querySelector(`.question-group[data-question="${question.name}"] .question-controls`);
-
-          if (controls) {
-            const controlType = controls.getAttribute("data-control-type");
-            const isPair = controls.getAttribute("data-is-pair") === "true";
-
-            let answer = "";
-
-            // Get answer from controls using the same logic as form submission
-            switch (controlType) {
-              case "CHILDREN":
-                answer = getAnswerFromChildrenControls();
-                break;
-              case "ID":
-                if (isPair) {
-                  const registeredPartnerIdField = controls.querySelector(`input[name="${question.name}_1"]`);
-                  const partnerIdField = controls.querySelector(`input[name="${question.name}_2"]`);
-                  answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
-                } else {
-                  const input = controls.querySelector(`input[name="${question.name}"]`);
-                  answer = input.value.trim();
-                }
-                break;
-
-              case "DATE":
-                if (isPair) {
-                  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                  answer = `${input2.value.trim()},${input1.value.trim()}`;
-                } else {
-                  const input = controls.querySelector(`input[name="${question.name}"]`);
-                  answer = input.value.trim();
-                }
-
-                break;
-              case "SMALL_INTEGER":
-                if (isPair) {
-                  const registeredPartnerNumField = controls.querySelector(`select[name$="${question.name}_1"]`);
-                  const partnerNumField = controls.querySelector(`select[name$="${question.name}_2"]`);
-                  answer = `${partnerNumField.value.trim()},${registeredPartnerNumField.value.trim()}`;
-                } else {
-                  const numField = controls.querySelector("select");
-                  answer = numField.value.trim() || "0";
-                }
-                break;
-
-              case "NUMERIC":
-                if (isPair) {
-                  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                  const value1 = input1.value.trim() || "0";
-                  const value2 = input2.value.trim() || "0";
-                  answer = `${value2},${value1}`;
-                } else {
-                  const input = controls.querySelector(`input[name="${question.name}"]`);
-                  answer = input.value.trim() || "0";
-                }
-                break;
-
-              case "CHECKBOX":
-                if (isPair) {
-                  const partnerCheckbox = controls.querySelector(`input[name="${question.name}_1"]`);
-                  const registeredPartnerCheckbox = controls.querySelector(`input[name="${question.name}_2"]`);
-                  if (registeredPartnerCheckbox.checked && partnerCheckbox.checked) {
-                    answer = "both";
-                  } else if (registeredPartnerCheckbox.checked) {
-                    answer = "registeredPartner";
-                  } else if (partnerCheckbox.checked) {
-                    answer = "partner";
-                  } else {
-                    answer = "none";
-                  }
-                } else {
-                  const checkbox = controls.querySelector(`input[name="${question.name}"]`);
-                  answer = checkbox.checked ? "registeredPartner" : "none";
-                }
-                break;
-
-              case "RADIO":
-				// The value can be none or one of multiple values in the tooltip separated by a colon
-				// We need to calculate the answer which is one of the multiplebased on the radio buttons
-				// Get the radio buttons by question.name
-				const radioButtons = controls.querySelectorAll(`input[name="${question.name}"]`);
-				// Get the value of the checked radio button if one is checked
-				const checkedRadioButton = Array.from(radioButtons).find(radio => radio.checked);
-				// Get the value of the checked radio button
-				const checkedRadioButtonValue = checkedRadioButton ? checkedRadioButton.value : "none";
-				// Answer is the value of the checked radio button or none
-				answer = checkedRadioButtonValue;
-				break;
-            }
-
-            // Only add the answer if it is not the default answer
-            if (question.defaultAnswer !== answer) {
-              previousYearAnswers[question.name] = answer;
-            }
-          }
-        });
         // Update answersMap with previous year's answers
         answersMap.set(currentlySelectedTaxYear.toString(), {
           taxYear: currentlySelectedTaxYear,
-          answers: previousYearAnswers
+          answers: previousYearAnswers,
         });
 
         // Now update controls with selected year's answers
@@ -1820,11 +1720,11 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         break;
 
       case "RADIO":
-		// Check the radio button according to the answer.
-		// The value can be none or one of multiple values in the tooltip separated by a colon
-		// We need to calculate the answer which is one of the multiplebased on the radio buttons
-		// Get the radio buttons by question name
-		const radioButtons = controls.querySelectorAll(`input[name="${question.name}"]`);
+        // Check the radio button according to the answer.
+        // The value can be none or one of multiple values in the tooltip separated by a colon
+        // We need to calculate the answer which is one of the multiplebased on the radio buttons
+        // Get the radio buttons by question name
+        const radioButtons = controls.querySelectorAll(`input[name="${question.name}"]`);
         // Check the correct radio button according to the answer
         radioButtons.forEach((radio) => {
           if (radio.value === answer) {
@@ -2393,7 +2293,7 @@ function addFileToList(fileInfo) {
   fileNameElement.className = "fileNameElement";
 
   fileNameElement.textContent = fileName.path || fileName.name;
-  if(statusIcon) {
+  if (statusIcon) {
     fileNameElement.textContent = fileNameElement.textContent + " " + statusIcon;
   }
   // Add expand/collapse indicator
@@ -2859,7 +2759,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     authExpiration = false;
     userEmailValue = "";
-	versionNumber.textContent = `גרסה ${uiVersion}`;
+    versionNumber.textContent = `גרסה ${uiVersion}`;
 
     const response = await fetch(`${API_BASE_URL}/getBasicInfo`, {
       method: "GET",
@@ -2870,16 +2770,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       ...fetchConfig,
     });
     if (response.ok) {
-		const json = await response.json();
-		versionNumber.textContent = `גרסה ${json.productVersion} ${uiVersion}`;
-		userEmailValue = json.userEmail;
-		authExpiration = true;
+      const json = await response.json();
+      versionNumber.textContent = `גרסה ${json.productVersion} ${uiVersion}`;
+      userEmailValue = json.userEmail;
+      authExpiration = true;
 
-		initializeDocumentIcons();
-		await loadExistingFiles();
-		await loadResults();
-		debug("Successfully loaded files and results with existing token");
-	  }
+      initializeDocumentIcons();
+      await loadExistingFiles();
+      await loadResults();
+      debug("Successfully loaded files and results with existing token");
+    }
   } catch (error) {
     console.error("Exception fetching Basic Info:", error);
   }
@@ -3113,7 +3013,7 @@ function setupChildrenModalInputs() {
 
 // Add this function to update missing document counts
 function updateMissingDocuments() {
-	debug("updateMissingDocuments");
+  debug("updateMissingDocuments");
   // Get all documents from file list
   const fileListDocs = Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));
 
@@ -3222,42 +3122,42 @@ async function convertAnonymousAccount(email, password, fullName) {
 }
 // General warning modal function that returns a promise
 function showInfoModal(message) {
-	return new Promise((resolve) => {
-	  const infoMessage = document.getElementById("infoMessage");
-	  infoMessage.textContent = message;
+  return new Promise((resolve) => {
+    const infoMessage = document.getElementById("infoMessage");
+    infoMessage.textContent = message;
 
-	  const modal = document.getElementById("generalInfoModal");
-	  modal.style.display = "block";
-  
-	  // Handle close button
-	  modal.querySelector(".close-button").onclick = () => {
-		modal.style.display = "none";
-		resolve(false);
-	  };
-  
-	  // Handle confirm button
-	  modal.querySelector(".confirm-button").onclick = () => {
-		modal.style.display = "none";
-		resolve(true);
-	  };
-  
-	  // Close if clicking outside
-	  window.onclick = (event) => {
-		if (event.target === modal) {
-		  modal.style.display = "none";
-		  resolve(false);
-		}
-	  };
-	});
-	}
+    const modal = document.getElementById("generalInfoModal");
+    modal.style.display = "block";
+
+    // Handle close button
+    modal.querySelector(".close-button").onclick = () => {
+      modal.style.display = "none";
+      resolve(false);
+    };
+
+    // Handle confirm button
+    modal.querySelector(".confirm-button").onclick = () => {
+      modal.style.display = "none";
+      resolve(true);
+    };
+
+    // Close if clicking outside
+    window.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+        resolve(false);
+      }
+    };
+  });
+}
 // General warning modal function that returns a promise
 function showWarningModal(message) {
   return new Promise((resolve) => {
-     const warningMessage = document.getElementById("warningMessage");
+    const warningMessage = document.getElementById("warningMessage");
     warningMessage.textContent = message;
 
-	const modal = document.getElementById("generalWarningModal");
-   modal.style.display = "block";
+    const modal = document.getElementById("generalWarningModal");
+    modal.style.display = "block";
 
     // Handle close button
     modal.querySelector(".close-button").onclick = () => {
