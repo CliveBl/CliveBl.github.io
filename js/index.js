@@ -1,4 +1,4 @@
-const uiVersion = "0.29";
+const uiVersion = "0.30";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -2740,7 +2740,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       initializeDocumentIcons();
       await loadExistingFiles();
-      await loadResults();
+      await loadResults(false); // Dont scroll
       debug("Successfully loaded files and results with existing token");
     }
   } catch (error) {
