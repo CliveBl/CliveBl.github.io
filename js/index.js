@@ -1,4 +1,4 @@
-const uiVersion = "0.30";
+const uiVersion = "0.31";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -249,7 +249,7 @@ window.addEventListener("load", async () => {
 
 // Add this helper function at the start of your script
 function isValidFileType(file) {
-  const validTypes = ["application/pdf", "image/jpeg", "image/jpg"];
+  const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/gif", "image/tiff", "image/bmp", "image/png"];
   if (!validTypes.includes(file.type)) {
     return {
       valid: false,
@@ -491,7 +491,13 @@ async function uploadFiles(validFiles) {
         ...fetchConfig,
       });
 
-      const fileInfoList = await response.json();
+	  const errorData = await response.json();
+	  if(!response.ok)
+	  {
+		throw new Error("שגיאה בהעלאת הקובץ: " + errorData.description);
+	  }
+      const fileInfoList = errorData;
+
       debug("Upload response:", fileInfoList);
       updateFileList(fileInfoList);
     } catch (error) {
