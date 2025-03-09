@@ -132,11 +132,8 @@
       }
       /* Delete button styling */
       .delete-button {
-        background-color: #e74c3c;
-        color: var(--button-text);
+        background: transparent;
         border: none;
-        padding: 4px;
-        border-radius: 3px;
         cursor: pointer;
         font-size: 14px;
         display: flex;
@@ -1677,8 +1674,7 @@
       }
 
       .edit-button {
-        background-color: var(--tax-blue);
-        color: var(--button-text);
+        background: transparent;
         border: none;
         padding: 4px;
         border-radius: 3px;
