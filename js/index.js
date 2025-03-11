@@ -448,7 +448,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
     // Upload files one by one
     await uploadFiles(validFiles);
   } catch (error) {
-    console.error("Authentication failed:", error);
+    console.error("UploadFile failed:", error);
     addMessage("שגיאה באימות: " + error.message, "error");
   } finally {
     // Restore button text
@@ -502,9 +502,12 @@ async function uploadFiles(validFiles) {
       updateFileList(fileInfoList);
     } catch (error) {
       console.error("Upload failed:", error);
+	  clearMessages();
       addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
+	  return;
     }
   }
+  clearMessages();
   addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
 }
 
@@ -2233,10 +2236,10 @@ function addFileToList(fileInfo) {
   } else if (fileInfo.fileName.includes("ידני")) {
     status = null;
     // Add clent name and id number
-    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber}`;
+    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber} ${fileInfo.note ? ` (${fileInfo.note})` : ''}`;
   } else {
     status = null;
-    statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`;
+    statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}${fileInfo.note ? ` (${fileInfo.note})` : ''}`;
   }
 
   const li = document.createElement("li");
@@ -2294,7 +2297,7 @@ function addFileToList(fileInfo) {
   accordionContent.className = "accordion-content";
 
   // Add all fileInfo fields that aren't already displayed
-  const excludedFields = ["fileName", "type", "fileId", "matchTag"];
+  const excludedFields = ["fileName", "type", "fileId", "matchTag", "note"];
   Object.entries(fileInfo).forEach(([key, value]) => {
     //if (!excludedFields.includes(key) && value !== null) {
     if (!excludedFields.includes(key)) {
@@ -2394,7 +2397,8 @@ function addFileToList(fileInfo) {
 
       const fileInfoList = await response.json();
       updateFileList(fileInfoList);
-      addMessage("הטופס עודכן בהצלחה", "success");
+	  clearMessages();
+      addMessage(`הטופס ${formJson.fileName} עודכן בהצלחה`, "success");
     } catch (error) {
       console.error("Edit failed:", error);
       addMessage("שגיאה בעריכת הקובץ: " + error.message, "error");
