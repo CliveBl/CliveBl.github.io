@@ -1,4 +1,8 @@
-const uiVersion = "0.31";
+// Import image utilities
+import { convertImageToBWAndResize } from './imageUtils.js';
+import { cookieUtils } from './cookieUtils.js';
+
+const uiVersion = "0.34";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -59,30 +63,6 @@ const googleButtonText = document.getElementById("googleButtonText");
 const githubButtonText = document.getElementById("githubButtonText");
 const userEmail = document.getElementById("userEmail");
 
-// Add these cookie utility functions at the start of your script
-const cookieUtils = {
-  set: function (name, value, days = 7) {
-    const d = new Date();
-    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-    const expires = "expires=" + d.toUTCString();
-    document.cookie = name + "=" + value + ";" + expires + ";path=/;Secure;SameSite=Strict";
-  },
-
-  get: function (name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(";");
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) === " ") c = c.substring(1, c.length);
-      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-  },
-
-  delete: function (name) {
-    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/;Secure;SameSite=Strict";
-  },
-};
 
 async function signInAnonymous() {
   try {
@@ -208,11 +188,9 @@ async function loadExistingFiles() {
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Load existing files failed")) {
+		return;
+	}
 
     const fileInfoList = await response.json();
     updateFileList(fileInfoList);
@@ -249,11 +227,11 @@ window.addEventListener("load", async () => {
 
 // Add this helper function at the start of your script
 function isValidFileType(file) {
-  const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/gif", "image/tiff", "image/bmp", "image/png"];
+  const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/gif", "image/bmp", "image/png"];
   if (!validTypes.includes(file.type)) {
     return {
       valid: false,
-      message: `סוג קובץ לא נתמך - רק קבצי PDF או JPG מותרים. שם הקובץ: ${file.name} (${file.webkitRelativePath})`,
+      message: `סוג קובץ לא נתמך - רק קבצי PDF ,JPG ,GIF ,BMP ,PNG מותרים. שם הקובץ: ${file.name} (${file.webkitRelativePath})`,
     };
   }
   return { valid: true };
@@ -288,6 +266,8 @@ function updateProcessButton() {
 
 // File upload handler
 fileInput.addEventListener("change", async () => {
+	clearMessages();
+
   // Filter out invalid files first
   const files = Array.from(fileInput.files);
   const validFiles = files.filter((file) => {
@@ -308,6 +288,8 @@ fileInput.addEventListener("change", async () => {
 
 // Folder upload handler. Always use individual uploads
 folderInput.addEventListener("change", async () => {
+	clearMessages();
+
   const files = Array.from(folderInput.files);
 
   // Sort and filter files
@@ -389,11 +371,9 @@ processButton.addEventListener("click", async () => {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        debug(errorData);
-        throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-      }
+	  if(!handleResponse(response, "Process files failed")) {
+		return;
+	  }
 
       const result = await response.json();
       debug("Processing response:", result);
@@ -468,10 +448,20 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
 }
 
 async function uploadFiles(validFiles) {
+ 
   for (const file of validFiles) {
     try {
+	  let newFile = file;
+	  if(file.type.startsWith("image/")) {	
+		try {
+			newFile = await convertImageToBWAndResize(file);
+		} catch (error) {
+			addMessage("שגיאה בעיבוד התמונה: " + file.name + " " + error.message, "error");
+			continue;
+		}
+	  }
       const formData = new FormData();
-      formData.append("file", file);
+	  formData.append("file", newFile);
 
       const metadata = {
         customerDataEntryName: "Default",
@@ -491,13 +481,11 @@ async function uploadFiles(validFiles) {
         ...fetchConfig,
       });
 
-	  const errorData = await response.json();
-	  if(!response.ok)
-	  {
-		throw new Error("שגיאה בהעלאת הקובץ: " + errorData.description);
+	  if(!handleResponse(response, "Upload file failed")) {
+		return;
 	  }
-      const fileInfoList = errorData;
 
+	  const fileInfoList = await response.json();
       debug("Upload response:", fileInfoList);
       updateFileList(fileInfoList);
     } catch (error) {
@@ -507,7 +495,6 @@ async function uploadFiles(validFiles) {
 	  return;
     }
   }
-  clearMessages();
   addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
 }
 
@@ -697,11 +684,9 @@ async function loadResults(scrollToMessageSection = true) {
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Load results failed")) {
+		return;
+	}
 
     const results = await response.json();
 
@@ -794,7 +779,7 @@ function displayResults(results) {
       fileDescription.textContent = descriptionFromFileName(result.file.fileName);
 
       // Add file icon based on extension
-      fileIcon = document.createElement("i");
+      const fileIcon = document.createElement("i");
       const extension = result.file.fileName.split(".").pop().toLowerCase();
       switch (extension) {
         case "pdf":
@@ -862,11 +847,9 @@ async function downloadResult(fileName) {
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`Download failed: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Download result failed")) {
+		return;
+	}
 
     // Create blob from response
     const blob = await response.blob();
@@ -1791,11 +1774,9 @@ deleteAllButton.addEventListener("click", async () => {
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Delete all files failed")) {
+		return;
+	}
 
     removeFileList();
     updateDeleteAllButton();
@@ -2102,11 +2083,9 @@ questionnaireForm.addEventListener("submit", async (e) => {
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Save answers failed")) {
+		return;
+	}
 
     // Close the questionnaire dialog
     hideQuestionaire();
@@ -2181,9 +2160,9 @@ async function getAnswersMap() {
       ...fetchConfig,
     });
 
-    if (!answersResponse.ok) {
-      throw new Error(`HTTP error! status: ${answersResponse.status}`);
-    }
+	if(!handleResponse(answersResponse, "Get answers failed")) {
+		return;
+	}
 
     const answersData = await answersResponse.json();
     answersMap = new Map(Object.entries(answersData));
@@ -2206,11 +2185,10 @@ async function loadConfiguration() {
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Load configuration failed")) {
+		return;
+	}
+
     debug("loadConfiguration loaded");
 
     configurationData = await response.json();
@@ -2236,10 +2214,10 @@ function addFileToList(fileInfo) {
   } else if (fileInfo.fileName.includes("ידני")) {
     status = null;
     // Add clent name and id number
-    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber} ${fileInfo.note ? ` (${fileInfo.note})` : ''}`;
+    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber} ${fileInfo.noteText ? ` (${fileInfo.noteText})` : ''}`;
   } else {
     status = null;
-    statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}${fileInfo.note ? ` (${fileInfo.note})` : ''}`;
+    statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}${fileInfo.noteText ? ` (${fileInfo.noteText})` : ''}`;
   }
 
   const li = document.createElement("li");
@@ -2297,7 +2275,7 @@ function addFileToList(fileInfo) {
   accordionContent.className = "accordion-content";
 
   // Add all fileInfo fields that aren't already displayed
-  const excludedFields = ["fileName", "type", "fileId", "matchTag", "note"];
+  const excludedFields = ["fileName", "type", "fileId", "matchTag", "noteText"];
   Object.entries(fileInfo).forEach(([key, value]) => {
     //if (!excludedFields.includes(key) && value !== null) {
     if (!excludedFields.includes(key)) {
@@ -2390,10 +2368,9 @@ function addFileToList(fileInfo) {
         ...fetchConfig,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Update failed: ${errorData.detail} ${response.status}`);
-      }
+	  if(!handleResponse(response, "Update form failed")) {
+		return;
+	  }
 
       const fileInfoList = await response.json();
       updateFileList(fileInfoList);
@@ -2453,11 +2430,9 @@ function addFileToList(fileInfo) {
         ...fetchConfig,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        debug(errorData);
-        throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
-      }
+	  if(!handleResponse(response, "Delete failed")) {
+		return;
+	  }
 
       fileList.removeChild(li);
       updateDeleteAllButton();
@@ -2474,6 +2449,23 @@ function addFileToList(fileInfo) {
   li.appendChild(editButton);
   li.appendChild(deleteButton);
   fileList.appendChild(li);
+}
+
+// Return true if the response is ok, false if we signed out otherwise throw an exception..
+async function handleResponse(response, errorMessage) {
+	if (!response.ok) {
+        const errorData = await response.json();
+		debug(errorData);
+
+		if (errorData.detail.includes("JWT")) {
+			signOut();
+			// The session timed out. Please reconnect.
+			addMessage("הסשן פג תוקף. אנא התחבר מחדש.", "error");
+			return false;
+		}
+		throw new Error(errorMessage + ": " + errorData.detail + " " + response.status);
+	}
+	return true;
 }
 
 async function calculateTax(fileName) {
@@ -2514,11 +2506,9 @@ async function calculateTax(fileName) {
         ...fetchConfig,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        debug(errorData);
-        throw new Error(errorData.description);
-      }
+	  if(!handleResponse(response, "Calculate tax failed")) {
+		return;
+	  }
 
       const result = await response.json();
 
@@ -2824,11 +2814,9 @@ document.getElementById("sendFeedbackButton").addEventListener("click", async ()
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`Feedback submission failed: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Feedback submission failed")) {
+		return;
+	}
 
     addMessage("תודה על המשוב שלך!", "success");
     // Clear the form
@@ -2912,9 +2900,9 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+	if(!handleResponse(response, "Create form failed")) {
+		return;
+	}
 
     const fileInfoList = await response.json();
     debug("createForm response:", fileInfoList);
@@ -3084,9 +3072,8 @@ async function convertAnonymousAccount(email, password, fullName) {
     }),
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || "Failed to convert account");
+  if(!handleResponse(response, "Convert anonymous account failed")) {
+    return;
   }
 
   const result = await response.json();

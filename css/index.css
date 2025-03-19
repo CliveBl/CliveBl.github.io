@@ -2090,5 +2090,22 @@
       }
 
       a:not(.submit-instructions-button):visited {
-        color: var(--link-visited);
+        color: var(--link-visited);	
       }
+
+	  .back-button {
+		background-color: var(--tax-blue);
+		color: white;
+		border: none;
+		padding: 10px 20px;
+		border-radius: 4px;
+		cursor: pointer;
+		text-decoration: none;
+		display: block;
+		margin: 30px auto 0;
+		width: fit-content;
+	}
+
+	.back-button:hover {
+		background-color: var(--tax-blue-hover);
+	}					

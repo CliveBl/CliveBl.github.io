@@ -129,9 +129,11 @@ body {
         <button id="acceptCookies" class="cookie-button">אני מסכים</button>
     </div>
 
-    <script src="js/index.js"></script>
+    <!-- <script type="module" src="js/index.js"></script> -->
     <script src="js/slideshow.js"></script>
-    <script>
+    <script type="module">
+        import { cookieUtils } from './js/cookieUtils.js';
+        
         const checkbox = document.getElementById('termsCheckbox');
         const startButton = document.getElementById('startButton');
         const cookieBanner = document.getElementById('cookieBanner');
