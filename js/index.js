@@ -188,7 +188,7 @@ async function loadExistingFiles() {
       ...fetchConfig,
     });
 
-	if(!handleResponse(response, "Load existing files failed")) {
+	if(!await handleResponse(response, "Load existing files failed")) {
 		return;
 	}
 
@@ -371,7 +371,7 @@ processButton.addEventListener("click", async () => {
         }),
       });
 
-	  if(!handleResponse(response, "Process files failed")) {
+	  if(!await handleResponse(response, "Process files failed")) {
 		return;
 	  }
 
@@ -481,7 +481,7 @@ async function uploadFiles(validFiles) {
         ...fetchConfig,
       });
 
-	  if(!handleResponse(response, "Upload file failed")) {
+	  if(!await handleResponse(response, "Upload file failed")) {
 		return;
 	  }
 
@@ -684,7 +684,7 @@ async function loadResults(scrollToMessageSection = true) {
       ...fetchConfig,
     });
 
-	if(!handleResponse(response, "Load results failed")) {
+	if(!await handleResponse(response, "Load results failed")) {
 		return;
 	}
 
@@ -847,7 +847,7 @@ async function downloadResult(fileName) {
       ...fetchConfig,
     });
 
-	if(!handleResponse(response, "Download result failed")) {
+	if(!await handleResponse(response, "Download result failed")) {
 		return;
 	}
 
@@ -1774,7 +1774,7 @@ deleteAllButton.addEventListener("click", async () => {
       ...fetchConfig,
     });
 
-	if(!handleResponse(response, "Delete all files failed")) {
+	if(!await handleResponse(response, "Delete all files failed")) {
 		return;
 	}
 
@@ -2083,7 +2083,7 @@ questionnaireForm.addEventListener("submit", async (e) => {
       ...fetchConfig,
     });
 
-	if(!handleResponse(response, "Save answers failed")) {
+	if(!await handleResponse(response, "Save answers failed")) {
 		return;
 	}
 
@@ -2160,7 +2160,7 @@ async function getAnswersMap() {
       ...fetchConfig,
     });
 
-	if(!handleResponse(answersResponse, "Get answers failed")) {
+	if(!await handleResponse(answersResponse, "Get answers failed")) {
 		return;
 	}
 
@@ -2185,7 +2185,7 @@ async function loadConfiguration() {
       ...fetchConfig,
     });
 
-	if(!handleResponse(response, "Load configuration failed")) {
+	if(!await handleResponse(response, "Load configuration failed")) {
 		return;
 	}
 
@@ -2368,7 +2368,7 @@ function addFileToList(fileInfo) {
         ...fetchConfig,
       });
 
-	  if(!handleResponse(response, "Update form failed")) {
+	  if(!await handleResponse(response, "Update form failed")) {
 		return;
 	  }
 
@@ -2430,7 +2430,7 @@ function addFileToList(fileInfo) {
         ...fetchConfig,
       });
 
-	  if(!handleResponse(response, "Delete failed")) {
+	  if(!await handleResponse(response, "Delete failed")) {
 		return;
 	  }
 
@@ -2506,7 +2506,7 @@ async function calculateTax(fileName) {
         ...fetchConfig,
       });
 
-	  if(!handleResponse(response, "Calculate tax failed")) {
+	  if(!await handleResponse(response, "Calculate tax failed")) {
 		return;
 	  }
 
@@ -2814,7 +2814,7 @@ document.getElementById("sendFeedbackButton").addEventListener("click", async ()
       ...fetchConfig,
     });
 
-	if(!handleResponse(response, "Feedback submission failed")) {
+	if(!await handleResponse(response, "Feedback submission failed")) {
 		return;
 	}
 
@@ -2900,7 +2900,7 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
       ...fetchConfig,
     });
 
-	if(!handleResponse(response, "Create form failed")) {
+	if(!await handleResponse(response, "Create form failed")) {
 		return;
 	}
 
@@ -3072,7 +3072,7 @@ async function convertAnonymousAccount(email, password, fullName) {
     }),
   });
 
-  if(!handleResponse(response, "Convert anonymous account failed")) {
+  if(!await handleResponse(response, "Convert anonymous account failed")) {
     return;
   }
 
