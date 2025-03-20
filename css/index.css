@@ -132,11 +132,8 @@
       }
       /* Delete button styling */
       .delete-button {
-        background-color: #e74c3c;
-        color: var(--button-text);
+        background: transparent;
         border: none;
-        padding: 4px;
-        border-radius: 3px;
         cursor: pointer;
         font-size: 14px;
         display: flex;
@@ -344,7 +341,7 @@
       }
 
       .fileNameElement {
-        white-space: nowrap;
+        /* white-space: nowrap; */
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: calc(100% - 80px); /* Account for icons and buttons */
@@ -1677,8 +1674,7 @@
       }
 
       .edit-button {
-        background-color: var(--tax-blue);
-        color: var(--button-text);
+        background: transparent;
         border: none;
         padding: 4px;
         border-radius: 3px;
@@ -2094,5 +2090,22 @@
       }
 
       a:not(.submit-instructions-button):visited {
-        color: var(--link-visited);
+        color: var(--link-visited);	
       }
+
+	  .back-button {
+		background-color: var(--tax-blue);
+		color: white;
+		border: none;
+		padding: 10px 20px;
+		border-radius: 4px;
+		cursor: pointer;
+		text-decoration: none;
+		display: block;
+		margin: 30px auto 0;
+		width: fit-content;
+	}
+
+	.back-button:hover {
+		background-color: var(--tax-blue-hover);
+	}					

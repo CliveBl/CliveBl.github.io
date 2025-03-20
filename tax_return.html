@@ -251,14 +251,14 @@
             <input
               type="file"
               id="fileInput"
-              accept=".pdf,.jpg,.jpeg"
+              accept=".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png"
               multiple
            />
             <label for="fileInput">העלאת מסמכים...</label>
             <input
               type="file"
               id="folderInput"
-              accept=".pdf,.jpg,.jpeg"
+              accept=".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png"
               webkitdirectory
               directory
               multiple
@@ -314,7 +314,7 @@
         <div class="calculate-results-container">
         </div>
         <div class="submit-instructions-container">
-          <a href="submit_instructions.html" class="submit-instructions-button" target="_blank">
+          <a href="submit_instructions.html" class="submit-instructions-button">
             הוראות להגשת הדו״ח למס הכנסה
             <span class="button-icon">📝</span>
           </a>
@@ -363,7 +363,7 @@
 
     <div id="cookieConsent" class="cookie-consent">
       <div class="cookie-content">
-        <span>אר זה משתמש בקבצי Cookie כדי לשפר את חווית המשתמש שלך.</span>
+        <span>אתר זה משתמש בקבצי Cookie כדי לשפר את חווית המשתמש שלך.</span>
         <button id="acceptCookies" class="cookie-button">אישור</button>
       </div>
     </div>
@@ -529,8 +529,8 @@
 				</div>
 			</div>
 		</div>
-
-	<script src="js/index.js"></script>
+        <a href="index.html" class="back-button">חזרה לדף הבית</a>
+	<script type="module" src="js/index.js"></script>
 	
     <!-- Add warning modal -->
     <div id="duplicateAnswersWarningModal" class="modal">
@@ -556,7 +556,6 @@
         </div>
     </div>
 
-    <!-- Add warning modal -->
     <div id="generalWarningModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -572,6 +571,20 @@
             </div>
         </div>
     </div>
+	<div id="generalInfoModal" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<span class="close-button">&times;</span>
+				<h2>מידע</h2>
+			</div>
+			<div class="modal-body">
+				<p id="infoMessage"></p>
+			</div>
+			<div class="modal-footer">
+				<button class="confirm-button">אישור</button>
+			</div>
+		</div>
+	</div>
 	<script>nl_pos = "br";nl_compact = "1";</script>
 	<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
   </body>

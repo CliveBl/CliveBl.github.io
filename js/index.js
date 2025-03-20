@@ -1,11 +1,18 @@
-const uiVersion = "0.23";
+// Import image utilities
+import { convertImageToBWAndResize } from './imageUtils.js';
+import { cookieUtils } from './cookieUtils.js';
+
+const uiVersion = "0.34";
 const defaultId = "000000000";
+const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
 let answersMap = {};
 let currentlySelectedTaxYear;
 let latestFileInfoList = [];
 let documentIcons = {};
 let uploading = false;
+let userEmailValue = null;
+let authExpiration = false;
 const fetchConfig = {
   credentials: "include",
   mode: "cors",
@@ -56,35 +63,7 @@ const googleButtonText = document.getElementById("googleButtonText");
 const githubButtonText = document.getElementById("githubButtonText");
 const userEmail = document.getElementById("userEmail");
 
-// Add these cookie utility functions at the start of your script
-const cookieUtils = {
-  set: function (name, value, days = 7) {
-    const d = new Date();
-    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-    const expires = "expires=" + d.toUTCString();
-    document.cookie = name + "=" + value + ";" + expires + ";path=/;Secure;SameSite=Strict";
-  },
 
-  get: function (name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(";");
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) === " ") c = c.substring(1, c.length);
-      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-  },
-
-  delete: function (name) {
-    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/;Secure;SameSite=Strict";
-  },
-};
-
-// Update the auth token handling
-let authToken = cookieUtils.get("authToken");
-
-// Update signInAnonymous function
 async function signInAnonymous() {
   try {
     debug("Anonymous sign in...");
@@ -92,10 +71,8 @@ async function signInAnonymous() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
       },
       credentials: "include",
-      mode: "cors",
     });
 
     debug("Sign in response:", response.status);
@@ -107,14 +84,10 @@ async function signInAnonymous() {
     }
 
     const result = await response.json();
-    if (!result.token) {
-      throw new Error("No token received");
-    }
-    authToken = result.token;
-    cookieUtils.set("authToken", authToken); // Save token to cookie
-    debug("Token received and saved:", authToken);
+    userEmailValue = result.email;
+    authExpiration = result.expirationTime;
     updateSignInUI();
-    return authToken;
+    return;
   } catch (error) {
     debug("Sign in error:", error);
     throw error;
@@ -129,6 +102,7 @@ async function signIn(email, password) {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         email: email,
         password: password,
@@ -137,29 +111,32 @@ async function signIn(email, password) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      debug(errorData);
+      debug("Sign in error response:", errorData);
       throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
     }
 
-    const result = await response.json();
-    authToken = result.token;
-    cookieUtils.set("authToken", authToken); // Save token to cookie
-    debug("Sign in successful");
-    // Update UI to show  state
+    const text = await response.text();
+    debug("Raw response:", text);
+    if (!text) {
+      throw new Error("Empty response from server");
+    }
+
+    const result = JSON.parse(text);
+    userEmailValue = result.email;
+    authExpiration = result.expirationTime;
     updateSignInUI();
-    return authToken;
+    return;
   } catch (error) {
     console.error("Sign in failed:", error);
+    debug("Sign in error details:", error);
     throw error;
   }
 }
 
 function updateSignInUI() {
-  if (authToken) {
-    const decodedToken = jwt_decode(authToken);
-    userEmail.textContent = decodedToken.email;
-    debug("authToken.email", decodedToken.email);
-    if (decodedToken.email == "Anonymous") {
+  if (authExpiration) {
+    userEmail.textContent = userEmailValue;
+    if (userEmailValue == ANONYMOUS_EMAIL) {
       signOutButton.disabled = true;
       loginButton.disabled = false;
     } else {
@@ -173,12 +150,18 @@ function updateSignInUI() {
 // Update the sign out function
 function signOut() {
   debug("signOut");
-  authToken = null;
-  cookieUtils.delete("authToken");
+  userEmailValue = null;
+  authExpiration = null;
+  // Delete the cookie by calling the signOut api
+  fetch(`${API_BASE_URL}/signOut`, {
+    method: "POST",
+    credentials: "include",
+  });
 
   // Update UI to show logged out state
   updateSignInUI();
   removeFileList();
+  updateMissingDocuments();
   updateDeleteAllButton();
   removeQuestionaire();
   clearResultsControls();
@@ -199,17 +182,15 @@ async function loadExistingFiles() {
     const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=Default`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
       },
+      credentials: "include",
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Load existing files failed")) {
+		return;
+	}
 
     const fileInfoList = await response.json();
     updateFileList(fileInfoList);
@@ -242,44 +223,15 @@ window.addEventListener("load", async () => {
     document.getElementById("cookieConsent").classList.add("active");
   }
 
-  try {
-    // If we have a token, try to use it
-    debug("load");
-    initializeDocumentIcons();
-    if (authToken) {
-      await loadExistingFiles();
-      await loadResults();
-      debug("Successfully loaded files and results with existing token");
-    } else {
-      // No token, sign in anonymously
-      debug("No token found, signing in anonymously");
-      //await signInAnonymous();
-
-      //await loadExistingFiles();
-      //await loadResults();
-    }
-    // Load stored tax results
-    //   loadStoredTaxCalculation();
-  } catch (error) {
-    debug("Error during initialization:", error);
-    // If loading files failed, try anonymous sign in
-    if (error.message.includes("Invalid token")) {
-      // debug("Token invalid, signing in anonymously");
-      // await signInAnonymous();
-      // await loadExistingFiles();
-      // await loadResults();
-      // loadStoredTaxCalculation();
-    }
-  }
 });
 
 // Add this helper function at the start of your script
 function isValidFileType(file) {
-  const validTypes = ["application/pdf", "image/jpeg", "image/jpg"];
+  const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/gif", "image/bmp", "image/png"];
   if (!validTypes.includes(file.type)) {
     return {
       valid: false,
-      message: `סוג קובץ לא נתמך - רק קבצי PDF או JPG מותרים. שם הקובץ: ${file.name} (${file.webkitRelativePath})`,
+      message: `סוג קובץ לא נתמך - רק קבצי PDF ,JPG ,GIF ,BMP ,PNG מותרים. שם הקובץ: ${file.name} (${file.webkitRelativePath})`,
     };
   }
   return { valid: true };
@@ -292,6 +244,7 @@ function isInGeneratedTaxFormsFolder(filePath) {
 
 // Add this function to update the file list from server response
 function updateFileList(fileInfoList) {
+  debug("updateFileList");
   // Store the latest fileInfoList for later reference
   latestFileInfoList = fileInfoList;
   fileList.innerHTML = "";
@@ -313,6 +266,8 @@ function updateProcessButton() {
 
 // File upload handler
 fileInput.addEventListener("change", async () => {
+	clearMessages();
+
   // Filter out invalid files first
   const files = Array.from(fileInput.files);
   const validFiles = files.filter((file) => {
@@ -333,6 +288,8 @@ fileInput.addEventListener("change", async () => {
 
 // Folder upload handler. Always use individual uploads
 folderInput.addEventListener("change", async () => {
+	clearMessages();
+
   const files = Array.from(folderInput.files);
 
   // Sort and filter files
@@ -364,18 +321,18 @@ folderInput.addEventListener("change", async () => {
 });
 
 function showLoadingOverlay(message) {
-	document.getElementById("loadingMessage").textContent = message;
-	document.getElementById("loadingOverlay").classList.add("active");
-  }
-  
-  function hideLoadingOverlay() {
-	document.getElementById("loadingOverlay").classList.remove("active");
-  }
+  document.getElementById("loadingMessage").textContent = message;
+  document.getElementById("loadingOverlay").classList.add("active");
+}
+
+function hideLoadingOverlay() {
+  document.getElementById("loadingOverlay").classList.remove("active");
+}
 
 // Update the process button handler
 processButton.addEventListener("click", async () => {
   try {
-    if (!authToken) {
+    if (!authExpiration) {
       await signInAnonymous();
     }
     await getAnswersMap();
@@ -394,7 +351,7 @@ processButton.addEventListener("click", async () => {
       // Warn that there are missing answers in the questionaire.
       addMessage("יש ערכים חסרים בשאלון.", "warning", false);
     } else {
-		showLoadingOverlay("מעבדת מסמכחם...");
+      showLoadingOverlay("מעבדת מסמכחם...");
       // Clear previous messages
       clearMessages();
       // Tax results may now be invalid
@@ -406,19 +363,17 @@ processButton.addEventListener("click", async () => {
       const response = await fetch(`${API_BASE_URL}/processFiles`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           customerDataEntryName: "Default",
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        debug(errorData);
-        throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-      }
+	  if(!handleResponse(response, "Process files failed")) {
+		return;
+	  }
 
       const result = await response.json();
       debug("Processing response:", result);
@@ -448,7 +403,7 @@ processButton.addEventListener("click", async () => {
     console.error("Processing failed:", error);
     addMessage("שגיאה בעיבוד הקבצים: " + error.message, "error");
   } finally {
-	hideLoadingOverlay();
+    hideLoadingOverlay();
   }
 });
 
@@ -466,14 +421,14 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
   buttonLabel.classList.add("uploading");
 
   try {
-    if (!authToken) {
+    if (!authExpiration) {
       await signInAnonymous();
     }
 
     // Upload files one by one
     await uploadFiles(validFiles);
   } catch (error) {
-    console.error("Authentication failed:", error);
+    console.error("UploadFile failed:", error);
     addMessage("שגיאה באימות: " + error.message, "error");
   } finally {
     // Restore button text
@@ -493,10 +448,20 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
 }
 
 async function uploadFiles(validFiles) {
+ 
   for (const file of validFiles) {
     try {
+	  let newFile = file;
+	  if(file.type.startsWith("image/")) {	
+		try {
+			newFile = await convertImageToBWAndResize(file);
+		} catch (error) {
+			addMessage("שגיאה בעיבוד התמונה: " + file.name + " " + error.message, "error");
+			continue;
+		}
+	  }
       const formData = new FormData();
-      formData.append("file", file);
+	  formData.append("file", newFile);
 
       const metadata = {
         customerDataEntryName: "Default",
@@ -510,26 +475,31 @@ async function uploadFiles(validFiles) {
 
       const response = await fetch(`${API_BASE_URL}/uploadFile`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+        headers: {},
+        credentials: "include",
         body: formData,
         ...fetchConfig,
       });
 
-      const fileInfoList = await response.json();
+	  if(!handleResponse(response, "Upload file failed")) {
+		return;
+	  }
+
+	  const fileInfoList = await response.json();
       debug("Upload response:", fileInfoList);
       updateFileList(fileInfoList);
     } catch (error) {
       console.error("Upload failed:", error);
+	  clearMessages();
       addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
+	  return;
     }
   }
   addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
 }
 
 // Update addMessage function to handle message types
-function addMessage(text, type = "info", scrollToBottom = true) {
+function addMessage(text, type = "info", scrollToMessageSection = true) {
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
   if (type) {
@@ -552,11 +522,18 @@ function addMessage(text, type = "info", scrollToBottom = true) {
   messageContainer.appendChild(messageDiv);
 
   // Scroll to the bottom of the page if type is not "success" or "info"
-  if (type !== "success" && type !== "info" && scrollToBottom) {
+  if (type !== "success" && type !== "info" && scrollToMessageSection) {
     window.scrollTo({
-      top: document.body.scrollHeight,
+      top: document.getElementById("messageContainer").offsetTop,
       behavior: "smooth",
     });
+  }
+
+  // If the message type is "error", append it to the feedbackMessage in the feedback section
+  if (type === "error") {
+    const feedbackMessage = document.getElementById("feedbackMessage");
+    const timestamp = new Date().toLocaleTimeString();
+    feedbackMessage.textContent = `${timestamp}: ${text}`;
   }
 }
 
@@ -570,7 +547,7 @@ signOutButton.addEventListener("click", () => {
 
 loginButton.addEventListener("click", () => {
   loginOverlay.classList.add("active");
-  if (authToken && userEmail.textContent == "Anonymous") {
+  if (authExpiration && userEmail.textContent == ANONYMOUS_EMAIL) {
     document.querySelector(".toggle-button[data-mode='signup']").click();
     isAnonymousConversion = true;
   } else {
@@ -650,7 +627,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         }
       }
       // Show verification message and close login dialog
-      addMessage("נרשמת בהצלחה! אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.", "success");
+      showInfoModal("נרשמת בהצלחה! אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.");
       document.getElementById("loginOverlay").classList.remove("active");
 
       // Clear the form
@@ -659,30 +636,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       document.getElementById("fullName").value = "";
     } else {
       // Call the signIn API
-      const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-        ...fetchConfig,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.description);
-      }
-
-      const data = await response.json();
-
-      // Store the token
-      authToken = data.token;
-      cookieUtils.set("authToken", authToken);
-
-      updateSignInUI();
+      await signIn(email, password);
 
       // Clear stored tax results
       localStorage.removeItem("taxResults");
@@ -696,7 +650,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
       // Handle signin
       await loadExistingFiles(); // Load files with new token
-      await loadResults();
+      // Dont scroll
+      await loadResults(false);
     }
     //addMessage("התחברת בהצלחה!");
     document.getElementById("loginOverlay").classList.remove("active");
@@ -718,23 +673,20 @@ document.querySelector(".github-login").addEventListener("click", () => {
   debug("GitHub login clicked");
 });
 
-// Add these functions before the window load event listener
-async function loadResults() {
+async function loadResults(scrollToMessageSection = true) {
   try {
     const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=Default`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
       },
+      credentials: "include",
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Load results failed")) {
+		return;
+	}
 
     const results = await response.json();
 
@@ -746,13 +698,13 @@ async function loadResults() {
       if (result.messages) {
         // Handle fatal error if present
         if (result.messages.fatalProcessingError) {
-          addMessage("שגיאה קריטית: " + result.messages.fatalProcessingError, "error");
+          addMessage("שגיאה קריטית: " + result.messages.fatalProcessingError, "error", scrollToMessageSection);
         }
 
         // Handle warnings if present
         if (result.messages.processingWarnings && result.messages.processingWarnings.length > 0) {
           result.messages.processingWarnings.forEach((warning) => {
-            addMessage("אזהרה: " + warning, "warning");
+            addMessage("אזהרה: " + warning, "warning", scrollToMessageSection);
           });
         }
       }
@@ -827,7 +779,7 @@ function displayResults(results) {
       fileDescription.textContent = descriptionFromFileName(result.file.fileName);
 
       // Add file icon based on extension
-      fileIcon = document.createElement("i");
+      const fileIcon = document.createElement("i");
       const extension = result.file.fileName.split(".").pop().toLowerCase();
       switch (extension) {
         case "pdf":
@@ -891,17 +843,13 @@ async function downloadResult(fileName) {
   try {
     const response = await fetch(`${API_BASE_URL}/downloadResultsFile?fileName=${encodeURIComponent(fileName)}&customerDataEntryName=Default`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+      credentials: "include",
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`Download failed: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Download result failed")) {
+		return;
+	}
 
     // Create blob from response
     const blob = await response.blob();
@@ -963,18 +911,26 @@ function getChildrenModal() {
   return childrenModalId;
 }
 
-function updateAnswersMapFromControls() {
-  debug("updateAnswersMapFromControls");
-  const selectedYear = parseInt(document.getElementById("taxYear").value);
+function getAnswerFromChildrenControls() {
+  const childrenModal = document.getElementById(getChildrenModal());
+  // Get the values of the input fields into a string of pairs separated by commas
+  // The pairs are of the form <code>:<value>
+  let childrenData = "";
+  childrenModal.querySelectorAll("input[data-code]").forEach((input) => {
+    childrenData += input.dataset.code + ":" + input.value + ",";
+  });
+  //debug("childrenData:", childrenData);
+  return childrenData;
+}
+
+function getAnswersFromControls() {
   const yearAnswers = {};
 
-  // Get all question groups
-  const questionGroups = questionnaireForm.querySelectorAll(".question-group");
-
   // First collect all answers for current year
-  questionGroups.forEach((group) => {
-    const controls = group.querySelector(".question-controls");
-    const questionName = group.getAttribute("data-question");
+  const questions = configurationData.questionList;
+  questions.forEach((question) => {
+    const controls = questionnaireForm.querySelector(`.question-group[data-question="${question.name}"] .question-controls`);
+    const questionName = question.name;
 
     // Get control type from data attribute
     const controlType = controls.getAttribute("data-control-type");
@@ -993,7 +949,7 @@ function updateAnswersMapFromControls() {
           const partnerIdField = controls.querySelector(`input[name$="${questionName}_2"]`);
           answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
         } else {
-          const idField = controls.querySelector("input");
+          const idField = controls.querySelector(`input[name="${questionName}"]`);
           answer = idField.value.trim();
         }
         break;
@@ -1004,22 +960,21 @@ function updateAnswersMapFromControls() {
           const partnerDateField = controls.querySelector(`input[name$="${questionName}_2"]`);
           answer = `${partnerDateField.value.trim()},${registeredPartnerDateField.value.trim()}`;
         } else {
-          const dateField = controls.querySelector("input");
+          const dateField = controls.querySelector(`input[name="${questionName}"]`);
           answer = dateField.value.trim();
         }
         break;
 
-
-		case "SMALL_INTEGER":
-			if (isPair) {
-				const registeredPartnerNumField = controls.querySelector(`select[name$="${questionName}_1"]`);
-				const partnerNumField = controls.querySelector(`select[name$="${questionName}_2"]`);
-				answer = `${partnerNumField.value.trim()},${registeredPartnerNumField.value.trim()}`;
-			} else {
-				const numField = controls.querySelector("select");
-				answer = numField.value.trim() || "0";
-			}
-			break;
+      case "SMALL_INTEGER":
+        if (isPair) {
+          const registeredPartnerNumField = controls.querySelector(`select[name$="${questionName}_1"]`);
+          const partnerNumField = controls.querySelector(`select[name$="${questionName}_2"]`);
+          answer = `${partnerNumField.value.trim()},${registeredPartnerNumField.value.trim()}`;
+        } else {
+          const numField = controls.querySelector(`select[name="${questionName}"]`);
+          answer = numField.value.trim() || "0";
+        }
+        break;
 
       case "NUMERIC":
         if (isPair) {
@@ -1029,7 +984,7 @@ function updateAnswersMapFromControls() {
           const value2 = registeredPartnerNumField.value.trim() || "0";
           answer = `${value1},${value2}`;
         } else {
-          const numField = controls.querySelector("input");
+          const numField = controls.querySelector(`input[name="${questionName}"]`);
           answer = numField.value.trim() || "0";
         }
         break;
@@ -1048,31 +1003,40 @@ function updateAnswersMapFromControls() {
             answer = "none";
           }
         } else {
-          const checkbox = controls.querySelector("input");
+          const checkbox = controls.querySelector(`input[name="${questionName}"]`);
           answer = checkbox.checked ? "registeredPartner" : "none";
         }
         break;
 
       case "RADIO":
-        // The value can be none or one of two values in the tooltip separated by a colon
-        // We need to calculate the answer based on the radio buttons
-        // Get the radio buttons by index
-        const yesButton = controls.querySelectorAll('input[type="radio"]')[0];
-        const noButton = controls.querySelectorAll('input[type="radio"]')[1];
+        // The value can be none or one of multiple values in the tooltip separated by a colon
+        // We need to calculate the answer which is one of the multiplebased on the radio buttons
+        // Get the radio buttons by question.name
+        const radioButtons = controls.querySelectorAll(`input[name="${questionName}"]`);
+        // Get the value of the checked radio button if one is checked
+        const checkedRadioButton = Array.from(radioButtons).find((radio) => radio.checked);
+        // Get the value of the checked radio button
+        const checkedRadioButtonValue = checkedRadioButton ? checkedRadioButton.value : "none";
         // Answer is the value of the checked radio button or none
-        answer = yesButton.checked ? yesButton.value : noButton.checked ? noButton.value : "none";
+        answer = checkedRadioButtonValue;
         break;
     }
 
-    // Get question from cache
-    const question = configurationData.questionList.find((q) => q.name === questionName);
     // Add the answer only if it is different from the default answer.
-    if (answer !== question.defaultAnswer) {
+    if (question.defaultAnswer !== answer) {
       yearAnswers[questionName] = answer;
     } else {
       delete yearAnswers[questionName];
     }
   });
+  return yearAnswers;
+}
+
+function updateAnswersMapFromControls() {
+  debug("updateAnswersMapFromControls");
+  const selectedYear = parseInt(document.getElementById("taxYear").value);
+
+  const yearAnswers = getAnswersFromControls();
 
   // Update the Map with the current year's answers
   debug("Updating answersMap with year: " + selectedYear);
@@ -1083,33 +1047,21 @@ function updateAnswersMapFromControls() {
   // If there is any year with NaN in the answersMap remove it
   for (const [key, value] of answersMap) {
     if (isNaN(key)) {
-		// popup a message
-		alert("There is a year with NaN in the answersMap. Please remove it.");
+      // popup a message
+      alert("There is a year with NaN in the answersMap. Please remove it.");
       debug("Removing year: " + key);
       answersMap.delete(key);
     }
   }
 } // updateAnswersMapFromControls
 
-function getAnswerFromChildrenControls() {
-  const childrenModal = document.getElementById(getChildrenModal());
-  // Get the values of the input fields into a string of pairs separated by commas
-  // The pairs are of the form <code>:<value>
-  let childrenData = "";
-  childrenModal.querySelectorAll("input[data-code]").forEach((input) => {
-    childrenData += input.dataset.code + ":" + input.value + ",";
-  });
-  //debug("childrenData:", childrenData);
-  return childrenData;
-}
-
 async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
   try {
     debug("createQuestionnaire");
-    if (!authToken) {
+    if (!authExpiration) {
       await signInAnonymous();
     }
-   // Get reference to the questionnaire form
+    // Get reference to the questionnaire form
     const questionnaireForm = document.getElementById("questionnaireForm");
     if (!questionnaireForm) {
       throw new Error("Questionnaire form not found");
@@ -1175,20 +1127,19 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
     // Create questions and populate with answers
     const questions = configurationData.questionList;
     questions.forEach((question) => {
+      function createPartnerLabel() {
+        const partnerLabel = document.createElement("label");
+        partnerLabel.textContent = "בן/בת זוג";
+        partnerLabel.className = "question-sub-label";
+        return partnerLabel;
+      }
 
-		function createPartnerLabel() {
-			const partnerLabel = document.createElement("label");
-			partnerLabel.textContent = "בן/בת זוג";
-			partnerLabel.className = "question-sub-label";
-			return partnerLabel;
-		}
-
-		function createRegisteredLabel() {
-			const registeredLabel = document.createElement("label");
-			registeredLabel.textContent = "בן זוג רשום";
-			registeredLabel.className = "question-sub-label";
-			return registeredLabel;
-		}
+      function createRegisteredLabel() {
+        const registeredLabel = document.createElement("label");
+        registeredLabel.textContent = "בן זוג רשום";
+        registeredLabel.className = "question-sub-label";
+        return registeredLabel;
+      }
 
       const questionGroup = document.createElement("div");
       questionGroup.className = "question-group";
@@ -1359,71 +1310,70 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
           }
           break;
 
-		case "SMALL_INTEGER":
-			// Small integer is a number between min and max as defined in jsonAttributes (key/value pairs as a json string	)
-			const jsonAttributes = JSON.parse(question.jsonAttributes);
-			const min = jsonAttributes.min;
-			const max = jsonAttributes.max;
-			if (question.pair === "PAIR") {
-				// Create container for pair of small integer inputs
-				const pairContainer = document.createElement("div");
-				pairContainer.className = "small-integer-pair-container";
-				// Registered partner 
-				const registeredContainer = document.createElement("div");
-				registeredContainer.style.flex = "1";
-				
-				// First small integer input (registered partner) selector control from min to max
-				const registeredPartnerSelector = document.createElement("select");
-				registeredPartnerSelector.name = question.name + "_1";
-				//registeredPartnerSelector.style.width = "120px";
-				registeredPartnerSelector.style.padding = "4px 8px";
-				for (let i = min; i <= max; i++) {
-					const option = document.createElement("option");
-					option.value = i;
-					option.textContent = i;
-					registeredPartnerSelector.appendChild(option);
-				}	
-				registeredContainer.appendChild(createRegisteredLabel());
-				registeredContainer.appendChild(registeredPartnerSelector);
+        case "SMALL_INTEGER":
+          // Small integer is a number between min and max as defined in jsonAttributes (key/value pairs as a json string	)
+          const jsonAttributes = JSON.parse(question.jsonAttributes);
+          const min = jsonAttributes.min;
+          const max = jsonAttributes.max;
+          if (question.pair === "PAIR") {
+            // Create container for pair of small integer inputs
+            const pairContainer = document.createElement("div");
+            pairContainer.className = "small-integer-pair-container";
+            // Registered partner
+            const registeredContainer = document.createElement("div");
+            registeredContainer.style.flex = "1";
 
-				// Second small integer input (partner) selector control from min to max
-				const partnerContainer = document.createElement("div");
-				partnerContainer.style.flex = "1";
+            // First small integer input (registered partner) selector control from min to max
+            const registeredPartnerSelector = document.createElement("select");
+            registeredPartnerSelector.name = question.name + "_1";
+            //registeredPartnerSelector.style.width = "120px";
+            registeredPartnerSelector.style.padding = "4px 8px";
+            for (let i = min; i <= max; i++) {
+              const option = document.createElement("option");
+              option.value = i;
+              option.textContent = i;
+              registeredPartnerSelector.appendChild(option);
+            }
+            registeredContainer.appendChild(createRegisteredLabel());
+            registeredContainer.appendChild(registeredPartnerSelector);
 
-				const partnerSelector = document.createElement("select");
-				partnerSelector.name = question.name + "_2";
-				//partnerSelector.style.width = "120px";
-				partnerSelector.style.padding = "4px 8px";
-				for (let i = min; i <= max; i++) {
-					const option = document.createElement("option");	
-					option.value = i;
-					option.textContent = i;
-					partnerSelector.appendChild(option);
-				}
-				partnerContainer.appendChild(createPartnerLabel());
-				partnerContainer.appendChild(partnerSelector);
+            // Second small integer input (partner) selector control from min to max
+            const partnerContainer = document.createElement("div");
+            partnerContainer.style.flex = "1";
 
-				// Add the selector controls to the pair container
-				pairContainer.appendChild(registeredContainer);
-				pairContainer.appendChild(partnerContainer);
-				controls.appendChild(pairContainer);
-			}
-			else {
-				// Small integer input (registered partner) selector control from min to max
-				const selector = document.createElement("select");
-				selector.name = question.name;
-				//selector.style.width = "120px";
-				selector.style.padding = "4px 8px";
-				for (let i = min; i <= max; i++) {
-					const option = document.createElement("option");	
-					option.value = i;
-					option.textContent = i;
-					selector.appendChild(option);
-				}
-				controls.appendChild(selector);
-			}
-			break;
- 
+            const partnerSelector = document.createElement("select");
+            partnerSelector.name = question.name + "_2";
+            //partnerSelector.style.width = "120px";
+            partnerSelector.style.padding = "4px 8px";
+            for (let i = min; i <= max; i++) {
+              const option = document.createElement("option");
+              option.value = i;
+              option.textContent = i;
+              partnerSelector.appendChild(option);
+            }
+            partnerContainer.appendChild(createPartnerLabel());
+            partnerContainer.appendChild(partnerSelector);
+
+            // Add the selector controls to the pair container
+            pairContainer.appendChild(registeredContainer);
+            pairContainer.appendChild(partnerContainer);
+            controls.appendChild(pairContainer);
+          } else {
+            // Small integer input (registered partner) selector control from min to max
+            const selector = document.createElement("select");
+            selector.name = question.name;
+            //selector.style.width = "120px";
+            selector.style.padding = "4px 8px";
+            for (let i = min; i <= max; i++) {
+              const option = document.createElement("option");
+              option.value = i;
+              option.textContent = i;
+              selector.appendChild(option);
+            }
+            controls.appendChild(selector);
+          }
+          break;
+
         case "NUMERIC":
           if (question.pair === "PAIR") {
             // Create container for pair of numeric inputs
@@ -1555,7 +1505,6 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         savedAnswer = question.defaultAnswer;
       }
       updateControlFromAnswer(question, savedAnswer, controls);
-
     });
 
     // Add debug logging for the answers map and current year answers
@@ -1569,106 +1518,8 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
       // If the selected year is different from the currently selected year
       if (selectedYear !== currentlySelectedTaxYear) {
         // First save current year's answers to the answersMap
-        const previousYearAnswers = {};
+        const previousYearAnswers = getAnswersFromControls();
 
-        //const questionnaireForm = document.getElementById("questionnaireForm");
-        const questions = configurationData.questionList;
-        questions.forEach((question) => {
-          const controls = questionnaireForm.querySelector(`.question-group[data-question="${question.name}"] .question-controls`);
-
-          if (controls) {
-            const controlType = controls.getAttribute("data-control-type");
-            const isPair = controls.getAttribute("data-is-pair") === "true";
-
-            let answer = "";
-
-            // Get answer from controls using the same logic as form submission
-            switch (controlType) {
-              case "CHILDREN":
-                answer = getAnswerFromChildrenControls();
-                break;
-              case "ID":
-                if (isPair) {
-                  const registeredPartnerIdField = controls.querySelector(`input[name="${question.name}_1"]`);
-                  const partnerIdField = controls.querySelector(`input[name="${question.name}_2"]`);
-                  answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
-                } else {
-                  const input = controls.querySelector(`input[name="${question.name}"]`);
-                  answer = input.value.trim();
-                }
-                break;
-
-              case "DATE":
-                if (isPair) {
-                  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                  answer = `${input2.value.trim()},${input1.value.trim()}`;
-                } else {
-                  const input = controls.querySelector(`input[name="${question.name}"]`);
-                  answer = input.value.trim();
-                }
-
-                break;
-			case "SMALL_INTEGER":
-				if (isPair) {
-					const registeredPartnerNumField = controls.querySelector(`select[name$="${question.name}_1"]`);
-					const partnerNumField = controls.querySelector(`select[name$="${question.name}_2"]`);
-					answer = `${partnerNumField.value.trim()},${registeredPartnerNumField.value.trim()}`;
-				} else {
-					const numField = controls.querySelector("select");
-					answer = numField.value.trim() || "0";
-				}
-				break;
-	
-              case "NUMERIC":
-                if (isPair) {
-                  const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-                  const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-                  const value1 = input1.value.trim() || "0";
-                  const value2 = input2.value.trim() || "0";
-                  answer = `${value2},${value1}`;
-                } else {
-                  const input = controls.querySelector(`input[name="${question.name}"]`);
-                  answer = input.value.trim() || "0";
-                }
-                break;
-
-              case "CHECKBOX":
-                if (isPair) {
-                  const partnerCheckbox = controls.querySelector(`input[name="${question.name}_1"]`);
-                  const registeredPartnerCheckbox = controls.querySelector(`input[name="${question.name}_2"]`);
-                  if (registeredPartnerCheckbox.checked && partnerCheckbox.checked) {
-                    answer = "both";
-                  } else if (registeredPartnerCheckbox.checked) {
-                    answer = "registeredPartner";
-                  } else if (partnerCheckbox.checked) {
-                    answer = "partner";
-                  } else {
-                    answer = "none";
-                  }
-                } else {
-                  const checkbox = controls.querySelector(`input[name="${question.name}"]`);
-                  answer = checkbox.checked ? "registeredPartner" : "none";
-                }
-                break;
-
-              case "RADIO":
-                // The value can be none or one of two values in the tooltip separated by a colon
-                // We need to calculate the answer based on the radio buttons
-                const options = question.tooltip.split(":", 2);
-                const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
-                const noButton = controls.querySelector(`input[value="${options[1]}"]`);
-                // Check the correct radio button
-                answer = yesButton.checked ? options[0] : noButton.checked ? options[1] : "none";
-                break;
-            }
-
-            // Only add the answer if it is not the default answer
-            if (question.defaultAnswer !== answer) {
-              previousYearAnswers[question.name] = answer;
-            }
-          }
-        });
         // Update answersMap with previous year's answers
         answersMap.set(currentlySelectedTaxYear.toString(), {
           taxYear: currentlySelectedTaxYear,
@@ -1737,7 +1588,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         // Duplicate the answers to all years
         yearSelect.querySelectorAll("option").forEach((option) => {
           if (option.value !== currentYear) {
-			debug("Duplicating answers to year: " + option.value);
+            debug("Duplicating answers to year: " + option.value);
             answersMap.set(option.value, answersMap.get(currentYear));
           }
         });
@@ -1793,18 +1644,18 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         }
         break;
 
-		case "SMALL_INTEGER":
-			if (isPair) {
-			  const [value1, value2] = answer.split(",", 2);
-			  const selector1 = controls.querySelector(`select[name="${question.name}_1"]`);
-			  const selector2 = controls.querySelector(`select[name="${question.name}_2"]`);
-			  if (selector1) selector1.value = value2 === "0" ? "" : value2;
-			  if (selector2) selector2.value = value1 === "0" ? "" : value1;
-			} else {
-			  const selector = controls.querySelector(`select[name="${question.name}"]`);
-			  if (selector) selector.value = answer === "0" ? "" : answer;
-			}
-			break;
+      case "SMALL_INTEGER":
+        if (isPair) {
+          const [value1, value2] = answer.split(",", 2);
+          const selector1 = controls.querySelector(`select[name="${question.name}_1"]`);
+          const selector2 = controls.querySelector(`select[name="${question.name}_2"]`);
+          if (selector1) selector1.value = value2 === "0" ? "" : value2;
+          if (selector2) selector2.value = value1 === "0" ? "" : value1;
+        } else {
+          const selector = controls.querySelector(`select[name="${question.name}"]`);
+          if (selector) selector.value = answer === "0" ? "" : answer;
+        }
+        break;
 
       case "NUMERIC":
         if (isPair) {
@@ -1832,16 +1683,19 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         break;
 
       case "RADIO":
-        // The value can be none or one of two values in the tooltip separated by a colon
-        // We need to check if the value is one of the two values or none
-        const options = question.tooltip.split(":", 2);
-        const yesButton = controls.querySelector(`input[value="${options[0]}"]`);
-        const noButton = controls.querySelector(`input[value="${options[1]}"]`);
-        // Clear the radio buttons
-        controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
-        // Check the correct radio button
-        if (yesButton) yesButton.checked = answer === options[0];
-        if (noButton) noButton.checked = answer === options[1];
+        // Check the radio button according to the answer.
+        // The value can be none or one of multiple values in the tooltip separated by a colon
+        // We need to calculate the answer which is one of the multiplebased on the radio buttons
+        // Get the radio buttons by question name
+        const radioButtons = controls.querySelectorAll(`input[name="${question.name}"]`);
+        // Check the correct radio button according to the answer
+        radioButtons.forEach((radio) => {
+          if (radio.value === answer) {
+            radio.checked = true;
+          } else {
+            radio.checked = false;
+          }
+        });
         break;
     }
   }
@@ -1862,9 +1716,9 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
       case "NUMERIC":
         controls.querySelectorAll("input").forEach((input) => (input.value = ""));
         break;
-	  case "SMALL_INTEGER":
-		controls.querySelectorAll("select").forEach((select) => (select.value = ""));
-		break;
+      case "SMALL_INTEGER":
+        controls.querySelectorAll("select").forEach((select) => (select.value = ""));
+        break;
       case "CHECKBOX":
         controls.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
         break;
@@ -1907,28 +1761,22 @@ const deleteAllButton = document.getElementById("deleteAllButton");
 // Update delete all handler - remove confirmation dialog
 deleteAllButton.addEventListener("click", async () => {
   try {
-    if (!authToken) {
+    if (!authExpiration) {
       debug("no auth token");
       return;
     }
     const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את כל המסמכים שהוזנו?");
-    if (!confirmed) 
-		return;
-
+    if (!confirmed) return;
 
     const response = await fetch(`${API_BASE_URL}/deleteAllFiles?customerDataEntryName=Default`, {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+      credentials: "include",
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Delete all files failed")) {
+		return;
+	}
 
     removeFileList();
     updateDeleteAllButton();
@@ -1946,7 +1794,7 @@ deleteAllButton.addEventListener("click", async () => {
 // Save state before the page unloads
 window.addEventListener("beforeunload", () => {
   const doesQuestionnaireExist = localStorage.getItem("questionnaireExists");
-  if (answersMap && doesQuestionnaireExist &&doesQuestionnaireExist === "true") {
+  if (answersMap && doesQuestionnaireExist && doesQuestionnaireExist === "true") {
     updateAnswersMapFromControls();
     saveAnswersMapToLocalStorage();
   } else {
@@ -2075,17 +1923,17 @@ const docDetails = {
     sections: [
       {
         title: "מהי תעודת שחרור?",
-        content: "תעודת שחרור היא מסמך רשמי המעיד על סיום השירות הצבאי או הלאומי. התעודה כוללת פרטים על תקופת השירות ומועד השחרור."
+        content: "תעודת שחרור היא מסמך רשמי המעיד על סיום השירות הצבאי או הלאומי. התעודה כוללת פרטים על תקופת השירות ומועד השחרור.",
       },
       {
         title: "למה זה חשוב?",
-        content: "חיילים משוחררים זכאים להטבות מס בשנת השחרור ובשנה שלאחריה. התעודה נדרשת כדי לקבל את ההטבות הללו."
+        content: "חיילים משוחררים זכאים להטבות מס בשנת השחרור ובשנה שלאחריה. התעודה נדרשת כדי לקבל את ההטבות הללו.",
       },
       {
         title: "איך להשיג את התעודה?",
-        content: "ניתן לקבל העתק של תעודת השחרור דרך אתר 'שירות אישי' של צה\"ל או במשרדי היחידה להכוונת חיילים משוחררים."
-      }
-    ]
+        content: "ניתן לקבל העתק של תעודת השחרור דרך אתר 'שירות אישי' של צה\"ל או במשרדי היחידה להכוונת חיילים משוחררים.",
+      },
+    ],
   },
 };
 
@@ -2182,14 +2030,14 @@ document.getElementById("questionnaireButton").addEventListener("click", async (
   if (isCurrentlyActive) {
     // Hide questionnaire if it's currently shown
     hideQuestionaire();
-	localStorage.setItem("questionnaireExists", "false");
+    localStorage.setItem("questionnaireExists", "false");
   } else {
     // Check if the questionnaire is already created
     if (!document.getElementById("questionsContainerChild")) {
       await createQuestionnaire();
     } else {
       showQuestionaire();
-	  localStorage.setItem("questionnaireExists", "true");
+      localStorage.setItem("questionnaireExists", "true");
     }
   }
 });
@@ -2225,9 +2073,9 @@ questionnaireForm.addEventListener("submit", async (e) => {
     const response = await fetch(`${API_BASE_URL}/setAnswersMap`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         customerDataEntryName: "Default",
         answersMapJson: answersMapJson,
@@ -2235,11 +2083,9 @@ questionnaireForm.addEventListener("submit", async (e) => {
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Save answers failed")) {
+		return;
+	}
 
     // Close the questionnaire dialog
     hideQuestionaire();
@@ -2308,15 +2154,15 @@ async function getAnswersMap() {
     const answersResponse = await fetch(`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${authToken}`,
         Accept: "application/json",
       },
+      credentials: "include",
       ...fetchConfig,
     });
 
-    if (!answersResponse.ok) {
-      throw new Error(`HTTP error! status: ${answersResponse.status}`);
-    }
+	if(!handleResponse(answersResponse, "Get answers failed")) {
+		return;
+	}
 
     const answersData = await answersResponse.json();
     answersMap = new Map(Object.entries(answersData));
@@ -2339,11 +2185,10 @@ async function loadConfiguration() {
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Load configuration failed")) {
+		return;
+	}
+
     debug("loadConfiguration loaded");
 
     configurationData = await response.json();
@@ -2369,10 +2214,10 @@ function addFileToList(fileInfo) {
   } else if (fileInfo.fileName.includes("ידני")) {
     status = null;
     // Add clent name and id number
-    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber}`;
+    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber} ${fileInfo.noteText ? ` (${fileInfo.noteText})` : ''}`;
   } else {
     status = null;
-    statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}`;
+    statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}${fileInfo.noteText ? ` (${fileInfo.noteText})` : ''}`;
   }
 
   const li = document.createElement("li");
@@ -2399,17 +2244,20 @@ function addFileToList(fileInfo) {
       statusIcon = "❌";
       break;
     default:
-      statusIcon = documentIcons[fileInfo.documentType] || "📋";
+      statusIcon = null; //documentIcons[fileInfo.documentType] || "📋";
   }
 
   const fileNameElement = document.createElement("span");
-  fileNameElement.textContent = fileName.path || fileName.name + " " + statusIcon;
   fileNameElement.className = "fileNameElement";
+
+  fileNameElement.textContent = fileName.path || fileName.name;
+  if (statusIcon) {
+    fileNameElement.textContent = fileNameElement.textContent + " " + statusIcon;
+  }
   // Add expand/collapse indicator
   const expandIcon = document.createElement("span");
   expandIcon.textContent = "▼";
   expandIcon.className = "expand-icon";
-
 
   fileHeader.appendChild(expandIcon);
   fileHeader.appendChild(fileNameElement);
@@ -2427,7 +2275,7 @@ function addFileToList(fileInfo) {
   accordionContent.className = "accordion-content";
 
   // Add all fileInfo fields that aren't already displayed
-  const excludedFields = ["fileName", "type", "fileId", "matchTag"];
+  const excludedFields = ["fileName", "type", "fileId", "matchTag", "noteText"];
   Object.entries(fileInfo).forEach(([key, value]) => {
     //if (!excludedFields.includes(key) && value !== null) {
     if (!excludedFields.includes(key)) {
@@ -2506,21 +2354,13 @@ function addFileToList(fileInfo) {
       debug("Edit clicked for file:", fileId);
       // Get the entry that from the latestFileInfoList with the same fileId
       const formJson = latestFileInfoList.find((file) => file.fileId === fileId);
-      // Collect all field values from the accordion content
-      // accordionContent.querySelectorAll('div').forEach(div => {
-      //     const text = div.textContent;
-      //     const [key, value] = text.split(':').map(s => s.trim());
-      //     if (key && value) {
-      //         formJson[key.replace('<strong>', '').replace('</strong>', '')] = value;
-      //     }
-      // });
 
       const response = await fetch(`${API_BASE_URL}/updateForm`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           customerDataEntryName: "Default",
           formAsJSON: formJson,
@@ -2528,14 +2368,14 @@ function addFileToList(fileInfo) {
         ...fetchConfig,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Update failed: ${errorData.detail} ${response.status}`);
-      }
+	  if(!handleResponse(response, "Update form failed")) {
+		return;
+	  }
 
       const fileInfoList = await response.json();
       updateFileList(fileInfoList);
-      addMessage("הטופס עודכן בהצלחה", "success");
+	  clearMessages();
+      addMessage(`הטופס ${formJson.fileName} עודכן בהצלחה`, "success");
     } catch (error) {
       console.error("Edit failed:", error);
       addMessage("שגיאה בעריכת הקובץ: " + error.message, "error");
@@ -2548,11 +2388,11 @@ function addFileToList(fileInfo) {
     if (e.target.closest(".delete-button") || e.target.closest(".edit-button")) return;
 
     // Close any other open accordions first
-    const allAccordions = document.querySelectorAll('.accordion-content');
-    const allExpandIcons = document.querySelectorAll('.expand-icon');
-    const allEditButtons = document.querySelectorAll('.edit-button');
-    const allFileNames = document.querySelectorAll('.fileNameElement');
-    
+    const allAccordions = document.querySelectorAll(".accordion-content");
+    const allExpandIcons = document.querySelectorAll(".expand-icon");
+    const allEditButtons = document.querySelectorAll(".edit-button");
+    const allFileNames = document.querySelectorAll(".fileNameElement");
+
     allAccordions.forEach((acc, index) => {
       if (acc !== accordionContent && acc.style.display === "block") {
         acc.style.display = "none";
@@ -2564,7 +2404,7 @@ function addFileToList(fileInfo) {
     });
 
     const isExpanded = accordionContent.style.display === "block";
-    if(isExpanded) {
+    if (isExpanded) {
       accordionContent.style.display = "none";
       expandIcon.textContent = "▼";
       fileNameElement.classList.remove("expanded");
@@ -2585,17 +2425,14 @@ function addFileToList(fileInfo) {
     try {
       const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+        headers: {},
+        credentials: "include",
         ...fetchConfig,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        debug(errorData);
-        throw new Error(`Delete failed: ${errorData.detail} ${response.status}`);
-      }
+	  if(!handleResponse(response, "Delete failed")) {
+		return;
+	  }
 
       fileList.removeChild(li);
       updateDeleteAllButton();
@@ -2614,19 +2451,31 @@ function addFileToList(fileInfo) {
   fileList.appendChild(li);
 }
 
+// Return true if the response is ok, false if we signed out otherwise throw an exception..
+async function handleResponse(response, errorMessage) {
+	if (!response.ok) {
+        const errorData = await response.json();
+		debug(errorData);
+
+		if (errorData.detail.includes("JWT")) {
+			signOut();
+			// The session timed out. Please reconnect.
+			addMessage("הסשן פג תוקף. אנא התחבר מחדש.", "error");
+			return false;
+		}
+		throw new Error(errorMessage + ": " + errorData.detail + " " + response.status);
+	}
+	return true;
+}
+
 async function calculateTax(fileName) {
   try {
-    if (!authToken) {
+    if (!authExpiration) {
       await signInAnonymous();
     }
     debug("calculateTax", fileName);
     // Extract <name>_<year>.dat
     const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
-    // Check if required questions have been answered by iterating over the answersMap
-    // for taxCalcTaxYear and checking if the answers that exists in the json are not the same
-    // as the default values found in the cachedQuestions.
-    // If any required question is not answered then add a message.
-    //const answersMap = JSON.parse(localStorage.getItem('answersMap'));
     // Get questions from cache or fetch if not cached
     await getAnswersMap();
 
@@ -2638,19 +2487,18 @@ async function calculateTax(fileName) {
     if (requiredTaxCalcQuestionsList.length > 0) {
       // create the questions dialog
       createQuestionnaire(requiredTaxCalcQuestionsList, taxCalcTaxYear);
-      // Scroll to the top of the questionaire section
-	  document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
-
+      // Scroll to the top of the questionnaire section
+      document.getElementById("questionnaireContainer").scrollIntoView({ behavior: "smooth" });
     } else {
       showLoadingOverlay("מחשב מס...");
 
       const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           customerDataEntryName: "Default",
           taxYear: taxCalcTaxYear,
@@ -2658,11 +2506,9 @@ async function calculateTax(fileName) {
         ...fetchConfig,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        debug(errorData);
-        throw new Error(errorData.description);
-      }
+	  if(!handleResponse(response, "Calculate tax failed")) {
+		return;
+	  }
 
       const result = await response.json();
 
@@ -2683,29 +2529,36 @@ async function calculateTax(fileName) {
   }
 }
 
-function getRequiredQuestions(taxCalcTaxYear, requiredType) {
+// Return a list of required questions for the requiredType.
+// Check if required questions have been answered by iterating over the answersMap
+// for taxYear and checking if the answers that exists in the json are not the same
+// as the default values found in the cachedQuestions.
+// If any required question is not answered then add a message.
+function getRequiredQuestions(taxYear, requiredType) {
   const requiredQuestions = configurationData.questionList.filter((question) => question[requiredType] === "REQUIRED");
   let requiredQuestionsList = [];
 
-  const yearAnswers = answersMap.get(taxCalcTaxYear);
+  const yearAnswers = answersMap.get(taxYear);
   const currentYearAnswers = yearAnswers?.answers || {};
   // Check unanswered questions by comparing to the default values.
   requiredQuestions.forEach((question) => {
-	const answer = currentYearAnswers[question.name];
-	let numberOfDates = 0;
-	if(question.controlType === "DATE" && answer != null){
-		// Check if both dates are present
-		const dates = answer.split(",");
-		if(dates[0].length > 0 && dates[1].length > 0){
-			numberOfDates = 2;
-		}
+    const answer = currentYearAnswers[question.name];
+    let numberOfDates = 0;
+    if (question.controlType === "DATE" && answer != null) {
+      // Check if both dates are present
+      const dates = answer.split(",");
+      if (dates[0].length > 0 && dates[1].length > 0) {
+        numberOfDates = 2;
+      }
     }
-    if (!currentYearAnswers || currentYearAnswers[question.name] === undefined || currentYearAnswers[question.name] === null || 
-		answer === question.defaultAnswer ||
-		// If the question is linked to MARITAL_STATUS and the answer is MARRIED and it is a PAIR, but both fields of the pair are not answered then it is also required
-		(question.pair === "PAIR" && question.linkedTo !== null && question.linkedTo === "MARITAL_STATUS" && question.controlType === "DATE" && numberOfDates !== 2)
-	)
-	{
+    if (
+      !currentYearAnswers ||
+      currentYearAnswers[question.name] === undefined ||
+      currentYearAnswers[question.name] === null ||
+      answer === question.defaultAnswer ||
+      // If the question is linked to MARITAL_STATUS and the answer is MARRIED and it is a PAIR, but both fields of the pair are not answered then it is also required
+      (question.pair === "PAIR" && question.linkedTo !== null && question.linkedTo === "MARITAL_STATUS" && question.controlType === "DATE" && numberOfDates !== 2)
+    ) {
       debug("Required question not answered: " + question.name + ":" + answer + " " + question.defaultAnswer);
       // Add the question name to a list of required questions
       requiredQuestionsList.push(question.name);
@@ -2759,7 +2612,7 @@ function validateDateInput(e) {
 
 // Add this function to load stored tax results
 function loadStoredTaxCalculation() {
-	debug("loadStoredTaxCalculation");
+  debug("loadStoredTaxCalculation");
   try {
     const storedResults = localStorage.getItem("taxResults");
     const storedYear = localStorage.getItem("taxResultsYear");
@@ -2774,7 +2627,7 @@ function loadStoredTaxCalculation() {
 
 // Add this function to display tax results
 function displayTaxCalculation(result, year, shouldScroll = false) {
-	debug("displayTaxCalculation");
+  debug("displayTaxCalculation");
   const taxCalculationContent = document.getElementById("taxCalculationContent");
   taxCalculationContent.innerHTML = ""; // Clear existing results
   // Append year to the title id taxResultsTitle
@@ -2828,39 +2681,6 @@ document.getElementById("acceptCookies").addEventListener("click", () => {
   document.getElementById("cookieConsent").classList.remove("active");
 });
 
-// Add this function to initialize auth state
-async function initializeAuthState() {
-  const storedToken = cookieUtils.get("authToken");
-  if (storedToken) {
-    try {
-      debug("initializeAuthState");
-      // Verify the token is still valid by making a test request
-      const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=Default`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-          Accept: "application/json",
-        },
-        ...fetchConfig,
-      });
-
-      if (response.ok) {
-        // Token is valid, update UI
-        authToken = storedToken;
-        updateSignInUI();
-      } else {
-        // Token is invalid, clear it
-        cookieUtils.delete("authToken");
-        authToken = null;
-      }
-    } catch (error) {
-      console.error("Failed to verify stored token:", error);
-      cookieUtils.delete("authToken");
-      authToken = null;
-    }
-  }
-}
-
 // Setup document hover functionality
 function initializeDocumentHovers() {
   const docDetailsModal = document.getElementById("docDetailsModal");
@@ -2900,36 +2720,46 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Get and display version number
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/getVersion`, {
+    authExpiration = false;
+    userEmailValue = "";
+    versionNumber.textContent = `גרסה ${uiVersion}`;
+
+    const response = await fetch(`${API_BASE_URL}/getBasicInfo`, {
       method: "GET",
       headers: {
         Accept: "application/json",
       },
+      credentials: "include",
       ...fetchConfig,
     });
     if (response.ok) {
-      const version = await response.text();
-      versionNumber.textContent = `גרסה ${version} ${uiVersion}`;
+      const json = await response.json();
+      versionNumber.textContent = `גרסה ${json.productVersion} ${uiVersion}`;
+      userEmailValue = json.userEmail;
+      authExpiration = true;
+
+      initializeDocumentIcons();
+      await loadExistingFiles();
+      await loadResults(false); // Dont scroll
+      debug("Successfully loaded files and results with existing token");
     }
   } catch (error) {
-    versionNumber.textContent = `גרסה ${uiVersion}`;
-    console.error("Failed to fetch version:", error);
+    console.error("Exception fetching Basic Info:", error);
+  }
+  if (!authExpiration) {
+    debug("Failed to fetch version:");
   }
 
   //localStorage.setItem("questionnaireExists", "false");
   await loadConfiguration();
 
-  await initializeAuthState();
-  //initializeDocumentHovers();
   restoreSelectedDocTypes();
+  updateSignInUI();
 
   // Pre-fill feedback email if user is logged in
-  if (authToken) {
-    const decodedToken = jwt_decode(authToken);
-    if (decodedToken.email) {
-      document.getElementById("feedbackEmail").value = decodedToken.email;
-      updateFeedbackButtonState();
-    }
+  if (authExpiration) {
+    document.getElementById("feedbackEmail").value = userEmailValue;
+    updateFeedbackButtonState();
   }
 
   // Update form creation select elements according to the form types
@@ -2975,8 +2805,8 @@ document.getElementById("sendFeedbackButton").addEventListener("click", async ()
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
       },
+      credentials: "include",
       body: JSON.stringify({
         email: email,
         message: message,
@@ -2984,11 +2814,9 @@ document.getElementById("sendFeedbackButton").addEventListener("click", async ()
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      debug(errorData);
-      throw new Error(`Feedback submission failed: ${errorData.detail} ${response.status}`);
-    }
+	if(!handleResponse(response, "Feedback submission failed")) {
+		return;
+	}
 
     addMessage("תודה על המשוב שלך!", "success");
     // Clear the form
@@ -3049,7 +2877,7 @@ function restoreSelectedDocTypes() {
 
 // Add change handler for form select
 document.getElementById("createFormSelect").addEventListener("change", async (e) => {
-  if (!authToken) {
+  if (!authExpiration) {
     await signInAnonymous();
   }
   const formType = e.target.value;
@@ -3062,8 +2890,8 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
       },
+      credentials: "include",
       body: JSON.stringify({
         customerDataEntryName: "Default",
         formType: formType,
@@ -3072,9 +2900,9 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
       ...fetchConfig,
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+	if(!handleResponse(response, "Create form failed")) {
+		return;
+	}
 
     const fileInfoList = await response.json();
     debug("createForm response:", fileInfoList);
@@ -3146,6 +2974,7 @@ function setupChildrenModalInputs() {
 
 // Add this function to update missing document counts
 function updateMissingDocuments() {
+  debug("updateMissingDocuments");
   // Get all documents from file list
   const fileListDocs = Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));
 
@@ -3234,8 +3063,8 @@ async function convertAnonymousAccount(email, password, fullName) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${authToken}`,
     },
+    credentials: "include",
     body: JSON.stringify({
       email: email,
       password: password,
@@ -3243,22 +3072,51 @@ async function convertAnonymousAccount(email, password, fullName) {
     }),
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || "Failed to convert account");
+  if(!handleResponse(response, "Convert anonymous account failed")) {
+    return;
   }
 
   const result = await response.json();
   signOut();
   updateSignInUI();
 }
+// General warning modal function that returns a promise
+function showInfoModal(message) {
+  return new Promise((resolve) => {
+    const infoMessage = document.getElementById("infoMessage");
+    infoMessage.textContent = message;
 
+    const modal = document.getElementById("generalInfoModal");
+    modal.style.display = "block";
+
+    // Handle close button
+    modal.querySelector(".close-button").onclick = () => {
+      modal.style.display = "none";
+      resolve(false);
+    };
+
+    // Handle confirm button
+    modal.querySelector(".confirm-button").onclick = () => {
+      modal.style.display = "none";
+      resolve(true);
+    };
+
+    // Close if clicking outside
+    window.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+        resolve(false);
+      }
+    };
+  });
+}
 // General warning modal function that returns a promise
 function showWarningModal(message) {
   return new Promise((resolve) => {
-    const modal = document.getElementById("generalWarningModal");
     const warningMessage = document.getElementById("warningMessage");
     warningMessage.textContent = message;
+
+    const modal = document.getElementById("generalWarningModal");
     modal.style.display = "block";
 
     // Handle close button
