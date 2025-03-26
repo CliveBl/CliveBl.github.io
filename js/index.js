@@ -12,7 +12,7 @@ let latestFileInfoList = [];
 let documentIcons = {};
 let uploading = false;
 let userEmailValue = null;
-let authExpiration = false;
+let signedIn = false;
 const fetchConfig = {
   credentials: "include",
   mode: "cors",
@@ -85,7 +85,7 @@ async function signInAnonymous() {
 
     const result = await response.json();
     userEmailValue = result.email;
-    authExpiration = result.expirationTime;
+    signedIn = result.expirationTime;
     updateSignInUI();
     return;
   } catch (error) {
@@ -123,7 +123,7 @@ async function signIn(email, password) {
 
     const result = JSON.parse(text);
     userEmailValue = result.email;
-    authExpiration = result.expirationTime;
+    signedIn = result.expirationTime;
     updateSignInUI();
     return;
   } catch (error) {
@@ -134,7 +134,7 @@ async function signIn(email, password) {
 }
 
 function updateSignInUI() {
-  if (authExpiration) {
+  if (signedIn) {
     userEmail.textContent = userEmailValue;
     if (userEmailValue == ANONYMOUS_EMAIL) {
       signOutButton.disabled = true;
@@ -151,7 +151,7 @@ function updateSignInUI() {
 function signOut() {
   debug("signOut");
   userEmailValue = null;
-  authExpiration = null;
+  signedIn = null;
   // Delete the cookie by calling the signOut api
   fetch(`${API_BASE_URL}/signOut`, {
     method: "POST",
@@ -332,7 +332,7 @@ function hideLoadingOverlay() {
 // Update the process button handler
 processButton.addEventListener("click", async () => {
   try {
-    if (!authExpiration) {
+    if (!signedIn) {
       await signInAnonymous();
     }
     await getAnswersMap();
@@ -421,7 +421,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
   buttonLabel.classList.add("uploading");
 
   try {
-    if (!authExpiration) {
+    if (!signedIn) {
       await signInAnonymous();
     }
 
@@ -547,7 +547,7 @@ signOutButton.addEventListener("click", () => {
 
 loginButton.addEventListener("click", () => {
   loginOverlay.classList.add("active");
-  if (authExpiration && userEmail.textContent == ANONYMOUS_EMAIL) {
+  if (signedIn && userEmail.textContent == ANONYMOUS_EMAIL) {
     document.querySelector(".toggle-button[data-mode='signup']").click();
     isAnonymousConversion = true;
   } else {
@@ -1058,7 +1058,7 @@ function updateAnswersMapFromControls() {
 async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
   try {
     debug("createQuestionnaire");
-    if (!authExpiration) {
+    if (!signedIn) {
       await signInAnonymous();
     }
     // Get reference to the questionnaire form
@@ -1761,7 +1761,7 @@ const deleteAllButton = document.getElementById("deleteAllButton");
 // Update delete all handler - remove confirmation dialog
 deleteAllButton.addEventListener("click", async () => {
   try {
-    if (!authExpiration) {
+    if (!signedIn) {
       debug("no auth token");
       return;
     }
@@ -2470,7 +2470,7 @@ async function handleResponse(response, errorMessage) {
 
 async function calculateTax(fileName) {
   try {
-    if (!authExpiration) {
+    if (!signedIn) {
       await signInAnonymous();
     }
     debug("calculateTax", fileName);
@@ -2720,7 +2720,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Get and display version number
   try {
-    authExpiration = false;
+    signedIn = false;
     userEmailValue = "";
     versionNumber.textContent = `גרסה ${uiVersion}`;
 
@@ -2736,7 +2736,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const json = await response.json();
       versionNumber.textContent = `גרסה ${json.productVersion} ${uiVersion}`;
       userEmailValue = json.userEmail;
-      authExpiration = true;
+      signedIn = true;
 
       initializeDocumentIcons();
       await loadExistingFiles();
@@ -2746,7 +2746,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (error) {
     console.error("Exception fetching Basic Info:", error);
   }
-  if (!authExpiration) {
+  if (!signedIn) {
     debug("Failed to fetch version:");
   }
 
@@ -2757,7 +2757,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateSignInUI();
 
   // Pre-fill feedback email if user is logged in
-  if (authExpiration) {
+  if (signedIn) {
     document.getElementById("feedbackEmail").value = userEmailValue;
     updateFeedbackButtonState();
   }
@@ -2877,7 +2877,7 @@ function restoreSelectedDocTypes() {
 
 // Add change handler for form select
 document.getElementById("createFormSelect").addEventListener("change", async (e) => {
-  if (!authExpiration) {
+  if (!signedIn) {
     await signInAnonymous();
   }
   const formType = e.target.value;
