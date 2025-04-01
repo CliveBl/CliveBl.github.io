@@ -2210,7 +2210,7 @@ function addFileToList(fileInfo) {
   const fileName = { name: fileInfo.fileName, size: 0 };
   if (fileInfo.type === "FormError") {
     status = "error";
-    statusMessage = fileInfo.reason;
+    statusMessage = fileInfo.reasonText;
   } else if (fileInfo.fileName.includes("ידני")) {
     status = null;
     // Add clent name and id number
