@@ -2,7 +2,7 @@
 import { convertImageToBWAndResize } from './imageUtils.js';
 import { cookieUtils } from './cookieUtils.js';
 
-const uiVersion = "0.34";
+const uiVersion = "0.35";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 let configurationData = null;
@@ -264,26 +264,31 @@ function updateProcessButton() {
   document.getElementById("processButton").disabled = fileList.children.length === 0;
 }
 
-// File upload handler
-fileInput.addEventListener("change", async () => {
+async function uploadFilesListener(fileInput) {
 	clearMessages();
 
   // Filter out invalid files first
   const files = Array.from(fileInput.files);
   const validFiles = files.filter((file) => {
-    const validation = isValidFileType(file);
-    if (!validation.valid) {
-      addMessage(validation.message, "error");
-      return false;
-    }
-    return true;
+	const validation = isValidFileType(file);
+	if (!validation.valid) {
+	  addMessage(validation.message, "error");
+	  return false;
+	}
+	return true;
   });
 
   if (validFiles.length === 0) {
-    return;
+	return;
   }
 
-  await uploadFilesWithButtonProgress(validFiles, fileInput);
+  return uploadFilesWithButtonProgress(validFiles, fileInput);
+
+}
+
+// File upload handler
+fileInput.addEventListener("change", async () => {
+	await uploadFilesListener(fileInput);
 });
 
 // Folder upload handler. Always use individual uploads
@@ -410,6 +415,7 @@ processButton.addEventListener("click", async () => {
 async function uploadFilesWithButtonProgress(validFiles, button) {
   const buttonLabel = button.nextElementSibling;
   const originalText = buttonLabel.textContent;
+  let success = false;
   uploading = true;
 
   // Disable the upload buttons
@@ -426,7 +432,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
     }
 
     // Upload files one by one
-    await uploadFiles(validFiles);
+    success = await uploadFiles(validFiles);
   } catch (error) {
     console.error("UploadFile failed:", error);
     addMessage("שגיאה באימות: " + error.message, "error");
@@ -445,6 +451,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
     // Clear all containers
     clearResultsControls();
   }
+  return success;
 }
 
 async function uploadFiles(validFiles) {
@@ -482,7 +489,7 @@ async function uploadFiles(validFiles) {
       });
 
 	  if(!await handleResponse(response, "Upload file failed")) {
-		return;
+		return false;
 	  }
 
 	  const fileInfoList = await response.json();
@@ -492,10 +499,11 @@ async function uploadFiles(validFiles) {
       console.error("Upload failed:", error);
 	  clearMessages();
       addMessage("שגיאה בהעלאת הקובץ: " + error.message, "error");
-	  return;
+	  return false;
     }
   }
   addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+  return true;
 }
 
 // Update addMessage function to handle message types
@@ -2422,33 +2430,88 @@ function addFileToList(fileInfo) {
   deleteButton.className = "delete-button";
   deleteButton.title = "מחק";
   deleteButton.addEventListener("click", async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
-        method: "DELETE",
-        headers: {},
-        credentials: "include",
-        ...fetchConfig,
-      });
+	deleteFile(fileId);
 
-	  if(!await handleResponse(response, "Delete failed")) {
-		return;
-	  }
-
-      fileList.removeChild(li);
-      updateDeleteAllButton();
-      updateProcessButton();
-      updateMissingDocuments();
-      clearResultsControls();
-    } catch (error) {
-      console.error("Delete failed:", error);
-      addMessage("שגיאה במחיקת הקובץ: " + error.message, "error");
-    }
   });
 
   li.appendChild(fileInfoElement);
+
+  // In the case of an error form we add a retry button
+  if (fileInfo.type === "FormError") {
+    const retryInput = document.createElement("input");
+	retryInput.type = "file";
+	retryInput.id = "xfileInput";
+	retryInput.accept = ".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png";
+	retryInput.className = "retry-input";
+	
+	const retryButton = document.createElement("button");
+	retryButton.innerHTML = "ניסיון שנית";
+	//retryInputLabel.className = "custom-file-input-label";
+	retryButton.htmlFor =  "xfileInput";
+	retryButton.addEventListener('click', () => {
+		retryInput.click();
+	  });
+	const retryInputContainer = document.createElement("div");
+	retryInputContainer.appendChild(retryInput);
+	retryInputContainer.appendChild(retryButton);
+	fileInfoElement.appendChild(retryInputContainer);
+
+    retryInput.addEventListener("change", async (event) => {
+		// Open the select document dialog
+		deleteFileQuietly(fileId);
+
+		const success = await uploadFilesListener(retryInput);
+		if(success) {
+		}
+    });	
+  }
+
   li.appendChild(editButton);
   li.appendChild(deleteButton);
   fileList.appendChild(li);
+
+	async function deleteFile(fileId) {
+		try {
+		const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+			method: "DELETE",
+			headers: {},
+			credentials: "include",
+			...fetchConfig,
+		});
+
+		if(!await handleResponse(response, "Delete failed")) {
+			return;
+		}
+
+		fileList.removeChild(li);
+		updateDeleteAllButton();
+		updateProcessButton();
+		updateMissingDocuments();
+		clearResultsControls();
+		} catch (error) {
+		console.error("Delete failed:", error);
+		addMessage("שגיאה במחיקת הקובץ: " + error.message, "error");
+		}
+	}
+
+	async function deleteFileQuietly(fileId) {
+		try {
+		const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+			method: "DELETE",
+			headers: {},
+			credentials: "include",
+			...fetchConfig,
+		});
+
+		if(!await handleResponse(response, "Delete failed")) {
+			return;
+		}
+
+
+		} catch (error) {
+		console.error("Delete failed:", error);
+		}
+	}
 }
 
 // Return true if the response is ok, false if we signed out otherwise throw an exception..

@@ -178,6 +178,14 @@
         background-color: #27ae60;
       }
 
+	/* Style for custom file input */
+	.retry-input {
+		display: none;
+		flex-wrap: wrap;
+		gap: 10px;
+		flex: 1;
+		}
+
       /* Style for custom file input */
       .custom-file-input {
         display: flex;
