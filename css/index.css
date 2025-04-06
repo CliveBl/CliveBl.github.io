@@ -2119,3 +2119,110 @@
 	.back-button:hover {
 		background-color: var(--tax-blue-hover);
 	}					
+
+	/* For editor */
+		/* Make all input fields have the same fixed width and narrow height */
+		.header-input {
+		width: 100% !important; /* Ensures all inputs are equal in width */
+		max-width: 100%;
+		height: 20px; /* Reduce height to keep it compact */
+		font-size: 14px; /* Reduce text size */
+		text-align: right;
+		}
+
+		/* 🟢 Reduce accordion item width */
+		.accordion-item {
+		width: 95% !important; /* Shrinks width */
+		max-width: 95%;
+		margin: auto;
+		}
+
+
+		.field-row {
+		display: flex; /* Enable flexbox for horizontal alignment */
+		flex-wrap: wrap; /* Allow wrapping if the space is insufficient */
+		gap: 5px; /* Optional: Add spacing between items */
+		width: 100%; /* Ensure it spans the full width of the parent */
+		}
+
+		.field-container {
+		display: flex;
+		flex-direction: column; /* Stack children vertically */
+		align-items: flex-start; /* Align children to the left */
+		/* flex-wrap: wrap; */
+		justify-content: space-between; /* Ensures even spacing between fields */
+		margin-bottom: 5px;
+		width: 45%; /* Ensure the field container spans the full width */
+		}
+
+		.field {
+		flex: 1 1 100%; /* Two fields per row */
+		max-width: 100%;
+		display: flex;
+		align-items: center;
+		margin-bottom: 5px;
+		text-align: right;
+		}
+
+		.field input,
+		.field select {
+		/* width: 500px; Fixed input width */
+		box-sizing: border-box; /* Include padding and border */
+		}
+
+	/* **************  file info responsive ********************* */
+      /* Default (Desktop) - Fields stay in a single row */
+      .header-fields-wrapper {
+        display: flex;
+        flex-wrap: nowrap; /* Prevent wrapping */
+        justify-content: space-between;
+        gap: 5px;
+        width: 100%;
+      }
+
+      /* Desktop: Hide labels */
+      .field-label {
+        display: none;
+      }
+
+      /* 🟢 Ensure hidden caption does not take up space */
+      @media (max-width: 768px) {
+        .caption-row {
+          display: none !important;
+          height: 0px !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          visibility: hidden;
+        }
+
+        /* 🟢 Mobile: 2-column layout with **narrow accordion items** */
+        .header-fields-wrapper {
+          display: grid;
+          grid-template-columns: 1fr 1fr; /* Two narrow columns */
+          gap: 5px;
+          width: 100%;
+        }
+
+        .field-container {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          width: 100%;
+        }
+
+        /* Show labels above fields on mobile */
+        .field-label {
+          display: block;
+          font-size: 12px; /* Smaller font */
+          font-weight: bold;
+          margin-bottom: 2px; /* Reduce spacing */
+          color: #333;
+        }
+
+        /* 🟢 Reduce accordion item width */
+        .accordion-item {
+          width: 95% !important; /* Shrinks width */
+          max-width: 95%;
+          margin: auto;
+        }
+      

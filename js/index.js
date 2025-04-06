@@ -1,11 +1,9 @@
-// Import image utilities
-import { convertImageToBWAndResize } from './imageUtils.js';
-import { cookieUtils } from './cookieUtils.js';
 
-const uiVersion = "0.35";
+
+const uiVersion = "0.36";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
-let configurationData = null;
+export let configurationData = null;
 let answersMap = {};
 let currentlySelectedTaxYear;
 let latestFileInfoList = [];
@@ -36,14 +34,21 @@ const ENV = {
     AUTH_BASE_URL: "https://srv.taxesil.top:443/auth",
   },
 };
+
+// Import image utilities
+import { convertImageToBWAndResize } from './imageUtils.js';
+import { cookieUtils } from './cookieUtils.js';
+import { displayFileInfoInExpandableArea } from './editor.js';
+
 // Get environment from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
 const envParam = urlParams.get("env");
+const editableFileListParam = urlParams.get("editable");
 const currentEnv = envParam || "production";
 debug("Current environment:", currentEnv);
 
-const API_BASE_URL = ENV[currentEnv].API_BASE_URL;
-const AUTH_BASE_URL = ENV[currentEnv].AUTH_BASE_URL;
+export const API_BASE_URL = ENV[currentEnv].API_BASE_URL;
+export const AUTH_BASE_URL = ENV[currentEnv].AUTH_BASE_URL;
 
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput");
@@ -63,6 +68,17 @@ const googleButtonText = document.getElementById("googleButtonText");
 const githubButtonText = document.getElementById("githubButtonText");
 const userEmail = document.getElementById("userEmail");
 
+
+const FILE_LIST_TYPE = "EDITABLE_FILE_LIST"
+
+function updateFileListP(fileInfoList) {
+	//if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
+	if(editableFileListParam && editableFileListParam == "true") {
+		displayFileInfoInExpandableArea(fileInfoList);
+	} else {
+		updateFileList(fileInfoList);
+	}
+}
 
 async function signInAnonymous() {
   try {
@@ -193,7 +209,7 @@ async function loadExistingFiles() {
 	}
 
     const fileInfoList = await response.json();
-    updateFileList(fileInfoList);
+    updateFileListP(fileInfoList);
 
     // Enable all buttons after successful file info retrieval
     document.getElementById("fileInput").disabled = false;
@@ -494,7 +510,7 @@ async function uploadFiles(validFiles) {
 
 	  const fileInfoList = await response.json();
       debug("Upload response:", fileInfoList);
-      updateFileList(fileInfoList);
+      updateFileListP(fileInfoList);
     } catch (error) {
       console.error("Upload failed:", error);
 	  clearMessages();
@@ -1623,7 +1639,6 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
   }
 
   function updateControlFromAnswer(question, answer, controls, year) {
-	debug("Updating control from answer:", answer, question.name);
     const isPair = question.pair === "PAIR";
     const controlType = question.controlType;
 
@@ -2387,7 +2402,7 @@ function addFileToList(fileInfo) {
 	  }
 
       const fileInfoList = await response.json();
-      updateFileList(fileInfoList);
+      updateFileListP(fileInfoList);
 	  clearMessages();
       addMessage(`הטופס ${formJson.fileName} עודכן בהצלחה`, "success");
     } catch (error) {
@@ -2975,7 +2990,7 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
 
     const fileInfoList = await response.json();
     debug("createForm response:", fileInfoList);
-    updateFileList(fileInfoList);
+    updateFileListP(fileInfoList);
     clearResultsControls();
     clearMessages();
     addMessage("הטופס נוצר בהצלחה", "success");
