@@ -909,18 +909,21 @@ function removeAnswersMapFromLocalStorage() {
   answersMap = {};
 }
 
-function getChildrenModal() {
+function getChildrenModal(year) {
   let childrenModalId;
-  if (currentlySelectedTaxYear >= 2022) {
+  if (year >= 2024) {
+    childrenModalId = "childrenModal_2024";
+  } else if (year >= 2022) {
     childrenModalId = "childrenModal_2023";
   } else {
     childrenModalId = "childrenModal_2018";
   }
+  debug("childrenModalId:", childrenModalId);
   return childrenModalId;
 }
 
 function getAnswerFromChildrenControls() {
-  const childrenModal = document.getElementById(getChildrenModal());
+  const childrenModal = document.getElementById(getChildrenModal(currentlySelectedTaxYear));
   // Get the values of the input fields into a string of pairs separated by commas
   // The pairs are of the form <code>:<value>
   let childrenData = "";
@@ -1131,7 +1134,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
     // Set the year selector to match currentlySelectedTaxYear
     yearSelect.value = currentlySelectedTaxYear;
     //debug('Set year selector to:', currentlySelectedTaxYear); // Debug log
-    let childrenModalId = getChildrenModal();
+    let childrenModalId = getChildrenModal(currentlySelectedTaxYear);
     // Create questions and populate with answers
     const questions = configurationData.questionList;
     questions.forEach((question) => {
@@ -1179,7 +1182,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
           childrenButton.type = "button"; // Prevent form submission
 
           childrenButton.addEventListener("click", () => {
-            childrenModalId = getChildrenModal();
+            childrenModalId = getChildrenModal(currentlySelectedTaxYear);
             setupChildrenModalInputs();
 
             const modal = document.getElementById(childrenModalId);
@@ -1512,7 +1515,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
       if (!savedAnswer) {
         savedAnswer = question.defaultAnswer;
       }
-      updateControlFromAnswer(question, savedAnswer, controls);
+      updateControlFromAnswer(question, savedAnswer, controls, currentlySelectedTaxYear);
     });
 
     // Add debug logging for the answers map and current year answers
@@ -1522,12 +1525,12 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
     // Add year change handler to load answers for selected year
     yearSelect.addEventListener("change", () => {
       const selectedYear = parseInt(yearSelect.value);
+	  debug("yearSelect listener:", selectedYear);
 
       // If the selected year is different from the currently selected year
       if (selectedYear !== currentlySelectedTaxYear) {
         // First save current year's answers to the answersMap
         const previousYearAnswers = getAnswersFromControls();
-
         // Update answersMap with previous year's answers
         answersMap.set(currentlySelectedTaxYear.toString(), {
           taxYear: currentlySelectedTaxYear,
@@ -1541,13 +1544,16 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
           selectedYearAnswers = selectedYearEntry.answers;
         }
 
+		// Update current year tracker
+		currentlySelectedTaxYear = selectedYear;
+
         // iterate over the questions
         questions.forEach((question) => {
           let savedAnswer;
           if (selectedYearAnswers) {
             savedAnswer = selectedYearAnswers[question.name];
           } else {
-            savedAnswer = question.defaultAnswer;
+           savedAnswer = question.defaultAnswer;
           }
           // get the controls for the question
           const controls = questionnaireForm.querySelector(`.question-group[data-question="${question.name}"] .question-controls`);
@@ -1555,7 +1561,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
           if (controls) {
             // Update controls using same logic as initial population
             if (savedAnswer) {
-              updateControlFromAnswer(question, savedAnswer, controls);
+              updateControlFromAnswer(question, savedAnswer, controls, selectedYear);
             } else {
               // Clear controls if no saved answer
               clearControls(controls, question.controlType);
@@ -1563,8 +1569,6 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
           }
         });
 
-        // Update current year tracker
-        currentlySelectedTaxYear = selectedYear;
       }
     });
 
@@ -1618,13 +1622,14 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
     addMessage("שגיאה בטעינת השאלון: " + error.message, "error");
   }
 
-  function updateControlFromAnswer(question, answer, controls) {
+  function updateControlFromAnswer(question, answer, controls, year) {
+	debug("Updating control from answer:", answer, question.name);
     const isPair = question.pair === "PAIR";
     const controlType = question.controlType;
 
     switch (controlType) {
       case "CHILDREN":
-        setChildrenControls(answer, controlType);
+        setChildrenControls(answer, controlType, year);
         break;
       case "ID":
         if (isPair) {
@@ -1709,6 +1714,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
   }
 
   function clearControls(controls, controlType) {
+	debug("Clearing controls:", controlType);
     switch (controlType) {
       case "CHILDREN":
         controls.querySelectorAll("input[data-code='260']").forEach((input) => (input.value = ""));
@@ -1736,7 +1742,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
     }
   }
 
-  function setChildrenControls(answer, controlType) {
+  function setChildrenControls(answer, controlType, year) {
     function getValueFromPair(pair) {
       const pairArray = pair.split(":");
       if (pairArray.length == 2) {
@@ -1745,7 +1751,7 @@ async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
         return 0;
       }
     }
-    const childrenModal = document.getElementById(getChildrenModal());
+    const childrenModal = document.getElementById(getChildrenModal(year));
     // Populate the controls with the 2d array in the savedAnswer
     // The string is of the format "260:1,260:,260:,260:,260:1,262:1,262:1,262:1,262:,262:,190:1,190:,190:,190:,190:,291:1,291:,291:,291:,291:,022:,022:,022:1,022:,022:1,361:1,362:1,
     //Where the first number is the code and the second is the number of children. Each code has 5 values.
@@ -3002,7 +3008,7 @@ async function idFromAnswersMap() {
 
 // Add event handlers for children modal
 function setupChildrenModalInputs() {
-  const modalId = getChildrenModal();
+  const modalId = getChildrenModal(currentlySelectedTaxYear);
   const inputs = document.querySelectorAll(`#${modalId} input[type="number"]`);
 
   inputs.forEach((input) => {
