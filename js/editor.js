@@ -237,13 +237,13 @@ export async function displayFileInfoInExpandableArea(data) {
 	// Render each accordion entry
 	data.forEach((fileData) => {
 	  const accordionContainer = document.createElement("div");
-	  accordionContainer.style.border = "1px solid #ddd";
+	  accordionContainer.style.border = "1px solid var(--border-color)";
 	  accordionContainer.style.marginBottom = "10px";
 
 	  // Accordion Header
 	  const header = document.createElement("div");
 	  header.style.padding = "2px";
-	  header.style.backgroundColor = "#f2f2f2";
+	//   header.style.backgroundColor = "#f2f2f2";
 	  header.style.display = "flex";
 	  header.style.alignItems = "center";
 
@@ -251,10 +251,10 @@ export async function displayFileInfoInExpandableArea(data) {
 	  const body = document.createElement("div");
 	  body.style.display = "none";
 	  body.style.padding = "2px";
-	  body.style.backgroundColor = "#ffffff";
+	//   body.style.backgroundColor = "#ffffff";
 
 	  // Toggle Button (+/-)
-	  const toggleButton = document.createElement("button");
+	  const toggleButton = document.createElement("toggleButton");
 
 	  displayFileInfoPlusMinusButton(body, toggleButton);
 
@@ -326,10 +326,8 @@ export async function displayFileInfoInExpandableArea(data) {
 
         const input = document.createElement('input');
         input.setAttribute('data-field-name', key);
-        input.style.flex = '0 0 120px';
-        input.style.padding = '3px';
-        input.style.textAlign = 'right';
-
+		input.className = "field-input";
+ 
         // Apply border style based on field type
         input.style.border = isMainField ? '3px solid black' : '1px solid gray';
 
@@ -469,7 +467,7 @@ function displayFileInfoHeader(expandableArea, data) {
     captionsRow.className = 'caption-row';
     captionsRow.style.display = 'flex';
     captionsRow.style.padding = '10px';
-    captionsRow.style.backgroundColor = '#e0e0e0';
+    // captionsRow.style.backgroundColor = '#e0e0e0';
     captionsRow.style.fontWeight = 'bold';
     captionsRow.style.borderBottom = '2px solid #ccc';
 
@@ -553,11 +551,7 @@ function displayFileInfoLine(headerFieldsContainer, fileData) {
         input.value = value || '';
         input.setAttribute('data-field-name', fieldName);
         input.className = 'header-input';
-        input.style.width = width; // Keep original width on desktop
-        input.style.padding = '5px';
-        input.style.textAlign = 'right';
-        input.style.border = '1px solid #ddd';
-        input.style.backgroundColor = isEditable ? '#fff' : '#e0e0e0';
+        //input.style.backgroundColor = isEditable ? '#fff' : '#e0e0e0';
         input.readOnly = !isEditable;
 
         // Append label and input (label appears only in mobile)

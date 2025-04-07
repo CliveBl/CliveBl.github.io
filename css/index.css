@@ -2123,11 +2123,15 @@
 	/* For editor */
 		/* Make all input fields have the same fixed width and narrow height */
 		.header-input {
-		width: 100% !important; /* Ensures all inputs are equal in width */
+		width: 100% !important; 
 		max-width: 100%;
-		height: 20px; /* Reduce height to keep it compact */
-		font-size: 14px; /* Reduce text size */
+		height: 20px; 
+		font-size: 14px; 
 		text-align: right;
+		padding: 5px;
+		border: 1px solid var(--border-color);
+		background-color: var(--bg-color);
+		color: var(--text-color);
 		}
 
 		/* 🟢 Reduce accordion item width */
@@ -2162,6 +2166,7 @@
 		align-items: center;
 		margin-bottom: 5px;
 		text-align: right;
+		background-color: var(--bg-color);
 		}
 
 		.field input,
@@ -2226,3 +2231,12 @@
           margin: auto;
         }
       
+		.field-input {
+			flex: 0 0 120px;
+			padding: 3px;
+			text-align: right;
+			background-color: var(--bg-color);
+			color: var(--text-color);
+		}
+
+		
