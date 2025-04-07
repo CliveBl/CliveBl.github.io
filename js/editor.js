@@ -375,7 +375,15 @@ export async function displayFileInfoInExpandableArea(data) {
             input.oninput = () => { input.value = input.value.replace(/\D/g, '').slice(0, 3); };
         } else if (key.endsWith("Date")) {
             input.type = "date";
-            input.value = value;
+			// value is in format dd/MM/yyyy
+			// convert to format yyyy-MM-dd
+			// if value is empty, set to null
+			if (value === "") {
+				input.value = null;
+			} else {
+				// Convert to iso date yyyy-MM-dd
+				input.value = value.split('/').reverse().join('-');
+			}
             input.onblur = () => {
                 const isValidDate = !isNaN(new Date(input.value).getTime());
                 if (!isValidDate) {

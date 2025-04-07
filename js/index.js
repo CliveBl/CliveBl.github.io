@@ -1,4 +1,4 @@
-const uiVersion = "0.38";
+const uiVersion = "0.39";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData = null;
