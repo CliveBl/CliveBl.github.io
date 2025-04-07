@@ -216,6 +216,9 @@ const excludedHeaderFields = [
 "fieldTypes"
 ];
 
+export function editableFileListHasEntries() {
+	return document.getElementById("expandableAreaUploadFiles").children.length > 0;
+}	
 
 export async function displayFileInfoInExpandableArea(data) {
 	const expandableArea = document.getElementById(
@@ -237,6 +240,7 @@ export async function displayFileInfoInExpandableArea(data) {
 	// Render each accordion entry
 	data.forEach((fileData) => {
 	  const accordionContainer = document.createElement("div");
+	  accordionContainer.setAttribute("data-doc-typename", fileData.documentType);
 	  accordionContainer.style.border = "1px solid var(--border-color)";
 	  accordionContainer.style.marginBottom = "10px";
 
@@ -478,9 +482,7 @@ function displayFileInfoHeader(expandableArea, data) {
         { text: 'שם הלקוח', width: '180px' },
         { text: 'מספר זיהוי', width: '150px' },
         { text: 'סוג מסמך', width: '150px' },
-        { text: 'סוג קובץ', width: '150px' },
         { text: 'שם הקובץ', width: '200px' },
-        { text: 'פעולות', width: '80px' }
     ];
 
     headerCaptions.forEach(caption => {
