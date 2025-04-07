@@ -19,7 +19,7 @@ const fetchConfig = {
 // Add this near the top of your script
 const DEBUG = true;
 
-function debug(...args) {
+export function debug(...args) {
   if (DEBUG) {
     console.log(...args);
   }

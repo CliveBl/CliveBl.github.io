@@ -1,4 +1,4 @@
-import { API_BASE_URL,AUTH_BASE_URL,configurationData } from './index.js';
+import { API_BASE_URL,AUTH_BASE_URL,configurationData,debug } from './index.js';
 
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0 }) {
@@ -318,11 +318,12 @@ export async function displayFileInfoInExpandableArea(data) {
         fieldRow.style.display = 'flex';
         fieldRow.style.marginBottom = '5px';
 
-        const label = document.createElement('label');
-        label.textContent = friendlyNames[key] || key;
-        label.style.flex = '0 0 150px';
-        label.style.textAlign = 'right';
-        label.style.fontWeight = 'bold';
+        const fieldLabel = document.createElement('label');
+        fieldLabel.textContent = friendlyNames[key] || key;
+		fieldLabel.className = "fieldlabel";
+		fieldLabel.style.flex = '0 0 150px';
+		//fieldLabel.style.textAlign = 'right';
+        // label.style.fontWeight = 'bold';
 
         const input = document.createElement('input');
         input.setAttribute('data-field-name', key);
@@ -433,7 +434,7 @@ export async function displayFileInfoInExpandableArea(data) {
             });
         }
 
-        fieldRow.appendChild(label);
+        fieldRow.appendChild(fieldLabel);
         fieldRow.appendChild(input);
         body.appendChild(fieldRow);
     }
@@ -541,9 +542,9 @@ function displayFileInfoLine(headerFieldsContainer, fileData) {
         fieldContainer.className = 'field-container'; // Used for mobile layout
 
         // Create label (only visible on mobile)
-        const label = document.createElement('label');
-        label.textContent = labelText;
-        label.className = 'field-label';
+        const headerFieldlabel = document.createElement('label');
+        headerFieldlabel.textContent = labelText;
+        headerFieldlabel.className = 'headerfield-label';
 
         // Create input field
         const input = document.createElement('input');
@@ -555,7 +556,7 @@ function displayFileInfoLine(headerFieldsContainer, fileData) {
         input.readOnly = !isEditable;
 
         // Append label and input (label appears only in mobile)
-        fieldContainer.appendChild(label);
+        fieldContainer.appendChild(headerFieldlabel);
         fieldContainer.appendChild(input);
 
         return fieldContainer;
@@ -637,7 +638,7 @@ addFieldsButton.style.marginLeft = '10px';
 
 //  add fields to an existing form
     addFieldsButton.onclick = async  () => {
-console.log("Adding fields to an existing form");
+debug("Adding fields to an existing form");
 
 
 //await updateFormsWithoutFields(data);
@@ -653,7 +654,7 @@ displayFileInfoInExpandableArea(data);
 
     // Cancel button behavior: Restore original file info
     cancelButton.onclick = async  () => {
-        console.log("🔄 Cancel button clicked, restoring original data");
+        debug("🔄 Cancel button clicked, restoring original data");
         displayFileInfoInExpandableArea(data);
     };
 
@@ -708,7 +709,7 @@ displayFileInfoInExpandableArea(data);
             updatedData[fieldName] = fieldValue;
         });
 
-        console.log('🔄 Updating Form Data:', updatedData);
+        debug('🔄 Updating Form Data:', updatedData);
 
         await updateFormFunction(fileData.fileId, updatedData);
 
@@ -726,7 +727,7 @@ displayFileInfoInExpandableArea(data);
         for (const fileData of formsData) {
           // Check if the fields object is missing or empty
           if (!fileData.fields || Object.keys(fileData.fields).length === 0) {
-            console.log(
+            debug(
               `No fields found for fileId ${fileData.fileId}. Calling updateFormFunctionNewForm...`
             );
 
@@ -737,7 +738,7 @@ displayFileInfoInExpandableArea(data);
                 fileData.type,
                 fileData
               );
-              console.log(
+              debug(
                 `Successfully updated form for fileId: ${fileData.fileId}`
               );
             } catch (error) {
@@ -747,7 +748,7 @@ displayFileInfoInExpandableArea(data);
               );
             }
           } else {
-            console.log(
+            debug(
               `Fields already exist for fileId ${fileData.fileId}. Skipping update.`
             );
           }
@@ -757,22 +758,27 @@ displayFileInfoInExpandableArea(data);
       async function updateFormFunction(fileId, payload) {
         const URL = API_BASE_URL + "/updateForm";
 
-        console.log(
-          "This is the payload in updateFormFunction:",
-          JSON.stringify(payload)
-        );
+        debug("This is the payload in updateFormFunction:",JSON.stringify(payload));
 
-        // Remove fields with value "0.00"
-        const filteredFields = Object.fromEntries(
-          Object.entries(payload.fields).filter(
-            ([_, value]) => value !== "0.00"
-          )
-        );
-        console.log("filtered fields", filteredFields);
-        const filteredPayload = {
-          ...payload,
-          fields: filteredFields,
-        };
+        if (payload.fields) {
+          // Remove fields with value "0.00"
+          const filteredFields = Object.fromEntries(
+            Object.entries(payload.fields).filter(
+              ([_, value]) => value !== "0.00"
+            )
+          );
+          debug("filtered fields", filteredFields);
+		  // remove the fields from the payload if they are empty
+		  if (Object.keys(filteredFields).length === 0) {
+			delete payload.fields;
+		  }
+		  else {
+			payload = {
+				...payload,
+				fields: filteredFields,
+			};
+		  }
+        }
 
         try {
           // Send the POST request
@@ -785,7 +791,7 @@ displayFileInfoInExpandableArea(data);
             body: JSON.stringify({
               customerDataEntryName: "Default",
               formAsJSON: {
-                ...filteredPayload,
+                ...payload,
                 fileId: fileId, // Ensure fileId is included in the payload
               },
             }),
@@ -799,7 +805,7 @@ displayFileInfoInExpandableArea(data);
 
           // Parse and handle the response
           const responseData = await response.json();
-          console.log("Form updated successfully:", responseData);
+          debug("Form updated successfully:", responseData);
           //alert('Form updated successfully!');
           return responseData; // Return the response if needed
         } catch (error) {
@@ -816,9 +822,9 @@ displayFileInfoInExpandableArea(data);
         // Parse configurationData to extract the necessary form types and fields
         let config;
         try {
-          console.log("Parsing configuration data...");
+          debug("Parsing configuration data...");
           config = configurationData;
-          console.log("Parsed configuration data successfully:", config);
+          debug("Parsed configuration data successfully:", config);
         } catch (error) {
           console.error("Failed to parse configuration data:", error);
           return;
@@ -835,7 +841,7 @@ displayFileInfoInExpandableArea(data);
           return;
         }
 
-        console.log(`Found form details for '${fileType}':`, formDetails);
+        debug(`Found form details for '${fileType}':`, formDetails);
 
         // Ensure fieldTypes exist before iterating
         if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
@@ -849,18 +855,18 @@ displayFileInfoInExpandableArea(data);
         // Initialize fieldsData with existing fields from fileData.fields
         //const fieldsData = { ...(fileData.fields || {}) };
         const fieldsData = fileData.fields;
-        console.log("field data before adding fields");
-        console.log(fileData.fields);
+        debug("field data before adding fields");
+        debug(fileData.fields);
         // Fill missing fields from configuration with default values
         formDetails.fieldTypes.forEach((field) => {
           //if (!(field in fieldsData))  do not check if field exist
           //{
-          console.log(`Adding missing field: ${field}`);
+          debug(`Adding missing field: ${field}`);
           fieldsData[field] = "0.00"; // Default placeholder value
           //}
         });
 
-        console.log("Final fields data (separate fields object):", fieldsData);
+        debug("Final fields data (separate fields object):", fieldsData);
 
         // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
         const payload = {
@@ -870,7 +876,7 @@ displayFileInfoInExpandableArea(data);
           fields: fieldsData, // Separate section for form fields
         };
 
-        console.log(
+        debug(
           "Final payload to be sent:",
           JSON.stringify(payload, null, 2)
         );
@@ -897,7 +903,7 @@ displayFileInfoInExpandableArea(data);
 
           // Parse and handle the response
           const responseData = await response.json();
-          console.log("Form updated successfully:", responseData);
+          debug("Form updated successfully:", responseData);
         } catch (error) {
           console.error("Error updating form:", error);
         }
@@ -908,9 +914,9 @@ displayFileInfoInExpandableArea(data);
         // Parse configurationData to extract the necessary form types and fields
         let config;
         try {
-          console.log("Parsing configuration data...");
+          debug("Parsing configuration data...");
           config = configurationData;
-          console.log("Parsed configuration data successfully:", config);
+          debug("Parsed configuration data successfully:", config);
         } catch (error) {
           console.error("Failed to parse configuration data:", error);
           return;
@@ -927,7 +933,7 @@ displayFileInfoInExpandableArea(data);
           return;
         }
 
-        console.log(`Found form details for '${fileType}':`, formDetails);
+        debug(`Found form details for '${fileType}':`, formDetails);
 
         // Ensure fieldTypes exist before iterating
         if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
@@ -944,12 +950,12 @@ displayFileInfoInExpandableArea(data);
         // Fill missing fields from configuration with default values
         formDetails.fieldTypes.forEach((field) => {
           if (!(field in fieldsData)) {
-            console.log(`Adding missing field: ${field}`);
+            debug(`Adding missing field: ${field}`);
             fieldsData[field] = "0.00"; // Default placeholder value
           }
         });
 
-        console.log("Final fields data (separate fields object):", fieldsData);
+        debug("Final fields data (separate fields object):", fieldsData);
 
         // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
         const payload = {
@@ -959,7 +965,7 @@ displayFileInfoInExpandableArea(data);
           fields: fieldsData, // Separate section for form fields
         };
 
-        console.log(
+        debug(
           "Final payload to be sent:",
           JSON.stringify(payload, null, 2)
         );
@@ -989,7 +995,7 @@ displayFileInfoInExpandableArea(data);
 
           // Parse and handle the response
           const responseData = await response.json();
-          console.log("Form updated successfully:", responseData);
+          debug("Form updated successfully:", responseData);
 		  return responseData;
         } catch (error) {
           console.error("Error updating form:", error);
@@ -1035,7 +1041,7 @@ displayFileInfoInExpandableArea(data);
             };
           }
 
-          console.log("Created a new form successfully:", data);
+          debug("Created a new form successfully:", data);
           return { URL, success: true, data };
         } catch (error) {
           console.error("Error creating form:", error);
@@ -1114,7 +1120,7 @@ displayFileInfoInExpandableArea(data);
         createButton.style.padding = "5px 10px";
         createButton.onclick = async function () {
           const selectedFormType = comboBox.value;
-          console.log(
+          debug(
             "This is what is being sent to create form:",
             selectedFormType
           );
@@ -1124,9 +1130,9 @@ displayFileInfoInExpandableArea(data);
             const response = await createFormFunction(selectedFormType);
 
             // Log the returned fields
-            console.log("Create form success:", response.success);
-            console.log("Create form URL:", response.url);
-            console.log("Create form data:", response.data);
+            debug("Create form success:", response.success);
+            debug("Create form URL:", response.url);
+            debug("Create form data:", response.data);
 
             // dkdkdk
 
@@ -1136,7 +1142,7 @@ displayFileInfoInExpandableArea(data);
             displayFileInfoInExpandableArea(data);
             //await updateFormFunction(fileId, selectedFormType);
 
-            console.log("Form updated successfully!");
+            debug("Form updated successfully!");
           } catch (error) {
             console.error("Failed to create or update form:", error);
           }
