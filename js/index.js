@@ -1,4 +1,4 @@
-const uiVersion = "0.39";
+const uiVersion = "0.40";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData = null;
@@ -36,7 +36,7 @@ const ENV = {
 // Import image utilities
 import { convertImageToBWAndResize } from './imageUtils.js';
 import { cookieUtils } from './cookieUtils.js';
-import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes } from './editor.js';
+import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList } from './editor.js';
 
 // Get environment from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
@@ -77,6 +77,14 @@ function updateFileListP(fileInfoList) {
 		document.getElementById("deleteAllButton").disabled = !editableFileListHasEntries();
 	} else {
 		updateFileList(fileInfoList);
+	}
+}
+
+function removeFileList() {
+	if(editableFileListParam && editableFileListParam == "true") {
+		editableRemoveFileList();
+	} else {
+		fileList.innerHTML = "";
 	}
 }
 
@@ -196,9 +204,6 @@ function signOut() {
   //addMessage("התנתקת בהצלחה");
 }
 
-function removeFileList() {
-  fileList.innerHTML = "";
-}
 
 // Add this function to load files with existing token
 async function loadExistingFiles() {

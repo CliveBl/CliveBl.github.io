@@ -227,15 +227,16 @@ export function editableGetDocTypes() {
         .filter(Boolean); // Remove any null/undefined values
 }
 
+export function editableRemoveFileList() {
+	const expandableArea = document.getElementById("expandableAreaUploadFiles");
+	expandableArea.innerHTML = "";
+}
+
 export async function displayFileInfoInExpandableArea(data) {
-	const expandableArea = document.getElementById(
-	  "expandableAreaUploadFiles"
-	);
+	const expandableArea = document.getElementById("expandableAreaUploadFiles");
 
 	if (!expandableArea) {
-	  console.error(
-		'Element with id "expandableAreaUploadFiles" not found!'
-	  );
+	  console.error('Element with id "expandableAreaUploadFiles" not found!' );
 	  return;
 	}
 
