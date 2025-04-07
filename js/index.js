@@ -1,6 +1,4 @@
-
-
-const uiVersion = "0.37";
+const uiVersion = "0.38";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData = null;
@@ -38,7 +36,7 @@ const ENV = {
 // Import image utilities
 import { convertImageToBWAndResize } from './imageUtils.js';
 import { cookieUtils } from './cookieUtils.js';
-import { displayFileInfoInExpandableArea, editableFileListHasEntries } from './editor.js';
+import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes } from './editor.js';
 
 // Get environment from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
@@ -79,6 +77,15 @@ function updateFileListP(fileInfoList) {
 		document.getElementById("deleteAllButton").disabled = !editableFileListHasEntries();
 	} else {
 		updateFileList(fileInfoList);
+	}
+}
+
+function getDocTypes()
+{
+	if(editableFileListParam && editableFileListParam == "true") {
+		return editableGetDocTypes();
+	} else {
+		return Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));
 	}
 }
 
@@ -3058,11 +3065,12 @@ function setupChildrenModalInputs() {
   });
 }
 
+
 // Add this function to update missing document counts
 function updateMissingDocuments() {
   debug("updateMissingDocuments");
   // Get all documents from file list
-  const fileListDocs = Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));
+  const fileListDocs = getDocTypes();
 
   // Count documents by type
   const docCounts = fileListDocs.reduce((acc, type) => {

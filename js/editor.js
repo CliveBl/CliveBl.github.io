@@ -218,7 +218,14 @@ const excludedHeaderFields = [
 
 export function editableFileListHasEntries() {
 	return document.getElementById("expandableAreaUploadFiles").children.length > 0;
-}	
+}
+
+export function editableGetDocTypes() {
+    // Get all accordionContainers and map to their document types
+    return Array.from(document.querySelectorAll("#expandableAreaUploadFiles #accordionContainer"))
+        .map(div => div.getAttribute("data-doc-typename"))
+        .filter(Boolean); // Remove any null/undefined values
+}
 
 export async function displayFileInfoInExpandableArea(data) {
 	const expandableArea = document.getElementById(
@@ -240,6 +247,7 @@ export async function displayFileInfoInExpandableArea(data) {
 	// Render each accordion entry
 	data.forEach((fileData) => {
 	  const accordionContainer = document.createElement("div");
+	  accordionContainer.id = "accordionContainer";
 	  accordionContainer.setAttribute("data-doc-typename", fileData.documentType);
 	  accordionContainer.style.border = "1px solid var(--border-color)";
 	  accordionContainer.style.marginBottom = "10px";
