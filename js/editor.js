@@ -119,7 +119,6 @@ function customerMessageModal({ title, message, button1Text, button2Text = null,
 /* ********************************************* friendly names ************************************ */
 const friendlyNames = {
 	organizationName: "שם הארגון",
-	IncomeTaxDeduction_042: "מס הכנסה",
 	explanationText: "תאור",
 	value: "סכום",
 	receiptInteger: "מספר קבלה",
@@ -145,7 +144,8 @@ const friendlyNames = {
 		EducationFund_219_218: "קרן השתלמות",
 		EmployerKupatGemel_249_248: "קופת גמל מעסיק",
 		InsuredIncome_245_244: "הכנסה מבוטחת",
-		IncomeTax_042: "מס הכנסה",
+		IncomeTaxDeduction_042: "מס הכנסה",
+		NationalInsuranceIncomeTaxDeduction_040: "מס הכנסה מקצבה ביטוח לאומי",
 		Donations_237_037: "תרומות",
 		NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
 		PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
