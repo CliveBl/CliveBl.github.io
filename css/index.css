@@ -99,8 +99,10 @@
       /* Add main container */
       .main-container {
         max-width: 800px;
-        margin: 0 auto;
+        margin: 80px auto 0; /* Increased top margin to account for auth container */
         padding: 0 10px;
+        position: relative;
+        z-index: 1;
       }
 
       /* Remove default list styling */
@@ -1275,16 +1277,36 @@
       }
 
       .auth-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--bg-color);
+        padding: 10px;
         display: flex;
-		flex-wrap: wrap;
+        flex-direction: column;
         align-items: center;
-        justify-content: space-between;
         gap: 10px;
-        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+        z-index: 1000;
+        height: auto;
+      }
+
+      .auth-container h1 {
+        margin: 0;
+        text-align: center;
+      }
+
+      .auth-container .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
       }
 
       #signOutButton {
-        margin-right: auto;  /* Push to the left */
+        margin-right: auto;
       }
 
       .user-email {
@@ -2243,3 +2265,10 @@
 			flex: 0 0 150px;
 			text-align: right;
 		}
+		}
+      /* Add styles for the scrollable content */
+      .scrollable-content {
+        /* overflow-y: auto; */
+        height: calc(100vh - 80px); /* Subtract auth container height */
+        padding-top: 20px;
+      }

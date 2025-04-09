@@ -63,288 +63,292 @@
 
     <div class="main-container">
         <div class="auth-container">
-          <span id="userEmail" class="user-email"></span>
-          <button id="loginButton" class="login-button">התחברות</button>
-          <button id="signOutButton" class="logout-button" disabled>התנתק</button>
+			<h1>דו"ח שנתי - עשה זאת עצמך</h1>
+			<div class="controls">
+				<span id="userEmail" class="user-email"></span>
+				<button id="loginButton" class="login-button">התחברות</button>
+				<button id="signOutButton" class="logout-button" disabled>התנתק</button>
+			</div>
         </div>
-	  <h1>דו"ח שנתי - עשה זאת עצמך</h1>
 
-      <div class="info-section">
-        <h2>מסמכים נדרשים להשת הדו"ח לשני בני הזוג</h2>
-        <div class="required-docs">
-          <div class="doc-item" data-doc-type="form106" data-doc-typename="טופס 106">
-            <div class="doc-details">
-              <h3>טופס 106</h3>
-              <span class="doc-icon">📄</span>
-              <p>תלושי משכורת שנתיים מכל מעסיק</p>
-              <button class="more-info-button">
-                <span>ℹ️</span>
-                <span>מידע נוסף</span>
-              </button>
-            </div>
-            <div class="doc-controls">
-              <span>כמות</span>
-              <select name="form106-count" id="form106-count">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-              </select>
-              <label for="form106-count" id="form106-missing" class="doc-status"></label>
-            </div>
-          </div>
-          <div class="doc-item" data-doc-type="capital-gains" data-doc-typename="טופס 867">
-            <div class="doc-details">
-				<h3>טופס 867</h3>
-				<span class="doc-icon">📊</span>
-				<p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
+      <div class="scrollable-content">
+        <div class="info-section">
+          <h2>מסמכים נדרשים להשת הדו"ח לשני בני הזוג</h2>
+          <div class="required-docs">
+            <div class="doc-item" data-doc-type="form106" data-doc-typename="טופס 106">
+              <div class="doc-details">
+                <h3>טופס 106</h3>
+                <span class="doc-icon">📄</span>
+                <p>תלושי משכורת שנתיים מכל מעסיק</p>
                 <button class="more-info-button">
                   <span>ℹ️</span>
                   <span>מידע נוסף</span>
                 </button>
-			</div>
-			<div class="doc-controls">
-				<span>כמות</span>
-				<select name="capital-gains-count" id="capital-gains-count">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-              </select>
-			  <label for="capital-gains-count" id="capital-gains-missing" class="doc-status"></label>
+              </div>
+              <div class="doc-controls">
+                <span>כמות</span>
+                <select name="form106-count" id="form106-count">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+                <label for="form106-count" id="form106-missing" class="doc-status"></label>
+              </div>
+            </div>
+            <div class="doc-item" data-doc-type="capital-gains" data-doc-typename="טופס 867">
+              <div class="doc-details">
+                <h3>טופס 867</h3>
+                <span class="doc-icon">📊</span>
+                <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
+                <button class="more-info-button">
+                  <span>ℹ️</span>
+                  <span>מידע נוסף</span>
+                </button>
+              </div>
+              <div class="doc-controls">
+                <span>כמות</span>
+                <select name="capital-gains-count" id="capital-gains-count">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+                <label for="capital-gains-count" id="capital-gains-missing" class="doc-status"></label>
+              </div>
+            </div>
+            <div class="doc-item" data-doc-type="residency" data-doc-typename="אישור תושב">
+              <div class="doc-details">
+                <h3>אישור תושב</h3>
+                <span class="doc-icon">🏠</span>
+                <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
+                <button class="more-info-button">
+                  <span>ℹ️</span>
+                  <span>מידע נוסף</span>
+                </button>
+              </div>
+              <div class="doc-controls">
+                <span>כמות</span>
+                <select name="residency-count" id="residency-count">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                </select>
+                <label for="residency-count" id="residency-missing" class="doc-status"></label>
+              </div>
+            </div>
+            <div class="doc-item" data-doc-type="donations" data-doc-typename="קבלה תרומה">
+              <div class="doc-details">
+                <h3>אישורי תרומות</h3>
+                <span class="doc-icon">💝</span>
+                <p>קבלות על תרומות למוסדות מוכרים</p>
+                <button class="more-info-button">
+                  <span>ℹ️</span>
+                  <span>מידע נוסף</span>
+                </button>
+              </div>
+              <div class="doc-controls">
+                <span>כמות</span>
+                <select name="donations-count" id="donations-count">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+                <label for="donations-count" id="donations-missing" class="doc-status"></label>
+              </div>
+            </div>
+            <div class="doc-item" data-doc-type="national-insurance" data-doc-typename="אישור ביטוח לאומי">
+              <div class="doc-details">
+                <h3>ביטוח לאומי</h3>
+                <span class="doc-icon">🏛️</span>
+                <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
+                <button class="more-info-button">
+                  <span>ℹ️</span>
+                  <span>מידע נוסף</span>
+                </button>
+              </div>
+              <div class="doc-controls">
+                <span>כמות</span>
+                <select name="national-insurance-count" id="national-insurance-count">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                </select>
+                <label for="national-insurance-count" id="national-insurance-missing" class="doc-status"></label>
+              </div>
+            </div>
+            <div class="doc-item" data-doc-type="education" data-doc-typename="אישור זכאות לתואר">
+              <div class="doc-details">
+                <h3>אישור זכאות לתואר</h3>
+                <span class="doc-icon">🏫</span>
+                <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
+                <button class="more-info-button">
+                  <span>ℹ️</span>
+                  <span>מידע נוסף</span>
+                </button>
+              </div>
+              <div class="doc-controls">
+                <span>כמות</span>
+                <select name="education-count" id="education-count">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                </select>
+                <label for="education-count" id="education-missing" class="doc-status"></label>
+              </div>
+            </div>
+            <div class="doc-item" data-doc-type="service-release" data-doc-typename="תעודת שחרור/תעודת סיום שירות">
+              <div class="doc-details">
+                <h3>תעודת שחרור</h3>
+                <span class="doc-icon">🪖</span>
+                <p>תעודת שחרור משירות צבאי או לאומי</p>
+                <button class="more-info-button">
+                  <span>ℹ️</span>
+                  <span>מידע נוסף</span>
+                </button>
+              </div>
+              <div class="doc-controls">
+                <span>כמות</span>
+                <select name="service-release-count" id="service-release-count">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                </select>
+                <label for="service-release-count" id="service-release-missing" class="doc-status"></label>
+              </div>
             </div>
           </div>
-          <div class="doc-item" data-doc-type="residency" data-doc-typename="אישור תושב">
-            <div class="doc-details">
-              <h3>אישור תושב</h3>
-              <span class="doc-icon">🏠</span>
-              <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
-              <button class="more-info-button">
-                <span>ℹ️</span>
-                <span>מידע נוסף</span>
-              </button>
-            </div>
-            <div class="doc-controls">
-              <span>כמות</span>
-              <select name="residency-count" id="residency-count">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select>
-              <label for="residency-count" id="residency-missing" class="doc-status"></label>
-            </div>
+          <div class="missing-docs-warning" id="missingDocsWarning">
+            <ul class="missing-docs-list" id="missingDocsList">
+
+            </ul>
           </div>
-          <div class="doc-item" data-doc-type="donations" data-doc-typename="קבלה תרומה">
-            <div class="doc-details">
-              <h3>אישורי תרומות</h3>
-              <span class="doc-icon">💝</span>
-              <p>קבלות על תרומות למוסדות מוכרים</p>
-              <button class="more-info-button">
-                <span>ℹ️</span>
-                <span>מידע נוסף</span>
-              </button>
+        </div>
+
+        <!-- Container for the list of uploaded files -->
+        <ul class="file-list" id="fileList"></ul>
+        <div id="expandableAreaUploadFiles" style="display: none;"> </div>
+
+        <!-- File input and process button container -->
+        <div class="button-container">
+          <div class="file-buttons">
+            <div class="custom-file-input">
+              <input
+                type="file"
+                id="fileInput"
+                accept=".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png"
+                multiple
+             />
+              <label for="fileInput">העלאת מסמכים...</label>
+              <input
+                type="file"
+                id="folderInput"
+                accept=".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png"
+                webkitdirectory
+                directory
+                multiple
+              />
+              <label for="folderInput">העלאת תיקיי...</label>
+              <select id="createFormSelect" class="form-select"></select>
+              <button id="deleteAllButton" class="delete-all-button" disabled>מחק הכל</button>
             </div>
-            <div class="doc-controls">
-              <span>כמות</span>
-              <select name="donations-count" id="donations-count">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-              </select>
-              <label for="donations-count" id="donations-missing" class="doc-status"></label>
-            </div>
-          </div>
-          <div class="doc-item" data-doc-type="national-insurance" data-doc-typename="אישור ביטוח לאומי">
-            <div class="doc-details">
-              <h3>ביטוח לאומי</h3>
-              <span class="doc-icon">🏛️</span>
-              <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
-              <button class="more-info-button">
-                <span>ℹ️</span>
-                <span>מידע נוסף</span>
-              </button>
-            </div>
-            <div class="doc-controls">
-              <span>כמות</span>
-              <select name="national-insurance-count" id="national-insurance-count">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-              </select>
-              <label for="national-insurance-count" id="national-insurance-missing" class="doc-status"></label>
-            </div>
-          </div>
-		  <div class="doc-item" data-doc-type="education" data-doc-typename="אישור זכאות לתואר">
-			<div class="doc-details">
-			  <h3>אישור זכאות לתואר</h3>
-			  <span class="doc-icon">🏫</span>
-			  <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
-              <button class="more-info-button">
-                <span>ℹ️</span>
-                <span>מידע נוסף</span>
-              </button>
-			</div>
-			<div class="doc-controls">
-			  <span>כמות</span>
-			  <select name="education-count" id="education-count">
-				<option value="0" selected>0</option>
-				<option value="1">1</option>
-				<option value="2">2</option>
-			  </select>
-			  <label for="education-count" id="education-missing" class="doc-status"></label>
-			</div>
-		  </div>
-          <div class="doc-item" data-doc-type="service-release" data-doc-typename="תעודת שחרור/תעודת סיום שירות">
-            <div class="doc-details">
-              <h3>תעודת שחרור</h3>
-              <span class="doc-icon">🪖</span>
-              <p>תעודת שחרור משירות צבאי או לאומי</p>
-              <button class="more-info-button">
-                <span>ℹ️</span>
-                <span>מידע נוסף</span>
-              </button>
-            </div>
-            <div class="doc-controls">
-              <span>כמות</span>
-              <select name="service-release-count" id="service-release-count">
-                <option value="0" selected>0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select>
-              <label for="service-release-count" id="service-release-missing" class="doc-status"></label>
+            <div class="action-buttons">
+              <button id="questionnaireButton" class="questionnaire-button" disabled>שאלון</button>
             </div>
           </div>
         </div>
-        <div class="missing-docs-warning" id="missingDocsWarning">
-          <ul class="missing-docs-list" id="missingDocsList">
 
-          </ul>
-        </div>
-      </div>
-
-      <!-- Container for the list of uploaded files -->
-      <ul class="file-list" id="fileList"></ul>
-	  <div id="expandableAreaUploadFiles" style="display: none;"> </div>
-
-      <!-- File input and process button container -->
-      <div class="button-container">
-        <div class="file-buttons">
-          <div class="custom-file-input">
-            <input
-              type="file"
-              id="fileInput"
-              accept=".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png"
-              multiple
-           />
-            <label for="fileInput">העלאת מסמכים...</label>
-            <input
-              type="file"
-              id="folderInput"
-              accept=".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png"
-              webkitdirectory
-              directory
-              multiple
-            />
-            <label for="folderInput">העלאת תיקיי...</label>
-            <select id="createFormSelect" class="form-select"></select>
-			<button id="deleteAllButton" class="delete-all-button" disabled>מחק הכל</button>
-		</div>
-          <div class="action-buttons">
-            <button id="questionnaireButton" class="questionnaire-button" disabled>שאלון</button>
+        <div id="questionnaireContainer" class="questionnaire-container">
+          <div class="questionnaire-modal">
+            <div class="questionnaire-header">
+              <h2>שאלון</h2>
+            </div>
+            <div class="questionnaire-content">
+              <form id="questionnaireForm" method="post" class="questionnaire-form">
+                <div class="year-selector-container">
+                  <div class="year-selector">
+                    <label for="taxYear">שנת מס:</label>
+                    <select id="taxYear" name="taxYear">
+                      <!-- Years will be added dynamically -->
+                    </select>
+                  </div>
+                  <div class="questionnaire-buttons">
+                    <button type="submit" class="save-button">שמור תשובות</button>
+                    <button type="button" class="cancel-button" id="cancelAnswersButton">בטל שיונוים</button>
+                    <button type="button" class="duplicate-button" id="duplicateAnswersButton">שכפל תשובות לכל השנים</button>
+                  </div>
+                </div>
+                <div id="questionsContainer" class="questions-container">
+                  <!-- Questions will be inserted here dynamically -->
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
-
-	  <div id="questionnaireContainer" class="questionnaire-container">
-		<div class="questionnaire-modal">
-		  <div class="questionnaire-header">
-			<h2>שאלון</h2>
-		  </div>
-		  <div class="questionnaire-content">
-			<form id="questionnaireForm" method="post" class="questionnaire-form">
-			  <div class="year-selector-container">
-				<div class="year-selector">
-				  <label for="taxYear">שנת מס:</label>
-				  <select id="taxYear" name="taxYear">
-					<!-- Years will be added dynamically -->
-				  </select>
-				</div>
-				<div class="questionnaire-buttons">
-				  <button type="submit" class="save-button">שמור תשובות</button>
-				  <button type="button" class="cancel-button" id="cancelAnswersButton">בטל שיונוים</button>
-				  <button type="button" class="duplicate-button" id="duplicateAnswersButton">שכפל תשובות לכל השנים</button>
-				</div>
-			  </div>
-			  <div id="questionsContainer" class="questions-container">
-				<!-- Questions will be inserted here dynamically -->
-			  </div>
-			</form>
-		  </div>
-		</div>
-	  </div>
-	        <!-- Add new message container -->
-      <div id="messageContainer" class="message-container"></div>
-	  <div class="process-button-container">	
-	  <button id="processButton" class="process-button" disabled>
-		עיבוד מסמכים
-	  </button>
-	  </div>
-      <!-- Update the results container structure -->
-      <div id="resultsContainer" class="results-container">
-        <div class="results-title">תוצאות</div>
-        <ul id="resultsList" class="results-list"></ul>
-        <div class="calculate-results-container">
+        <!-- Add new message container -->
+        <div id="messageContainer" class="message-container"></div>
+        <div class="process-button-container">
+          <button id="processButton" class="process-button" disabled>
+           עיבוד מסמכים
+          </button>
         </div>
-        <div class="submit-instructions-container">
-          <a href="submit_instructions.html" class="submit-instructions-button">
-            הוראות להגשת הדו״ח למס הכנסה
-            <span class="button-icon">📝</span>
-          </a>
+        <!-- Update the results container structure -->
+        <div id="resultsContainer" class="results-container">
+          <div class="results-title">תוצאות</div>
+          <ul id="resultsList" class="results-list"></ul>
+          <div class="calculate-results-container">
+          </div>
+          <div class="submit-instructions-container">
+            <a href="submit_instructions.html" class="submit-instructions-button">
+              הוראות להגשת הדו״ח למס הכנסה
+              <span class="button-icon">📝</span>
+            </a>
+          </div>
         </div>
-      </div>
 
-      <!-- Add new tax results container -->
-      <div id="taxResultsContainer" class="tax-results-container">
-        <div id="taxResultsTitle" class="tax-results-title">תוצאות חישוב מס</div>
-        <div id="taxCalculationContent"></div>
-      </div>
+        <!-- Add new tax results container -->
+        <div id="taxResultsContainer" class="tax-results-container">
+          <div id="taxResultsTitle" class="tax-results-title">תוצאות חישוב מס</div>
+          <div id="taxCalculationContent"></div>
+        </div>
 
-      <!-- Add feedback section -->
-      <div id="feedbackContainer" class="feedback-container">
-        <div class="feedback-title">משוב</div>
-        <div class="feedback-form">
-          <div class="feedback-input-group">
-            <label for="feedbackEmail">דוא"ל:</label>
-            <input type="email" id="feedbackEmail" placeholder="הכנס את כתובת הדוא״ל שלך">
+        <!-- Add feedback section -->
+        <div id="feedbackContainer" class="feedback-container">
+          <div class="feedback-title">משוב</div>
+          <div class="feedback-form">
+            <div class="feedback-input-group">
+              <label for="feedbackEmail">דוא"ל:</label>
+              <input type="email" id="feedbackEmail" placeholder="הכנס את כתובת הדוא״ל שלך">
+            </div>
+            <div class="feedback-input-group">
+              <label for="feedbackMessage">הודעה:</label>
+              <textarea id="feedbackMessage" rows="4" placeholder="כתוב את המשוב שלך כאן"></textarea>
+            </div>
+            <div class="feedback-privacy">
+              <input type="checkbox" id="privacyAgreement">
+              <label for="privacyAgreement">אני מסכים למדיניות הפרטיות ולשימוש בנתונים שלי</label>
+            </div>
+            <button id="sendFeedbackButton" class="send-feedback-button" disabled>שלח משוב</button>
           </div>
-          <div class="feedback-input-group">
-            <label for="feedbackMessage">הודעה:</label>
-            <textarea id="feedbackMessage" rows="4" placeholder="כתוב את המשוב שלך כאן"></textarea>
-          </div>
-          <div class="feedback-privacy">
-            <input type="checkbox" id="privacyAgreement">
-            <label for="privacyAgreement">אני מסכים למדיניות הפרטיות ולשימוש בנתונים שלי</label>
-          </div>
-          <button id="sendFeedbackButton" class="send-feedback-button" disabled>שלח משוב</button>
         </div>
       </div>
     </div>
@@ -405,25 +409,25 @@
                                     <td><input type="number" min="0" max="26" data-code="260"></td>
                                     <td><input type="number" min="0" max="26" data-code="260"></td>
                                     <td><input type="number" min="0" max="26" data-code="260"></td>
-									<td><input type="number" min="0" max="26" data-code="260"></td>
+                                    <td><input type="number" min="0" max="26" data-code="260"></td>
                                 </tr>
                                 <tr>
-									<td>בן/בת זוג, נשוי - מספר ילדים בחזקתי בגינם אני מקבל קצבת ילדים (262)</td>
+                                    <td>בן/בת זוג, נשוי - מספר ילדים בחזקתי בגינם אני מקבל קצבת ילדים (262)</td>
                                     <td><input type="number" min="0" max="26" data-code="262"></td>
                                     <td><input type="number" min="0" max="26" data-code="262"></td>
                                     <td><input type="number" min="0" max="26" data-code="262"></td>
                                     <td><input type="number" min="0" max="26" data-code="262"></td>
                                     <td><input type="number" min="0" max="26" data-code="262"></td>
-									<td><input type="number" min="0" max="26" data-code="262"></td>
+                                    <td><input type="number" min="0" max="26" data-code="262"></td>
                                 </tr>
                                 <tr>
                                     <td>בן/בת רשום - מספר ילדיי שאינם בחזקתי (190) לא נשוי - ילדים שאינם בחזקתי או ילדים בחזקתי בגינם אני לא מקבל קצבת ילדים</td>
-									<td><input type="number" min="0" max="26" data-code="190"></td>
                                     <td><input type="number" min="0" max="26" data-code="190"></td>
                                     <td><input type="number" min="0" max="26" data-code="190"></td>
                                     <td><input type="number" min="0" max="26" data-code="190"></td>
                                     <td><input type="number" min="0" max="26" data-code="190"></td>
-									<td><input type="number" min="0" max="26" data-code="190"></td>
+                                    <td><input type="number" min="0" max="26" data-code="190"></td>
+                                    <td><input type="number" min="0" max="26" data-code="190"></td>
                                 </tr>
                                 <tr>
                                     <td>בן/בת זוג, לא נשוי - ילדים שאינם בחזקתי או ילדים בחזקתי בגינם אני לא מקבל קצבת ילדים (291)</td>
@@ -432,7 +436,7 @@
                                     <td><input type="number" min="0" max="26" data-code="291"></td>
                                     <td><input type="number" min="0" max="26" data-code="291"></td>
                                     <td><input type="number" min="0" max="26" data-code="291"></td>
-									<td><input type="number" min="0" max="26" data-code="291"></td>
+                                    <td><input type="number" min="0" max="26" data-code="291"></td>
                                 </tr>
                                 <tr>
                                     <td>בן/בת רשום - מספר ילדי, להם אין הורה שני רשום באוכלוסין או שנפטר (022)</td>
@@ -441,7 +445,7 @@
                                     <td><input type="number" min="0" max="26" data-code="022"></td>
                                     <td><input type="number" min="0" max="26" data-code="022"></td>
                                     <td><input type="number" min="0" max="26" data-code="022"></td>
-									<td><input type="number" min="0" max="26" data-code="022"></td>
+                                    <td><input type="number" min="0" max="26" data-code="022"></td>
                                 </tr>
                                 <tr>
                                     <td>בן/בת רשום - מבקשת דחייה עבור ילדים שנולדו בשנת המס (361)</td>
@@ -461,7 +465,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Children modal dialog -->
     <div id="childrenModal_2023" class="modal">
@@ -494,7 +497,7 @@
                                     <td><input type="number" min="0" max="26" data-code="260"></td>
                                 </tr>
                                 <tr>
-									<td>בן/בת זוג, נשוי - מספר ילדים בחזקתי בגינם אני מקבל קצבת ילדים (262)</td>
+                                    <td>בן/בת זוג, נשוי - מספר ילדים בחזקתי בגינם אני מקבל קצבת ילדים (262)</td>
                                     <td><input type="number" min="0" max="26" data-code="262"></td>
                                     <td><input type="number" min="0" max="26" data-code="262"></td>
                                     <td><input type="number" min="0" max="26" data-code="262"></td>
@@ -503,7 +506,7 @@
                                 </tr>
                                 <tr>
                                     <td>בן/בת רשום - מספר ילדיי שאינם בחזקתי (190) לא נשוי - ילדים שאינם בחזקתי או ילדים בחזקתי בגינם אני לא מקבל קצבת ילדים</td>
-									<td><input type="number" min="0" max="26" data-code="190"></td>
+                                    <td><input type="number" min="0" max="26" data-code="190"></td>
                                     <td><input type="number" min="0" max="26" data-code="190"></td>
                                     <td><input type="number" min="0" max="26" data-code="190"></td>
                                     <td><input type="number" min="0" max="26" data-code="190"></td>
@@ -544,82 +547,83 @@
         </div>
     </div>
 
-	    <!-- Children modal dialog -->
-		<div id="childrenModal_2018" class="modal">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h2>ילדים</h2>
-					<span class="close-button">&times;</span>
-				</div>
-				<div class="modal-body">
-					<div class="children-grid">
-						<div class="children-table">
-							<table>
-								<thead>
-									<tr>
-										<th>בשנת המס</th>
-										<th>נולד</th>
-										<th>מלאו 1-5</th>
-										<th>מלאו 6-17</th>
-										<th>מלאו 18</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>בן/בת רשום - מספר ילדים בחזקתי (260), לא נשוי - מספר ילדים בחזקתי אני מקבל קצבת ילדים</td>
-										<td><input type="number" min="0" max="26" data-code="260"></td>
-										<td><input type="number" min="0" max="26" data-code="260"></td>
-										<td><input type="number" min="0" max="26" data-code="260"></td>
-										<td><input type="number" min="0" max="26" data-code="260"></td>
-									</tr>
-									<tr>
-										<td>בן/בת זוג, נשוי - מספר ילדים בחזקתי בגינם אני מקבל קצבת ילדים (262)</td>
-										<td><input type="number" min="0" max="26" data-code="262"></td>
-										<td><input type="number" min="0" max="26" data-code="262"></td>
-										<td><input type="number" min="0" max="26" data-code="262"></td>
-										<td><input type="number" min="0" max="26" data-code="262"></td>
-									</tr>
-									<tr>
-										<td>בן/בת רשום - מספר ילדיי שאינם בחזקתי (190) לא נשוי - ילדים שאינם בחזקתי או ילדים בחזקתי בגינם אני לא מקבל קצבת ילדים</td>
-										<td><input type="number" min="0" max="26" data-code="190"></td>
-										<td><input type="number" min="0" max="26" data-code="190"></td>
-										<td><input type="number" min="0" max="26" data-code="190"></td>
-										<td><input type="number" min="0" max="26" data-code="190"></td>
-									</tr>
-									<tr>
-										<td>בן/בת זוג, לא נשוי - ילדים שאינם בחזקתי או ילדים בחזקתי בגינם אני לא מקבל קצבת ילדים (291)</td>
-										<td><input type="number" min="0" max="26" data-code="291"></td>
-										<td><input type="number" min="0" max="26" data-code="291"></td>
-										<td><input type="number" min="0" max="26" data-code="291"></td>
-										<td><input type="number" min="0" max="26" data-code="291"></td>
-									</tr>
-									<tr>
-										<td>בן/בת רשום - מספר ילדי, להם אין הורה שני רשום באוכלוסין או שנפטר (022)</td>
-										<td><input type="number" min="0" max="26" data-code="022"></td>
-										<td><input type="number" min="0" max="26" data-code="022"></td>
-										<td><input type="number" min="0" max="26" data-code="022"></td>
-										<td><input type="number" min="0" max="26" data-code="022"></td>
-									</tr>
-									<tr>
-										<td>בן/בת רשום - מבקשת דחייה עבור ילדים שנולדו בשנת המס (361)</td>
-										<td><input type="number" min="0" max="26" data-code="361"></td>
-									</tr>
-									<tr>
-										<td>בן/בת זוג, מבקשת דחייה עבור ילדים שנולדו בשנת המס (362)</td>
-										<td><input type="number" min="0" max="26" data-code="362"></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button class="save-button">שמור</button>
-				</div>
-			</div>
-		</div>
-	<script type="module" src="js/index.js"></script>
-	
+    <!-- Children modal dialog -->
+    <div id="childrenModal_2018" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ילדים</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="children-grid">
+                    <div class="children-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>בשנת המס</th>
+                                    <th>נולד</th>
+                                    <th>מלאו 1-5</th>
+                                    <th>מלאו 6-17</th>
+                                    <th>מלאו 18</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>בן/בת רשום - מספר ילדים בחזקתי (260), לא נשוי - מספר ילדים בחזקתי אני מקבל קצבת ילדים</td>
+                                    <td><input type="number" min="0" max="26" data-code="260"></td>
+                                    <td><input type="number" min="0" max="26" data-code="260"></td>
+                                    <td><input type="number" min="0" max="26" data-code="260"></td>
+                                    <td><input type="number" min="0" max="26" data-code="260"></td>
+                                </tr>
+                                <tr>
+                                    <td>בן/בת זוג, נשוי - מספר ילדים בחזקתי בגינם אני מקבל קצבת ילדים (262)</td>
+                                    <td><input type="number" min="0" max="26" data-code="262"></td>
+                                    <td><input type="number" min="0" max="26" data-code="262"></td>
+                                    <td><input type="number" min="0" max="26" data-code="262"></td>
+                                    <td><input type="number" min="0" max="26" data-code="262"></td>
+                                </tr>
+                                <tr>
+                                    <td>בן/בת רשום - מספר ילדיי שאינם בחזקתי (190) לא נשוי - ילדים שאינם בחזקתי או ילדים בחזקתי בגינם אני לא מקבל קצבת ילדים</td>
+                                    <td><input type="number" min="0" max="26" data-code="190"></td>
+                                    <td><input type="number" min="0" max="26" data-code="190"></td>
+                                    <td><input type="number" min="0" max="26" data-code="190"></td>
+                                    <td><input type="number" min="0" max="26" data-code="190"></td>
+                                </tr>
+                                <tr>
+                                    <td>בן/בת זוג, לא נשוי - ילדים שאינם בחזקתי או ילדים בחזקתי בגינם אני לא מקבל קצבת ילדים (291)</td>
+                                    <td><input type="number" min="0" max="26" data-code="291"></td>
+                                    <td><input type="number" min="0" max="26" data-code="291"></td>
+                                    <td><input type="number" min="0" max="26" data-code="291"></td>
+                                    <td><input type="number" min="0" max="26" data-code="291"></td>
+                                </tr>
+                                <tr>
+                                    <td>בן/בת רשום - מספר ילדי, להם אין הורה שני רשום באוכלוסין או שנפטר (022)</td>
+                                    <td><input type="number" min="0" max="26" data-code="022"></td>
+                                    <td><input type="number" min="0" max="26" data-code="022"></td>
+                                    <td><input type="number" min="0" max="26" data-code="022"></td>
+                                    <td><input type="number" min="0" max="26" data-code="022"></td>
+                                </tr>
+                                <tr>
+                                    <td>בן/בת רשום - מבקשת דחייה עבור ילדים שנולדו בשנת המס (361)</td>
+                                    <td><input type="number" min="0" max="26" data-code="361"></td>
+                                </tr>
+                                <tr>
+                                    <td>בן/בת זוג, מבקשת דחייה עבור ילדים שנולדו בשנת המס (362)</td>
+                                    <td><input type="number" min="0" max="26" data-code="362"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="save-button">שמור</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/index.js"></script>
+    
     <!-- Add warning modal -->
     <div id="duplicateAnswersWarningModal" class="modal">
         <div class="modal-content">
@@ -659,21 +663,21 @@
             </div>
         </div>
     </div>
-	<div id="generalInfoModal" class="modal">
-		<div class="modal-content">
-			<div class="modal-header">
-				<span class="close-button">&times;</span>
-				<h2>מידע</h2>
-			</div>
-			<div class="modal-body">
-				<p id="infoMessage"></p>
-			</div>
-			<div class="modal-footer">
-				<button class="confirm-button">אישור</button>
-			</div>
-		</div>
-	</div>
-	<script>nl_pos = "br";nl_compact = "1";</script>
-	<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+    <div id="generalInfoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-button">&times;</span>
+                <h2>מידע</h2>
+            </div>
+            <div class="modal-body">
+                <p id="infoMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="confirm-button">אישור</button>
+            </div>
+        </div>
+    </div>
+    <script>nl_pos = "br";nl_compact = "1";</script>
+    <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
   </body>
 </html>

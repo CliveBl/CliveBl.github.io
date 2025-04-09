@@ -537,7 +537,7 @@ async function uploadFiles(validFiles) {
 }
 
 // Update addMessage function to handle message types
-function addMessage(text, type = "info", scrollToMessageSection = true) {
+export function addMessage(text, type = "info", scrollToMessageSection = true) {
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
   if (type) {

@@ -1,4 +1,4 @@
-import { API_BASE_URL,AUTH_BASE_URL,configurationData,debug } from './index.js';
+import { API_BASE_URL,AUTH_BASE_URL,configurationData,debug,addMessage } from './index.js';
 
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0 }) {
@@ -136,71 +136,70 @@ const friendlyNames = {
 	NumberOfDealsInteger: "כמות עיסקאות",
 	releaseDate: "תאריך שחרור",
 	numberOfServiceMonths: "חודשי שרות",
-		NONE: "ללא",
-		ReceivedFromNI_196_194: "התקבל מהמוסד לביטוח לאומי",
-		Salary_172_158: "שכר עבודה",
-		LeavingBonus_272_258: "מענק פרישה",
-		TaxFreeLeavingBonus_209: "מענק פרישה פטור ממס",
-		EducationFund_219_218: "קרן השתלמות",
-		EmployerKupatGemel_249_248: "קופת גמל מעסיק",
-		InsuredIncome_245_244: "הכנסה מבוטחת",
-		IncomeTaxDeduction_042: "מס הכנסה",
-		NationalInsuranceIncomeTaxDeduction_040: "מס הכנסה מקצבה ביטוח לאומי",
-		Donations_237_037: "תרומות",
-		NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
-		PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
-		SettlementDiscount_327_287: "הנחה יישובית",
-		ShiftAllowance_069_068: "תוספת משמרות",
-		DepositToNewPensionFund_180_135: "הפקדה לקרן פנסיה חדשה",
-	   
-		DepositCurrentAccountIncomeTaxedAtPercent10_076: "הכנסה מחשבון עובר ושב ממוסה ב-10%",
-		DepositCurrentAccountIncomeTaxedAtPercent15_217: "הכנסה מחשבון עובר ושב ממוסה ב-15%",
-		DepositIncomeTaxedAtPercent10_076: "הפקדה ממוסה ב-10%",
-		DepositIncomeTaxedAtPercent15_078: "הפקדה ממוסה ב-15%",
-		DepositIncomeTaxedAtPercent20_126: "הפקדה ממוסה ב-20%",
-		DepositIncomeTaxedAtPercent25_142: "הפקדה ממוסה ב-25%",
-		DepositIncomeTaxedAtPercent35_053: "הפקדה ממוסה ב-35%",
-		DepositFXIncomeTaxedAtPercent15_317: "הפקדת מט\"ח ממוסה ב-15%",
-		DepositFXIncomeTaxedAtPercent20_226: "הפקדת מט\"ח ממוסה ב-20%",
-		DepositFXIncomeTaxedAtPercent25_242: "הפקדת מט\"ח ממוסה ב-25%",
-		DepositFXIncomeTaxedAtPercent23_232: "הפקדת מט\"ח ממוסה ב-23%",
-		DepositFXIncomeTaxedAtPercent35_1043: "הפקדת מט\"ח ממוסה ב-35%",
-		ProfitIncomeTaxedAtPercent0: "רווח ממוסה ב-0%",
-		ProfitIncomeTaxedAtPercent15: "רווח ממוסה ב-15%",
-		ProfitIncomeTaxedAtPercent20: "רווח ממוסה ב-20%",
-		ProfitIncomeTaxedAtPercent25: "רווח ממוסה ב-25%",
-		ProfitIncomeTaxedAtPercent23: "רווח ממוסה ב-23%",
-		ProfitIncomeTaxedAtPercent30: "רווח ממוסה ב-30%",
-		ProfitIncomeTaxedAtPercent35: "רווח ממוסה ב-35%",
-		OffsetableLosses: "הפסדים ניתנים לקיזוז",
-		TotalSales_256: "סה\"כ מכירות",
-		NumberOfDeals: "מספר עסקאות",
-		TaxDeductedAtSource_040: "מס שנוכה במקור",
-		DividendFXIncomeTaxedAtPercent0: "דיבידנד מט\"ח ממוסה ב-0%",
-		DividendFXIncomeTaxedAtPercent4: "דיבידנד מט\"ח ממוסה ב-4%",
-		DividendFXIncomeTaxedAtPercent15: "דיבידנד מט\"ח ממוסה ב-15%",
-		DividendFXIncomeTaxedAtPercent20: "דיבידנד מט\"ח ממוסה ב-20%",
-		DividendFXIncomeTaxedAtPercent25: "דיבידנד מט\"ח ממוסה ב-25%",
-		DividendFXIncomeTaxedAtPercent23: "דיבידנד מט\"ח ממוסה ב-23%",
-		DividendIncomeTaxedAtPercent0: "דיבידנד ממוסה ב-0%",
-		DividendIncomeTaxedAtPercent4: "דיבידנד ממוסה ב-4%",
-		DividendIncomeTaxedAtPercent15: "דיבידנד ממוסה ב-15%",
-		DividendIncomeTaxedAtPercent20: "דיבידנד ממוסה ב-20%",
-		DividendIncomeTaxedAtPercent25: "דיבידנד ממוסה ב-25%",
-		DividendIncomeTaxedAtPercent23: "דיבידנד ממוסה ב-23%",
-		InterestIncomeTaxedAtPercent0: "ריבית ממוסה ב-0%",
-		InterestIncomeTaxedAtPercent10: "ריבית ממוסה ב-10%",
-		InterestIncomeTaxedAtPercent15: "ריבית ממוסה ב-15%",
-		InterestIncomeTaxedAtPercent20: "ריבית ממוסה ב-20%",
-		InterestIncomeTaxedAtPercent25: "ריבית ממוסה ב-25%",
-		InterestIncomeTaxedAtPercent23: "ריבית ממוסה ב-23%",
-		InterestIncomeTaxedAtPercent35: "ריבית ממוסה ב-35%",
-		TaxDeductedAtSourceDeposit_043: "מס שנוכה במקור (פקדון)",
-		TaxDeductedAtSourceDividend_040: "מס שנוכה במקור (דיבידנד)",
-		TaxDeductedAtSourceInterest_040: "מס שנוכה במקור (ריבית)",
-		TotalExemptInterestAndIndexLinkageDifference_209: "ריבית פטורה והפרש הצמדה",
-		LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת"
-	};
+	NONE: "ללא",
+	ReceivedFromNI_196_194: "התקבל מהמוסד לביטוח לאומי",
+	Salary_172_158: "שכר עבודה",
+	LeavingBonus_272_258: "מענק פרישה",
+	TaxFreeLeavingBonus_209: "מענק פרישה פטור ממס",
+	EducationFund_219_218: "קרן השתלמות",
+	EmployerKupatGemel_249_248: "קופת גמל מעסיק",
+	InsuredIncome_245_244: "הכנסה מבוטחת",
+	IncomeTaxDeduction_042: "מס הכנסה",
+	NationalInsuranceIncomeTaxDeduction_040: "מס הכנסה מקצבה ביטוח לאומי",
+	Donations_237_037: "תרומות",
+	NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
+	PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
+	SettlementDiscount_327_287: "הנחה יישובית",
+	ShiftAllowance_069_068: "תוספת משמרות",
+	DepositToNewPensionFund_180_135: "הפקדה לקרן פנסיה חדשה",
+	DepositCurrentAccountIncomeTaxedAtPercent10_076: "הכנסה מחשבון עובר ושב ממוסה ב-10%",
+	DepositCurrentAccountIncomeTaxedAtPercent15_217: "הכנסה מחשבון עובר ושב ממוסה ב-15%",
+	DepositIncomeTaxedAtPercent10_076: "הפקדה ממוסה ב-10%",
+	DepositIncomeTaxedAtPercent15_078: "הפקדה ממוסה ב-15%",
+	DepositIncomeTaxedAtPercent20_126: "הפקדה ממוסה ב-20%",
+	DepositIncomeTaxedAtPercent25_142: "הפקדה ממוסה ב-25%",
+	DepositIncomeTaxedAtPercent35_053: "הפקדה ממוסה ב-35%",
+	DepositFXIncomeTaxedAtPercent15_317: "הפקדת מט\"ח ממוסה ב-15%",
+	DepositFXIncomeTaxedAtPercent20_226: "הפקדת מט\"ח ממוסה ב-20%",
+	DepositFXIncomeTaxedAtPercent25_242: "הפקדת מט\"ח ממוסה ב-25%",
+	DepositFXIncomeTaxedAtPercent23_232: "הפקדת מט\"ח ממוסה ב-23%",
+	DepositFXIncomeTaxedAtPercent35_1043: "הפקדת מט\"ח ממוסה ב-35%",
+	ProfitIncomeTaxedAtPercent0: "רווח ממוסה ב-0%",
+	ProfitIncomeTaxedAtPercent15: "רווח ממוסה ב-15%",
+	ProfitIncomeTaxedAtPercent20: "רווח ממוסה ב-20%",
+	ProfitIncomeTaxedAtPercent25: "רווח ממוסה ב-25%",
+	ProfitIncomeTaxedAtPercent23: "רווח ממוסה ב-23%",
+	ProfitIncomeTaxedAtPercent30: "רווח ממוסה ב-30%",
+	ProfitIncomeTaxedAtPercent35: "רווח ממוסה ב-35%",
+	OffsetableLosses: "הפסדים ניתנים לקיזוז",
+	TotalSales_256: "סה\"כ מכירות",
+	NumberOfDeals: "מספר עסקאות",
+	TaxDeductedAtSource_040: "מס שנוכה במקור",
+	DividendFXIncomeTaxedAtPercent0: "דיבידנד מט\"ח ממוסה ב-0%",
+	DividendFXIncomeTaxedAtPercent4: "דיבידנד מט\"ח ממוסה ב-4%",
+	DividendFXIncomeTaxedAtPercent15: "דיבידנד מט\"ח ממוסה ב-15%",
+	DividendFXIncomeTaxedAtPercent20: "דיבידנד מט\"ח ממוסה ב-20%",
+	DividendFXIncomeTaxedAtPercent25: "דיבידנד מט\"ח ממוסה ב-25%",
+	DividendFXIncomeTaxedAtPercent23: "דיבידנד מט\"ח ממוסה ב-23%",
+	DividendIncomeTaxedAtPercent0: "דיבידנד ממוסה ב-0%",
+	DividendIncomeTaxedAtPercent4: "דיבידנד ממוסה ב-4%",
+	DividendIncomeTaxedAtPercent15: "דיבידנד ממוסה ב-15%",
+	DividendIncomeTaxedAtPercent20: "דיבידנד ממוסה ב-20%",
+	DividendIncomeTaxedAtPercent25: "דיבידנד ממוסה ב-25%",
+	DividendIncomeTaxedAtPercent23: "דיבידנד ממוסה ב-23%",
+	InterestIncomeTaxedAtPercent0: "ריבית ממוסה ב-0%",
+	InterestIncomeTaxedAtPercent10: "ריבית ממוסה ב-10%",
+	InterestIncomeTaxedAtPercent15: "ריבית ממוסה ב-15%",
+	InterestIncomeTaxedAtPercent20: "ריבית ממוסה ב-20%",
+	InterestIncomeTaxedAtPercent25: "ריבית ממוסה ב-25%",
+	InterestIncomeTaxedAtPercent23: "ריבית ממוסה ב-23%",
+	InterestIncomeTaxedAtPercent35: "ריבית ממוסה ב-35%",
+	TaxDeductedAtSourceDeposit_043: "מס שנוכה במקור (פקדון)",
+	TaxDeductedAtSourceDividend_040: "מס שנוכה במקור (דיבידנד)",
+	TaxDeductedAtSourceInterest_040: "מס שנוכה במקור (ריבית)",
+	TotalExemptInterestAndIndexLinkageDifference_209: "ריבית פטורה והפרש הצמדה",
+	LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת"
+};
 	
 
 
@@ -619,14 +618,14 @@ credentials: "include",
                 })
                     .then(response => {
                         if (response.ok) {
-                            alert('קובץ נמחק בהצלחה!');
+                            addMessage('קובץ נמחק בהצלחה!', 'success');
                             accordionContainer.remove();
                         } else {
-                            alert('שגיאה במחיקת קובץ. אנא נסה שוב.');
+                            addMessage('שגיאה במחיקת קובץ. אנא נסה שוב.', 'error');
                         }
                     })
                     .catch(error => {
-                        alert('שגיאה במחיקת קובץ. אנא נסה שוב.');
+                        addMessage('שגיאה במחיקת קובץ. אנא נסה שוב.', 'error');
                         console.error('Delete error:', error);
                     });
             }
@@ -829,7 +828,7 @@ displayFileInfoInExpandableArea(data);
           return responseData; // Return the response if needed
         } catch (error) {
           console.error("Error updating form:", error);
-          alert("Failed to update form. Please try again.");
+          addMessage("Failed to update form. Please try again.", 'error');
           throw error; // Rethrow the error to be handled by the calling function
         }
       }
