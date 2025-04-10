@@ -154,23 +154,23 @@ const friendlyNames = {
 	DepositToNewPensionFund_180_135: "הפקדה לקרן פנסיה חדשה",
 	DepositCurrentAccountIncomeTaxedAtPercent10_076: "הכנסה מחשבון עובר ושב ממוסה ב-10%",
 	DepositCurrentAccountIncomeTaxedAtPercent15_217: "הכנסה מחשבון עובר ושב ממוסה ב-15%",
-	DepositIncomeTaxedAtPercent10_076: "הפקדה ממוסה ב-10%",
-	DepositIncomeTaxedAtPercent15_078: "הפקדה ממוסה ב-15%",
-	DepositIncomeTaxedAtPercent20_126: "הפקדה ממוסה ב-20%",
-	DepositIncomeTaxedAtPercent25_142: "הפקדה ממוסה ב-25%",
-	DepositIncomeTaxedAtPercent35_053: "הפקדה ממוסה ב-35%",
-	DepositFXIncomeTaxedAtPercent15_317: "הפקדת מט\"ח ממוסה ב-15%",
+	DepositIncomeTaxedAtPercent10_076: "ריבית על הפקדה ממוסה ב-10%",
+	DepositIncomeTaxedAtPercent15_078: "ריבית על הפקדה ממוסה ב-15%",
+	DepositIncomeTaxedAtPercent20_126: "ריבית על הפקדה ממוסה ב-20%",
+	DepositIncomeTaxedAtPercent25_142: "ריבית על הפקדה ממוסה ב-25%",
+	DepositIncomeTaxedAtPercent35_053: "ריבית על הפקדה ממוסה ב-35%",
+	DepositFXIncomeTaxedAtPercent15_317: "ריבית על הפקדת מט\"ח ממוסה ב-15%",
 	DepositFXIncomeTaxedAtPercent20_226: "הפקדת מט\"ח ממוסה ב-20%",
 	DepositFXIncomeTaxedAtPercent25_242: "הפקדת מט\"ח ממוסה ב-25%",
 	DepositFXIncomeTaxedAtPercent23_232: "הפקדת מט\"ח ממוסה ב-23%",
 	DepositFXIncomeTaxedAtPercent35_1043: "הפקדת מט\"ח ממוסה ב-35%",
-	ProfitIncomeTaxedAtPercent0: "רווח ממוסה ב-0%",
-	ProfitIncomeTaxedAtPercent15: "רווח ממוסה ב-15%",
-	ProfitIncomeTaxedAtPercent20: "רווח ממוסה ב-20%",
-	ProfitIncomeTaxedAtPercent25: "רווח ממוסה ב-25%",
-	ProfitIncomeTaxedAtPercent23: "רווח ממוסה ב-23%",
-	ProfitIncomeTaxedAtPercent30: "רווח ממוסה ב-30%",
-	ProfitIncomeTaxedAtPercent35: "רווח ממוסה ב-35%",
+	ProfitIncomeTaxedAtPercent0: "רווח הון ממוסה ב-0%",
+	ProfitIncomeTaxedAtPercent15: "רווח הון ממוסה ב-15%",
+	ProfitIncomeTaxedAtPercent20: "רווח הון ממוסה ב-20%",
+	ProfitIncomeTaxedAtPercent25: "רווח הון ממוסה ב-25%",
+	ProfitIncomeTaxedAtPercent23: "רווח הון ממוסה ב-23%",
+	ProfitIncomeTaxedAtPercent30: "רווח הון ממוסה ב-30%",
+	ProfitIncomeTaxedAtPercent35: "רווח הון ממוסה ב-35%",
 	OffsetableLosses: "הפסדים ניתנים לקיזוז",
 	TotalSales_256: "סה\"כ מכירות",
 	NumberOfDeals: "מספר עסקאות",
@@ -603,11 +603,7 @@ function displayFileInfoDeleteButton(deleteButton, fileData, accordionContainer)
         deleteButton.style.border = 'none';
         deleteButton.style.background = 'none';
        deleteButton.onclick = () => {
-            const confirmDelete = confirm(`האם אתה בטוח שברצונך למחוק את הקובץ "${fileData.fileName}"?`);
-            if (confirmDelete) {
-                const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
-               
-
+                 const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
                 fetch(deleteUrl, {
                     method: 'DELETE',
                     headers: {
@@ -628,7 +624,6 @@ credentials: "include",
                         addMessage('שגיאה במחיקת קובץ. אנא נסה שוב.', 'error');
                         console.error('Delete error:', error);
                     });
-            }
         };
 }
 
