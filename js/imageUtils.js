@@ -13,7 +13,7 @@ export function convertImageToBWAndResize(file) {
         }
 
         const contrastFactor = 1.2; // Adjust this value to control contrast (1 = no change)
-        const maxResolution = 900;
+        const maxResolution = 1568;
 
         const img = new Image();
         img.onload = () => {
