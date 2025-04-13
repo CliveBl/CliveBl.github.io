@@ -198,7 +198,17 @@ const friendlyNames = {
 	TaxDeductedAtSourceDividend_040: "מס שנוכה במקור (דיבידנד)",
 	TaxDeductedAtSourceInterest_040: "מס שנוכה במקור (ריבית)",
 	TotalExemptInterestAndIndexLinkageDifference_209: "ריבית פטורה והפרש הצמדה",
-	LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת"
+	LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת",
+	maritalStatusOptions: {name: "מצב משפחתי", options: ["רווק", "נשוי", "אלמן", "גרוש", "פרוד"]},
+	genderOptions: {name: "מין", options: ["זכר", "נקבה"]},
+	registeredTaxPayerBoolean: "בן/בת זוג רשום",
+	birthDate: "תאריך לידה",
+	children: "ילדים",
+	noSecondParentBoolean: "אין הורה שני",
+	notCaringForBoolean: "הילד לא בהחזקתי",
+	requestDelayOfPointsBoolean: "בקשה לדחיי נקודות",
+	newImmigrantArrivalDate: "תאריך עליה",
+	returningResidentReturnDate: "תאריך חזרה, תושב חוזר"
 };
 	
 
@@ -330,14 +340,14 @@ export async function displayFileInfoInExpandableArea(data) {
         fieldRow.style.display = 'flex';
         fieldRow.style.marginBottom = '5px';
 
-        const fieldLabel = document.createElement('label');
+        let fieldLabel = document.createElement('label');
         fieldLabel.textContent = friendlyNames[key] || key;
 		fieldLabel.className = "fieldlabel";
 		fieldLabel.style.flex = '0 0 150px';
 		//fieldLabel.style.textAlign = 'right';
         // label.style.fontWeight = 'bold';
 
-        const input = document.createElement('input');
+        let input = document.createElement('input');
         input.setAttribute('data-field-name', key);
 		input.className = "field-input";
  
@@ -355,7 +365,7 @@ export async function displayFileInfoInExpandableArea(data) {
             input.pattern = "\\d*";  
             input.value = value;
             input.oninput = () => { input.value = input.value.replace(/\D/g, ''); };
-        } else if (key.endsWith("IdentificationNumber") || key.endsWith("TaxFileNumber") || key.endsWith("Number")) {
+        } else if (key.endsWith("Number")) {
             input.type = "text";
             input.maxLength = 9;
             input.pattern = "\\d{9}";
@@ -403,11 +413,46 @@ export async function displayFileInfoInExpandableArea(data) {
             input.pattern = "\\d{1,3}";
             input.value = value;
             input.oninput = () => { input.value = input.value.replace(/\D/g, '').slice(0, 3); };
-        } 
-        
+        } else if (key.endsWith("Boolean")) {
+            input.type = "checkbox";
+            input.value = value;
+        } else if (key.endsWith("Options")) {
+			fieldLabel.textContent = friendlyNames[key].name;
+			// Radio buttons. use friendlyNames[key].name as the label and friendlyNames[key].options as the options
+			const controls = document.createElement("div");
+			// create a radio button for each option
+			friendlyNames[key].options.forEach(option => {
+				const radioButton = document.createElement("input");
+				const label = document.createElement("label");
+				radioButton.type = "radio";
+				radioButton.value = option;
+				radioButton.name = friendlyNames[key].name;
+				radioButton.id = friendlyNames[key].name + option;
+				label.appendChild(radioButton);
+				label.appendChild(document.createTextNode(option));
+				controls.appendChild(label);
+			});
+			input = controls;
+        } else if (key.endsWith("children")) {
+			const controls = document.createElement("div");
+			controls.appendChild(fieldLabel);
+			// fieldRow.appendChild(fieldLabel);
+			// fieldRow.appendChild(input);
+			body.appendChild(controls);
+	
+			// Create an list of children objects from the children array
+			value.forEach(child => {
+				const childLabel = document.createElement("div");
+				// for each property of the child object, create a label
+				Object.entries(child).forEach(([key, value]) => {
+					createFieldRow(key, value, false);
+				});
+				controls.appendChild(childLabel);
+			});
+			input = controls;
+		}else {
         // 🟢 **Default: Currency Field (if no other condition matched)**
-        else {
-            input.type = "text";
+		input.type = "text";
             input.style.direction = "ltr";
             input.style.textAlign = "right";
             input.style.maxWidth = "130px";  // Prevents excessive input length
@@ -680,15 +725,14 @@ displayFileInfoInExpandableArea(data);
             return !(
                 fieldName.endsWith("Name") ||
                 fieldName.endsWith("Text") ||
-                fieldName.endsWith("IdentificationNumber") ||
-                fieldName.endsWith("TaxFileNumber") ||
-                fieldName.endsWith("taxYear") ||
+                fieldName.endsWith("Number") ||
+               fieldName.endsWith("taxYear") ||
                 fieldName.endsWith("Date") ||
-                fieldName.endsWith("ServiceMonth") ||
+                fieldName.endsWith("Month") ||
                 fieldName.endsWith("Integer") ||
                 fieldName.endsWith("Code") ||
-                fieldName.endsWith("accountNumber") ||  // Ensure account numbers remain unchanged
-                fieldName.endsWith("branchCode")
+                fieldName.endsWith("Boolean") ||
+				fieldName.endsWith("Options")
             );
         }
 
