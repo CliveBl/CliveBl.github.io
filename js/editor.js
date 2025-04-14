@@ -148,6 +148,7 @@ const friendlyNames = {
 	NationalInsuranceIncomeTaxDeduction_040: "מס הכנסה מקצבה ביטוח לאומי",
 	Donations_237_037: "תרומות",
 	NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
+	TemporarySalaryReductionRecuperationFund_012_011: "השתתפות זמנית הפחתת דמי הבראה",
 	PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
 	SettlementDiscount_327_287: "הנחה יישובית",
 	ShiftAllowance_069_068: "תוספת משמרות",
