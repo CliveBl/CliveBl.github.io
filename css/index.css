@@ -2211,6 +2211,19 @@
       .headerfield-label {
         display: none;
       }
+	  .codeLabel {
+		flex: 0 0 150px;
+		text-align: right;
+		margin-right: 10px;
+		font-size: 12px;
+	}
+	.field-input {
+		flex: 0 0 120px;
+		padding: 0px;
+		text-align: right;
+		background-color: var(--bg-color);
+		color: var(--text-color);
+	}
 
       /* 🟢 Ensure hidden caption does not take up space */
       @media (max-width: 768px) {
@@ -2255,7 +2268,7 @@
       
 		.field-input {
 			flex: 0 0 120px;
-			padding: 3px;
+			padding: 0px;
 			text-align: right;
 			background-color: var(--bg-color);
 			color: var(--text-color);
@@ -2265,7 +2278,7 @@
 			flex: 0 0 150px;
 			text-align: right;
 		}
-		}
+	  }
       /* Add styles for the scrollable content */
       .scrollable-content {
         /* overflow-y: auto; */

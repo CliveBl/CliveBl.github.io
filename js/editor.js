@@ -141,7 +141,7 @@ const friendlyNames = {
 	Salary_172_158: "שכר עבודה",
 	LeavingBonus_272_258: "מענק פרישה",
 	TaxFreeLeavingBonus_209: "מענק פרישה פטור ממס",
-	EducationFund_219_218: "קרן השתלמות",
+	EducationFund_219_218: "השכר לקרן השתלמות",
 	EmployerKupatGemel_249_248: "קופת גמל מעסיק",
 	InsuredIncome_245_244: "הכנסה מבוטחת",
 	IncomeTaxDeduction_042: "מס הכנסה",
@@ -336,6 +336,7 @@ export async function displayFileInfoInExpandableArea(data) {
         // Skip fields already displayed in the header
         if (excludedHeaderFields.includes(key)) return;
 
+		let codeLabel = null;
         const fieldRow = document.createElement('div');
         fieldRow.style.display = 'flex';
         fieldRow.style.marginBottom = '5px';
@@ -395,11 +396,13 @@ export async function displayFileInfoInExpandableArea(data) {
 				input.value = value.split('/').reverse().join('-');
 			}
             input.onblur = () => {
-                const isValidDate = !isNaN(new Date(input.value).getTime());
-                if (!isValidDate) {
-                    alert("Invalid date format");
-                    input.value = "";
-                }
+				if (input.value != "") {
+					const isValidDate = !isNaN(new Date(input.value).getTime());
+					if (!isValidDate) {
+						alert("Invalid date format " + input.value);
+						input.value = "";
+					}
+				}
             };
         } else if (key.endsWith("ServiceMonth")) {
             input.type = "text";
@@ -433,30 +436,17 @@ export async function displayFileInfoInExpandableArea(data) {
 				controls.appendChild(label);
 			});
 			input = controls;
-        } else if (key.endsWith("children")) {
-			const controls = document.createElement("div");
-			controls.appendChild(fieldLabel);
-			// fieldRow.appendChild(fieldLabel);
-			// fieldRow.appendChild(input);
-			body.appendChild(controls);
-	
-			// Create an list of children objects from the children array
-			value.forEach(child => {
-				const childLabel = document.createElement("div");
-				// for each property of the child object, create a label
-				Object.entries(child).forEach(([key, value]) => {
-					createFieldRow(key, value, false);
-				});
-				controls.appendChild(childLabel);
-			});
-			input = controls;
-		}else {
-        // 🟢 **Default: Currency Field (if no other condition matched)**
-		input.type = "text";
-            input.style.direction = "ltr";
-            input.style.textAlign = "right";
-            input.style.maxWidth = "130px";  // Prevents excessive input length
+ 		}else {
+        	// 🟢 **Default: Currency Field (if no other condition matched)**
+			input.type = "text";
+			if (key.includes("_")) {
+				const fieldCode = key.split("_")[1];
+				codeLabel = document.createElement('label');
+				codeLabel.textContent = fieldCode;
+				codeLabel.className = "codeLabel";
+			}
 
+			// Firld code from friendlyNames[key]. It is the text after the underscore.
             let numericValue = parseFloat(value);
             if (isNaN(numericValue)) {
                 numericValue = 0.00;
@@ -501,12 +491,15 @@ export async function displayFileInfoInExpandableArea(data) {
 
         fieldRow.appendChild(fieldLabel);
         fieldRow.appendChild(input);
+		if (codeLabel) {
+			fieldRow.appendChild(codeLabel);
+		}
         body.appendChild(fieldRow);
     }
 
     // Process main fileData fields (bold border)
     Object.entries(fileData).forEach(([key, value]) => {
-        if (key !== "fields" && key !== "genericFields") {
+        if (key !== "fields" && key !== "genericFields" && key !== "children") {
             createFieldRow(key, value, true);
         }
     });
@@ -515,6 +508,50 @@ export async function displayFileInfoInExpandableArea(data) {
     Object.entries(fileData.fields || {}).forEach(([key, value]) => {
         createFieldRow(key, value, false);
     });
+
+	if (fileData.children) {
+		// Title for the children with a control button before the title, that adds a new child.
+		const childrenTitle = document.createElement("div");
+		childrenTitle.textContent = "ילדים";
+		childrenTitle.style.fontWeight = "bold";
+		childrenTitle.style.marginBottom = "5px";
+		body.appendChild(childrenTitle);
+		// add a button to add a new child on the same line as the title
+		const addChildButton = document.createElement("button");
+		addChildButton.textContent = "הוספת ילד";
+		addChildButton.style.marginRight = "10px";
+		body.appendChild(addChildButton);
+		addChildButton.onclick = () => {
+			fileData.children.push(
+				{
+					birthDate: "",
+					noSecondParentBoolean: false,
+					notCaringForBoolean: false,
+					requestDelayOfPointsBoolean: false,
+				});
+			// first clear the body
+			body.innerHTML = "";
+			// then render the fields
+			renderFields(fileData, body);
+		};
+		// Process nested fields inside `fileData.children` (thinner border)
+		let childCount = 0;
+		fileData.children.forEach((child) => {
+			// Title for the child
+			const childTitle = document.createElement("div");
+			childTitle.textContent = "ילד " + (childCount + 1);
+			// offset the title to the left
+			childTitle.style.marginRight = "30px";
+			childTitle.style.fontWeight = "bold";
+			childTitle.style.marginBottom = "5px";
+			body.appendChild(childTitle);
+			Object.entries(child).forEach(([key, value]) => {
+				createFieldRow(key, value, false);
+			});
+			childCount++;
+		});
+
+	}
 }
 
 
