@@ -1,4 +1,4 @@
-const uiVersion = "0.40";
+const uiVersion = "0.41";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData = null;
@@ -75,6 +75,7 @@ function updateFileListP(fileInfoList) {
 		displayFileInfoInExpandableArea(fileInfoList);
 		document.getElementById("processButton").disabled = !editableFileListHasEntries();
 		document.getElementById("deleteAllButton").disabled = !editableFileListHasEntries();
+		updateMissingDocuments();
 	} else {
 		updateFileList(fileInfoList);
 	}
@@ -373,7 +374,8 @@ processButton.addEventListener("click", async () => {
     await getAnswersMap();
 
     // Returns all questions that have requiredProcessing field equal to REQUIRED
-    let requiredProcessingQuestionsList = getRequiredQuestions(String(configurationData.supportedTaxYears[0]), "requiredProcessing");
+    //let requiredProcessingQuestionsList = getRequiredQuestions(String(configurationData.supportedTaxYears[0]), "requiredProcessing");
+	let requiredProcessingQuestionsList = [];
 
     if (requiredProcessingQuestionsList.length > 0) {
       // create the questions dialog
@@ -424,6 +426,12 @@ processButton.addEventListener("click", async () => {
           addMessage("אזהרה: " + warning, "warning");
         });
       }
+	// Handle information if present
+	if (result.processingInformation && result.processingInformation.length > 0) {
+		result.processingInformation.forEach((information) => {
+			addMessage("מידע: " + information, "info");
+		});
+	}
 
       // If no fatal errors, load results
       if (!result.fatalProcessingError) {
@@ -743,6 +751,13 @@ async function loadResults(scrollToMessageSection = true) {
         if (result.messages.processingWarnings && result.messages.processingWarnings.length > 0) {
           result.messages.processingWarnings.forEach((warning) => {
             addMessage("אזהרה: " + warning, "warning", scrollToMessageSection);
+          });
+        }
+
+        // Handle information if present
+        if (result.messages.processingInformation && result.messages.processingInformation.length > 0) {
+          result.messages.processingInformation.forEach((information) => {
+            addMessage("מידע: " + information, "info", scrollToMessageSection);
           });
         }
       }
@@ -2597,7 +2612,8 @@ async function calculateTax(fileName) {
     clearMessages();
 
     // Returns all questions that have requiredTaxCalc field equal to REQUIRED
-    let requiredTaxCalcQuestionsList = getRequiredQuestions(taxCalcTaxYear, "requiredTaxCalc");
+    //let requiredTaxCalcQuestionsList = getRequiredQuestions(taxCalcTaxYear, "requiredTaxCalc");
+	let requiredTaxCalcQuestionsList = [];
 
     if (requiredTaxCalcQuestionsList.length > 0) {
       // create the questions dialog

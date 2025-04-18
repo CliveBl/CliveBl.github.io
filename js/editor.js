@@ -202,12 +202,13 @@ const friendlyNames = {
 	LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת",
 	maritalStatusOptions: {name: "מצב משפחתי", options: ["רווק", "נשוי", "אלמן", "גרוש", "פרוד"]},
 	genderOptions: {name: "מין", options: ["זכר", "נקבה"]},
-	registeredTaxPayerBoolean: "בן/בת זוג רשום",
+	registeredTaxpayerBoolean: "בן/בת זוג רשום",
 	birthDate: "תאריך לידה",
 	children: "ילדים",
 	noSecondParentBoolean: "אין הורה שני",
-	notCaringForBoolean: "הילד לא בהחזקתי",
+	caringForBoolean: "הילד בהחזקתי",
 	requestDelayOfPointsBoolean: "בקשה לדחיי נקודות",
+	requestUsePointsFromLastYearBoolean: "בקשה להשתמש בנקודות משנה קודמת",
 	newImmigrantArrivalDate: "תאריך עליה",
 	returningResidentReturnDate: "תאריך חזרה, תושב חוזר"
 };
@@ -405,7 +406,7 @@ export async function displayFileInfoInExpandableArea(data) {
 					}
 				}
             };
-        } else if (key.endsWith("ServiceMonth")) {
+        } else if (key.endsWith("Months")) {
             input.type = "text";
             input.maxLength = 2;
             input.pattern = "\\d{1,2}";
@@ -420,6 +421,14 @@ export async function displayFileInfoInExpandableArea(data) {
         } else if (key.endsWith("Boolean")) {
             input.type = "checkbox";
             input.value = value;
+			input.checked = value === true || value === "true";
+			input.onchange = () => {
+				if (input.checked) {
+					input.value = true;
+				} else {
+					input.value = false;
+				}
+			};
         } else if (key.endsWith("Options")) {
 			fieldLabel.textContent = friendlyNames[key].name;
 			// Radio buttons. use friendlyNames[key].name as the label and friendlyNames[key].options as the options
@@ -432,6 +441,7 @@ export async function displayFileInfoInExpandableArea(data) {
 				radioButton.value = option;
 				radioButton.name = friendlyNames[key].name;
 				radioButton.id = friendlyNames[key].name + option;
+				radioButton.checked = value === option;
 				label.appendChild(radioButton);
 				label.appendChild(document.createTextNode(option));
 				controls.appendChild(label);
@@ -527,7 +537,7 @@ export async function displayFileInfoInExpandableArea(data) {
 				{
 					birthDate: "",
 					noSecondParentBoolean: false,
-					notCaringForBoolean: false,
+					caringForBoolean: true,
 					requestDelayOfPointsBoolean: false,
 				});
 			// first clear the body
@@ -766,7 +776,7 @@ displayFileInfoInExpandableArea(data);
                 fieldName.endsWith("Number") ||
                fieldName.endsWith("taxYear") ||
                 fieldName.endsWith("Date") ||
-                fieldName.endsWith("Month") ||
+                fieldName.endsWith("Months") ||
                 fieldName.endsWith("Integer") ||
                 fieldName.endsWith("Code") ||
                 fieldName.endsWith("Boolean") ||
@@ -777,7 +787,9 @@ displayFileInfoInExpandableArea(data);
         // 1️⃣ Update fields in the **Accordion Body**
         body.querySelectorAll('input[data-field-name]').forEach(input => {
             const fieldName = input.getAttribute('data-field-name');
-            let fieldValue = input.value.trim(); // Remove unnecessary spaces
+			// check if value is boolean
+			debug("value=",input.value);
+            let fieldValue = input.value; // Remove unnecessary spaces
 
             // 🟢 **If it's a currency field, clean and format it**
             if (isCurrencyField(fieldName)) {
@@ -786,6 +798,11 @@ displayFileInfoInExpandableArea(data);
                     fieldValue = parseFloat(fieldValue).toFixed(2); // Convert to float with 2 decimals
                 }
             }
+			else if (fieldName.endsWith("Boolean")) {
+				fieldValue = input.checked;
+				updatedData[fieldName] = fieldValue;
+			}
+			else{
 
             // 🟢 **Determine where to store the updated value**
             if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
@@ -793,6 +810,7 @@ displayFileInfoInExpandableArea(data);
             } else if (fileData.fields?.hasOwnProperty(fieldName)) {
                 updatedData.fields[fieldName] = fieldValue;
             }
+		}
         });
 
         // 2️⃣ Update the **3 fields from the Accordion Header** (taxYear, clientName, clientIdentificationNumber)
