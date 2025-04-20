@@ -244,6 +244,27 @@ export function editableRemoveFileList() {
 	expandableArea.innerHTML = "";
 }
 
+export function editableOpenFileListEntry(fileName) {
+    // Find the accordion container that contains the file name in its header fields
+    const accordionContainers = document.querySelectorAll('#expandableAreaUploadFiles #accordionContainer');
+    
+    for (const container of accordionContainers) {
+        // Look for the input with data-field-name="fileName" in the header fields
+        const fileNameInput = container.querySelector('input[data-field-name="fileName"]');
+        if (fileNameInput && fileNameInput.value === fileName) {
+            // Find the toggle button (first child of the header)
+            const header = container.querySelector('div');  // First div is the header
+            const toggleButton = header.querySelector('toggleButton');
+            if (toggleButton) {
+                toggleButton.click();  // This will trigger the accordion toggle
+                // Scroll the container into view with smooth behavior
+                container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                break;
+            }
+        }
+    }
+}
+
 export async function displayFileInfoInExpandableArea(data) {
 	const expandableArea = document.getElementById("expandableAreaUploadFiles");
 

@@ -239,13 +239,32 @@
         background-color: var(--item-bg);
         border-right: 4px solid var(--default-border);
         border-radius: 3px;
+        cursor: default;
       }
 
       .message-text {
         flex-grow: 1;
         margin-right: 0;
         margin-left: 10px;
-		word-break: break-all;
+        word-break: break-all;
+      }
+
+      /* Styles for clickable messages */
+      .message-item.clickable {
+        cursor: pointer !important;
+        transition: background-color 0.2s ease;
+      }
+
+      .message-item.clickable:hover {
+        background-color: var(--item-bg);
+        opacity: 0.9;
+      }
+
+      .message-item.clickable .message-text::after {
+        content: "🔍";
+        margin-right: 8px;
+        font-size: 0.9em;
+        opacity: 0.7;
       }
 
       .dismiss-button {

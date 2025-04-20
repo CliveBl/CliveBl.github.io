@@ -2,7 +2,6 @@ const uiVersion = "0.41";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData = null;
-let answersMap = {};
 let currentlySelectedTaxYear;
 let latestFileInfoList = [];
 let documentIcons = {};
@@ -26,7 +25,7 @@ export function debug(...args) {
 // Import image utilities
 import { convertImageToBWAndResize } from './imageUtils.js';
 import { cookieUtils } from './cookieUtils.js';
-import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList } from './editor.js';
+import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from './editor.js';
 import { API_BASE_URL, AUTH_BASE_URL } from './env.js';
 
 // Get environment from URL parameter
@@ -75,6 +74,31 @@ function removeFileList() {
 	} else {
 		fileList.innerHTML = "";
 	}
+}
+
+function openFileListEntryP(fileName) {
+	if(editableFileListParam && editableFileListParam == "true") {
+		editableOpenFileListEntry(fileName);
+	} else {
+		openFileListEntry(fileName);
+	}
+}
+
+function openFileListEntry(fileName) {
+    // Find the file item by looking for the span with class 'fileNameElement' that contains the fileName
+    const fileNameElements = document.querySelectorAll('.fileNameElement');
+    for (const element of fileNameElements) {
+        if (element.textContent.trim().startsWith(fileName)) {
+            // Click the parent file-header to open the accordion
+            const fileHeader = element.closest('.file-header');
+            if (fileHeader) {
+				// scroll the fileHeader into view
+				fileHeader.scrollIntoView({ behavior: 'smooth' });
+                fileHeader.click();
+                break;
+            }
+        }
+    }
 }
 
 function getDocTypes()
@@ -185,11 +209,8 @@ function signOut() {
   removeFileList();
   updateMissingDocuments();
   updateDeleteAllButton();
-  removeQuestionaire();
-  clearResultsControls();
+   clearResultsControls();
   clearMessages();
-  removeAnswersMapFromLocalStorage();
-  localStorage.setItem("questionnaireExists", "false");
   //addMessage("התנתקת בהצלחה");
 }
 
@@ -218,7 +239,6 @@ async function loadExistingFiles() {
     document.getElementById("fileInput").disabled = false;
     document.getElementById("folderInput").disabled = false;
     document.getElementById("createFormSelect").disabled = false;
-    document.getElementById("questionnaireButton").disabled = false;
 
     // Also enable their labels for better visual feedback
     document.querySelectorAll(".custom-file-input label").forEach((label) => {
@@ -359,24 +379,7 @@ processButton.addEventListener("click", async () => {
     if (!signedIn) {
       await signInAnonymous();
     }
-    await getAnswersMap();
-
-    // Returns all questions that have requiredProcessing field equal to REQUIRED
-    //let requiredProcessingQuestionsList = getRequiredQuestions(String(configurationData.supportedTaxYears[0]), "requiredProcessing");
-	let requiredProcessingQuestionsList = [];
-
-    if (requiredProcessingQuestionsList.length > 0) {
-      // create the questions dialog
-      createQuestionnaire(requiredProcessingQuestionsList, configurationData.supportedTaxYears[0]);
-      // Scroll to the top of the questionaire section
-      window.scrollTo({
-        top: document.getElementById("questionnaireButton").offsetTop,
-        behavior: "smooth",
-      });
-      // Warn that there are missing answers in the questionaire.
-      addMessage("יש ערכים חסרים בשאלון.", "warning", false);
-    } else {
-      showLoadingOverlay("מעבדת מסמכחם...");
+       showLoadingOverlay("מעבדת מסמכחם...");
       // Clear previous messages
       clearMessages();
       // Tax results may now be invalid
@@ -429,7 +432,7 @@ processButton.addEventListener("click", async () => {
         await loadResults();
         addMessage("העיבוד הושלם", "info");
       }
-    }
+    
   } catch (error) {
     console.error("Processing failed:", error);
     addMessage("שגיאה בעיבוד הקבצים: " + error.message, "error");
@@ -554,6 +557,21 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
   messageDiv.appendChild(messageText);
   messageDiv.appendChild(dismissButton);
   messageContainer.appendChild(messageDiv);
+
+  // If the message contains fileName= then make messageDiv a clickable link to the entry for that file in the filelist
+  if (text.includes("fileName=")) {
+	// Match the pattern fileName=.*,
+	const fileName = text.match(/fileName=([^,]+)/)[1];
+    if (fileName) {
+		// Add clickable class to show it's interactive
+		messageDiv.classList.add("clickable");
+		// Make the messageDiv a clickable link to the fileItem	
+		messageDiv.addEventListener("click", () => {
+			openFileListEntryP(fileName);
+		});
+    }
+  }
+
 
   // Scroll to the bottom of the page if type is not "success" or "info"
   if (type !== "success" && type !== "info" && scrollToMessageSection) {
@@ -912,895 +930,7 @@ async function downloadResult(fileName) {
   }
 }
 
-function saveAnswersMapToLocalStorage() {
-  if (answersMap) {
-    debug("saveAnswersMapToLocalStorage");
-    const mapArray = Array.from(answersMap.entries());
-    const answersMapJson = JSON.stringify(mapArray);
-    localStorage.setItem("answersMap", answersMapJson);
-  }
-}
 
-// Add this function at the global scope
-function hasLocalAnswersMap() {
-  return localStorage.getItem("answersMap") !== null;
-}
-
-// Update the loadAnswersMapFromLocalStorage function
-function loadAnswersMapFromLocalStorage() {
-  debug("loadAnswersMapFromLocalStorage");
-  const answersMapJson = localStorage.getItem("answersMap");
-  if (answersMapJson) {
-    answersMap = new Map(JSON.parse(answersMapJson));
-  }
-}
-
-function removeAnswersMapFromLocalStorage() {
-  debug("removeAnswersMapFromLocalStorage");
-  localStorage.removeItem("answersMap");
-  // Delete answersMap
-  answersMap = {};
-}
-
-function getChildrenModal(year) {
-  let childrenModalId;
-  if (year >= 2024) {
-    childrenModalId = "childrenModal_2024";
-  } else if (year >= 2022) {
-    childrenModalId = "childrenModal_2023";
-  } else {
-    childrenModalId = "childrenModal_2018";
-  }
-  debug("childrenModalId:", childrenModalId);
-  return childrenModalId;
-}
-
-function getAnswerFromChildrenControls() {
-  const childrenModal = document.getElementById(getChildrenModal(currentlySelectedTaxYear));
-  // Get the values of the input fields into a string of pairs separated by commas
-  // The pairs are of the form <code>:<value>
-  let childrenData = "";
-  childrenModal.querySelectorAll("input[data-code]").forEach((input) => {
-    childrenData += input.dataset.code + ":" + input.value + ",";
-  });
-  //debug("childrenData:", childrenData);
-  return childrenData;
-}
-
-function getAnswersFromControls() {
-  const yearAnswers = {};
-
-  // First collect all answers for current year
-  const questions = configurationData.questionList;
-  questions.forEach((question) => {
-    const controls = questionnaireForm.querySelector(`.question-group[data-question="${question.name}"] .question-controls`);
-    const questionName = question.name;
-
-    // Get control type from data attribute
-    const controlType = controls.getAttribute("data-control-type");
-    const isPair = controls.getAttribute("data-is-pair") === "true";
-
-    let answer = "";
-
-    switch (controlType) {
-      case "CHILDREN":
-        // Get the children modal
-        answer = getAnswerFromChildrenControls();
-        break;
-      case "ID":
-        if (isPair) {
-          const registeredPartnerIdField = controls.querySelector(`input[name$="${questionName}_1"]`);
-          const partnerIdField = controls.querySelector(`input[name$="${questionName}_2"]`);
-          answer = `${partnerIdField.value.trim()},${registeredPartnerIdField.value.trim()}`;
-        } else {
-          const idField = controls.querySelector(`input[name="${questionName}"]`);
-          answer = idField.value.trim();
-        }
-        break;
-
-      case "DATE":
-        if (isPair) {
-          const registeredPartnerDateField = controls.querySelector(`input[name$="${questionName}_1"]`);
-          const partnerDateField = controls.querySelector(`input[name$="${questionName}_2"]`);
-          answer = `${partnerDateField.value.trim()},${registeredPartnerDateField.value.trim()}`;
-        } else {
-          const dateField = controls.querySelector(`input[name="${questionName}"]`);
-          answer = dateField.value.trim();
-        }
-        break;
-
-      case "SMALL_INTEGER":
-        if (isPair) {
-          const registeredPartnerNumField = controls.querySelector(`select[name$="${questionName}_1"]`);
-          const partnerNumField = controls.querySelector(`select[name$="${questionName}_2"]`);
-          answer = `${partnerNumField.value.trim()},${registeredPartnerNumField.value.trim()}`;
-        } else {
-          const numField = controls.querySelector(`select[name="${questionName}"]`);
-          answer = numField.value.trim() || "0";
-        }
-        break;
-
-      case "NUMERIC":
-        if (isPair) {
-          const registeredPartnerNumField = controls.querySelector(`input[name$="${questionName}_1"]`);
-          const partnerNumField = controls.querySelector(`input[name$="${questionName}_2"]`);
-          const value1 = partnerNumField.value.trim() || "0";
-          const value2 = registeredPartnerNumField.value.trim() || "0";
-          answer = `${value1},${value2}`;
-        } else {
-          const numField = controls.querySelector(`input[name="${questionName}"]`);
-          answer = numField.value.trim() || "0";
-        }
-        break;
-
-      case "CHECKBOX":
-        if (isPair) {
-          const registeredPartnerCheckbox = controls.querySelector(`input[name$="${questionName}_1"]`);
-          const partnerCheckbox = controls.querySelector(`input[name$="${questionName}_2"]`);
-          if (registeredPartnerCheckbox.checked && partnerCheckbox.checked) {
-            answer = "both";
-          } else if (registeredPartnerCheckbox.checked) {
-            answer = "registeredPartner";
-          } else if (partnerCheckbox.checked) {
-            answer = "partner";
-          } else {
-            answer = "none";
-          }
-        } else {
-          const checkbox = controls.querySelector(`input[name="${questionName}"]`);
-          answer = checkbox.checked ? "registeredPartner" : "none";
-        }
-        break;
-
-      case "RADIO":
-        // The value can be none or one of multiple values in the tooltip separated by a colon
-        // We need to calculate the answer which is one of the multiplebased on the radio buttons
-        // Get the radio buttons by question.name
-        const radioButtons = controls.querySelectorAll(`input[name="${questionName}"]`);
-        // Get the value of the checked radio button if one is checked
-        const checkedRadioButton = Array.from(radioButtons).find((radio) => radio.checked);
-        // Get the value of the checked radio button
-        const checkedRadioButtonValue = checkedRadioButton ? checkedRadioButton.value : "none";
-        // Answer is the value of the checked radio button or none
-        answer = checkedRadioButtonValue;
-        break;
-    }
-
-    // Add the answer only if it is different from the default answer.
-    if (question.defaultAnswer !== answer) {
-      yearAnswers[questionName] = answer;
-    } else {
-      delete yearAnswers[questionName];
-    }
-  });
-  return yearAnswers;
-}
-
-function updateAnswersMapFromControls() {
-  debug("updateAnswersMapFromControls");
-  const selectedYear = parseInt(document.getElementById("taxYear").value);
-
-  const yearAnswers = getAnswersFromControls();
-
-  // Update the Map with the current year's answers
-  debug("Updating answersMap with year: " + selectedYear);
-  answersMap.set(selectedYear.toString(), {
-    taxYear: selectedYear,
-    answers: yearAnswers,
-  });
-  // If there is any year with NaN in the answersMap remove it
-  for (const [key, value] of answersMap) {
-    if (isNaN(key)) {
-      // popup a message
-      alert("There is a year with NaN in the answersMap. Please remove it.");
-      debug("Removing year: " + key);
-      answersMap.delete(key);
-    }
-  }
-} // updateAnswersMapFromControls
-
-async function createQuestionnaire(requiredQuestionsList = [], taxYear) {
-  try {
-    debug("createQuestionnaire");
-    if (!signedIn) {
-      await signInAnonymous();
-    }
-    // Get reference to the questionnaire form
-    const questionnaireForm = document.getElementById("questionnaireForm");
-    if (!questionnaireForm) {
-      throw new Error("Questionnaire form not found");
-    }
-
-    // Add cancel button handler
-    const cancelButton = document.getElementById("cancelAnswersButton");
-    cancelButton.addEventListener("click", async () => {
-      try {
-        // Get the current year's answers from the server
-        await getAnswersMap();
-        // Remove the questionnaire and recreate it to show the restored data
-        removeQuestionaire();
-      } catch (error) {
-        console.error("Failed to cancel changes:", error);
-        addMessage("שגיאה בביטול השינויים: " + error.message, "error");
-      }
-    });
-
-    // Remove the old questionnaire if it exists because the controls will have old values.
-    removeQuestionaire();
-    // Get the container to which we will add the dynamic questions container child
-    const questionsContainer = document.getElementById("questionsContainer");
-
-    // Create the questions container child to which we will add the question controls.
-    const questionsContainerChild = document.createElement("div");
-    questionsContainerChild.id = "questionsContainerChild";
-    questionsContainerChild.className = "questions-container";
-    questionsContainerChild.innerHTML = ""; // Clear existing questions
-    questionsContainer.appendChild(questionsContainerChild);
-
-    await getAnswersMap();
-
-    const endYear = configurationData.supportedTaxYears[0];
-    const startYear = configurationData.supportedTaxYears[configurationData.supportedTaxYears.length - 1];
-    // Set initial current year
-    if (taxYear) {
-      currentlySelectedTaxYear = taxYear;
-    } else {
-      currentlySelectedTaxYear = endYear;
-    }
-
-    // Use let for currentYearAnswers since we need to update it
-    let yearAnswers = answersMap.get(currentlySelectedTaxYear.toString());
-    let currentYearAnswers = yearAnswers?.answers || {};
-
-    // Populate year selector
-    const yearSelect = document.getElementById("taxYear");
-    yearSelect.innerHTML = "";
-
-    // Create year options from the supported tax years
-    for (let year = endYear; year >= startYear; year--) {
-      const option = document.createElement("option");
-      option.value = year;
-      option.textContent = year;
-      yearSelect.appendChild(option);
-    }
-
-    // Set the year selector to match currentlySelectedTaxYear
-    yearSelect.value = currentlySelectedTaxYear;
-    //debug('Set year selector to:', currentlySelectedTaxYear); // Debug log
-    let childrenModalId = getChildrenModal(currentlySelectedTaxYear);
-    // Create questions and populate with answers
-    const questions = configurationData.questionList;
-    questions.forEach((question) => {
-      function createPartnerLabel() {
-        const partnerLabel = document.createElement("label");
-        partnerLabel.textContent = "בן/בת זוג";
-        partnerLabel.className = "question-sub-label";
-        return partnerLabel;
-      }
-
-      function createRegisteredLabel() {
-        const registeredLabel = document.createElement("label");
-        registeredLabel.textContent = "בן זוג רשום";
-        registeredLabel.className = "question-sub-label";
-        return registeredLabel;
-      }
-
-      const questionGroup = document.createElement("div");
-      questionGroup.className = "question-group";
-      questionGroup.setAttribute("data-question", question.name);
-      questionGroup.setAttribute("data-control-type", question.controlType);
-      questionGroup.setAttribute("data-is-pair", question.pair === "PAIR");
-
-      const questionText = document.createElement("div");
-      questionText.className = "question-text";
-      questionText.textContent = question.text;
-      // If the question is in the list of required questions, add a red asterisk to the question text
-      if (requiredQuestionsList.includes(question.name)) {
-        debug("Required question.name:", question.name);
-        questionText.innerHTML += "<span>*</span>";
-        questionText.classList.add("highlight-questions");
-      }
-      questionGroup.appendChild(questionText);
-
-      const controls = document.createElement("div");
-      controls.className = "question-controls";
-      controls.setAttribute("data-control-type", question.controlType);
-      controls.setAttribute("data-is-pair", question.pair === "PAIR");
-
-      switch (question.controlType) {
-        case "CHILDREN":
-          const childrenButton = document.createElement("button");
-          childrenButton.textContent = "פרטי ילדים";
-          childrenButton.className = "children-button";
-          childrenButton.type = "button"; // Prevent form submission
-
-          childrenButton.addEventListener("click", () => {
-            childrenModalId = getChildrenModal(currentlySelectedTaxYear);
-            setupChildrenModalInputs();
-
-            const modal = document.getElementById(childrenModalId);
-            modal.style.display = "block";
-
-            // Close modal when clicking the close button
-            const closeBtn = modal.querySelector(".close-button");
-            closeBtn.onclick = () => (modal.style.display = "none");
-
-            // Close modal when clicking outside
-            window.onclick = (event) => {
-              if (event.target === modal) {
-                modal.style.display = "none";
-              }
-            };
-
-            // Handle save button click
-            const saveBtn = modal.querySelector(".save-button");
-            saveBtn.onclick = () => {
-              // TODO: Save the children data
-              modal.style.display = "none";
-            };
-          });
-          controls.appendChild(childrenButton);
-          break;
-        case "ID":
-          if (question.pair === "PAIR") {
-            // Create container for pair of ID inputs
-            const pairContainer = document.createElement("div");
-            pairContainer.className = "id-input-container";
-
-            // First ID input (registered partner)
-            const idInput1 = document.createElement("div");
-            idInput1.className = "id-input-group";
-
-            const idNumberInput = document.createElement("input");
-            idNumberInput.type = "text";
-            idNumberInput.name = question.name + "_1";
-            idNumberInput.pattern = "\\d{9}";
-            idNumberInput.maxLength = 9;
-            idNumberInput.placeholder = "הכנס 9 ספרות";
-            idNumberInput.className = "id-input";
-
-            // Second ID input (partner)
-            const idInput2 = document.createElement("div");
-            idInput2.className = "id-input-group";
-
-            const input2 = document.createElement("input");
-            input2.type = "text";
-            input2.name = question.name + "_2";
-            input2.pattern = "\\d{9}";
-            input2.maxLength = 9;
-            input2.placeholder = "הכנס 9 ספרות";
-            input2.className = "id-input";
-
-            // Add validation to both inputs
-            [idNumberInput, input2].forEach((input) => {
-              input.addEventListener("input", (e) => {
-                e.target.value = e.target.value.replace(/[^\d]/g, "");
-                if (e.target.value.length > 9) {
-                  e.target.value = e.target.value.slice(0, 9);
-                }
-              });
-            });
-
-            idInput1.appendChild(createRegisteredLabel());
-            idInput1.appendChild(idNumberInput);
-            idInput2.appendChild(createPartnerLabel());
-            idInput2.appendChild(input2);
-
-            pairContainer.appendChild(idInput1);
-            pairContainer.appendChild(idInput2);
-            controls.appendChild(pairContainer);
-          } else {
-            // Single ID input
-            const idNumberInput = document.createElement("input");
-            idNumberInput.type = "text";
-            idNumberInput.name = question.name;
-            idNumberInput.pattern = "\\d{9}";
-            idNumberInput.maxLength = 9;
-            idNumberInput.placeholder = "הכנס 9 ספרות";
-            idNumberInput.className = "id-input";
-
-            idNumberInput.addEventListener("input", (e) => {
-              e.target.value = e.target.value.replace(/[^\d]/g, "");
-              if (e.target.value.length > 9) {
-                e.target.value = e.target.value.slice(0, 9);
-              }
-            });
-
-            controls.appendChild(idNumberInput);
-          }
-          break;
-
-        case "CHECKBOX":
-          if (question.pair === "PAIR") {
-            // Create container for pair of checkboxes
-            const pairContainer = document.createElement("div");
-            pairContainer.className = "checkbox-pair-container";
-            pairContainer.style.display = "flex";
-            pairContainer.style.gap = "10px";
-            pairContainer.style.whiteSpace = "nowrap"; // Add this
-
-            // Partner container
-            const partnerContainer = document.createElement("div");
-            partnerContainer.style.flex = "0 0 auto"; // Add this
-
-            const partnerCheckbox = document.createElement("input");
-            partnerCheckbox.type = "checkbox";
-            partnerCheckbox.name = question.name + "_1";
-
-            // Registered container
-            const registeredContainer = document.createElement("div");
-            registeredContainer.style.flex = "0 0 auto"; // Add this
-
-            const registeredCheckbox = document.createElement("input");
-            registeredCheckbox.type = "checkbox";
-            registeredCheckbox.name = question.name + "_2";
-
-            registeredContainer.appendChild(createRegisteredLabel());
-            registeredContainer.appendChild(registeredCheckbox);
-            partnerContainer.appendChild(createPartnerLabel());
-            partnerContainer.appendChild(partnerCheckbox);
-
-            pairContainer.appendChild(registeredContainer);
-            pairContainer.appendChild(partnerContainer);
-            controls.appendChild(pairContainer);
-          } else {
-            // Single checkbox
-            const container = document.createElement("div");
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.name = question.name;
-            container.appendChild(checkbox);
-            controls.appendChild(container);
-          }
-          break;
-
-        case "SMALL_INTEGER":
-          // Small integer is a number between min and max as defined in jsonAttributes (key/value pairs as a json string	)
-          const jsonAttributes = JSON.parse(question.jsonAttributes);
-          const min = jsonAttributes.min;
-          const max = jsonAttributes.max;
-          if (question.pair === "PAIR") {
-            // Create container for pair of small integer inputs
-            const pairContainer = document.createElement("div");
-            pairContainer.className = "small-integer-pair-container";
-            // Registered partner
-            const registeredContainer = document.createElement("div");
-            registeredContainer.style.flex = "1";
-
-            // First small integer input (registered partner) selector control from min to max
-            const registeredPartnerSelector = document.createElement("select");
-            registeredPartnerSelector.name = question.name + "_1";
-            //registeredPartnerSelector.style.width = "120px";
-            registeredPartnerSelector.style.padding = "4px 8px";
-            for (let i = min; i <= max; i++) {
-              const option = document.createElement("option");
-              option.value = i;
-              option.textContent = i;
-              registeredPartnerSelector.appendChild(option);
-            }
-            registeredContainer.appendChild(createRegisteredLabel());
-            registeredContainer.appendChild(registeredPartnerSelector);
-
-            // Second small integer input (partner) selector control from min to max
-            const partnerContainer = document.createElement("div");
-            partnerContainer.style.flex = "1";
-
-            const partnerSelector = document.createElement("select");
-            partnerSelector.name = question.name + "_2";
-            //partnerSelector.style.width = "120px";
-            partnerSelector.style.padding = "4px 8px";
-            for (let i = min; i <= max; i++) {
-              const option = document.createElement("option");
-              option.value = i;
-              option.textContent = i;
-              partnerSelector.appendChild(option);
-            }
-            partnerContainer.appendChild(createPartnerLabel());
-            partnerContainer.appendChild(partnerSelector);
-
-            // Add the selector controls to the pair container
-            pairContainer.appendChild(registeredContainer);
-            pairContainer.appendChild(partnerContainer);
-            controls.appendChild(pairContainer);
-          } else {
-            // Small integer input (registered partner) selector control from min to max
-            const selector = document.createElement("select");
-            selector.name = question.name;
-            //selector.style.width = "120px";
-            selector.style.padding = "4px 8px";
-            for (let i = min; i <= max; i++) {
-              const option = document.createElement("option");
-              option.value = i;
-              option.textContent = i;
-              selector.appendChild(option);
-            }
-            controls.appendChild(selector);
-          }
-          break;
-
-        case "NUMERIC":
-          if (question.pair === "PAIR") {
-            // Create container for pair of numeric inputs
-            const pairContainer = document.createElement("div");
-            pairContainer.className = "numeric-pair-container";
-            pairContainer.style.display = "flex";
-            pairContainer.style.gap = "10px";
-
-            // Registered partner numeric input
-            const registeredContainer = document.createElement("div");
-            registeredContainer.style.flex = "1";
-
-            const registeredInput = document.createElement("input");
-            registeredInput.type = "number";
-            registeredInput.name = question.name + "_1";
-            registeredInput.style.width = "120px";
-            registeredInput.style.padding = "4px 8px";
-
-            // Partner numeric input
-            const partnerContainer = document.createElement("div");
-            partnerContainer.style.flex = "1";
-
-            const partnerInput = document.createElement("input");
-            partnerInput.type = "number";
-            partnerInput.name = question.name + "_2";
-            partnerInput.style.width = "120px";
-            partnerInput.style.padding = "4px 8px";
-
-            registeredContainer.appendChild(createRegisteredLabel());
-            registeredContainer.appendChild(registeredInput);
-            partnerContainer.appendChild(createPartnerLabel());
-            partnerContainer.appendChild(partnerInput);
-
-            pairContainer.appendChild(registeredContainer);
-            pairContainer.appendChild(partnerContainer);
-            controls.appendChild(pairContainer);
-          } else {
-            // Single numeric input
-            const input = document.createElement("input");
-            input.type = "number";
-            input.name = question.name;
-            input.style.width = "120px";
-            input.style.padding = "4px 8px";
-            controls.appendChild(input);
-          }
-          break;
-
-        case "DATE":
-          if (question.pair === "PAIR") {
-            // Create container for pair of date inputs
-            const dateContainer = document.createElement("div");
-            dateContainer.className = "date-pair-container";
-            dateContainer.style.display = "flex";
-            dateContainer.style.gap = "10px";
-
-            // First date input (registered partner)
-            const dateInput1 = document.createElement("div");
-            dateInput1.style.flex = "1";
-
-            const input1 = document.createElement("input");
-            input1.type = "text";
-            input1.placeholder = "dd/MM/yyyy";
-            input1.pattern = "\\d{2}/\\d{2}/\\d{4}";
-            input1.name = question.name + "_1";
-
-            // Add input validation and formatting
-            input1.addEventListener("input", formatDateInput);
-            input1.addEventListener("blur", validateDateInput);
-
-            dateInput1.appendChild(createRegisteredLabel());
-            dateInput1.appendChild(input1);
-            dateContainer.appendChild(dateInput1);
-
-            // Second date input (partner)
-            const dateInput2 = document.createElement("div");
-            dateInput2.style.flex = "1";
-
-            const input2 = document.createElement("input");
-            input2.type = "text";
-            input2.placeholder = "dd/MM/yyyy";
-            input2.pattern = "\\d{2}/\\d{2}/\\d{4}";
-            input2.name = question.name + "_2";
-
-            // Add input validation and formatting
-            input2.addEventListener("input", formatDateInput);
-            input2.addEventListener("blur", validateDateInput);
-
-            dateInput2.appendChild(createPartnerLabel());
-            dateInput2.appendChild(input2);
-            dateContainer.appendChild(dateInput2);
-
-            controls.appendChild(dateContainer);
-          } else {
-            const input = document.createElement("input");
-            input.type = "text";
-            input.placeholder = "dd/MM/yyyy";
-            input.pattern = "\\d{2}/\\d{2}/\\d{4}";
-            input.name = question.name;
-
-            // Add input validation and formatting
-            input.addEventListener("input", formatDateInput);
-            input.addEventListener("blur", validateDateInput);
-
-            controls.appendChild(input);
-          }
-          break;
-
-        case "RADIO":
-          const options = question.tooltip.split(":");
-          options.forEach((option) => {
-            const label = document.createElement("label");
-            const radio = document.createElement("input");
-            radio.type = "radio";
-            radio.name = question.name;
-            radio.value = option;
-            label.appendChild(radio);
-            label.appendChild(document.createTextNode(option));
-            controls.appendChild(label);
-          });
-          break;
-      }
-
-      questionGroup.appendChild(controls);
-      questionsContainerChild.appendChild(questionGroup);
-
-      // After creating all controls for a question, populate with saved answers
-      let savedAnswer = currentYearAnswers[question.name];
-      if (!savedAnswer) {
-        savedAnswer = question.defaultAnswer;
-      }
-      updateControlFromAnswer(question, savedAnswer, controls, currentlySelectedTaxYear);
-    });
-
-    // Add debug logging for the answers map and current year answers
-    //debug('Full answers map:', answersMap);
-    //debug('Current year answers:', currentYearAnswers);
-
-    // Add year change handler to load answers for selected year
-    yearSelect.addEventListener("change", () => {
-      const selectedYear = parseInt(yearSelect.value);
-	  debug("yearSelect listener:", selectedYear);
-
-      // If the selected year is different from the currently selected year
-      if (selectedYear !== currentlySelectedTaxYear) {
-        // First save current year's answers to the answersMap
-        const previousYearAnswers = getAnswersFromControls();
-        // Update answersMap with previous year's answers
-        answersMap.set(currentlySelectedTaxYear.toString(), {
-          taxYear: currentlySelectedTaxYear,
-          answers: previousYearAnswers,
-        });
-
-        // Now update controls with selected year's answers
-        let selectedYearAnswers;
-        const selectedYearEntry = answersMap.get(selectedYear.toString());
-        if (selectedYearEntry) {
-          selectedYearAnswers = selectedYearEntry.answers;
-        }
-
-		// Update current year tracker
-		currentlySelectedTaxYear = selectedYear;
-
-        // iterate over the questions
-        questions.forEach((question) => {
-          let savedAnswer;
-          if (selectedYearAnswers) {
-            savedAnswer = selectedYearAnswers[question.name];
-          } else {
-           savedAnswer = question.defaultAnswer;
-          }
-          // get the controls for the question
-          const controls = questionnaireForm.querySelector(`.question-group[data-question="${question.name}"] .question-controls`);
-
-          if (controls) {
-            // Update controls using same logic as initial population
-            if (savedAnswer) {
-              updateControlFromAnswer(question, savedAnswer, controls, selectedYear);
-            } else {
-              // Clear controls if no saved answer
-              clearControls(controls, question.controlType);
-            }
-          }
-        });
-
-      }
-    });
-
-    // Show questionnaire dialog
-    showQuestionaire();
-    localStorage.setItem("questionnaireExists", "true");
-
-    // Duplicate answers handler
-    document.getElementById("duplicateAnswersButton").addEventListener("click", () => {
-      const duplicateAnswersWarningModal = document.getElementById("duplicateAnswersWarningModal");
-      duplicateAnswersWarningModal.style.display = "block";
-
-      // Handle close button
-      duplicateAnswersWarningModal.querySelector(".close-button").onclick = () => {
-        duplicateAnswersWarningModal.style.display = "none";
-      };
-
-      // Handle cancel button
-      duplicateAnswersWarningModal.querySelector(".cancel-button").onclick = () => {
-        duplicateAnswersWarningModal.style.display = "none";
-      };
-
-      // Handle confirm button
-      duplicateAnswersWarningModal.querySelector(".confirm-button").onclick = () => {
-        duplicateAnswersWarningModal.style.display = "none";
-        const currentYear = yearSelect.value;
-        updateAnswersMapFromControls();
-
-        // Duplicate the answers to all years
-        yearSelect.querySelectorAll("option").forEach((option) => {
-          if (option.value !== currentYear) {
-            debug("Duplicating answers to year: " + option.value);
-            answersMap.set(option.value, answersMap.get(currentYear));
-          }
-        });
-        // Save to localStorage
-        saveAnswersMapToLocalStorage();
-
-        addMessage("התשובות שוכפלו לכל השנים", "success");
-      };
-
-      // Close if clicking outside
-      window.onclick = (event) => {
-        if (event.target === duplicateAnswersWarningModal) {
-          duplicateAnswersWarningModal.style.display = "none";
-        }
-      };
-    });
-  } catch (error) {
-    console.error("Failed to load questionnaire:", error);
-    addMessage("שגיאה בטעינת השאלון: " + error.message, "error");
-  }
-
-  function updateControlFromAnswer(question, answer, controls, year) {
-    const isPair = question.pair === "PAIR";
-    const controlType = question.controlType;
-
-    switch (controlType) {
-      case "CHILDREN":
-        setChildrenControls(answer, controlType, year);
-        break;
-      case "ID":
-        if (isPair) {
-          const [value1, value2] = answer.split(",", 2);
-          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-          if (input1) input1.value = value2 || "";
-          if (input2) input2.value = value1 || "";
-        } else {
-          const input = controls.querySelector(`input[name="${question.name}"]`);
-          if (input) input.value = answer;
-        }
-        break;
-
-      case "DATE":
-        if (isPair) {
-          const [value1, value2] = answer.split(",", 2);
-          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-          if (input1) input1.value = value2 || "";
-          if (input2) input2.value = value1 || "";
-        } else {
-          const input = controls.querySelector(`input[name="${question.name}"]`);
-          if (input) input.value = answer;
-        }
-        break;
-
-      case "SMALL_INTEGER":
-        if (isPair) {
-          const [value1, value2] = answer.split(",", 2);
-          const selector1 = controls.querySelector(`select[name="${question.name}_1"]`);
-          const selector2 = controls.querySelector(`select[name="${question.name}_2"]`);
-          if (selector1) selector1.value = value2 === "0" ? "" : value2;
-          if (selector2) selector2.value = value1 === "0" ? "" : value1;
-        } else {
-          const selector = controls.querySelector(`select[name="${question.name}"]`);
-          if (selector) selector.value = answer === "0" ? "" : answer;
-        }
-        break;
-
-      case "NUMERIC":
-        if (isPair) {
-          const [value1, value2] = answer.split(",", 2);
-          const input1 = controls.querySelector(`input[name="${question.name}_1"]`);
-          const input2 = controls.querySelector(`input[name="${question.name}_2"]`);
-          if (input1) input1.value = value2 === "0" ? "" : value2;
-          if (input2) input2.value = value1 === "0" ? "" : value1;
-        } else {
-          const input = controls.querySelector(`input[name="${question.name}"]`);
-          if (input) input.value = answer === "0" ? "" : answer;
-        }
-        break;
-
-      case "CHECKBOX":
-        if (isPair) {
-          const checkbox1 = controls.querySelector(`input[name="${question.name}_1"]`);
-          const checkbox2 = controls.querySelector(`input[name="${question.name}_2"]`);
-          if (checkbox1) checkbox1.checked = answer === "partner" || answer === "both";
-          if (checkbox2) checkbox2.checked = answer === "registeredPartner" || answer === "both";
-        } else {
-          const checkbox = controls.querySelector(`input[name="${question.name}"]`);
-          if (checkbox) checkbox.checked = answer === "registeredPartner";
-        }
-        break;
-
-      case "RADIO":
-        // Check the radio button according to the answer.
-        // The value can be none or one of multiple values in the tooltip separated by a colon
-        // We need to calculate the answer which is one of the multiplebased on the radio buttons
-        // Get the radio buttons by question name
-        const radioButtons = controls.querySelectorAll(`input[name="${question.name}"]`);
-        // Check the correct radio button according to the answer
-        radioButtons.forEach((radio) => {
-          if (radio.value === answer) {
-            radio.checked = true;
-          } else {
-            radio.checked = false;
-          }
-        });
-        break;
-    }
-  }
-
-  function clearControls(controls, controlType) {
-	debug("Clearing controls:", controlType);
-    switch (controlType) {
-      case "CHILDREN":
-        controls.querySelectorAll("input[data-code='260']").forEach((input) => (input.value = ""));
-        controls.querySelectorAll("input[data-code='262']").forEach((input) => (input.value = ""));
-        controls.querySelectorAll("input[data-code='190']").forEach((input) => (input.value = ""));
-        controls.querySelectorAll("input[data-code='191']").forEach((input) => (input.value = ""));
-        controls.querySelectorAll("input[data-code='022']").forEach((input) => (input.value = ""));
-        controls.querySelectorAll("input[data-code='361']").forEach((input) => (input.value = ""));
-        controls.querySelectorAll("input[data-code='362']").forEach((input) => (input.value = ""));
-        break;
-      case "ID":
-      case "DATE":
-      case "NUMERIC":
-        controls.querySelectorAll("input").forEach((input) => (input.value = ""));
-        break;
-      case "SMALL_INTEGER":
-        controls.querySelectorAll("select").forEach((select) => (select.value = ""));
-        break;
-      case "CHECKBOX":
-        controls.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
-        break;
-      case "RADIO":
-        controls.querySelectorAll('input[type="radio"]').forEach((radio) => (radio.checked = false));
-        break;
-    }
-  }
-
-  function setChildrenControls(answer, controlType, year) {
-    function getValueFromPair(pair) {
-      const pairArray = pair.split(":");
-      if (pairArray.length == 2) {
-        return parseInt(pairArray[1]);
-      } else {
-        return 0;
-      }
-    }
-    const childrenModal = document.getElementById(getChildrenModal(year));
-    // Populate the controls with the 2d array in the savedAnswer
-    // The string is of the format "260:1,260:,260:,260:,260:1,262:1,262:1,262:1,262:,262:,190:1,190:,190:,190:,190:,291:1,291:,291:,291:,291:,022:,022:,022:1,022:,022:1,361:1,362:1,
-    //Where the first number is the code and the second is the number of children. Each code has 5 values.
-    if (answer.length > 0) {
-      const childrenData = answer.split(",");
-      let index = 0;
-      for (let i = 0; i < 7; i++) {
-        const fieldCode = childrenData[index].split(":")[0];
-
-        // Set the ith row of the input controls.
-        childrenModal.querySelectorAll(`input[data-code='${fieldCode}']`).forEach((input) => (input.value = getValueFromPair(childrenData[index++])));
-      }
-    } else {
-      clearControls(childrenModal, controlType);
-    }
-  }
-} // createQuestionnaire
 // Add this after the other button references
 const deleteAllButton = document.getElementById("deleteAllButton");
 
@@ -1837,16 +967,6 @@ deleteAllButton.addEventListener("click", async () => {
   }
 });
 
-// Save state before the page unloads
-window.addEventListener("beforeunload", () => {
-  const doesQuestionnaireExist = localStorage.getItem("questionnaireExists");
-  if (answersMap && doesQuestionnaireExist && doesQuestionnaireExist === "true") {
-    updateAnswersMapFromControls();
-    saveAnswersMapToLocalStorage();
-  } else {
-    localStorage.setItem("questionnaireExists", "false");
-  }
-});
 
 // Keep the docDetails object for hover functionality
 const docDetails = {
@@ -2086,105 +1206,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Update the questionnaire button click handler
-document.getElementById("questionnaireButton").addEventListener("click", async () => {
-  const isCurrentlyActive = questionnaireContainer.classList.contains("active");
 
-  if (isCurrentlyActive) {
-    // Hide questionnaire if it's currently shown
-    hideQuestionaire();
-    localStorage.setItem("questionnaireExists", "false");
-  } else {
-    // Check if the questionnaire is already created
-    if (!document.getElementById("questionsContainerChild")) {
-      await createQuestionnaire();
-    } else {
-      showQuestionaire();
-      localStorage.setItem("questionnaireExists", "true");
-    }
-  }
-});
-
-// Make sure the form has an ID and method
-questionnaireForm.setAttribute("method", "post");
-
-// Close questionnaire on overlay click
-//   questionnaireOverlay.addEventListener("click", (e) => {
-//     if (e.target === questionnaireOverlay) {
-//       closeQuestionaire();
-// 	  removeAnswersMapFromLocalStorage();
-//     }
-//   });
-
-// Close questionnaire on close button click
-//   questionnaireOverlay.querySelector(".close-button").addEventListener("click", () => {
-//       closeQuestionaire();
-//     });
-
-// Update the questionnaire form submission handler
-questionnaireForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  debug("setAnswersMap");
-  try {
-    updateAnswersMapFromControls();
-    saveAnswersMapToLocalStorage();
-    // Convert Map to object for JSON serialization
-    const answersObject = Object.fromEntries(answersMap);
-    const answersMapJson = JSON.stringify(answersObject);
-
-    // Call the API to save answers
-    const response = await fetch(`${API_BASE_URL}/setAnswersMap`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        customerDataEntryName: "Default",
-        answersMapJson: answersMapJson,
-      }),
-      ...fetchConfig,
-    });
-
-	if(!await handleResponse(response, "Save answers failed")) {
-		return;
-	}
-
-    // Close the questionnaire dialog
-    hideQuestionaire();
-    clearResultsControls();
-    // Show success message
-    addMessage("התשובות נשמרו בהצלחה", "info");
-  } catch (error) {
-    console.error("Failed to save answers:", error);
-    addMessage("שגיאה בשמירת התשובות: " + error.message, "error");
-  }
-});
-
-function removeQuestionaire() {
-  debug("removeQuestionaire");
-  const questionsContainer = document.getElementById("questionsContainer");
-  hideQuestionaire();
-  // If questionsContainerChild already exists, remove it
-  const questionsContainerChildOld = document.getElementById("questionsContainerChild");
-  if (questionsContainerChildOld) {
-    debug("questionsContainerChildOld found");
-    questionsContainer.removeChild(questionsContainerChildOld);
-  }
-}
-
-function hideQuestionaire() {
-  questionnaireContainer.classList.remove("active");
-  const button = document.getElementById("questionnaireButton");
-  button.classList.toggle("active");
-}
-
-// Open the questionnaire
-function showQuestionaire() {
-  questionnaireContainer.classList.add("active");
-  const button = document.getElementById("questionnaireButton");
-  button.classList.toggle("active");
-}
 
 function clearTaxResults() {
   debug("clearTaxResults");
@@ -2210,32 +1232,6 @@ function clearResultsControls() {
   resultsList.innerHTML = "";
 }
 
-async function getAnswersMap() {
-  if (!hasLocalAnswersMap()) {
-    // Get the answers map
-    debug("Getting answers map from server");
-    const answersResponse = await fetch(`${API_BASE_URL}/getAnswersMap?customerDataEntryName=Default`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      credentials: "include",
-      ...fetchConfig,
-    });
-
-	if(!await handleResponse(answersResponse, "Get answers failed")) {
-		return;
-	}
-
-    const answersData = await answersResponse.json();
-    answersMap = new Map(Object.entries(answersData));
-    debug("answersMap", answersMap);
-    saveAnswersMapToLocalStorage();
-  } else {
-    loadAnswersMapFromLocalStorage();
-  }
-  return answersMap;
-}
 
 async function loadConfiguration() {
   debug("loadConfiguration");
@@ -2594,9 +1590,7 @@ async function calculateTax(fileName) {
     debug("calculateTax", fileName);
     // Extract <name>_<year>.dat
     const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
-    // Get questions from cache or fetch if not cached
-    await getAnswersMap();
-
+ 
     clearMessages();
 
     // Returns all questions that have requiredTaxCalc field equal to REQUIRED
@@ -2648,43 +1642,6 @@ async function calculateTax(fileName) {
   }
 }
 
-// Return a list of required questions for the requiredType.
-// Check if required questions have been answered by iterating over the answersMap
-// for taxYear and checking if the answers that exists in the json are not the same
-// as the default values found in the cachedQuestions.
-// If any required question is not answered then add a message.
-function getRequiredQuestions(taxYear, requiredType) {
-  const requiredQuestions = configurationData.questionList.filter((question) => question[requiredType] === "REQUIRED");
-  let requiredQuestionsList = [];
-
-  const yearAnswers = answersMap.get(taxYear);
-  const currentYearAnswers = yearAnswers?.answers || {};
-  // Check unanswered questions by comparing to the default values.
-  requiredQuestions.forEach((question) => {
-    const answer = currentYearAnswers[question.name];
-    let numberOfDates = 0;
-    if (question.controlType === "DATE" && answer != null) {
-      // Check if both dates are present
-      const dates = answer.split(",");
-      if (dates[0].length > 0 && dates[1].length > 0) {
-        numberOfDates = 2;
-      }
-    }
-    if (
-      !currentYearAnswers ||
-      currentYearAnswers[question.name] === undefined ||
-      currentYearAnswers[question.name] === null ||
-      answer === question.defaultAnswer ||
-      // If the question is linked to MARITAL_STATUS and the answer is MARRIED and it is a PAIR, but both fields of the pair are not answered then it is also required
-      (question.pair === "PAIR" && question.linkedTo !== null && question.linkedTo === "MARITAL_STATUS" && question.controlType === "DATE" && numberOfDates !== 2)
-    ) {
-      debug("Required question not answered: " + question.name + ":" + answer + " " + question.defaultAnswer);
-      // Add the question name to a list of required questions
-      requiredQuestionsList.push(question.name);
-    }
-  });
-  return requiredQuestionsList;
-}
 
 function updateDeleteAllButton() {
   document.getElementById("deleteAllButton").disabled = fileList.children.length === 0 || uploading;
@@ -3034,7 +1991,7 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
   const formType = e.target.value;
   if (!formType) return;
 
-  const identificationNumber = await idFromAnswersMap();
+  const identificationNumber = defaultId;
 
   try {
     const response = await fetch(`${API_BASE_URL}/createForm`, {
@@ -3070,58 +2027,6 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
   // return the control to its first option
   e.target.value = "";
 });
-
-async function idFromAnswersMap() {
-  let identificationNumber;
-  await getAnswersMap();
-  // Try to get the id from the answers map
-  const answers = answersMap.get(String(configurationData.supportedTaxYears[0]))?.answers;
-
-  if (answers && answers.TAXPAYER_ID) {
-    const [value1, value2] = answers?.TAXPAYER_ID.split(",", 2);
-    identificationNumber = value2;
-    if (identificationNumber.length != 9) {
-      identificationNumber = defaultId;
-    }
-  }
-  if (identificationNumber) return identificationNumber;
-  else return defaultId;
-}
-
-// Add event handlers for children modal
-function setupChildrenModalInputs() {
-  const modalId = getChildrenModal(currentlySelectedTaxYear);
-  const inputs = document.querySelectorAll(`#${modalId} input[type="number"]`);
-
-  inputs.forEach((input) => {
-    // Prevent non-numeric key presses
-    input.addEventListener("keypress", (e) => {
-      if (!/[0-9]/.test(e.key)) {
-        e.preventDefault();
-      }
-    });
-
-    // Handle paste events
-    input.addEventListener("paste", (e) => {
-      e.preventDefault();
-      const pastedText = (e.clipboardData || window.clipboardData).getData("text");
-      if (/^\d+$/.test(pastedText)) {
-        const value = Math.min(parseInt(pastedText), 26);
-        input.value = value;
-      }
-    });
-
-    // Clean up invalid values on blur
-    input.addEventListener("blur", () => {
-      const value = input.value.replace(/[^\d]/g, "");
-      if (value === "") {
-        input.value = "0";
-      } else {
-        input.value = Math.min(parseInt(value), 26);
-      }
-    });
-  });
-}
 
 
 // Add this function to update missing document counts
