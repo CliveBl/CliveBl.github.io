@@ -22,31 +22,19 @@ export function debug(...args) {
     console.log(...args);
   }
 }
-const ENV = {
-  development: {
-    API_BASE_URL: "https://localhost:443/api/v1",
-    AUTH_BASE_URL: "https://localhost:443/auth",
-  },
-  production: {
-    API_BASE_URL: "https://srv.taxesil.top:443/api/v1",
-    AUTH_BASE_URL: "https://srv.taxesil.top:443/auth",
-  },
-};
 
 // Import image utilities
 import { convertImageToBWAndResize } from './imageUtils.js';
 import { cookieUtils } from './cookieUtils.js';
 import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList } from './editor.js';
+import { API_BASE_URL, AUTH_BASE_URL } from './env.js';
 
 // Get environment from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
-const envParam = urlParams.get("env");
 const editableFileListParam = urlParams.get("editable");
-const currentEnv = envParam || "production";
-debug("Current environment:", currentEnv);
+const usernameParam = urlParams.get("username");
 
-export const API_BASE_URL = ENV[currentEnv].API_BASE_URL;
-export const AUTH_BASE_URL = ENV[currentEnv].AUTH_BASE_URL;
+
 
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput");
@@ -2905,6 +2893,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   const doesQuestionnaireExist = localStorage.getItem("questionnaireExists");
   if (doesQuestionnaireExist && doesQuestionnaireExist === "true") {
     createQuestionnaire();
+  }
+
+  // Add this new code
+  if (usernameParam) {
+    // Show the login modal
+    //loginOverlay.style.display = "flex";
+	loginOverlay.classList.add("active");
+	if (signedIn && userEmail.textContent == ANONYMOUS_EMAIL) {
+	  document.querySelector(".toggle-button[data-mode='signup']").click();
+	  isAnonymousConversion = true;
+	} else {
+	  document.querySelector(".toggle-button[data-mode='signin']").click();
+	  isAnonymousConversion = false;
+	}
+    
+    // Get the email input field and set its value
+    const emailInput = document.getElementById("email");
+    if (emailInput) {
+        emailInput.value = usernameParam;
+    }
+    
+    // Make sure we're in login mode (not register mode)
+    const loginToggle = document.querySelector('[data-mode="login"]');
+    if (loginToggle) {
+        loginToggle.click();
+    }
+    
+    // Focus on the password field since we already have the email
+    const passwordInput = document.getElementById("password");
+    if (passwordInput) {
+        passwordInput.focus();
+    }
   }
 });
 

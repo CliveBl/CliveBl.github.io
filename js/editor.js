@@ -1,4 +1,5 @@
-import { API_BASE_URL,AUTH_BASE_URL,configurationData,debug,addMessage } from './index.js';
+import { configurationData,debug,addMessage } from './index.js';
+import { API_BASE_URL, AUTH_BASE_URL } from './env.js';
 
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0 }) {

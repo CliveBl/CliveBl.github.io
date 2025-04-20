@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .loading {
+            display: none;
+        }
+        .error {
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Verifying Your Account</h1>
+        <div class="loading" id="loading">
+            <p>Please wait while we verify your account...</p>
+        </div>
+        <div class="error" id="error">
+            <p>There was an error verifying your account. It may have already been verified. If not, please try again later.</p>
+			<p>If the problem persists, please contact support.</p>
+			<p>If you have already verified your account, please <a id="redirectLink" href='tax_return.html'>click here to continue</a>.</p>
+        </div>
+    </div>
+
+    <script type="module">
+ import { API_BASE_URL,AUTH_BASE_URL } from './js/env.js';
+ document.addEventListener('DOMContentLoaded', function() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            
+            // Get the token from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const username = urlParams.get('username');
+
+            if (!token || !username) {
+                error.style.display = 'block';
+                return;
+            }
+
+            loading.style.display = 'block';
+
+            // Call the verification endpoint
+			//debug("URL=" + `${AUTH_BASE_URL}/verifyAccount?token=${token}`);
+            fetch(`${AUTH_BASE_URL}/verifyAccount?token=${token}`)
+                .then(response => response.text())
+                .then(result => {
+                    if (result === 'Account verified') {
+                        // Redirect to tax_return.html with username parameter
+                        window.location.href = `tax_return.html?username=${encodeURIComponent(username)}`;
+                    } else {
+                        error.style.display = 'block';
+                        loading.style.display = 'none';
+						const redirectLink = document.getElementById('redirectLink');
+						redirectLink.href = `tax_return.html?username=${encodeURIComponent(username)}`;
+                    }
+                })
+                .catch(() => {
+                    error.style.display = 'block';
+                    loading.style.display = 'none';
+					const redirectLink = document.getElementById('redirectLink');
+					redirectLink.href = `tax_return.html?username=${encodeURIComponent(username)}`;
+                });
+        });
+    </script>
+</body>
+</html> 
