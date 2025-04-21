@@ -1566,7 +1566,7 @@ function addFileToList(fileInfo) {
 }
 
 // Return true if the response is ok, false if we signed out otherwise throw an exception..
-async function handleResponse(response, errorMessage) {
+export async function handleResponse(response, errorMessage) {
 	if (!response.ok) {
         const errorData = await response.json();
 		debug(errorData);
@@ -1577,7 +1577,7 @@ async function handleResponse(response, errorMessage) {
 			addMessage("הסשן פג תוקף. אנא התחבר מחדש.", "error");
 			return false;
 		}
-		throw new Error(errorMessage + ": " + errorData.detail + " " + response.status);
+		throw new Error(errorData.detail);
 	}
 	return true;
 }
