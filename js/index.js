@@ -2,7 +2,6 @@ const uiVersion = "0.41";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData = null;
-let currentlySelectedTaxYear;
 let latestFileInfoList = [];
 let documentIcons = {};
 let uploading = false;
@@ -37,6 +36,7 @@ const usernameParam = urlParams.get("username");
 
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput");
+const folderInput = document.getElementById("folderInput");
 const fileList = document.getElementById("fileList");
 const processButton = document.getElementById("processButton");
 const messageContainer = document.getElementById("messageContainer");
@@ -48,7 +48,6 @@ const loginForm = document.querySelector(".login-form");
 const toggleButtons = document.querySelectorAll(".toggle-button");
 const modalTitle = document.getElementById("modalTitle");
 const submitButton = document.getElementById("submitButton");
-const confirmPassword = document.getElementById("confirmPassword");
 const googleButtonText = document.getElementById("googleButtonText");
 const githubButtonText = document.getElementById("githubButtonText");
 const userEmail = document.getElementById("userEmail");
@@ -647,7 +646,7 @@ toggleButtons.forEach((button) => {
 });
 
 // login form submit handler
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
+loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
