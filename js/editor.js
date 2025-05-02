@@ -662,12 +662,8 @@ export async function displayFileInfoInExpandableArea(data) {
                 createFieldRow(key, value, true);
             }
         });
-        // Initialize children array if it doesn't exist
-        if (!fileData.children) {
-            fileData.children = [];
-        }
         // Only show children section if there are children or if this is a form that can have children
-        if (fileData.children.length > 0 || fileData.type === "taxReturn") {
+        if (fileData.children) {
             // Title for the children with a control button before the title, that adds a new child.
             const childrenTitle = document.createElement("div");
             childrenTitle.textContent = "ילדים";
@@ -896,6 +892,13 @@ export async function displayFileInfoInExpandableArea(data) {
                         updatedData.fields[fieldName] = fieldValue;
                     }
                 }
+            });
+            // 2️⃣ Update the **3 fields from the Accordion Header** (taxYear, clientName, clientIdentificationNumber)
+            headerFieldsContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
+                const fieldName = input.getAttribute("data-field-name");
+                let fieldValue = input.value.trim(); // Remove unnecessary spaces
+                // Keep general fields as-is (no formatting)
+                updatedData[fieldName] = fieldValue;
             });
             debug("🔄 Updating Form Data:", updatedData);
             await updateFormFunction(fileData.fileId, updatedData);
