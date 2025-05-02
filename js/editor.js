@@ -251,461 +251,6 @@ export async function displayFileInfoInExpandableArea(data) {
         accordionContainer.appendChild(accordianbody);
         expandableArea.appendChild(accordionContainer);
     });
-}
-function renderFields(fileData, body) {
-    function createFieldRow(key, value, isMainField = false) {
-        // Skip fields already displayed in the header
-        if (excludedHeaderFields.includes(key))
-            return;
-        let codeLabel = null;
-        const fieldRow = document.createElement("div");
-        fieldRow.style.display = "flex";
-        fieldRow.style.marginBottom = "5px";
-        let fieldLabel = document.createElement("label");
-        const friendly = friendlyNames[key];
-        fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
-        fieldLabel.className = "fieldlabel";
-        fieldLabel.style.flex = "0 0 150px";
-        //fieldLabel.style.textAlign = 'right';
-        // label.style.fontWeight = 'bold';
-        let input = document.createElement("input");
-        input.setAttribute("data-field-name", key);
-        input.className = "field-input";
-        // Apply border style based on field type
-        input.style.border = isMainField ? "3px solid black" : "1px solid gray";
-        // 🟢 **Apply Field Formatting Rules**
-        if (key.endsWith("Name")) {
-            input.type = "text";
-            input.maxLength = 50;
-            input.value = value;
-        }
-        else if (key.endsWith("Text")) {
-            input.type = "text";
-            input.maxLength = 20;
-            input.pattern = "\\d*";
-            input.value = value;
-            input.oninput = () => {
-                input.value = input.value.replace(/\D/g, "");
-            };
-        }
-        else if (key.endsWith("Number")) {
-            input.type = "text";
-            input.maxLength = 9;
-            input.pattern = "\\d{9}";
-            input.value = value;
-            input.oninput = () => {
-                input.value = input.value.replace(/\D/g, "").slice(0, 9);
-            };
-        }
-        else if (key.endsWith("taxYear")) {
-            input.type = "text";
-            input.maxLength = 4;
-            input.pattern = "\\d{4}";
-            input.value = value;
-            input.oninput = () => {
-                input.value = input.value.replace(/\D/g, "").slice(0, 4);
-            };
-        }
-        else if (key.endsWith("Code")) {
-            input.type = "text";
-            input.maxLength = 3;
-            input.pattern = "\\d{3}";
-            input.value = value;
-            input.oninput = () => {
-                input.value = input.value.replace(/\D/g, "").slice(0, 3);
-            };
-        }
-        else if (key.endsWith("Date")) {
-            input.type = "date";
-            // value is in format dd/MM/yyyy
-            // convert to format yyyy-MM-dd
-            // if value is empty, set to null
-            if (value === "" || value === null) {
-                input.value = "";
-            }
-            else {
-                // Convert to iso date yyyy-MM-dd
-                input.value = value.split("/").reverse().join("-");
-            }
-            input.onblur = () => {
-                if (input.value != "") {
-                    const isValidDate = !isNaN(new Date(input.value).getTime());
-                    if (!isValidDate) {
-                        alert("Invalid date format " + input.value);
-                        input.value = "";
-                    }
-                }
-            };
-        }
-        else if (key.endsWith("Months")) {
-            input.type = "text";
-            input.maxLength = 2;
-            input.pattern = "\\d{1,2}";
-            input.value = value;
-            input.oninput = () => {
-                input.value = input.value.replace(/\D/g, "").slice(0, 2);
-            };
-        }
-        else if (key.endsWith("Integer")) {
-            input.type = "text";
-            input.maxLength = 3;
-            input.pattern = "\\d{1,3}";
-            input.value = value;
-            input.oninput = () => {
-                input.value = input.value.replace(/\D/g, "").slice(0, 3);
-            };
-        }
-        else if (key.endsWith("Boolean")) {
-            input.type = "checkbox";
-            input.value = value;
-            input.checked = value === true || value === "true";
-            input.onchange = () => {
-                if (input.checked) {
-                    input.value = "true";
-                }
-                else {
-                    input.value = "false";
-                }
-            };
-        }
-        else if (key.endsWith("Options")) {
-            const friendly = friendlyNames[key];
-            fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
-            // Radio buttons. use friendlyNames[key].name as the label and friendlyNames[key].options as the options
-            const controls = document.createElement("div");
-            // create a radio button for each option
-            const options = typeof friendly === "object" && "options" in friendly ? friendly.options : [];
-            options.forEach((option) => {
-                const radioButton = document.createElement("input");
-                const label = document.createElement("label");
-                radioButton.type = "radio";
-                radioButton.value = option;
-                const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
-                radioButton.name = name;
-                radioButton.id = name + option;
-                radioButton.checked = value === option;
-                label.appendChild(radioButton);
-                label.appendChild(document.createTextNode(option));
-                controls.appendChild(label);
-            });
-            input = controls;
-        }
-        else {
-            // 🟢 **Default: Currency Field (if no other condition matched)**
-            input.type = "text";
-            if (key.includes("_")) {
-                const fieldCode = key.split("_")[1];
-                codeLabel = document.createElement("label");
-                codeLabel.textContent = fieldCode;
-                codeLabel.className = "codeLabel";
-            }
-            // Firld code from friendlyNames[key]. It is the text after the underscore.
-            let numericValue = parseFloat(value);
-            if (isNaN(numericValue)) {
-                numericValue = 0.0;
-            }
-            input.value = formatCurrencyWithSymbol(numericValue);
-            // **Restrict typing to valid numeric input**
-            input.addEventListener("input", (e) => {
-                let rawValue = input.value.replace(/[^\d.]/g, ""); // Allow only numbers & decimal
-                // Allow only one decimal point
-                if (rawValue.split(".").length > 2) {
-                    rawValue = rawValue.substring(0, rawValue.lastIndexOf("."));
-                }
-                let parts = rawValue.split(".");
-                // Restrict max 10 digits before decimal
-                if (parts[0].length > 10) {
-                    parts[0] = parts[0].slice(0, 10);
-                }
-                // Restrict max 2 digits after decimal
-                if (parts[1] && parts[1].length > 2) {
-                    parts[1] = parts[1].slice(0, 2);
-                }
-                input.value = parts.join(".");
-            });
-            // 🟢 **Format on Blur**
-            input.addEventListener("blur", () => {
-                let rawValue = input.value.replace(/[^\d.]/g, "");
-                let parsedNum = parseFloat(rawValue);
-                if (isNaN(parsedNum)) {
-                    parsedNum = 0.0;
-                }
-                input.value = formatCurrencyWithSymbol(parsedNum);
-            });
-        }
-        fieldRow.appendChild(fieldLabel);
-        fieldRow.appendChild(input);
-        if (codeLabel) {
-            fieldRow.appendChild(codeLabel);
-        }
-        body.appendChild(fieldRow);
-    }
-    // Process main fileData fields (bold border)
-    Object.entries(fileData).forEach(([key, value]) => {
-        if (key !== "fields" && key !== "genericFields" && key !== "children") {
-            createFieldRow(key, value, true);
-        }
-    });
-    // Process nested fields inside `fileData.fields` (thinner border)
-    Object.entries(fileData.fields || {}).forEach(([key, value]) => {
-        createFieldRow(key, value, false);
-    });
-    if (fileData.children) {
-        // Title for the children with a control button before the title, that adds a new child.
-        const childrenTitle = document.createElement("div");
-        childrenTitle.textContent = "ילדים";
-        childrenTitle.className = "children-title";
-        body.appendChild(childrenTitle);
-        // add a button to add a new child on the same line as the title
-        const addChildButton = document.createElement("button");
-        addChildButton.textContent = "הוספת ילד";
-        addChildButton.className = "add-child-button";
-        body.appendChild(addChildButton);
-        addChildButton.onclick = () => {
-            fileData.children.push({
-                birthDate: "",
-                noSecondParentBoolean: false,
-                caringForBoolean: true,
-                requestDelayOfPointsBoolean: false,
-            });
-            // first clear the body
-            body.innerHTML = "";
-            // then render the fields
-            renderFields(fileData, body);
-        };
-        // Process nested fields inside `fileData.children` (thinner border)
-        let childCount = 0;
-        fileData.children.forEach((child) => {
-            // Title for the child
-            const childTitle = document.createElement("div");
-            childTitle.textContent = "ילד " + (childCount + 1);
-            childTitle.className = "child-title";
-            body.appendChild(childTitle);
-            Object.entries(child).forEach(([key, value]) => {
-                createFieldRow(key, value, false);
-            });
-            childCount++;
-        });
-    }
-}
-// 🟢 **Function to Format Currency with Commas & Symbol**
-function formatCurrencyWithSymbol(value) {
-    let parts = value.toFixed(2).split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas for thousands
-    return `₪${parts.join(".")}`;
-}
-/* **************** display header for file info ******************** */
-function displayFileInfoHeader(expandableArea, data) {
-    // Caption row for the accordion headers
-    const captionsRow = document.createElement("div");
-    captionsRow.className = "caption-row";
-    const headerCaptions = [
-        { text: "", width: "40px" },
-        { text: "שנה", width: "100px" },
-        { text: "שם הלקוח", width: "180px" },
-        { text: "מספר זיהוי", width: "150px" },
-        { text: "סוג מסמך", width: "150px" },
-        { text: "שם הקובץ", width: "200px" },
-    ];
-    headerCaptions.forEach((caption) => {
-        const captionElement = document.createElement("div");
-        captionElement.textContent = caption.text;
-        captionElement.className = "caption-element";
-        captionElement.style.flex = `0 0 ${caption.width}`;
-        captionsRow.appendChild(captionElement);
-    });
-    expandableArea.appendChild(captionsRow);
-    // Hide the header if it's a mobile screen
-    function toggleHeaderVisibility() {
-        if (window.innerWidth <= 768) {
-            captionsRow.style.display = "none";
-        }
-        else {
-            captionsRow.style.display = "flex";
-        }
-    }
-    // Run on page load
-    toggleHeaderVisibility();
-    // Update when resizing
-    window.addEventListener("resize", toggleHeaderVisibility);
-}
-/* ********************************** create +_ button ************************************** */
-function displayFileInfoPlusMinusButton(accordionBody, accordionToggleButton) {
-    accordionToggleButton.textContent = "+";
-    accordionToggleButton.className = "accordion-toggle-button";
-    accordionToggleButton.onclick = () => {
-        accordionBody.style.display = accordionBody.style.display === "none" ? "block" : "none";
-        accordionToggleButton.textContent = accordionToggleButton.textContent === "+" ? "-" : "+";
-    };
-}
-/* ********************************** create header input (Responsive) ************************************** */
-function displayFileInfoLine(headerFieldsContainer, fileData) {
-    // Create a wrapper for the header fields
-    const fieldsWrapper = document.createElement("div");
-    fieldsWrapper.className = "header-fields-wrapper"; // Used for layout styling
-    const createHeaderInput = (value, fieldName, labelText, isEditable = true, width = "120px") => {
-        const fieldContainer = document.createElement("div");
-        fieldContainer.className = "field-container"; // Used for mobile layout
-        // Create label (only visible on mobile)
-        const headerFieldlabel = document.createElement("label");
-        headerFieldlabel.textContent = labelText;
-        headerFieldlabel.className = "headerfield-label";
-        // Create input field
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = value || "";
-        input.setAttribute("data-field-name", fieldName);
-        input.className = "header-input";
-        //input.style.backgroundColor = isEditable ? '#fff' : '#e0e0e0';
-        input.readOnly = !isEditable;
-        // Append label and input (label appears only in mobile)
-        fieldContainer.appendChild(headerFieldlabel);
-        fieldContainer.appendChild(input);
-        return fieldContainer;
-    };
-    // Append fields to the wrapper
-    fieldsWrapper.appendChild(createHeaderInput(fileData.taxYear, "taxYear", "שנה", true, "50px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true, "180px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false, "150px"));
-    //fieldsWrapper.appendChild(createHeaderInput(fileData.type, 'type', 'סוג קובץ', false, '150px'));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
-    // Append the wrapper to the container
-    headerFieldsContainer.appendChild(fieldsWrapper);
-}
-/* ********************************** create delete button ************************************** */
-function displayFileInfoDeleteButton(editorDeleteButton, fileData, accordionContainer) {
-    editorDeleteButton.textContent = "X";
-    editorDeleteButton.className = "editor-delete-button";
-    editorDeleteButton.onclick = () => {
-        const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
-        fetch(deleteUrl, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-        })
-            .then((response) => {
-            if (response.ok) {
-                addMessage("קובץ נמחק בהצלחה!", "success");
-                accordionContainer.remove();
-            }
-            else {
-                addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
-            }
-        })
-            .catch((error) => {
-            addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
-            console.error("Delete error:", error);
-        });
-    };
-}
-/* ********************************** create the save button with cancel option ************************************** */
-async function displayFileInfoButtons(saveButton, cancelButton, addFieldsButton, fileData, body, headerFieldsContainer, data) {
-    // Set up the save button
-    saveButton.textContent = "שמור שינויים";
-    saveButton.className = "form-action-button";
-    // Create the cancel button
-    cancelButton.textContent = "יציאה ללא שמירת שינויי";
-    cancelButton.className = "form-action-button";
-    addFieldsButton.textContent = "הוספת שדות קלט";
-    addFieldsButton.className = "form-action-button";
-    //  add fields to an existing form
-    addFieldsButton.onclick = async () => {
-        debug("Adding fields to an existing form");
-        //await updateFormsWithoutFields(data);
-        const data = await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
-        //const { success, URL, data } = await getFilesInfoFunction();
-        displayFileInfoInExpandableArea(data);
-        //await addFieldsToExistingForm(fileData.fileId, fileData.type, fileData);
-    };
-    // Cancel button behavior: Restore original file info
-    cancelButton.onclick = async () => {
-        debug("🔄 Cancel button clicked, restoring original data");
-        displayFileInfoInExpandableArea(data);
-    };
-    // Save button behavior: Process and save the data
-    saveButton.onclick = async () => {
-        const updatedData = { ...fileData }; // Clone original fileData
-        updatedData.fields = { ...fileData.fields }; // Preserve existing fields
-        function isCurrencyField(fieldName) {
-            return !(fieldName.endsWith("Name") ||
-                fieldName.endsWith("Text") ||
-                fieldName.endsWith("Number") ||
-                fieldName.endsWith("taxYear") ||
-                fieldName.endsWith("Date") ||
-                fieldName.endsWith("Months") ||
-                fieldName.endsWith("Integer") ||
-                fieldName.endsWith("Code") ||
-                fieldName.endsWith("Boolean") ||
-                fieldName.endsWith("Options"));
-        }
-        // 1️⃣ Update fields in the **Accordion Body**
-        body.querySelectorAll("input[data-field-name]").forEach((input) => {
-            const htmlInput = input;
-            const fieldName = htmlInput.getAttribute("data-field-name");
-            // check if value is boolean
-            debug("value=", htmlInput.value);
-            let fieldValue = htmlInput.value; // Remove unnecessary spaces
-            // 🟢 **If it's a currency field, clean and format it**
-            if (isCurrencyField(fieldName)) {
-                fieldValue = fieldValue.replace(/[₪,]/g, ""); // Remove currency symbol & thousands separator
-                if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
-                    fieldValue = parseFloat(fieldValue).toFixed(2); // Convert to float with 2 decimals
-                }
-            }
-            else if (fieldName.endsWith("Boolean")) {
-                fieldValue = htmlInput.checked ? "true" : "false";
-                updatedData[fieldName] = fieldValue;
-            }
-            else {
-                // 🟢 **Determine where to store the updated value**
-                if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
-                    updatedData[fieldName] = fieldValue;
-                }
-                else if (fileData.fields?.hasOwnProperty(fieldName)) {
-                    updatedData.fields[fieldName] = fieldValue;
-                }
-            }
-        });
-        // 2️⃣ Update the **3 fields from the Accordion Header** (taxYear, clientName, clientIdentificationNumber)
-        headerFieldsContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
-            const fieldName = input.getAttribute("data-field-name");
-            let fieldValue = input.value.trim(); // Remove unnecessary spaces
-            // Keep general fields as-is (no formatting)
-            updatedData[fieldName] = fieldValue;
-        });
-        debug("🔄 Updating Form Data:", updatedData);
-        await updateFormFunction(fileData.fileId, updatedData);
-        // Display success modal
-        await customerMessageModal({
-            title: "שמירת נתונים",
-            message: `הנתונים נשמרו בהצלחה`,
-            button1Text: "",
-            button2Text: "",
-            displayTimeInSeconds: 4,
-        });
-    };
-    async function updateFormsWithoutFields(formsData) {
-        for (const fileData of formsData) {
-            // Check if the fields object is missing or empty
-            if (!fileData.fields || Object.keys(fileData.fields).length === 0) {
-                debug(`No fields found for fileId ${fileData.fileId}. Calling updateFormFunctionNewForm...`);
-                try {
-                    // Pass the entire fileData object to updateFormFunctionNewForm
-                    await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
-                    debug(`Successfully updated form for fileId: ${fileData.fileId}`);
-                }
-                catch (error) {
-                    console.error(`Error updating form for fileId ${fileData.fileId}:`, error);
-                }
-            }
-            else {
-                debug(`Fields already exist for fileId ${fileData.fileId}. Skipping update.`);
-            }
-        }
-    }
     async function updateFormFunction(fileId, payload) {
         const URL = API_BASE_URL + "/updateForm";
         debug("This is the payload in updateFormFunction:", JSON.stringify(payload));
@@ -753,70 +298,6 @@ async function displayFileInfoButtons(saveButton, cancelButton, addFieldsButton,
             console.error("Error updating form:", error);
             addMessage("שגיאה בעריכת הטופס: " + error.message, "error");
             throw error; // Rethrow the error to be handled by the calling function
-        }
-    }
-    async function addFieldsToExistingForm(fileId, fileType, fileData) {
-        // Construct the API URL
-        const URL = API_BASE_URL + "/updateForm";
-        // Parse configurationData to extract the necessary form types and fields
-        let config = configurationData;
-        // Find the formType details
-        const formDetails = config.formTypes.find((form) => form.formType === fileType);
-        if (!formDetails) {
-            console.error(`Form type '${fileType}' not found in configuration data.`);
-            return;
-        }
-        debug(`Found form details for '${fileType}':`, formDetails);
-        // Ensure fieldTypes exist before iterating
-        if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
-            console.warn(`No fieldTypes found for '${fileType}'.`);
-        }
-        // Copy existing fields from fileData (excluding the `fields` object)
-        const existingData = { ...fileData };
-        // delete existingData.fields; // do not delete existing fields
-        // Initialize fieldsData with existing fields from fileData.fields
-        //const fieldsData = { ...(fileData.fields || {}) };
-        const fieldsData = fileData.fields;
-        debug("field data before adding fields");
-        debug(fileData.fields);
-        // Fill missing fields from configuration with default values
-        if (formDetails.fieldTypes) {
-            formDetails.fieldTypes.forEach((field) => {
-                debug(`Adding missing field: ${field}`);
-                fieldsData[field] = "0.00"; // Default placeholder value
-            });
-        }
-        debug("Final fields data (separate fields object):", fieldsData);
-        // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
-        const payload = {
-            fileId: fileId,
-            type: fileType,
-            ...existingData, // Includes all original fileData fields
-            fields: fieldsData, // Separate section for form fields
-        };
-        debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
-        try {
-            // Send the POST request
-            const response = await fetch(URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    customerDataEntryName: "Default",
-                    formAsJSON: payload,
-                }),
-            });
-            if (!response.ok) {
-                throw new Error(`API request failed with status ${response.status}`);
-            }
-            // Parse and handle the response
-            const responseData = await response.json();
-            debug("Form updated successfully:", responseData);
-        }
-        catch (error) {
-            console.error("Error updating form:", error);
         }
     }
     async function updateFormFunctionNewForm(fileId, fileType, fileData) {
@@ -890,6 +371,625 @@ async function displayFileInfoButtons(saveButton, cancelButton, addFieldsButton,
         }
         catch (error) {
             console.error("Error updating form:", error);
+        }
+    }
+    async function getFilesInfoFunction() {
+        const URL = API_BASE_URL + "/getFilesInfo";
+        try {
+            const response = await fetch(URL, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+            });
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+            const data = await response.json();
+            return { data };
+        }
+        catch (error) {
+            console.error("Error getting files info:", error);
+            throw error;
+        }
+    }
+    function createActionButtons(fileData, body) {
+        const saveButton = document.createElement("button");
+        const cancelButton = document.createElement("button");
+        const addFieldsButton = document.createElement("button");
+        saveButton.textContent = "שמור שינויים";
+        saveButton.className = "form-action-button";
+        cancelButton.textContent = "יציאה ללא שמירת שינויי";
+        cancelButton.className = "form-action-button";
+        addFieldsButton.textContent = "הוספת שדות קלט";
+        addFieldsButton.className = "form-action-button";
+        // Add fields button behavior
+        addFieldsButton.onclick = async () => {
+            debug("Adding fields to an existing form");
+            const data = await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
+            displayFileInfoInExpandableArea(data);
+        };
+        // Cancel button behavior
+        cancelButton.onclick = async () => {
+            debug("🔄 Cancel button clicked, restoring original data");
+            const { data } = await getFilesInfoFunction();
+            displayFileInfoInExpandableArea(data);
+        };
+        // Save button behavior
+        saveButton.onclick = async () => {
+            const updatedData = { ...fileData };
+            updatedData.fields = { ...fileData.fields };
+            function isCurrencyField(fieldName) {
+                return !(fieldName.endsWith("Name") ||
+                    fieldName.endsWith("Text") ||
+                    fieldName.endsWith("Number") ||
+                    fieldName.endsWith("taxYear") ||
+                    fieldName.endsWith("Date") ||
+                    fieldName.endsWith("Months") ||
+                    fieldName.endsWith("Integer") ||
+                    fieldName.endsWith("Code") ||
+                    fieldName.endsWith("Boolean") ||
+                    fieldName.endsWith("Options"));
+            }
+            // Update fields in the body
+            body.querySelectorAll("input[data-field-name]").forEach((input) => {
+                const htmlInput = input;
+                const fieldName = htmlInput.getAttribute("data-field-name");
+                let fieldValue = htmlInput.value;
+                if (isCurrencyField(fieldName)) {
+                    fieldValue = fieldValue.replace(/[₪,]/g, "");
+                    if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
+                        fieldValue = parseFloat(fieldValue).toFixed(2);
+                    }
+                }
+                else if (fieldName.endsWith("Boolean")) {
+                    fieldValue = htmlInput.checked ? "true" : "false";
+                    updatedData[fieldName] = fieldValue;
+                }
+                else {
+                    if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
+                        updatedData[fieldName] = fieldValue;
+                    }
+                    else if (fileData.fields?.hasOwnProperty(fieldName)) {
+                        updatedData.fields[fieldName] = fieldValue;
+                    }
+                }
+            });
+            debug("🔄 Updating Form Data:", updatedData);
+            await updateFormFunction(fileData.fileId, updatedData);
+            // Display success modal
+            await customerMessageModal({
+                title: "שמירת נתונים",
+                message: `הנתונים נשמרו בהצלחה`,
+                button1Text: "",
+                button2Text: "",
+                displayTimeInSeconds: 4,
+            });
+        };
+        // Add the buttons to the body
+        body.appendChild(saveButton);
+        body.appendChild(cancelButton);
+        body.appendChild(addFieldsButton);
+    }
+    function renderFields(fileData, body) {
+        // Store the action buttons before clearing
+        const actionButtons = body.querySelectorAll('.form-action-button');
+        const buttonsArray = Array.from(actionButtons);
+        // Clear the body
+        body.innerHTML = "";
+        function createFieldRow(key, value, isMainField = false) {
+            // Skip fields already displayed in the header
+            if (excludedHeaderFields.includes(key))
+                return;
+            let codeLabel = null;
+            const fieldRow = document.createElement("div");
+            fieldRow.style.display = "flex";
+            fieldRow.style.marginBottom = "5px";
+            let fieldLabel = document.createElement("label");
+            const friendly = friendlyNames[key];
+            fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
+            fieldLabel.className = "fieldlabel";
+            fieldLabel.style.flex = "0 0 150px";
+            let input = document.createElement("input");
+            input.setAttribute("data-field-name", key);
+            input.className = "field-input";
+            // Apply border style based on field type
+            input.style.border = isMainField ? "3px solid black" : "1px solid gray";
+            // 🟢 **Apply Field Formatting Rules**
+            if (key.endsWith("Name")) {
+                input.type = "text";
+                input.maxLength = 50;
+                input.value = value;
+            }
+            else if (key.endsWith("Text")) {
+                input.type = "text";
+                input.maxLength = 20;
+                input.pattern = "\\d*";
+                input.value = value;
+                input.oninput = () => {
+                    input.value = input.value.replace(/\D/g, "");
+                };
+            }
+            else if (key.endsWith("Number")) {
+                input.type = "text";
+                input.maxLength = 9;
+                input.pattern = "\\d{9}";
+                input.value = value;
+                input.oninput = () => {
+                    input.value = input.value.replace(/\D/g, "").slice(0, 9);
+                };
+            }
+            else if (key.endsWith("taxYear")) {
+                input.type = "text";
+                input.maxLength = 4;
+                input.pattern = "\\d{4}";
+                input.value = value;
+                input.oninput = () => {
+                    input.value = input.value.replace(/\D/g, "").slice(0, 4);
+                };
+            }
+            else if (key.endsWith("Code")) {
+                input.type = "text";
+                input.maxLength = 3;
+                input.pattern = "\\d{3}";
+                input.value = value;
+                input.oninput = () => {
+                    input.value = input.value.replace(/\D/g, "").slice(0, 3);
+                };
+            }
+            else if (key.endsWith("Date")) {
+                input.type = "date";
+                if (value === "" || value === null) {
+                    input.value = "";
+                }
+                else {
+                    input.value = value.split("/").reverse().join("-");
+                }
+                input.onblur = () => {
+                    if (input.value != "") {
+                        const isValidDate = !isNaN(new Date(input.value).getTime());
+                        if (!isValidDate) {
+                            alert("Invalid date format " + input.value);
+                            input.value = "";
+                        }
+                    }
+                };
+            }
+            else if (key.endsWith("Months")) {
+                input.type = "text";
+                input.maxLength = 2;
+                input.pattern = "\\d{1,2}";
+                input.value = value;
+                input.oninput = () => {
+                    input.value = input.value.replace(/\D/g, "").slice(0, 2);
+                };
+            }
+            else if (key.endsWith("Integer")) {
+                input.type = "text";
+                input.maxLength = 3;
+                input.pattern = "\\d{1,3}";
+                input.value = value;
+                input.oninput = () => {
+                    input.value = input.value.replace(/\D/g, "").slice(0, 3);
+                };
+            }
+            else if (key.endsWith("Boolean")) {
+                input.type = "checkbox";
+                input.value = value;
+                input.checked = value === true || value === "true";
+                input.onchange = () => {
+                    if (input.checked) {
+                        input.value = "true";
+                    }
+                    else {
+                        input.value = "false";
+                    }
+                };
+            }
+            else if (key.endsWith("Options")) {
+                const friendly = friendlyNames[key];
+                fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
+                const controls = document.createElement("div");
+                const options = typeof friendly === "object" && "options" in friendly ? friendly.options : [];
+                options.forEach((option) => {
+                    const radioButton = document.createElement("input");
+                    const label = document.createElement("label");
+                    radioButton.type = "radio";
+                    radioButton.value = option;
+                    const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
+                    radioButton.name = name;
+                    radioButton.id = name + option;
+                    radioButton.checked = value === option;
+                    label.appendChild(radioButton);
+                    label.appendChild(document.createTextNode(option));
+                    controls.appendChild(label);
+                });
+                input = controls;
+            }
+            else {
+                // 🟢 **Default: Currency Field (if no other condition matched)**
+                input.type = "text";
+                if (key.includes("_")) {
+                    const fieldCode = key.split("_")[1];
+                    codeLabel = document.createElement("label");
+                    codeLabel.textContent = fieldCode;
+                    codeLabel.className = "codeLabel";
+                }
+                // Firld code from friendlyNames[key]. It is the text after the underscore.
+                let numericValue = parseFloat(value);
+                if (isNaN(numericValue)) {
+                    numericValue = 0.0;
+                }
+                input.value = formatCurrencyWithSymbol(numericValue);
+                // **Restrict typing to valid numeric input**
+                input.addEventListener("input", (e) => {
+                    let rawValue = input.value.replace(/[^\d.]/g, "");
+                    if (rawValue.split(".").length > 2) {
+                        rawValue = rawValue.substring(0, rawValue.lastIndexOf("."));
+                    }
+                    let parts = rawValue.split(".");
+                    // Restrict max 10 digits before decimal
+                    if (parts[0].length > 10) {
+                        parts[0] = parts[0].slice(0, 10);
+                    }
+                    // Restrict max 2 digits after decimal
+                    if (parts[1] && parts[1].length > 2) {
+                        parts[1] = parts[1].slice(0, 2);
+                    }
+                    input.value = parts.join(".");
+                });
+                // 🟢 **Format on Blur**
+                input.addEventListener("blur", () => {
+                    let rawValue = input.value.replace(/[^\d.]/g, "");
+                    let parsedNum = parseFloat(rawValue);
+                    if (isNaN(parsedNum)) {
+                        parsedNum = 0.0;
+                    }
+                    input.value = formatCurrencyWithSymbol(parsedNum);
+                });
+            }
+            fieldRow.appendChild(fieldLabel);
+            fieldRow.appendChild(input);
+            if (codeLabel) {
+                fieldRow.appendChild(codeLabel);
+            }
+            body.appendChild(fieldRow);
+        }
+        // Process main fields (thicker border)
+        Object.entries(fileData).forEach(([key, value]) => {
+            if (key !== "children") {
+                createFieldRow(key, value, true);
+            }
+        });
+        // Initialize children array if it doesn't exist
+        if (!fileData.children) {
+            fileData.children = [];
+        }
+        // Only show children section if there are children or if this is a form that can have children
+        if (fileData.children.length > 0 || fileData.type === "taxReturn") {
+            // Title for the children with a control button before the title, that adds a new child.
+            const childrenTitle = document.createElement("div");
+            childrenTitle.textContent = "ילדים";
+            childrenTitle.className = "children-title";
+            body.appendChild(childrenTitle);
+            // add a button to add a new child on the same line as the title
+            const addChildButton = document.createElement("button");
+            addChildButton.textContent = "הוספת ילד";
+            addChildButton.className = "add-child-button";
+            body.appendChild(addChildButton);
+            addChildButton.onclick = () => {
+                fileData.children.push({
+                    birthDate: "",
+                    noSecondParentBoolean: false,
+                    caringForBoolean: true,
+                    requestDelayOfPointsBoolean: false,
+                });
+                // Re-render the fields
+                renderFields(fileData, body);
+            };
+            // Process child fields inside `fileData.children` (thinner border)
+            let childCount = 0;
+            fileData.children.forEach((child, index) => {
+                // Title for the child
+                const childTitle = document.createElement("div");
+                childTitle.className = "child-title";
+                const childTitleText = document.createElement("span");
+                childTitleText.textContent = "ילד " + (childCount + 1);
+                childTitle.appendChild(childTitleText);
+                // Add remove button
+                const removeButton = document.createElement("button");
+                removeButton.textContent = "X";
+                removeButton.className = "remove-child-button";
+                removeButton.onclick = () => {
+                    fileData.children.splice(index, 1);
+                    // Re-render the fields
+                    renderFields(fileData, body);
+                };
+                childTitle.appendChild(removeButton);
+                body.appendChild(childTitle);
+                Object.entries(child).forEach(([key, value]) => {
+                    createFieldRow(key, value, false);
+                });
+                childCount++;
+            });
+        }
+        // Re-add the action buttons
+        buttonsArray.forEach(button => {
+            body.appendChild(button);
+        });
+    }
+    // 🟢 **Function to Format Currency with Commas & Symbol**
+    function formatCurrencyWithSymbol(value) {
+        let parts = value.toFixed(2).split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas for thousands
+        return `₪${parts.join(".")}`;
+    }
+    /* **************** display header for file info ******************** */
+    function displayFileInfoHeader(expandableArea, data) {
+        // Caption row for the accordion headers
+        const captionsRow = document.createElement("div");
+        captionsRow.className = "caption-row";
+        const headerCaptions = [
+            { text: "", width: "40px" },
+            { text: "שנה", width: "100px" },
+            { text: "שם הלקוח", width: "180px" },
+            { text: "מספר זיהוי", width: "150px" },
+            { text: "סוג מסמך", width: "150px" },
+            { text: "שם הקובץ", width: "200px" },
+        ];
+        headerCaptions.forEach((caption) => {
+            const captionElement = document.createElement("div");
+            captionElement.textContent = caption.text;
+            captionElement.className = "caption-element";
+            captionElement.style.flex = `0 0 ${caption.width}`;
+            captionsRow.appendChild(captionElement);
+        });
+        expandableArea.appendChild(captionsRow);
+        // Hide the header if it's a mobile screen
+        function toggleHeaderVisibility() {
+            if (window.innerWidth <= 768) {
+                captionsRow.style.display = "none";
+            }
+            else {
+                captionsRow.style.display = "flex";
+            }
+        }
+        // Run on page load
+        toggleHeaderVisibility();
+        // Update when resizing
+        window.addEventListener("resize", toggleHeaderVisibility);
+    }
+    /* ********************************** create +_ button ************************************** */
+    function displayFileInfoPlusMinusButton(accordionBody, accordionToggleButton) {
+        accordionToggleButton.textContent = "+";
+        accordionToggleButton.className = "accordion-toggle-button";
+        accordionToggleButton.onclick = () => {
+            accordionBody.style.display = accordionBody.style.display === "none" ? "block" : "none";
+            accordionToggleButton.textContent = accordionToggleButton.textContent === "+" ? "-" : "+";
+        };
+    }
+    /* ********************************** create header input (Responsive) ************************************** */
+    function displayFileInfoLine(headerFieldsContainer, fileData) {
+        // Create a wrapper for the header fields
+        const fieldsWrapper = document.createElement("div");
+        fieldsWrapper.className = "header-fields-wrapper"; // Used for layout styling
+        const createHeaderInput = (value, fieldName, labelText, isEditable = true, width = "120px") => {
+            const fieldContainer = document.createElement("div");
+            fieldContainer.className = "field-container"; // Used for mobile layout
+            // Create label (only visible on mobile)
+            const headerFieldlabel = document.createElement("label");
+            headerFieldlabel.textContent = labelText;
+            headerFieldlabel.className = "headerfield-label";
+            // Create input field
+            const input = document.createElement("input");
+            input.type = "text";
+            input.value = value || "";
+            input.setAttribute("data-field-name", fieldName);
+            input.className = "header-input";
+            //input.style.backgroundColor = isEditable ? '#fff' : '#e0e0e0';
+            input.readOnly = !isEditable;
+            // Append label and input (label appears only in mobile)
+            fieldContainer.appendChild(headerFieldlabel);
+            fieldContainer.appendChild(input);
+            return fieldContainer;
+        };
+        // Append fields to the wrapper
+        fieldsWrapper.appendChild(createHeaderInput(fileData.taxYear, "taxYear", "שנה", true, "50px"));
+        fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true, "180px"));
+        fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
+        fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false, "150px"));
+        //fieldsWrapper.appendChild(createHeaderInput(fileData.type, 'type', 'סוג קובץ', false, '150px'));
+        fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
+        // Append the wrapper to the container
+        headerFieldsContainer.appendChild(fieldsWrapper);
+    }
+    /* ********************************** create delete button ************************************** */
+    function displayFileInfoDeleteButton(editorDeleteButton, fileData, accordionContainer) {
+        editorDeleteButton.textContent = "X";
+        editorDeleteButton.className = "editor-delete-button";
+        editorDeleteButton.onclick = () => {
+            const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
+            fetch(deleteUrl, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+            })
+                .then((response) => {
+                if (response.ok) {
+                    addMessage("קובץ נמחק בהצלחה!", "success");
+                    accordionContainer.remove();
+                }
+                else {
+                    addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
+                }
+            })
+                .catch((error) => {
+                addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
+                console.error("Delete error:", error);
+            });
+        };
+    }
+    /* ********************************** create the save button with cancel option ************************************** */
+    async function displayFileInfoButtons(saveButton, cancelButton, addFieldsButton, fileData, body, headerFieldsContainer, data) {
+        // Set up the save button
+        saveButton.textContent = "שמור שינויים";
+        saveButton.className = "form-action-button";
+        // Create the cancel button
+        cancelButton.textContent = "יציאה ללא שמירת שינויי";
+        cancelButton.className = "form-action-button";
+        addFieldsButton.textContent = "הוספת שדות קלט";
+        addFieldsButton.className = "form-action-button";
+        //  add fields to an existing form
+        addFieldsButton.onclick = async () => {
+            debug("Adding fields to an existing form");
+            //await updateFormsWithoutFields(data);
+            const data = await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
+            //const { success, URL, data } = await getFilesInfoFunction();
+            displayFileInfoInExpandableArea(data);
+            //await addFieldsToExistingForm(fileData.fileId, fileData.type, fileData);
+        };
+        // Cancel button behavior: Restore original file info
+        cancelButton.onclick = async () => {
+            debug("🔄 Cancel button clicked, restoring original data");
+            displayFileInfoInExpandableArea(data);
+        };
+        // Save button behavior: Process and save the data
+        saveButton.onclick = async () => {
+            const updatedData = { ...fileData }; // Clone original fileData
+            updatedData.fields = { ...fileData.fields }; // Preserve existing fields
+            function isCurrencyField(fieldName) {
+                return !(fieldName.endsWith("Name") ||
+                    fieldName.endsWith("Text") ||
+                    fieldName.endsWith("Number") ||
+                    fieldName.endsWith("taxYear") ||
+                    fieldName.endsWith("Date") ||
+                    fieldName.endsWith("Months") ||
+                    fieldName.endsWith("Integer") ||
+                    fieldName.endsWith("Code") ||
+                    fieldName.endsWith("Boolean") ||
+                    fieldName.endsWith("Options"));
+            }
+            // Update fields in the body
+            body.querySelectorAll("input[data-field-name]").forEach((input) => {
+                const htmlInput = input;
+                const fieldName = htmlInput.getAttribute("data-field-name");
+                let fieldValue = htmlInput.value;
+                if (isCurrencyField(fieldName)) {
+                    fieldValue = fieldValue.replace(/[₪,]/g, "");
+                    if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
+                        fieldValue = parseFloat(fieldValue).toFixed(2);
+                    }
+                }
+                else if (fieldName.endsWith("Boolean")) {
+                    fieldValue = htmlInput.checked ? "true" : "false";
+                    updatedData[fieldName] = fieldValue;
+                }
+                else {
+                    // 🟢 **Determine where to store the updated value**
+                    if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
+                        updatedData[fieldName] = fieldValue;
+                    }
+                    else if (fileData.fields?.hasOwnProperty(fieldName)) {
+                        updatedData.fields[fieldName] = fieldValue;
+                    }
+                }
+            });
+            debug("🔄 Updating Form Data:", updatedData);
+            await updateFormFunction(fileData.fileId, updatedData);
+            // Display success modal
+            await customerMessageModal({
+                title: "שמירת נתונים",
+                message: `הנתונים נשמרו בהצלחה`,
+                button1Text: "",
+                button2Text: "",
+                displayTimeInSeconds: 4,
+            });
+        };
+        async function updateFormsWithoutFields(formsData) {
+            for (const fileData of formsData) {
+                // Check if the fields object is missing or empty
+                if (!fileData.fields || Object.keys(fileData.fields).length === 0) {
+                    debug(`No fields found for fileId ${fileData.fileId}. Calling updateFormFunctionNewForm...`);
+                    try {
+                        // Pass the entire fileData object to updateFormFunctionNewForm
+                        await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
+                        debug(`Successfully updated form for fileId: ${fileData.fileId}`);
+                    }
+                    catch (error) {
+                        console.error(`Error updating form for fileId ${fileData.fileId}:`, error);
+                    }
+                }
+                else {
+                    debug(`Fields already exist for fileId ${fileData.fileId}. Skipping update.`);
+                }
+            }
+        }
+        async function addFieldsToExistingForm(fileId, fileType, fileData) {
+            // Construct the API URL
+            const URL = API_BASE_URL + "/updateForm";
+            // Parse configurationData to extract the necessary form types and fields
+            let config = configurationData;
+            // Find the formType details
+            const formDetails = config.formTypes.find((form) => form.formType === fileType);
+            if (!formDetails) {
+                console.error(`Form type '${fileType}' not found in configuration data.`);
+                return;
+            }
+            debug(`Found form details for '${fileType}':`, formDetails);
+            // Ensure fieldTypes exist before iterating
+            if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
+                console.warn(`No fieldTypes found for '${fileType}'.`);
+            }
+            // Copy existing fields from fileData (excluding the `fields` object)
+            const existingData = { ...fileData };
+            // delete existingData.fields; // do not delete existing fields
+            // Initialize fieldsData with existing fields from fileData.fields
+            //const fieldsData = { ...(fileData.fields || {}) };
+            const fieldsData = fileData.fields;
+            debug("field data before adding fields");
+            debug(fileData.fields);
+            // Fill missing fields from configuration with default values
+            if (formDetails.fieldTypes) {
+                formDetails.fieldTypes.forEach((field) => {
+                    debug(`Adding missing field: ${field}`);
+                    fieldsData[field] = "0.00"; // Default placeholder value
+                });
+            }
+            debug("Final fields data (separate fields object):", fieldsData);
+            // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
+            const payload = {
+                fileId: fileId,
+                type: fileType,
+                ...existingData, // Includes all original fileData fields
+                fields: fieldsData, // Separate section for form fields
+            };
+            debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
+            try {
+                // Send the POST request
+                const response = await fetch(URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        customerDataEntryName: "Default",
+                        formAsJSON: payload,
+                    }),
+                });
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                // Parse and handle the response
+                const responseData = await response.json();
+                debug("Form updated successfully:", responseData);
+            }
+            catch (error) {
+                console.error("Error updating form:", error);
+            }
         }
     }
 }
