@@ -1,5 +1,5 @@
 import { configurationData, debug, addMessage, handleResponse } from "./index.js";
-import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
+import { API_BASE_URL} from "./env.js";
 
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0 }: { title: string, message: string, button1Text: string, button2Text?: string | null, displayTimeInSeconds?: number }) {
@@ -11,107 +11,73 @@ function customerMessageModal({ title, message, button1Text, button2Text = null,
     }
 
     // Create modal container
-    const modal = document.createElement("div");
-    modal.id = "customModal";
-    modal.style.position = "fixed";
-    modal.style.top = "0";
-    modal.style.left = "0";
-    modal.style.width = "100%";
-    modal.style.height = "100%";
-    modal.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-    modal.style.display = "flex";
-    modal.style.justifyContent = "center";
-    modal.style.alignItems = "center";
-    modal.style.zIndex = "1000";
+    const timeModal = document.createElement("div");
+    timeModal.id = "customModal";
 
-    // Create modal content
-    const modalContent = document.createElement("div");
-    modalContent.style.backgroundColor = "#f2f2f2"; // Light gray background
-    modalContent.style.padding = "20px";
-    modalContent.style.borderRadius = "8px";
-    modalContent.style.width = "350px";
-    modalContent.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-    modalContent.style.textAlign = "center";
+    const timeModalContent = document.createElement("div");
+    timeModalContent.className = "time-modal-content";
 
-    // Title
-    const titleElement = document.createElement("h2");
-    titleElement.textContent = title;
-    titleElement.style.marginBottom = "10px";
-    modalContent.appendChild(titleElement);
+    const timeModalTitle = document.createElement("h2");
+    timeModalTitle.textContent = title;
+    timeModalTitle.className = "time-modal-title";
+    timeModalContent.appendChild(timeModalTitle);
 
-    // Message
-    const messageElement = document.createElement("p");
-    messageElement.textContent = message;
-    messageElement.style.fontSize = "14px";
-    messageElement.style.color = "#666"; // Slightly faded text
-    modalContent.appendChild(messageElement);
+    const timeModalMessage = document.createElement("p");
+    timeModalMessage.textContent = message;
+    timeModalMessage.className = "time-modal-message";
+    timeModalContent.appendChild(timeModalMessage);
 
-    // Button Container
-    const buttonContainer = document.createElement("div");
-    buttonContainer.style.marginTop = "20px";
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.justifyContent = button2Text ? "space-between" : "center";
+    const timeModalButtonContainer = document.createElement("div") as HTMLDivElement;
+    timeModalButtonContainer.className = "time-modal-button-container";
+    timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
+
+    const timeModalCountdownText = document.createElement("p");
+    timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
+    timeModalCountdownText.className = "time-modal-countdown";
+    timeModalContent.appendChild(timeModalCountdownText);
 
     // If displayTimeInSeconds > 0, hide buttons and auto-close
     if (displayTimeInSeconds > 0) {
-      // Create countdown timer text
-      const countdownText = document.createElement("p");
-      countdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
-      countdownText.style.fontSize = "12px";
-      countdownText.style.color = "#888";
-      countdownText.style.marginTop = "10px";
-      modalContent.appendChild(countdownText);
-
       // Countdown update every second
       let remainingTime = displayTimeInSeconds;
       const countdownInterval = setInterval(() => {
         remainingTime--;
-        countdownText.textContent = `Closing in ${remainingTime} seconds...`;
+        timeModalCountdownText.textContent = `Closing in ${remainingTime} seconds...`;
 
         if (remainingTime <= 0) {
           clearInterval(countdownInterval);
-          modal.remove();
+          timeModal.remove();
           resolve(0); // Return 0 when auto-closing
         }
       }, 1000);
     } else {
       // Button 1
-      const button1 = document.createElement("button");
-      button1.textContent = button1Text;
-      button1.style.backgroundColor = "green";
-      button1.style.color = "white";
-      button1.style.border = "none";
-      button1.style.padding = "10px 20px";
-      button1.style.borderRadius = "5px";
-      button1.style.cursor = "pointer";
-      button1.onclick = () => {
-        modal.remove(); // Close modal
+      const timeModalButton1 = document.createElement("button") as HTMLButtonElement;
+      timeModalButton1.textContent = button1Text;
+      timeModalButton1.className = "time-modal-button";
+      timeModalButton1.onclick = () => {
+        timeModal.remove(); // Close modal
         resolve(1); // Return 1 for first button clicked
       };
-      buttonContainer.appendChild(button1);
+      timeModalButtonContainer.appendChild(timeModalButton1);
 
       // Button 2 (if provided)
       if (button2Text) {
-        const button2 = document.createElement("button");
-        button2.textContent = button2Text;
-        button2.style.backgroundColor = "green";
-        button2.style.color = "white";
-        button2.style.border = "none";
-        button2.style.padding = "10px 20px";
-        button2.style.borderRadius = "5px";
-        button2.style.cursor = "pointer";
-        button2.onclick = () => {
-          modal.remove(); // Close modal
+        const timeModalButton2 = document.createElement("button") as HTMLButtonElement;
+        timeModalButton2.textContent = button2Text;
+        timeModalButton2.className = "time-modal-button";
+        timeModalButton2.onclick = () => {
+          timeModal.remove(); // Close modal
           resolve(2); // Return 2 for second button clicked
         };
-        buttonContainer.appendChild(button2);
+        timeModalButtonContainer.appendChild(timeModalButton2);
       }
 
-      modalContent.appendChild(buttonContainer);
+      timeModalContent.appendChild(timeModalButtonContainer);
     }
 
-    modal.appendChild(modalContent);
-    document.body.appendChild(modal);
+    timeModal.appendChild(timeModalContent);
+    document.body.appendChild(timeModal);
   });
 }
 
@@ -270,31 +236,26 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
   // Render each accordion entry
   data.forEach((fileData: any) => {
-    const accordionContainer = document.createElement("div");
+    const accordionContainer = document.createElement("div") as HTMLDivElement;
     accordionContainer.id = "accordionContainer";
+    accordionContainer.className = "accordion-container";
     accordionContainer.setAttribute("data-doc-typename", fileData.documentType);
-    accordionContainer.style.border = "1px solid var(--border-color)";
-    accordionContainer.style.marginBottom = "10px";
 
     // Accordion Header
-    const header = document.createElement("div");
-    header.style.padding = "2px";
-    //   header.style.backgroundColor = "#f2f2f2";
-    header.style.display = "flex";
-    header.style.alignItems = "center";
+    const accordianheader = document.createElement("div") as HTMLDivElement;
+    accordianheader.className = "accordion-header";
 
     // Accordion Body (Initially Hidden)
-    const body = document.createElement("div");
-    body.style.display = "none";
-    body.style.padding = "2px";
-    //   body.style.backgroundColor = "#ffffff";
+    const accordianbody = document.createElement("div") as HTMLDivElement;
+    accordianbody.style.display = "none";
+    accordianbody.style.padding = "2px";
 
     // Toggle Button (+/-)
-    const toggleButton = document.createElement("toggleButton") as HTMLButtonElement;
+    const accordionToggleButton = document.createElement("toggleButton") as HTMLButtonElement;
 
-    displayFileInfoPlusMinusButton(body, toggleButton);
+    displayFileInfoPlusMinusButton(accordianbody, accordionToggleButton);
 
-    header.appendChild(toggleButton);
+    accordianheader.appendChild(accordionToggleButton);
 
     // Header Fields
 
@@ -303,32 +264,31 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
     displayFileInfoLine(headerFieldsContainer, fileData);
 
-    header.appendChild(headerFieldsContainer);
+    accordianheader.appendChild(headerFieldsContainer);
 
     // Delete Button
 
-    const deleteButton = document.createElement("button") as HTMLButtonElement;
+    const editorDeleteButton = document.createElement("button") as HTMLButtonElement;
 
-    displayFileInfoDeleteButton(deleteButton, fileData, accordionContainer);
+    displayFileInfoDeleteButton(editorDeleteButton, fileData, accordionContainer);
 
-    header.appendChild(deleteButton);
-    accordionContainer.appendChild(header);
+    accordianheader.appendChild(editorDeleteButton);
+    accordionContainer.appendChild(accordianheader);
 
     // First, display additional fields in the body (excluding header fields)
-
-    renderFields(fileData, body);
+    renderFields(fileData, accordianbody);
 
     // Update Button
-    const saveButton = document.createElement("button");
-    const cancelButton = document.createElement("button");
-    const addFieldsButton = document.createElement("button");
+    const saveButton = document.createElement("button") as HTMLButtonElement;
+    const cancelButton = document.createElement("button") as HTMLButtonElement;
+    const addFieldsButton = document.createElement("button") as HTMLButtonElement;
 
-    displayFileInfoButtons(saveButton, cancelButton, addFieldsButton, fileData, body, headerFieldsContainer, data);
+    displayFileInfoButtons(saveButton, cancelButton, addFieldsButton, fileData, accordianbody, headerFieldsContainer, data);
 
-    body.appendChild(saveButton);
-    body.appendChild(cancelButton);
-    body.appendChild(addFieldsButton);
-    accordionContainer.appendChild(body);
+    accordianbody.appendChild(saveButton);
+    accordianbody.appendChild(cancelButton);
+    accordianbody.appendChild(addFieldsButton);
+    accordionContainer.appendChild(accordianbody);
     expandableArea.appendChild(accordionContainer);
   });
 }
@@ -540,13 +500,12 @@ function renderFields(fileData: any, body: HTMLElement) {
     // Title for the children with a control button before the title, that adds a new child.
     const childrenTitle = document.createElement("div");
     childrenTitle.textContent = "ילדים";
-    childrenTitle.style.fontWeight = "bold";
-    childrenTitle.style.marginBottom = "5px";
+    childrenTitle.className = "children-title";
     body.appendChild(childrenTitle);
     // add a button to add a new child on the same line as the title
     const addChildButton = document.createElement("button");
     addChildButton.textContent = "הוספת ילד";
-    addChildButton.style.marginRight = "10px";
+    addChildButton.className = "add-child-button";
     body.appendChild(addChildButton);
     addChildButton.onclick = () => {
       fileData.children.push({
@@ -566,10 +525,7 @@ function renderFields(fileData: any, body: HTMLElement) {
       // Title for the child
       const childTitle = document.createElement("div");
       childTitle.textContent = "ילד " + (childCount + 1);
-      // offset the title to the left
-      childTitle.style.marginRight = "30px";
-      childTitle.style.fontWeight = "bold";
-      childTitle.style.marginBottom = "5px";
+      childTitle.className = "child-title";
       body.appendChild(childTitle);
       Object.entries(child).forEach(([key, value]) => {
         createFieldRow(key, value, false);
@@ -590,13 +546,8 @@ function formatCurrencyWithSymbol(value: number) {
 
 function displayFileInfoHeader(expandableArea: HTMLDivElement, data: any) {
   // Caption row for the accordion headers
-  const captionsRow = document.createElement("div");
+  const captionsRow = document.createElement("div") as HTMLDivElement;
   captionsRow.className = "caption-row";
-  captionsRow.style.display = "flex";
-  captionsRow.style.padding = "10px";
-  // captionsRow.style.backgroundColor = '#e0e0e0';
-  captionsRow.style.fontWeight = "bold";
-  captionsRow.style.borderBottom = "2px solid #ccc";
 
   const headerCaptions = [
     { text: "", width: "40px" },
@@ -608,11 +559,10 @@ function displayFileInfoHeader(expandableArea: HTMLDivElement, data: any) {
   ];
 
   headerCaptions.forEach((caption) => {
-    const captionElement = document.createElement("div");
+    const captionElement = document.createElement("div") as HTMLDivElement;
     captionElement.textContent = caption.text;
+    captionElement.className = "caption-element";
     captionElement.style.flex = `0 0 ${caption.width}`;
-    captionElement.style.textAlign = "right";
-    captionElement.style.padding = "5px";
     captionsRow.appendChild(captionElement);
   });
 
@@ -635,14 +585,13 @@ function displayFileInfoHeader(expandableArea: HTMLDivElement, data: any) {
 }
 
 /* ********************************** create +_ button ************************************** */
-function displayFileInfoPlusMinusButton(body: HTMLElement, toggleButton: HTMLButtonElement) {
-  toggleButton.textContent = "+";
-  toggleButton.style.width = "40px";
-  toggleButton.style.textAlign = "center";
+function displayFileInfoPlusMinusButton(accordionBody: HTMLElement, accordionToggleButton: HTMLButtonElement) {
+  accordionToggleButton.textContent = "+";
+  accordionToggleButton.className = "accordion-toggle-button";
 
-  toggleButton.onclick = () => {
-    body.style.display = body.style.display === "none" ? "block" : "none";
-    toggleButton.textContent = toggleButton.textContent === "+" ? "-" : "+";
+  accordionToggleButton.onclick = () => {
+    accordionBody.style.display = accordionBody.style.display === "none" ? "block" : "none";
+    accordionToggleButton.textContent = accordionToggleButton.textContent === "+" ? "-" : "+";
   };
 }
 
@@ -691,14 +640,10 @@ function displayFileInfoLine(headerFieldsContainer: HTMLDivElement, fileData: an
 }
 
 /* ********************************** create delete button ************************************** */
-function displayFileInfoDeleteButton(deleteButton: HTMLButtonElement, fileData: any, accordionContainer: HTMLDivElement) {
-  deleteButton.textContent = "X";
-  deleteButton.style.color = "red";
-  deleteButton.style.width = "40px";
-  deleteButton.style.textAlign = "center";
-  deleteButton.style.border = "none";
-  deleteButton.style.background = "none";
-  deleteButton.onclick = () => {
+function displayFileInfoDeleteButton(editorDeleteButton: HTMLButtonElement, fileData: any, accordionContainer: HTMLDivElement) {
+  editorDeleteButton.textContent = "X";
+  editorDeleteButton.className = "editor-delete-button";
+  editorDeleteButton.onclick = () => {
     const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
     fetch(deleteUrl, {
       method: "DELETE",
@@ -727,18 +672,14 @@ function displayFileInfoDeleteButton(deleteButton: HTMLButtonElement, fileData: 
 async function displayFileInfoButtons(saveButton: HTMLButtonElement, cancelButton: HTMLButtonElement, addFieldsButton: HTMLButtonElement, fileData: any, body: HTMLElement, headerFieldsContainer: HTMLDivElement, data: any) {
   // Set up the save button
   saveButton.textContent = "שמור שינויים";
-  saveButton.style.marginTop = "10px";
-  saveButton.style.marginLeft = "10px";
+  saveButton.className = "form-action-button";
 
   // Create the cancel button
-  //const cancelButton = document.createElement("button");
   cancelButton.textContent = "יציאה ללא שמירת שינויי";
-  cancelButton.style.marginTop = "10px";
-  cancelButton.style.marginLeft = "10px";
+  cancelButton.className = "form-action-button";
 
   addFieldsButton.textContent = "הוספת שדות קלט";
-  addFieldsButton.style.marginTop = "10px";
-  addFieldsButton.style.marginLeft = "10px";
+  addFieldsButton.className = "form-action-button";
 
   //  add fields to an existing form
   addFieldsButton.onclick = async () => {
