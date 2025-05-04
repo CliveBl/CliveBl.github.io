@@ -569,13 +569,14 @@ export async function displayFileInfoInExpandableArea(data: any) {
         const friendly = friendlyNames[key as keyof typeof friendlyNames];
         fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
         const controls = document.createElement("div") as HTMLDivElement;
+		controls.setAttribute("data-field-name", key);  // Add data-field-name attribute
+
         const options = typeof friendly === "object" && "options" in friendly ? friendly.options : [];
         options.forEach((option: string) => {
-          const radioButton = document.createElement("input");
-          const label = document.createElement("label");
+          const radioButton = document.createElement("input") as HTMLInputElement;
+          const label = document.createElement("label") as HTMLLabelElement;
           radioButton.type = "radio";
           radioButton.value = option;
-          radioButton.setAttribute("data-field-name", key);  // Add data-field-name attribute
           const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
           radioButton.name = name;
           radioButton.id = name + option;
@@ -918,7 +919,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
         } else if (fieldName.endsWith("Boolean")) {
           fieldValue = htmlInput.checked ? "true" : "false";
           updatedData[fieldName] = fieldValue;
-        } else {
+		} else {
         // 🟢 **Determine where to store the updated value**
           if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
             updatedData[fieldName] = fieldValue;
@@ -927,6 +928,23 @@ export async function displayFileInfoInExpandableArea(data: any) {
           }
         }
       });
+
+	// Update Options fields and fields object
+	body.querySelectorAll("div[data-field-name]:not(.child-container input)").forEach((div) => {
+		const htmlDiv = div as HTMLDivElement;
+		const fieldName = htmlDiv.getAttribute("data-field-name") as string;
+
+		if (fieldName.endsWith("Options")) {
+			// Iterate over the radio buttons and check which one is checked.
+			const radioButtons = htmlDiv.querySelectorAll("input[type='radio']");
+			for (const radioButton of radioButtons) {
+				const rb = radioButton as HTMLInputElement;
+				if (rb.checked) {
+					updatedData[fieldName] = rb.value;
+				}
+			}
+		}
+		});
 
       // Update header fields
       const headerContainer = body.closest('.accordion-container')?.querySelector('.header-fields-wrapper');
@@ -965,7 +983,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
               } else {
                 child[fieldName] = "";
               }
-            } else {
+			} else {
               child[fieldName] = htmlInput.value;
             }
           }

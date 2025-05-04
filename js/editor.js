@@ -513,13 +513,13 @@ export async function displayFileInfoInExpandableArea(data) {
                 const friendly = friendlyNames[key];
                 fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
                 const controls = document.createElement("div");
+                controls.setAttribute("data-field-name", key); // Add data-field-name attribute
                 const options = typeof friendly === "object" && "options" in friendly ? friendly.options : [];
                 options.forEach((option) => {
                     const radioButton = document.createElement("input");
                     const label = document.createElement("label");
                     radioButton.type = "radio";
                     radioButton.value = option;
-                    radioButton.setAttribute("data-field-name", key); // Add data-field-name attribute
                     const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
                     radioButton.name = name;
                     radioButton.id = name + option;
@@ -821,6 +821,21 @@ export async function displayFileInfoInExpandableArea(data) {
                     }
                     else if (fileData.fields?.hasOwnProperty(fieldName)) {
                         updatedData.fields[fieldName] = fieldValue;
+                    }
+                }
+            });
+            // Update Options fields and fields object
+            body.querySelectorAll("div[data-field-name]:not(.child-container input)").forEach((div) => {
+                const htmlDiv = div;
+                const fieldName = htmlDiv.getAttribute("data-field-name");
+                if (fieldName.endsWith("Options")) {
+                    // Iterate over the radio buttons and check which one is checked.
+                    const radioButtons = htmlDiv.querySelectorAll("input[type='radio']");
+                    for (const radioButton of radioButtons) {
+                        const rb = radioButton;
+                        if (rb.checked) {
+                            updatedData[fieldName] = rb.value;
+                        }
                     }
                 }
             });
