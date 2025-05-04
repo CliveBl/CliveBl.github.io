@@ -453,96 +453,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
     }
   }
 
-  function createActionButtons(fileData: any, body: HTMLElement) {
-    const saveButton = document.createElement("button") as HTMLButtonElement;
-    const cancelButton = document.createElement("button") as HTMLButtonElement;
-    const addFieldsButton = document.createElement("button") as HTMLButtonElement;
-
-    saveButton.textContent = "שמור שינויים";
-    saveButton.className = "form-action-button";
-
-    cancelButton.textContent = "יציאה ללא שמירת שינויי";
-    cancelButton.className = "form-action-button";
-
-    addFieldsButton.textContent = "הוספת שדות קלט";
-    addFieldsButton.className = "form-action-button";
-
-    // Add fields button behavior
-    addFieldsButton.onclick = async () => {
-      debug("Adding fields to an existing form");
-      const data = await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
-      displayFileInfoInExpandableArea(data);
-    };
-
-    // Cancel button behavior
-    cancelButton.onclick = async () => {
-      debug("🔄 Cancel button clicked, restoring original data");
-      const { data } = await getFilesInfoFunction();
-      displayFileInfoInExpandableArea(data);
-    };
-
-    // Save button behavior
-    saveButton.onclick = async () => {
-      const updatedData = { ...fileData };
-      updatedData.fields = { ...fileData.fields };
-
-      function isCurrencyField(fieldName: string) {
-        return !(
-          fieldName.endsWith("Name") ||
-          fieldName.endsWith("Text") ||
-          fieldName.endsWith("Number") ||
-          fieldName.endsWith("taxYear") ||
-          fieldName.endsWith("Date") ||
-          fieldName.endsWith("Months") ||
-          fieldName.endsWith("Integer") ||
-          fieldName.endsWith("Code") ||
-          fieldName.endsWith("Boolean") ||
-          fieldName.endsWith("Options")
-        );
-      }
-
-      // Update fields in the body
-      body.querySelectorAll("input[data-field-name]").forEach((input) => {
-        const htmlInput = input as HTMLInputElement;
-        const fieldName = htmlInput.getAttribute("data-field-name") as string;
-        let fieldValue = htmlInput.value;
-
-        if (isCurrencyField(fieldName)) {
-          fieldValue = fieldValue.replace(/[₪,]/g, "");
-          if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
-            fieldValue = parseFloat(fieldValue).toFixed(2);
-          }
-        } else if (fieldName.endsWith("Boolean")) {
-          fieldValue = htmlInput.checked ? "true" : "false";
-          updatedData[fieldName] = fieldValue;
-        } else {
-          if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
-            updatedData[fieldName] = fieldValue;
-          } else if (fileData.fields?.hasOwnProperty(fieldName)) {
-            updatedData.fields[fieldName] = fieldValue;
-          }
-        }
-      });
-
-      debug("🔄 Updating Form Data:", updatedData);
-      await updateFormFunction(fileData.fileId, updatedData);
-
-      // Display success modal
-      await customerMessageModal({
-        title: "שמירת נתונים",
-        message: `הנתונים נשמרו בהצלחה`,
-        button1Text: "",
-        button2Text: "",
-        displayTimeInSeconds: 4,
-      });
-    };
-
-    // Add the buttons to the body
-    body.appendChild(saveButton);
-    body.appendChild(cancelButton);
-    body.appendChild(addFieldsButton);
-  }
-
+  
   function renderFields(fileData: any, body: HTMLElement) {
     // Store the action buttons before clearing
     const actionButtons = body.querySelectorAll('.form-action-button');
@@ -569,6 +480,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
       let input = document.createElement("input") as HTMLInputElement;
 
       input.className = "field-input";
+      input.setAttribute("data-field-name", key);  // Add data-field-name attribute
 
       // Apply border style based on field type
       input.style.border = isMainField ? "3px solid black" : "1px solid gray";
@@ -663,6 +575,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
           const label = document.createElement("label");
           radioButton.type = "radio";
           radioButton.value = option;
+          radioButton.setAttribute("data-field-name", key);  // Add data-field-name attribute
           const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
           radioButton.name = name;
           radioButton.id = name + option;
@@ -682,14 +595,14 @@ export async function displayFileInfoInExpandableArea(data: any) {
           codeLabel.className = "codeLabel";
         }
 
-      // Firld code from friendlyNames[key]. It is the text after the underscore.
+        // Firld code from friendlyNames[key]. It is the text after the underscore.
         let numericValue = parseFloat(value);
         if (isNaN(numericValue)) {
           numericValue = 0.0;
         }
         input.value = formatCurrencyWithSymbol(numericValue);
 
-      // **Restrict typing to valid numeric input**
+        // **Restrict typing to valid numeric input**
         input.addEventListener("input", (e) => {
           let rawValue = input.value.replace(/[^\d.]/g, "");
 
@@ -699,11 +612,11 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
           let parts = rawValue.split(".");
 
-        // Restrict max 10 digits before decimal
+          // Restrict max 10 digits before decimal
           if (parts[0].length > 10) {
             parts[0] = parts[0].slice(0, 10);
           }
-        // Restrict max 2 digits after decimal
+          // Restrict max 2 digits after decimal
           if (parts[1] && parts[1].length > 2) {
             parts[1] = parts[1].slice(0, 2);
           }
@@ -711,7 +624,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
           input.value = parts.join(".");
         });
 
-      // 🟢 **Format on Blur**
+        // 🟢 **Format on Blur**
         input.addEventListener("blur", () => {
           let rawValue = input.value.replace(/[^\d.]/g, "");
           let parsedNum = parseFloat(rawValue);
@@ -734,9 +647,9 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
-		debug("key: " + key + " value: " + value);
-		if (key !== "fields" && key !== "genericFields" && key !== "children") {
-			createFieldRow(body, key, value, true);
+      debug("key: " + key + " value: " + value);
+      if (key !== "fields" && key !== "genericFields" && key !== "children") {
+        createFieldRow(body, key, value, true);
       }
     });
     // Process nested fields inside `fileData.fields` (thinner border)
@@ -762,6 +675,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
           noSecondParentBoolean: false,
           caringForBoolean: true,
           requestDelayOfPointsBoolean: false,
+		  requestUsePointsFromLastYearBoolean: false
         });
         // Re-render the fields
         renderFields(fileData, body);
@@ -770,14 +684,14 @@ export async function displayFileInfoInExpandableArea(data: any) {
       // Process child fields inside `fileData.children` (thinner border)
       let childCount = 0;
       fileData.children.forEach((child: any, index: number) => {
-		childCount++;
+        childCount++;
         // Title and container for the child
         const childContainer = document.createElement("div") as HTMLDivElement;
         childContainer.className = "child-container";
         
         const childTitleText = document.createElement("span") as HTMLSpanElement;
         childTitleText.textContent = "ילד " + childCount;
-		childTitleText.className = "child-title-text";
+        childTitleText.className = "child-title-text";
         childContainer.appendChild(childTitleText);
 
         // Add remove button
@@ -793,7 +707,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
         body.appendChild(childContainer);
         Object.entries(child).forEach(([key, value]) => {
-			debug("Childkey: " + key + " value: " + value);
+          debug("Childkey: " + key + " value: " + value);
           createFieldRow(childContainer, key, value, false);
         });
       });
@@ -973,12 +887,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
     // Save button behavior: Process and save the data
     saveButton.onclick = async () => {
       const updatedData = { ...fileData }; // Clone original fileData
-	  //if (fileData.fields) {
-		updatedData.fields = { ...fileData.fields }; // Preserve existing fields
-	  //}
-	//   if (fileData.children) {
-	// 	updatedData.children = { ...fileData.children }; // Preserve existing children
-	//   }
+      updatedData.fields = { ...fileData.fields }; // Preserve existing fields
 
       function isCurrencyField(fieldName: string) {
         return !(
@@ -995,8 +904,8 @@ export async function displayFileInfoInExpandableArea(data: any) {
         );
       }
 
-      // Update fields in the body while excluding the children fields
-      body.querySelectorAll("input[data-field-name]").forEach((input) => {
+      // Update main fields and fields object
+      body.querySelectorAll("input[data-field-name]:not(.child-container input)").forEach((input) => {
         const htmlInput = input as HTMLInputElement;
         const fieldName = htmlInput.getAttribute("data-field-name") as string;
         let fieldValue = htmlInput.value;
@@ -1019,14 +928,52 @@ export async function displayFileInfoInExpandableArea(data: any) {
         }
       });
 
-      // 2️⃣ Update the **3 fields from the Accordion Header** (taxYear, clientName, clientIdentificationNumber)
-      headerFieldsContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
-        const fieldName = input.getAttribute("data-field-name");
-        let fieldValue = (input as HTMLInputElement).value.trim(); // Remove unnecessary spaces
-  
-		// Keep general fields as-is (no formatting)
-		updatedData[fieldName as keyof typeof updatedData] = fieldValue;
-	  });
+      // Update header fields
+      const headerContainer = body.closest('.accordion-container')?.querySelector('.header-fields-wrapper');
+      if (headerContainer) {
+        headerContainer.querySelectorAll("input[data-field-name]").forEach((input: Element) => {
+          const fieldName = input.getAttribute("data-field-name");
+          let fieldValue = (input as HTMLInputElement).value.trim();
+          updatedData[fieldName as keyof typeof updatedData] = fieldValue;
+        });
+      }
+
+      // Update children array
+      if (fileData.children) {
+        updatedData.children = [];
+        const childContainers = Array.from(body.querySelectorAll('.child-container'));
+         
+        for (let i = 0; i < childContainers.length; i++) {
+          const container = childContainers[i];
+          const child: any = {};
+          
+          // Get all inputs within this child container, including those in nested divs
+          const inputs = Array.from(container.querySelectorAll("input[data-field-name]"));
+          
+          for (const input of inputs) {
+            const htmlInput = input as HTMLInputElement;
+            const fieldName = htmlInput.getAttribute("data-field-name") as string;
+            
+            if (fieldName.endsWith("Boolean")) {
+              child[fieldName] = htmlInput.checked;
+            } else if (fieldName.endsWith("Date")) {
+              // Convert date from YYYY-MM-DD to DD/MM/YYYY
+              const dateValue = htmlInput.value;
+              if (dateValue) {
+                const [year, month, day] = dateValue.split('-');
+                child[fieldName] = `${day}/${month}/${year}`;
+              } else {
+                child[fieldName] = "";
+              }
+            } else {
+              child[fieldName] = htmlInput.value;
+            }
+          }
+                   
+          debug(`Child ${i} data:`, child);
+          updatedData.children.push(child);
+        }
+      }
 
       debug("🔄 Updating Form Data:", updatedData);
       await updateFormFunction(fileData.fileId, updatedData);

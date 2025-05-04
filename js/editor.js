@@ -394,84 +394,6 @@ export async function displayFileInfoInExpandableArea(data) {
             throw error;
         }
     }
-    function createActionButtons(fileData, body) {
-        const saveButton = document.createElement("button");
-        const cancelButton = document.createElement("button");
-        const addFieldsButton = document.createElement("button");
-        saveButton.textContent = "שמור שינויים";
-        saveButton.className = "form-action-button";
-        cancelButton.textContent = "יציאה ללא שמירת שינויי";
-        cancelButton.className = "form-action-button";
-        addFieldsButton.textContent = "הוספת שדות קלט";
-        addFieldsButton.className = "form-action-button";
-        // Add fields button behavior
-        addFieldsButton.onclick = async () => {
-            debug("Adding fields to an existing form");
-            const data = await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
-            displayFileInfoInExpandableArea(data);
-        };
-        // Cancel button behavior
-        cancelButton.onclick = async () => {
-            debug("🔄 Cancel button clicked, restoring original data");
-            const { data } = await getFilesInfoFunction();
-            displayFileInfoInExpandableArea(data);
-        };
-        // Save button behavior
-        saveButton.onclick = async () => {
-            const updatedData = { ...fileData };
-            updatedData.fields = { ...fileData.fields };
-            function isCurrencyField(fieldName) {
-                return !(fieldName.endsWith("Name") ||
-                    fieldName.endsWith("Text") ||
-                    fieldName.endsWith("Number") ||
-                    fieldName.endsWith("taxYear") ||
-                    fieldName.endsWith("Date") ||
-                    fieldName.endsWith("Months") ||
-                    fieldName.endsWith("Integer") ||
-                    fieldName.endsWith("Code") ||
-                    fieldName.endsWith("Boolean") ||
-                    fieldName.endsWith("Options"));
-            }
-            // Update fields in the body
-            body.querySelectorAll("input[data-field-name]").forEach((input) => {
-                const htmlInput = input;
-                const fieldName = htmlInput.getAttribute("data-field-name");
-                let fieldValue = htmlInput.value;
-                if (isCurrencyField(fieldName)) {
-                    fieldValue = fieldValue.replace(/[₪,]/g, "");
-                    if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
-                        fieldValue = parseFloat(fieldValue).toFixed(2);
-                    }
-                }
-                else if (fieldName.endsWith("Boolean")) {
-                    fieldValue = htmlInput.checked ? "true" : "false";
-                    updatedData[fieldName] = fieldValue;
-                }
-                else {
-                    if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
-                        updatedData[fieldName] = fieldValue;
-                    }
-                    else if (fileData.fields?.hasOwnProperty(fieldName)) {
-                        updatedData.fields[fieldName] = fieldValue;
-                    }
-                }
-            });
-            debug("🔄 Updating Form Data:", updatedData);
-            await updateFormFunction(fileData.fileId, updatedData);
-            // Display success modal
-            await customerMessageModal({
-                title: "שמירת נתונים",
-                message: `הנתונים נשמרו בהצלחה`,
-                button1Text: "",
-                button2Text: "",
-                displayTimeInSeconds: 4,
-            });
-        };
-        // Add the buttons to the body
-        body.appendChild(saveButton);
-        body.appendChild(cancelButton);
-        body.appendChild(addFieldsButton);
-    }
     function renderFields(fileData, body) {
         // Store the action buttons before clearing
         const actionButtons = body.querySelectorAll('.form-action-button');
@@ -493,6 +415,7 @@ export async function displayFileInfoInExpandableArea(data) {
             fieldLabel.style.flex = "0 0 150px";
             let input = document.createElement("input");
             input.className = "field-input";
+            input.setAttribute("data-field-name", key); // Add data-field-name attribute
             // Apply border style based on field type
             input.style.border = isMainField ? "3px solid black" : "1px solid gray";
             // 🟢 **Apply Field Formatting Rules**
@@ -596,6 +519,7 @@ export async function displayFileInfoInExpandableArea(data) {
                     const label = document.createElement("label");
                     radioButton.type = "radio";
                     radioButton.value = option;
+                    radioButton.setAttribute("data-field-name", key); // Add data-field-name attribute
                     const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
                     radioButton.name = name;
                     radioButton.id = name + option;
@@ -684,6 +608,7 @@ export async function displayFileInfoInExpandableArea(data) {
                     noSecondParentBoolean: false,
                     caringForBoolean: true,
                     requestDelayOfPointsBoolean: false,
+                    requestUsePointsFromLastYearBoolean: false
                 });
                 // Re-render the fields
                 renderFields(fileData, body);
@@ -861,12 +786,7 @@ export async function displayFileInfoInExpandableArea(data) {
         // Save button behavior: Process and save the data
         saveButton.onclick = async () => {
             const updatedData = { ...fileData }; // Clone original fileData
-            //if (fileData.fields) {
             updatedData.fields = { ...fileData.fields }; // Preserve existing fields
-            //}
-            //   if (fileData.children) {
-            // 	updatedData.children = { ...fileData.children }; // Preserve existing children
-            //   }
             function isCurrencyField(fieldName) {
                 return !(fieldName.endsWith("Name") ||
                     fieldName.endsWith("Text") ||
@@ -879,8 +799,8 @@ export async function displayFileInfoInExpandableArea(data) {
                     fieldName.endsWith("Boolean") ||
                     fieldName.endsWith("Options"));
             }
-            // Update fields in the body while excluding the children fields
-            body.querySelectorAll("input[data-field-name]").forEach((input) => {
+            // Update main fields and fields object
+            body.querySelectorAll("input[data-field-name]:not(.child-container input)").forEach((input) => {
                 const htmlInput = input;
                 const fieldName = htmlInput.getAttribute("data-field-name");
                 let fieldValue = htmlInput.value;
@@ -904,13 +824,49 @@ export async function displayFileInfoInExpandableArea(data) {
                     }
                 }
             });
-            // 2️⃣ Update the **3 fields from the Accordion Header** (taxYear, clientName, clientIdentificationNumber)
-            headerFieldsContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
-                const fieldName = input.getAttribute("data-field-name");
-                let fieldValue = input.value.trim(); // Remove unnecessary spaces
-                // Keep general fields as-is (no formatting)
-                updatedData[fieldName] = fieldValue;
-            });
+            // Update header fields
+            const headerContainer = body.closest('.accordion-container')?.querySelector('.header-fields-wrapper');
+            if (headerContainer) {
+                headerContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
+                    const fieldName = input.getAttribute("data-field-name");
+                    let fieldValue = input.value.trim();
+                    updatedData[fieldName] = fieldValue;
+                });
+            }
+            // Update children array
+            if (fileData.children) {
+                updatedData.children = [];
+                const childContainers = Array.from(body.querySelectorAll('.child-container'));
+                for (let i = 0; i < childContainers.length; i++) {
+                    const container = childContainers[i];
+                    const child = {};
+                    // Get all inputs within this child container, including those in nested divs
+                    const inputs = Array.from(container.querySelectorAll("input[data-field-name]"));
+                    for (const input of inputs) {
+                        const htmlInput = input;
+                        const fieldName = htmlInput.getAttribute("data-field-name");
+                        if (fieldName.endsWith("Boolean")) {
+                            child[fieldName] = htmlInput.checked;
+                        }
+                        else if (fieldName.endsWith("Date")) {
+                            // Convert date from YYYY-MM-DD to DD/MM/YYYY
+                            const dateValue = htmlInput.value;
+                            if (dateValue) {
+                                const [year, month, day] = dateValue.split('-');
+                                child[fieldName] = `${day}/${month}/${year}`;
+                            }
+                            else {
+                                child[fieldName] = "";
+                            }
+                        }
+                        else {
+                            child[fieldName] = htmlInput.value;
+                        }
+                    }
+                    debug(`Child ${i} data:`, child);
+                    updatedData.children.push(child);
+                }
+            }
             debug("🔄 Updating Form Data:", updatedData);
             await updateFormFunction(fileData.fileId, updatedData);
             // Display success modal
