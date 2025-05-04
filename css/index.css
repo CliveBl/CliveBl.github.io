@@ -2225,7 +2225,11 @@
         gap: 5px;
         width: 100%;
       }
-
+      /* Desktop: Hide labels */
+      .field-label {
+		flex: 0 0 450px;
+        display: none;
+      }
       /* Desktop: Hide labels */
       .headerfield-label {
         display: none;
@@ -2277,7 +2281,15 @@
           margin-bottom: 2px; /* Reduce spacing */
           color: #333;
         }
-
+        /* Show labels above fields on mobile */
+        .field-label {
+			display: block;
+			flex: 0 0 450px;
+			font-size: 12px; /* Smaller font */
+			font-weight: bold;
+			margin-bottom: 2px; /* Reduce spacing */
+			color: #333;
+		  }
         /* 🟢 Reduce accordion item width */
         .accordion-item {
           width: 95% !important; /* Shrinks width */
@@ -2294,6 +2306,10 @@
 		}
 
 		.fieldlabel {
+			flex: 0 0 150px;
+			text-align: right;
+		}
+		.field-labelx {
 			flex: 0 0 150px;
 			text-align: right;
 		}
@@ -2366,7 +2382,6 @@
 
 .child-container {
     margin-right: 30px;
-    font-weight: bold;
     margin-bottom: 5px;
     display: block;
     align-items: center;

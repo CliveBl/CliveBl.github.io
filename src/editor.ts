@@ -462,7 +462,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
     // Clear the body
     body.innerHTML = "";
 
-    function createFieldRow(htmlElement: HTMLElement, key: string, value: any, isMainField = false) {
+    function createFieldRow(container: HTMLElement, key: string, value: any, isMainField = false) {
       // Skip fields already displayed in the header
       if (excludedHeaderFields.includes(key)) return;
 
@@ -474,8 +474,8 @@ export async function displayFileInfoInExpandableArea(data: any) {
       let fieldLabel = document.createElement("label") as HTMLLabelElement;
       const friendly = friendlyNames[key as keyof typeof friendlyNames];
       fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
-      fieldLabel.className = "fieldlabel";
-      fieldLabel.style.flex = "0 0 150px";
+      fieldLabel.className = "field-labelx";
+      fieldLabel.style.flex = "0 0 250px";
 
       let input = document.createElement("input") as HTMLInputElement;
 
@@ -643,7 +643,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
       if (codeLabel) {
         fieldRow.appendChild(codeLabel);
       }
-      htmlElement.appendChild(fieldRow);
+      container.appendChild(fieldRow);
     }
 
     // Process main fields (thicker border)
