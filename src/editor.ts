@@ -551,12 +551,12 @@ export async function displayFileInfoInExpandableArea(data: any) {
     // Clear the body
     body.innerHTML = "";
 
-    function createFieldRow(key: string, value: any, isMainField = false) {
+    function createFieldRow(htmlElement: HTMLElement, key: string, value: any, isMainField = false) {
       // Skip fields already displayed in the header
       if (excludedHeaderFields.includes(key)) return;
 
       let codeLabel = null;
-      const fieldRow = document.createElement("div");
+      const fieldRow = document.createElement("div") as HTMLDivElement;
       fieldRow.style.display = "flex";
       fieldRow.style.marginBottom = "5px";
 
@@ -567,7 +567,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
       fieldLabel.style.flex = "0 0 150px";
 
       let input = document.createElement("input") as HTMLInputElement;
-      input.setAttribute("data-field-name", key);
+
       input.className = "field-input";
 
       // Apply border style based on field type
@@ -729,21 +729,25 @@ export async function displayFileInfoInExpandableArea(data: any) {
       if (codeLabel) {
         fieldRow.appendChild(codeLabel);
       }
-      body.appendChild(fieldRow);
+      htmlElement.appendChild(fieldRow);
     }
 
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
-      if (key !== "children") {
-        createFieldRow(key, value, true);
+		debug("key: " + key + " value: " + value);
+		if (key !== "fields" && key !== "genericFields" && key !== "children") {
+			createFieldRow(body, key, value, true);
       }
     });
-
+    // Process nested fields inside `fileData.fields` (thinner border)
+    Object.entries(fileData.fields || {}).forEach(([key, value]) => {
+      createFieldRow(body, key, value, false);
+    });
 
     // Only show children section if there are children or if this is a form that can have children
     if (fileData.children) {
       // Title for the children with a control button before the title, that adds a new child.
-      const childrenTitle = document.createElement("div");
+      const childrenTitle = document.createElement("div") as HTMLDivElement;
       childrenTitle.textContent = "ילדים";
       childrenTitle.className = "children-title";
       body.appendChild(childrenTitle);
@@ -766,16 +770,18 @@ export async function displayFileInfoInExpandableArea(data: any) {
       // Process child fields inside `fileData.children` (thinner border)
       let childCount = 0;
       fileData.children.forEach((child: any, index: number) => {
-        // Title for the child
-        const childTitle = document.createElement("div");
-        childTitle.className = "child-title";
+		childCount++;
+        // Title and container for the child
+        const childContainer = document.createElement("div") as HTMLDivElement;
+        childContainer.className = "child-container";
         
-        const childTitleText = document.createElement("span");
-        childTitleText.textContent = "ילד " + (childCount + 1);
-        childTitle.appendChild(childTitleText);
+        const childTitleText = document.createElement("span") as HTMLSpanElement;
+        childTitleText.textContent = "ילד " + childCount;
+		childTitleText.className = "child-title-text";
+        childContainer.appendChild(childTitleText);
 
         // Add remove button
-        const removeButton = document.createElement("button");
+        const removeButton = document.createElement("button") as HTMLButtonElement;
         removeButton.textContent = "X";
         removeButton.className = "remove-child-button";
         removeButton.onclick = () => {
@@ -783,13 +789,13 @@ export async function displayFileInfoInExpandableArea(data: any) {
           // Re-render the fields
           renderFields(fileData, body);
         };
-        childTitle.appendChild(removeButton);
+        childContainer.appendChild(removeButton);
 
-        body.appendChild(childTitle);
+        body.appendChild(childContainer);
         Object.entries(child).forEach(([key, value]) => {
-          createFieldRow(key, value, false);
+			debug("Childkey: " + key + " value: " + value);
+          createFieldRow(childContainer, key, value, false);
         });
-        childCount++;
       });
     }
 
@@ -967,7 +973,12 @@ export async function displayFileInfoInExpandableArea(data: any) {
     // Save button behavior: Process and save the data
     saveButton.onclick = async () => {
       const updatedData = { ...fileData }; // Clone original fileData
-      updatedData.fields = { ...fileData.fields }; // Preserve existing fields
+	  //if (fileData.fields) {
+		updatedData.fields = { ...fileData.fields }; // Preserve existing fields
+	  //}
+	//   if (fileData.children) {
+	// 	updatedData.children = { ...fileData.children }; // Preserve existing children
+	//   }
 
       function isCurrencyField(fieldName: string) {
         return !(
@@ -984,7 +995,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
         );
       }
 
-      // Update fields in the body
+      // Update fields in the body while excluding the children fields
       body.querySelectorAll("input[data-field-name]").forEach((input) => {
         const htmlInput = input as HTMLInputElement;
         const fieldName = htmlInput.getAttribute("data-field-name") as string;
