@@ -1,7 +1,7 @@
-import { configurationData, debug, addMessage, handleResponse } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse, } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 /* ********************************************************** Generic modal ******************************************************************** */
-function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0 }) {
+function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0, }) {
     return new Promise((resolve) => {
         // Remove any existing modal
         const existingModal = document.getElementById("customModal");
@@ -23,7 +23,9 @@ function customerMessageModal({ title, message, button1Text, button2Text = null,
         timeModalContent.appendChild(timeModalMessage);
         const timeModalButtonContainer = document.createElement("div");
         timeModalButtonContainer.className = "time-modal-button-container";
-        timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
+        timeModalButtonContainer.style.justifyContent = button2Text
+            ? "space-between"
+            : "center";
         const timeModalCountdownText = document.createElement("p");
         timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
         timeModalCountdownText.className = "time-modal-countdown";
@@ -153,7 +155,10 @@ const friendlyNames = {
     TaxDeductedAtSourceInterest_040: "מס שנוכה במקור (ריבית)",
     TotalExemptInterestAndIndexLinkageDifference_209: "ריבית פטורה והפרש הצמדה",
     LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת",
-    maritalStatusOptions: { name: "מצב משפחתי", options: ["רווק", "נשוי", "אלמן", "גרוש", "פרוד"] },
+    maritalStatusOptions: {
+        name: "מצב משפחתי",
+        options: ["רווק", "נשוי", "אלמן", "גרוש", "פרוד"],
+    },
     genderOptions: { name: "מין", options: ["זכר", "נקבה"] },
     registeredTaxpayerBoolean: "בן/בת זוג רשום",
     birthDate: "תאריך לידה",
@@ -168,7 +173,17 @@ const friendlyNames = {
     specializationCompletionDate: "תאריך סיום לימודי תואר שני",
     degreeCode: "קוד תואר ראשון",
 };
-const excludedHeaderFields = ["taxYear", "clientName", "clientIdentificationNumber", "documentType", "type", "fileName", "fileId", "matchTag", "fieldTypes"];
+const excludedHeaderFields = [
+    "taxYear",
+    "clientName",
+    "clientIdentificationNumber",
+    "documentType",
+    "type",
+    "fileName",
+    "fileId",
+    "matchTag",
+    "fieldTypes",
+];
 export function editableFileListHasEntries() {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
     return expandableArea && expandableArea.children.length > 0;
@@ -372,7 +387,8 @@ export async function displayFileInfoInExpandableArea(data) {
             return responseData;
         }
         catch (error) {
-            addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
+            addMessage("שגיאה בעריכת הקובץ: " +
+                (error instanceof Error ? error.message : String(error)), "error");
         }
     }
     async function getFilesInfoFunction() {
@@ -398,7 +414,7 @@ export async function displayFileInfoInExpandableArea(data) {
     }
     function renderFields(fileData, body) {
         // Store the action buttons before clearing
-        const actionButtons = body.querySelectorAll('.form-action-button');
+        const actionButtons = body.querySelectorAll(".form-action-button");
         const buttonsArray = Array.from(actionButtons);
         // Clear the body
         body.innerHTML = "";
@@ -412,7 +428,8 @@ export async function displayFileInfoInExpandableArea(data) {
             fieldRow.style.marginBottom = "5px";
             let fieldLabel = document.createElement("label");
             const friendly = friendlyNames[key];
-            fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
+            fieldLabel.textContent =
+                typeof friendly === "string" ? friendly : friendly?.name ?? "";
             fieldLabel.className = "field-labelx";
             let input = document.createElement("input");
             input.className = "field-input";
@@ -510,16 +527,21 @@ export async function displayFileInfoInExpandableArea(data) {
             }
             else if (key.endsWith("Options")) {
                 const friendly = friendlyNames[key];
-                fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
+                fieldLabel.textContent =
+                    typeof friendly === "string" ? friendly : friendly?.name ?? "";
                 const controls = document.createElement("div");
                 controls.setAttribute("data-field-name", key); // Add data-field-name attribute
-                const options = typeof friendly === "object" && "options" in friendly ? friendly.options : [];
+                const options = typeof friendly === "object" && "options" in friendly
+                    ? friendly.options
+                    : [];
                 options.forEach((option) => {
                     const radioButton = document.createElement("input");
                     const label = document.createElement("label");
                     radioButton.type = "radio";
                     radioButton.value = option;
-                    const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
+                    const name = typeof friendly === "object" && "name" in friendly
+                        ? friendly.name
+                        : "";
                     radioButton.name = name;
                     radioButton.id = name + option;
                     radioButton.checked = value === option;
@@ -607,7 +629,7 @@ export async function displayFileInfoInExpandableArea(data) {
                     noSecondParentBoolean: false,
                     caringForBoolean: true,
                     requestDelayOfPointsBoolean: false,
-                    requestUsePointsFromLastYearBoolean: false
+                    requestUsePointsFromLastYearBoolean: false,
                 });
                 // Re-render the fields
                 renderFields(fileData, body);
@@ -641,7 +663,7 @@ export async function displayFileInfoInExpandableArea(data) {
             });
         }
         // Re-add the action buttons
-        buttonsArray.forEach(button => {
+        buttonsArray.forEach((button) => {
             body.appendChild(button);
         });
     }
@@ -691,8 +713,10 @@ export async function displayFileInfoInExpandableArea(data) {
         accordionToggleButton.textContent = "+";
         accordionToggleButton.className = "accordion-toggle-button";
         accordionToggleButton.onclick = () => {
-            accordionBody.style.display = accordionBody.style.display === "none" ? "block" : "none";
-            accordionToggleButton.textContent = accordionToggleButton.textContent === "+" ? "-" : "+";
+            accordionBody.style.display =
+                accordionBody.style.display === "none" ? "block" : "none";
+            accordionToggleButton.textContent =
+                accordionToggleButton.textContent === "+" ? "-" : "+";
         };
     }
     /* ********************************** create header input (Responsive) ************************************** */
@@ -760,32 +784,7 @@ export async function displayFileInfoInExpandableArea(data) {
     }
     /* ********************************** create the save button with cancel option ************************************** */
     async function displayFileInfoButtons(saveButton, cancelButton, addFieldsButton, fileData, body, headerFieldsContainer, data) {
-        // Set up the save button
-        saveButton.textContent = "שמור שינויים";
-        saveButton.className = "form-action-button";
-        // Create the cancel button
-        cancelButton.textContent = "יציאה ללא שמירת שינויי";
-        cancelButton.className = "form-action-button";
-        addFieldsButton.textContent = "הוספת שדות קלט";
-        addFieldsButton.className = "form-action-button";
-        //  add fields to an existing form
-        addFieldsButton.onclick = async () => {
-            debug("Adding fields to an existing form");
-            //await updateFormsWithoutFields(data);
-            const data = await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
-            //const { success, URL, data } = await getFilesInfoFunction();
-            if (data) {
-                displayFileInfoInExpandableArea(data);
-            }
-            //await addFieldsToExistingForm(fileData.fileId, fileData.type, fileData);
-        };
-        // Cancel button behavior: Restore original file info
-        cancelButton.onclick = async () => {
-            debug("🔄 Cancel button clicked, restoring original data");
-            displayFileInfoInExpandableArea(data);
-        };
-        // Save button behavior: Process and save the data
-        saveButton.onclick = async () => {
+        function getDataFromControls() {
             const updatedData = { ...fileData }; // Clone original fileData
             updatedData.fields = { ...fileData.fields }; // Preserve existing fields
             function isCurrencyField(fieldName) {
@@ -801,13 +800,16 @@ export async function displayFileInfoInExpandableArea(data) {
                     fieldName.endsWith("Options"));
             }
             // Update main fields and fields object
-            body.querySelectorAll("input[data-field-name]:not(.child-container input)").forEach((input) => {
+            body
+                .querySelectorAll("input[data-field-name]:not(.child-container input)")
+                .forEach((input) => {
                 const htmlInput = input;
                 const fieldName = htmlInput.getAttribute("data-field-name");
                 let fieldValue = htmlInput.value;
                 if (isCurrencyField(fieldName)) {
                     fieldValue = fieldValue.replace(/[₪,]/g, "");
-                    if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
+                    if (!isNaN(parseFloat(fieldValue)) &&
+                        isFinite(parseFloat(fieldValue))) {
                         fieldValue = parseFloat(fieldValue).toFixed(2);
                     }
                 }
@@ -817,7 +819,8 @@ export async function displayFileInfoInExpandableArea(data) {
                 }
                 else {
                     // 🟢 **Determine where to store the updated value**
-                    if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
+                    if (fieldName in fileData &&
+                        !fileData.fields?.hasOwnProperty(fieldName)) {
                         updatedData[fieldName] = fieldValue;
                     }
                     else if (fileData.fields?.hasOwnProperty(fieldName)) {
@@ -826,7 +829,9 @@ export async function displayFileInfoInExpandableArea(data) {
                 }
             });
             // Update Options fields and fields object
-            body.querySelectorAll("div[data-field-name]:not(.child-container input)").forEach((div) => {
+            body
+                .querySelectorAll("div[data-field-name]:not(.child-container input)")
+                .forEach((div) => {
                 const htmlDiv = div;
                 const fieldName = htmlDiv.getAttribute("data-field-name");
                 if (fieldName.endsWith("Options")) {
@@ -841,9 +846,13 @@ export async function displayFileInfoInExpandableArea(data) {
                 }
             });
             // Update header fields
-            const headerContainer = body.closest('.accordion-container')?.querySelector('.header-fields-wrapper');
+            const headerContainer = body
+                .closest(".accordion-container")
+                ?.querySelector(".header-fields-wrapper");
             if (headerContainer) {
-                headerContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
+                headerContainer
+                    .querySelectorAll("input[data-field-name]")
+                    .forEach((input) => {
                     const fieldName = input.getAttribute("data-field-name");
                     let fieldValue = input.value.trim();
                     updatedData[fieldName] = fieldValue;
@@ -852,7 +861,7 @@ export async function displayFileInfoInExpandableArea(data) {
             // Update children array
             if (fileData.children) {
                 updatedData.children = [];
-                const childContainers = Array.from(body.querySelectorAll('.child-container'));
+                const childContainers = Array.from(body.querySelectorAll(".child-container"));
                 for (let i = 0; i < childContainers.length; i++) {
                     const container = childContainers[i];
                     const child = {};
@@ -868,7 +877,7 @@ export async function displayFileInfoInExpandableArea(data) {
                             // Convert date from YYYY-MM-DD to DD/MM/YYYY
                             const dateValue = htmlInput.value;
                             if (dateValue) {
-                                const [year, month, day] = dateValue.split('-');
+                                const [year, month, day] = dateValue.split("-");
                                 child[fieldName] = `${day}/${month}/${year}`;
                             }
                             else {
@@ -883,6 +892,35 @@ export async function displayFileInfoInExpandableArea(data) {
                     updatedData.children.push(child);
                 }
             }
+            return updatedData;
+        }
+        // Set up the save button
+        saveButton.textContent = "שמור שינויים";
+        saveButton.className = "form-action-button";
+        // Create the cancel button
+        cancelButton.textContent = "יציאה ללא שמירת שינויי";
+        cancelButton.className = "form-action-button";
+        addFieldsButton.textContent = "הוספת שדות קלט";
+        addFieldsButton.className = "form-action-button";
+        //  add fields to an existing form
+        addFieldsButton.onclick = async () => {
+            debug("Adding fields to an existing form");
+            //await updateFormsWithoutFields(data);
+            const data = await updateFormFunctionNewForm(fileData.fileId, fileData.type, getDataFromControls());
+            //const { success, URL, data } = await getFilesInfoFunction();
+            if (data) {
+                displayFileInfoInExpandableArea(data);
+            }
+            //await addFieldsToExistingForm(fileData.fileId, fileData.type, fileData);
+        };
+        // Cancel button behavior: Restore original file info
+        cancelButton.onclick = async () => {
+            debug("🔄 Cancel button clicked, restoring original data");
+            displayFileInfoInExpandableArea(data);
+        };
+        // Save button behavior: Process and save the data
+        saveButton.onclick = async () => {
+            const updatedData = getDataFromControls();
             debug("🔄 Updating Form Data:", updatedData);
             await updateFormFunction(fileData.fileId, updatedData);
             // Display success modal
