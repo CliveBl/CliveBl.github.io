@@ -2244,8 +2244,13 @@
 		flex: 0 0 120px;
 		padding: 0px;
 		text-align: right;
+		border: 1px solid gray;
 		background-color: var(--bg-color);
 		color: var(--text-color);
+	}
+	.field-labelx {
+		flex: 0 0 250px;
+		text-align: right;
 	}
 
       /* 🟢 Ensure hidden caption does not take up space */
@@ -2301,14 +2306,12 @@
 			flex: 0 0 120px;
 			padding: 0px;
 			text-align: right;
+			border: 1px solid gray;
 			background-color: var(--bg-color);
 			color: var(--text-color);
 		}
 
-		.fieldlabel {
-			flex: 0 0 150px;
-			text-align: right;
-		}
+
 		.field-labelx {
 			flex: 0 0 150px;
 			text-align: right;

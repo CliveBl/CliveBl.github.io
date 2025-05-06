@@ -297,7 +297,6 @@ export async function displayFileInfoInExpandableArea(data) {
         catch (error) {
             console.error("Error updating form:", error);
             addMessage("שגיאה בעריכת הטופס: " + error.message, "error");
-            throw error; // Rethrow the error to be handled by the calling function
         }
     }
     async function updateFormFunctionNewForm(fileId, fileType, fileData) {
@@ -361,8 +360,11 @@ export async function displayFileInfoInExpandableArea(data) {
                     formAsJSON: payload,
                 }),
             });
-            if (!response.ok) {
-                throw new Error(`API request failed with status ${response.status}`);
+            //   if (!response.ok) {
+            //     throw new Error(`API request failed with status ${response.status}`);
+            //   }
+            if (!(await handleResponse(response, "Failed to update form"))) {
+                return;
             }
             // Parse and handle the response
             const responseData = await response.json();
@@ -370,7 +372,7 @@ export async function displayFileInfoInExpandableArea(data) {
             return responseData;
         }
         catch (error) {
-            console.error("Error updating form:", error);
+            addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
         }
     }
     async function getFilesInfoFunction() {
@@ -412,12 +414,9 @@ export async function displayFileInfoInExpandableArea(data) {
             const friendly = friendlyNames[key];
             fieldLabel.textContent = typeof friendly === "string" ? friendly : (friendly?.name ?? "");
             fieldLabel.className = "field-labelx";
-            fieldLabel.style.flex = "0 0 250px";
             let input = document.createElement("input");
             input.className = "field-input";
             input.setAttribute("data-field-name", key); // Add data-field-name attribute
-            // Apply border style based on field type
-            input.style.border = isMainField ? "3px solid black" : "1px solid gray";
             // 🟢 **Apply Field Formatting Rules**
             if (key.endsWith("Name")) {
                 input.type = "text";
@@ -775,7 +774,9 @@ export async function displayFileInfoInExpandableArea(data) {
             //await updateFormsWithoutFields(data);
             const data = await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
             //const { success, URL, data } = await getFilesInfoFunction();
-            displayFileInfoInExpandableArea(data);
+            if (data) {
+                displayFileInfoInExpandableArea(data);
+            }
             //await addFieldsToExistingForm(fileData.fileId, fileData.type, fileData);
         };
         // Cancel button behavior: Restore original file info
