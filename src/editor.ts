@@ -250,60 +250,130 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
   displayFileInfoHeader(expandableArea, data);
 
-  // Render each accordion entry
+  // Group files by year
+  const filesByYear = new Map<string, any[]>();
   data.forEach((fileData: any) => {
-    const accordionContainer = document.createElement("div") as HTMLDivElement;
-    accordionContainer.id = "accordionContainer";
-    accordionContainer.className = "accordion-container";
-    accordionContainer.setAttribute("data-doc-typename", fileData.documentType);
+    // Use taxYear for grouping
+    let year = "No Year";
+    if (fileData.taxYear && fileData.taxYear.trim() !== "") {
+      year = fileData.taxYear;
+    }
+    
+    // Initialize the year group if it doesn't exist
+    if (!filesByYear.has(year)) {
+      filesByYear.set(year, []);
+    }
+    
+    // Check if this file is already in the year group
+    const yearGroup = filesByYear.get(year) || [];
+    const isDuplicate = yearGroup.some(file => file.fileId === fileData.fileId);
+    
+    // Only add the file if it's not already in the group
+    if (!isDuplicate) {
+      yearGroup.push(fileData);
+      filesByYear.set(year, yearGroup);
+    }
+  });
 
-    // Accordion Header
-    const accordianheader = document.createElement("div") as HTMLDivElement;
-    accordianheader.className = "accordion-header";
+  // Sort years in descending order
+  const sortedYears = Array.from(filesByYear.keys()).sort((a, b) => {
+    if (a === "No Year") return 1;
+    if (b === "No Year") return -1;
+    return parseInt(b) - parseInt(a);
+  });
 
-    // Accordion Body (Initially Hidden)
-    const accordianbody = document.createElement("div") as HTMLDivElement;
-    accordianbody.style.display = "none";
-    accordianbody.style.padding = "2px";
+  // Create year-level accordions
+  sortedYears.forEach(year => {
+    const files = filesByYear.get(year) || [];
+    
+    // Create year container
+    const yearContainer = document.createElement("div") as HTMLDivElement;
+    yearContainer.className = "date-accordion-container";
+    
+    // Create year header
+    const yearHeader = document.createElement("div") as HTMLDivElement;
+    yearHeader.className = "date-accordion-header";
+    
+    // Create year toggle button
+    const yearToggleButton = document.createElement("button") as HTMLButtonElement;
+    yearToggleButton.textContent = "+";
+    yearToggleButton.className = "date-accordion-toggle-button";
+    yearHeader.appendChild(yearToggleButton);
+    
+    // Create year title
+    const yearTitle = document.createElement("span") as HTMLSpanElement;
+    yearTitle.textContent = year;
+    yearTitle.className = "date-title";
+    yearHeader.appendChild(yearTitle);
+    
+    // Create year body
+    const yearBody = document.createElement("div") as HTMLDivElement;
+    yearBody.className = "date-accordion-body";
+    yearBody.style.display = "none";
+    
+    // Add toggle functionality
+    yearToggleButton.onclick = () => {
+      yearBody.style.display = yearBody.style.display === "none" ? "block" : "none";
+      yearToggleButton.textContent = yearToggleButton.textContent === "+" ? "-" : "+";
+    };
+    
+    // Add files to year body
+    files.forEach((fileData: any) => {
+      const accordionContainer = document.createElement("div") as HTMLDivElement;
+      accordionContainer.id = "accordionContainer";
+      accordionContainer.className = "accordion-container";
+      accordionContainer.setAttribute("data-doc-typename", fileData.documentType);
 
-    // Toggle Button (+/-)
-    const accordionToggleButton = document.createElement("toggleButton") as HTMLButtonElement;
+      // Accordion Header
+      const accordianheader = document.createElement("div") as HTMLDivElement;
+      accordianheader.className = "accordion-header";
 
-    displayFileInfoPlusMinusButton(accordianbody, accordionToggleButton);
+      // Accordion Body (Initially Hidden)
+      const accordianbody = document.createElement("div") as HTMLDivElement;
+      accordianbody.style.display = "none";
+      accordianbody.style.padding = "2px";
 
-    accordianheader.appendChild(accordionToggleButton);
+      // Toggle Button (+/-)
+      const accordionToggleButton = document.createElement("toggleButton") as HTMLButtonElement;
 
-    // Header Fields
+      displayFileInfoPlusMinusButton(accordianbody, accordionToggleButton);
 
-    const headerFieldsContainer = document.createElement("div") as HTMLDivElement;
-    headerFieldsContainer.style.display = "flex";
+      accordianheader.appendChild(accordionToggleButton);
 
-    displayFileInfoLine(headerFieldsContainer, fileData);
+      // Header Fields
+      const headerFieldsContainer = document.createElement("div") as HTMLDivElement;
+      headerFieldsContainer.style.display = "flex";
 
-    accordianheader.appendChild(headerFieldsContainer);
+      displayFileInfoLine(headerFieldsContainer, fileData);
 
-    // Delete Button
+      accordianheader.appendChild(headerFieldsContainer);
 
-    const editorDeleteButton = document.createElement("button") as HTMLButtonElement;
+      // Delete Button
+      const editorDeleteButton = document.createElement("button") as HTMLButtonElement;
 
-    displayFileInfoDeleteButton(editorDeleteButton, fileData, accordionContainer);
+      displayFileInfoDeleteButton(editorDeleteButton, fileData, accordionContainer);
 
-    accordianheader.appendChild(editorDeleteButton);
-    accordionContainer.appendChild(accordianheader);
+      accordianheader.appendChild(editorDeleteButton);
+      accordionContainer.appendChild(accordianheader);
 
-    // First, display additional fields in the body (excluding header fields)
-    renderFields(fileData, accordianbody);
+      // First, display additional fields in the body (excluding header fields)
+      renderFields(fileData, accordianbody);
 
-    // Update Button
-    const saveButton = document.createElement("button") as HTMLButtonElement;
-    const cancelButton = document.createElement("button") as HTMLButtonElement;
+      // Update Button
+      const saveButton = document.createElement("button") as HTMLButtonElement;
+      const cancelButton = document.createElement("button") as HTMLButtonElement;
 
-    displayFileInfoButtons(saveButton, cancelButton, fileData, accordianbody, data);
+      displayFileInfoButtons(saveButton, cancelButton, fileData, accordianbody, data);
 
-    accordianbody.appendChild(saveButton);
-    accordianbody.appendChild(cancelButton);
-    accordionContainer.appendChild(accordianbody);
-    expandableArea.appendChild(accordionContainer);
+      accordianbody.appendChild(saveButton);
+      accordianbody.appendChild(cancelButton);
+      accordionContainer.appendChild(accordianbody);
+      yearBody.appendChild(accordionContainer);
+    });
+    
+    yearContainer.appendChild(yearHeader);
+    yearContainer.appendChild(yearBody);
+    expandableArea.appendChild(yearContainer);
   });
 
   async function updateFormFunction(fileId: string, payload: any) {

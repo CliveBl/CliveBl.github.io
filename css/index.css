@@ -2460,3 +2460,60 @@ a:not(.submit-instructions-button):visited {
   flex-direction: column;
   gap: 8px; /* optional, for spacing */
 }
+
+/* Date accordion styles */
+.date-accordion-container {
+  margin: 10px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--item-bg);
+}
+
+.date-accordion-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  background-color: var(--item-bg);
+  border-radius: 4px 4px 0 0;
+}
+
+.date-accordion-toggle-button {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  margin-left: 20px;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.date-title {
+  /* font-size: 1.1em; */
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.date-accordion-body {
+  padding: 10px;
+  background-color: var(--bg-color);
+}
+
+/* Adjust the existing accordion container styles to fit within the date accordion */
+.date-accordion-body .accordion-container {
+  margin: 5px 0;
+  border: 1px solid var(--border-color);
+}
+
+/* Ensure proper spacing between nested accordions */
+.date-accordion-body .accordion-header {
+  margin: 0;
+}
+
+/* Add hover effects */
+.date-accordion-header:hover {
+  background-color: var(--border-color);
+}
+
+.date-accordion-toggle-button:hover {
+  color: var(--tax-blue);
+}
