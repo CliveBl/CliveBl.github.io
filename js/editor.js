@@ -1,4 +1,4 @@
-import { configurationData, debug, addMessage, handleResponse, } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0, }) {
@@ -23,9 +23,7 @@ function customerMessageModal({ title, message, button1Text, button2Text = null,
         timeModalContent.appendChild(timeModalMessage);
         const timeModalButtonContainer = document.createElement("div");
         timeModalButtonContainer.className = "time-modal-button-container";
-        timeModalButtonContainer.style.justifyContent = button2Text
-            ? "space-between"
-            : "center";
+        timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
         const timeModalCountdownText = document.createElement("p");
         timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
         timeModalCountdownText.className = "time-modal-countdown";
@@ -172,19 +170,9 @@ const friendlyNames = {
     degreeCompletionDate: "תאריך סיום לימודי תואר ראשון",
     specializationCompletionDate: "תאריך סיום לימודי תואר שני",
     degreeCode: "קוד תואר ראשון",
-    noteText: "הערה"
+    noteText: "הערה",
 };
-const excludedHeaderFields = [
-    "taxYear",
-    "clientName",
-    "clientIdentificationNumber",
-    "documentType",
-    "type",
-    "fileName",
-    "fileId",
-    "matchTag",
-    "fieldTypes",
-];
+const excludedHeaderFields = ["taxYear", "clientName", "clientIdentificationNumber", "documentType", "type", "fileName", "fileId", "matchTag", "fieldTypes"];
 export function editableFileListHasEntries() {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
     return expandableArea && expandableArea.children.length > 0;
@@ -385,8 +373,7 @@ export async function displayFileInfoInExpandableArea(data) {
             return responseData;
         }
         catch (error) {
-            addMessage("שגיאה בעריכת הקובץ: " +
-                (error instanceof Error ? error.message : String(error)), "error");
+            addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
         }
     }
     async function getFilesInfoFunction() {
@@ -426,8 +413,7 @@ export async function displayFileInfoInExpandableArea(data) {
             fieldRow.style.marginBottom = "5px";
             let fieldLabel = document.createElement("label");
             const friendly = friendlyNames[key];
-            fieldLabel.textContent =
-                typeof friendly === "string" ? friendly : friendly?.name ?? "";
+            fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
             fieldLabel.className = "field-labelx";
             let input = document.createElement("input");
             input.className = "field-input";
@@ -525,21 +511,16 @@ export async function displayFileInfoInExpandableArea(data) {
             }
             else if (key.endsWith("Options")) {
                 const friendly = friendlyNames[key];
-                fieldLabel.textContent =
-                    typeof friendly === "string" ? friendly : friendly?.name ?? "";
+                fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
                 const controls = document.createElement("div");
                 controls.setAttribute("data-field-name", key); // Add data-field-name attribute
-                const options = typeof friendly === "object" && "options" in friendly
-                    ? friendly.options
-                    : [];
+                const options = typeof friendly === "object" && "options" in friendly ? friendly.options : [];
                 options.forEach((option) => {
                     const radioButton = document.createElement("input");
                     const label = document.createElement("label");
                     radioButton.type = "radio";
                     radioButton.value = option;
-                    const name = typeof friendly === "object" && "name" in friendly
-                        ? friendly.name
-                        : "";
+                    const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
                     radioButton.name = name;
                     radioButton.id = name + option;
                     radioButton.checked = value === option;
@@ -709,10 +690,8 @@ export async function displayFileInfoInExpandableArea(data) {
         accordionToggleButton.textContent = "+";
         accordionToggleButton.className = "accordion-toggle-button";
         accordionToggleButton.onclick = () => {
-            accordionBody.style.display =
-                accordionBody.style.display === "none" ? "block" : "none";
-            accordionToggleButton.textContent =
-                accordionToggleButton.textContent === "+" ? "-" : "+";
+            accordionBody.style.display = accordionBody.style.display === "none" ? "block" : "none";
+            accordionToggleButton.textContent = accordionToggleButton.textContent === "+" ? "-" : "+";
         };
     }
     /* ********************************** create header input (Responsive) ************************************** */
@@ -733,7 +712,6 @@ export async function displayFileInfoInExpandableArea(data) {
             input.value = value || "";
             input.setAttribute("data-field-name", fieldName);
             input.className = "header-input";
-            //input.style.backgroundColor = isEditable ? '#fff' : '#e0e0e0';
             input.readOnly = !isEditable;
             // Append label and input (label appears only in mobile)
             fieldContainer.appendChild(headerFieldlabel);
@@ -745,8 +723,8 @@ export async function displayFileInfoInExpandableArea(data) {
         fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true, "180px"));
         fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
         fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false, "150px"));
-        //fieldsWrapper.appendChild(createHeaderInput(fileData.type, 'type', 'סוג קובץ', false, '150px'));
         fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
+        fieldsWrapper.appendChild(createHeaderInput(fileData.type, "type", "סוג קובץ", false, "150px"));
         // Append the wrapper to the container
         headerFieldsContainer.appendChild(fieldsWrapper);
     }
@@ -797,16 +775,13 @@ export async function displayFileInfoInExpandableArea(data) {
                     fieldName.endsWith("Options"));
             }
             // Update main fields and fields object
-            accordianBody
-                .querySelectorAll("input[data-field-name]:not(.child-container input)")
-                .forEach((input) => {
+            accordianBody.querySelectorAll("input[data-field-name]:not(.child-container input)").forEach((input) => {
                 const htmlInput = input;
                 const fieldName = htmlInput.getAttribute("data-field-name");
                 let fieldValue = htmlInput.value;
                 if (isCurrencyField(fieldName)) {
                     fieldValue = fieldValue.replace(/[₪,]/g, "");
-                    if (!isNaN(parseFloat(fieldValue)) &&
-                        isFinite(parseFloat(fieldValue))) {
+                    if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
                         fieldValue = parseFloat(fieldValue).toFixed(2);
                     }
                 }
@@ -816,8 +791,7 @@ export async function displayFileInfoInExpandableArea(data) {
                 }
                 else {
                     // 🟢 **Determine where to store the updated value**
-                    if (fieldName in fileData &&
-                        !fileData.fields?.hasOwnProperty(fieldName)) {
+                    if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
                         updatedData[fieldName] = fieldValue;
                     }
                     else if (fileData.fields?.hasOwnProperty(fieldName)) {
@@ -826,9 +800,7 @@ export async function displayFileInfoInExpandableArea(data) {
                 }
             });
             // Update Options fields and fields object
-            accordianBody
-                .querySelectorAll("div[data-field-name]:not(.child-container input)")
-                .forEach((div) => {
+            accordianBody.querySelectorAll("div[data-field-name]:not(.child-container input)").forEach((div) => {
                 const htmlDiv = div;
                 const fieldName = htmlDiv.getAttribute("data-field-name");
                 if (fieldName.endsWith("Options")) {
@@ -843,13 +815,9 @@ export async function displayFileInfoInExpandableArea(data) {
                 }
             });
             // Update header fields
-            const headerContainer = accordianBody
-                .closest(".accordion-container")
-                ?.querySelector(".header-fields-wrapper");
+            const headerContainer = accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
             if (headerContainer) {
-                headerContainer
-                    .querySelectorAll("input[data-field-name]")
-                    .forEach((input) => {
+                headerContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
                     const fieldName = input.getAttribute("data-field-name");
                     let fieldValue = input.value.trim();
                     updatedData[fieldName] = fieldValue;
