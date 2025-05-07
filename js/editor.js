@@ -250,7 +250,6 @@ export async function displayFileInfoInExpandableArea(data) {
         displayFileInfoButtons(saveButton, cancelButton, fileData, accordianbody, data);
         accordianbody.appendChild(saveButton);
         accordianbody.appendChild(cancelButton);
-        //accordianbody.appendChild(addFieldsButton);
         accordionContainer.appendChild(accordianbody);
         expandableArea.appendChild(accordionContainer);
     });
@@ -260,18 +259,10 @@ export async function displayFileInfoInExpandableArea(data) {
         if (payload.fields) {
             // Remove fields with value "0.00"
             const filteredFields = Object.fromEntries(Object.entries(payload.fields).filter(([_, value]) => value !== "0.00"));
+            payload.fields = filteredFields;
             //debug("filtered fields", filteredFields);
-            // remove the fields from the payload if they are empty
-            if (Object.keys(filteredFields).length === 0) {
-                delete payload.fields;
-            }
-            else {
-                payload = {
-                    ...payload,
-                    fields: filteredFields,
-                };
-            }
         }
+        //debug("This is the updated payload in updateFormFunction:",JSON.stringify(payload));
         try {
             // Send the POST request
             const response = await fetch(URL, {
@@ -302,19 +293,8 @@ export async function displayFileInfoInExpandableArea(data) {
         }
     }
     async function updateFormFunctionNewForm(fileId, fileType, fileData) {
-        // Parse configurationData to extract the necessary form types and fields
-        let config;
-        try {
-            debug("Parsing configuration data...");
-            config = configurationData;
-            debug("Parsed configuration data successfully:", config);
-        }
-        catch (error) {
-            console.error("Failed to parse configuration data:", error);
-            return;
-        }
         // Find the formType details
-        const formDetails = config.formTypes.find((form) => form.formType === fileType);
+        const formDetails = configurationData.formTypes.find((form) => form.formType === fileType);
         if (!formDetails) {
             console.error(`Form type '${fileType}' not found in configuration data.`);
             return;
@@ -345,7 +325,7 @@ export async function displayFileInfoInExpandableArea(data) {
             ...existingData, // Includes all original fileData fields
             fields: fieldsData, // Separate section for form fields
         };
-        debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
+        //debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
         try {
             // Construct the API URL
             const URL = API_BASE_URL + "/updateForm";
@@ -757,11 +737,13 @@ export async function displayFileInfoInExpandableArea(data) {
         };
     }
     /* ********************************** create the save button with cancel option ************************************** */
-    async function displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, data) {
+    async function displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, originalFileData) {
         //debug("displayFileInfoButtons", fileData);
         function getDataFromControls() {
             const updatedData = { ...fileData }; // Clone original fileData
-            updatedData.fields = { ...fileData.fields }; // Preserve existing fields
+            //   if (fileData.fields) {
+            //     updatedData.fields = { ...fileData.fields }; // Preserve existing fields
+            //   }
             function isCurrencyField(fieldName) {
                 return !(fieldName.endsWith("Name") ||
                     fieldName.endsWith("Text") ||
@@ -787,16 +769,14 @@ export async function displayFileInfoInExpandableArea(data) {
                 }
                 else if (fieldName.endsWith("Boolean")) {
                     fieldValue = htmlInput.checked ? "true" : "false";
+                    //updatedData[fieldName] = fieldValue;
+                }
+                // 🟢 **Determine where to store the updated value**
+                if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
                     updatedData[fieldName] = fieldValue;
                 }
-                else {
-                    // 🟢 **Determine where to store the updated value**
-                    if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
-                        updatedData[fieldName] = fieldValue;
-                    }
-                    else if (fileData.fields?.hasOwnProperty(fieldName)) {
-                        updatedData.fields[fieldName] = fieldValue;
-                    }
+                else if (fileData.fields?.hasOwnProperty(fieldName)) {
+                    updatedData.fields[fieldName] = fieldValue;
                 }
             });
             // Update Options fields and fields object
@@ -886,7 +866,6 @@ export async function displayFileInfoInExpandableArea(data) {
                     const updatedData = await updateFormFunctionNewForm(fileData.fileId, fileData.type, getDataFromControls());
                     if (updatedData) {
                         // Remove the add fields button
-                        accordianBody.removeChild(addFieldsButton);
                         displayFileInfoInExpandableArea(updatedData);
                     }
                 };
@@ -895,7 +874,7 @@ export async function displayFileInfoInExpandableArea(data) {
         // Cancel button behavior: Restore original file info
         cancelButton.onclick = async () => {
             debug("🔄 Cancel button clicked, restoring original data");
-            displayFileInfoInExpandableArea(data);
+            displayFileInfoInExpandableArea(originalFileData);
         };
         // Save button behavior: Process and save the data
         saveButton.onclick = async () => {
@@ -933,10 +912,8 @@ export async function displayFileInfoInExpandableArea(data) {
         async function addFieldsToExistingForm(fileId, fileType, fileData) {
             // Construct the API URL
             const URL = API_BASE_URL + "/updateForm";
-            // Parse configurationData to extract the necessary form types and fields
-            let config = configurationData;
             // Find the formType details
-            const formDetails = config.formTypes.find((form) => form.formType === fileType);
+            const formDetails = configurationData.formTypes.find((form) => form.formType === fileType);
             if (!formDetails) {
                 console.error(`Form type '${fileType}' not found in configuration data.`);
                 return;
