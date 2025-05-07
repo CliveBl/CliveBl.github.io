@@ -211,6 +211,7 @@ const friendlyNames = {
   degreeCompletionDate: "תאריך סיום לימודי תואר ראשון",
   specializationCompletionDate: "תאריך סיום לימודי תואר שני",
   degreeCode: "קוד תואר ראשון",
+  noteText: "הערה"
 };
 
 const excludedHeaderFields = [
