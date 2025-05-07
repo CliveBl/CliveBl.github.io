@@ -704,7 +704,6 @@ export async function displayFileInfoInExpandableArea(data) {
         fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
         fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false, "150px"));
         fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
-        fieldsWrapper.appendChild(createHeaderInput(fileData.type, "type", "סוג קובץ", false, "150px"));
         // Append the wrapper to the container
         headerFieldsContainer.appendChild(fieldsWrapper);
     }
