@@ -1,4 +1,4 @@
-const uiVersion = "0.41";
+const uiVersion = "0.42";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -1577,6 +1577,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             userEmailValue = json.userEmail;
             signedIn = true;
             initializeDocumentIcons();
+            await loadConfiguration();
             await loadExistingFiles();
             await loadResults(false); // Dont scroll
             debug("Successfully loaded files and results with existing token");
@@ -1588,8 +1589,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!signedIn) {
         debug("Failed to fetch version:");
     }
-    //localStorage.setItem("questionnaireExists", "false");
-    await loadConfiguration();
     restoreSelectedDocTypes();
     updateSignInUI();
     // Pre-fill feedback email if user is logged in

@@ -1,4 +1,4 @@
-const uiVersion = "0.41";
+const uiVersion = "0.42";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1782,6 +1782,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       signedIn = true;
 
       initializeDocumentIcons();
+	  await loadConfiguration();
       await loadExistingFiles();
       await loadResults(false); // Dont scroll
       debug("Successfully loaded files and results with existing token");
@@ -1793,8 +1794,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     debug("Failed to fetch version:");
   }
 
-  //localStorage.setItem("questionnaireExists", "false");
-  await loadConfiguration();
 
   restoreSelectedDocTypes();
   updateSignInUI();

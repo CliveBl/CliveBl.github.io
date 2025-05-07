@@ -345,23 +345,18 @@ export async function displayFileInfoInExpandableArea(data: any) {
     // Update Button
     const saveButton = document.createElement("button") as HTMLButtonElement;
     const cancelButton = document.createElement("button") as HTMLButtonElement;
-    const addFieldsButton = document.createElement(
-      "button"
-    ) as HTMLButtonElement;
 
     displayFileInfoButtons(
       saveButton,
       cancelButton,
-      addFieldsButton,
       fileData,
       accordianbody,
-      headerFieldsContainer,
       data
     );
 
     accordianbody.appendChild(saveButton);
     accordianbody.appendChild(cancelButton);
-    accordianbody.appendChild(addFieldsButton);
+    //accordianbody.appendChild(addFieldsButton);
     accordionContainer.appendChild(accordianbody);
     expandableArea.appendChild(accordionContainer);
   });
@@ -369,17 +364,14 @@ export async function displayFileInfoInExpandableArea(data: any) {
   async function updateFormFunction(fileId: string, payload: any) {
     const URL = API_BASE_URL + "/updateForm";
 
-    debug(
-      "This is the payload in updateFormFunction:",
-      JSON.stringify(payload)
-    );
+    //debug("This is the payload in updateFormFunction:",JSON.stringify(payload));
 
     if (payload.fields) {
       // Remove fields with value "0.00"
       const filteredFields = Object.fromEntries(
         Object.entries(payload.fields).filter(([_, value]) => value !== "0.00")
       );
-      debug("filtered fields", filteredFields);
+      //debug("filtered fields", filteredFields);
       // remove the fields from the payload if they are empty
       if (Object.keys(filteredFields).length === 0) {
         delete payload.fields;
@@ -414,8 +406,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
       // Parse and handle the response
       const responseData = await response.json();
-      debug("Form updated successfully:", responseData);
-      //alert('Form updated successfully!');
+      //debug("Form updated successfully:", responseData);
       return responseData; // Return the response if needed
     } catch (error: any) {
       console.error("Error updating form:", error);
@@ -466,13 +457,12 @@ export async function displayFileInfoInExpandableArea(data: any) {
     if (formDetails.fieldTypes) {
       formDetails.fieldTypes.forEach((field) => {
         if (!(field in fieldsData)) {
-          debug(`Adding missing field: ${field}`);
           fieldsData[field] = "0.00"; // Default placeholder value
         }
       });
     }
 
-    debug("Final fields data (separate fields object):", fieldsData);
+    //debug("Final fields data (separate fields object):", fieldsData);
 
     // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
     const payload = {
@@ -749,7 +739,6 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
-      debug("key: " + key + " value: " + value);
       if (key !== "fields" && key !== "genericFields" && key !== "children") {
         createFieldRow(body, key, value, true);
       }
@@ -813,7 +802,6 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
         body.appendChild(childContainer);
         Object.entries(child).forEach(([key, value]) => {
-          debug("Childkey: " + key + " value: " + value);
           createFieldRow(childContainer, key, value, false);
         });
       });
@@ -1014,12 +1002,11 @@ export async function displayFileInfoInExpandableArea(data: any) {
   async function displayFileInfoButtons(
     saveButton: HTMLButtonElement,
     cancelButton: HTMLButtonElement,
-    addFieldsButton: HTMLButtonElement,
-    fileData: any,
-    body: HTMLElement,
-    headerFieldsContainer: HTMLDivElement,
+     fileData: any,
+    accordianBody: HTMLElement,
     data: any
   ) {
+	//debug("displayFileInfoButtons", fileData);
     function getDataFromControls() {
       const updatedData = { ...fileData }; // Clone original fileData
       updatedData.fields = { ...fileData.fields }; // Preserve existing fields
@@ -1040,7 +1027,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
       }
 
       // Update main fields and fields object
-      body
+      accordianBody
         .querySelectorAll("input[data-field-name]:not(.child-container input)")
         .forEach((input) => {
           const htmlInput = input as HTMLInputElement;
@@ -1072,7 +1059,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
         });
 
       // Update Options fields and fields object
-      body
+      accordianBody
         .querySelectorAll("div[data-field-name]:not(.child-container input)")
         .forEach((div) => {
           const htmlDiv = div as HTMLDivElement;
@@ -1093,7 +1080,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
         });
 
       // Update header fields
-      const headerContainer = body
+      const headerContainer = accordianBody
         .closest(".accordion-container")
         ?.querySelector(".header-fields-wrapper");
       if (headerContainer) {
@@ -1110,7 +1097,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
       if (fileData.children) {
         updatedData.children = [];
         const childContainers = Array.from(
-          body.querySelectorAll(".child-container")
+          accordianBody.querySelectorAll(".child-container")
         );
 
         for (let i = 0; i < childContainers.length; i++) {
@@ -1156,31 +1143,45 @@ export async function displayFileInfoInExpandableArea(data: any) {
     saveButton.className = "form-action-button";
 
     // Create the cancel button
-    cancelButton.textContent = "יציאה ללא שמירת שינויי";
+    cancelButton.textContent = "ביטול שינויים";
     cancelButton.className = "form-action-button";
 
-    addFieldsButton.textContent = "הוספת שדות קלט";
-    addFieldsButton.className = "form-action-button";
+    if (fileData.fields && configurationData) {
+		//debug("fileData.fields", fileData.fields);
+      // Check if the number of fields is the same as the number of fields in the formType
+      const formDetails = configurationData.formTypes.find(
+        (form) => form.formType === fileData.type
+      ) as { fieldTypes?: string[] };
 
-    //  add fields to an existing form
-    addFieldsButton.onclick = async () => {
-      debug("Adding fields to an existing form");
+	  // Count the number of properties in the fileData.fields object
+	  const fileDataFieldsLength = Object.keys(fileData.fields).length;
+	  //debug("fileDataFieldsLength", fileDataFieldsLength);
+	  // Only if it is different add the add fields buton.
+      if (formDetails?.fieldTypes?.length !== fileDataFieldsLength) {
+		//debug("Lengths:", formDetails?.fieldTypes?.length, fileDataFieldsLength);
+        const addFieldsButton = document.createElement("button") as HTMLButtonElement;
+        addFieldsButton.textContent = "הוספת שדות קלט";
+        addFieldsButton.className = "form-action-button";
+        accordianBody.appendChild(addFieldsButton);
 
-      //await updateFormsWithoutFields(data);
-      const data = await updateFormFunctionNewForm(
-        fileData.fileId,
-        fileData.type,
-        getDataFromControls()
-      );
+        //  add fields to an existing form
+        addFieldsButton.onclick = async () => {
+          debug("Adding fields to an existing form");
 
-      //const { success, URL, data } = await getFilesInfoFunction();
-      if (data) {
-        displayFileInfoInExpandableArea(data);
+          //await updateFormsWithoutFields(data);
+          const updatedData = await updateFormFunctionNewForm(
+            fileData.fileId,
+            fileData.type,
+            getDataFromControls()
+          );
+          if (updatedData) {
+			// Remove the add fields button
+			accordianBody.removeChild(addFieldsButton);
+            displayFileInfoInExpandableArea(updatedData);
+          }
+        };
       }
-
-      //await addFieldsToExistingForm(fileData.fileId, fileData.type, fileData);
-    };
-
+    }
     // Cancel button behavior: Restore original file info
     cancelButton.onclick = async () => {
       debug("🔄 Cancel button clicked, restoring original data");
@@ -1191,7 +1192,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
     saveButton.onclick = async () => {
       const updatedData = getDataFromControls();
 
-      debug("🔄 Updating Form Data:", updatedData);
+      //debug("🔄 Updating Form Data:", updatedData);
       await updateFormFunction(fileData.fileId, updatedData);
 
       // Display success modal
@@ -1200,7 +1201,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
         message: `הנתונים נשמרו בהצלחה`,
         button1Text: "",
         button2Text: "",
-        displayTimeInSeconds: 4,
+        displayTimeInSeconds: 2,
       });
     };
 
@@ -1290,7 +1291,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
         fields: fieldsData, // Separate section for form fields
       };
 
-      debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
+      //debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
 
       try {
         // Send the POST request
