@@ -1,4 +1,4 @@
-const uiVersion = "0.42";
+const uiVersion = "0.43";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -562,7 +562,15 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
 
   const messageText = document.createElement("span");
   messageText.className = "message-text";
-  messageText.textContent = text;
+  const textParts = text.split(":");
+  // Check if the text contains a message code
+  if (textParts && textParts.length > 2) {
+	// Eliminate the message code from the text
+    const textToDisplay = `${textParts[0]}:${textParts[2]}`;
+    messageText.textContent = textToDisplay;
+  } else {
+    messageText.textContent = text;
+  }
 
   const dismissButton = document.createElement("button");
   dismissButton.className = "dismiss-button";

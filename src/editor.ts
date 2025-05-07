@@ -878,9 +878,10 @@ export async function displayFileInfoInExpandableArea(data: any) {
           }
         } else if (fieldName.endsWith("Boolean")) {
           fieldValue = htmlInput.checked ? "true" : "false";
-          //updatedData[fieldName] = fieldValue;
-        }
-        // 🟢 **Determine where to store the updated value**
+		} else if (fieldName.endsWith("Date")) {
+			fieldValue = normalizeDate(htmlInput.value);
+		}
+	          // 🟢 **Determine where to store the updated value**
         if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
           updatedData[fieldName] = fieldValue;
         } else if (fileData.fields?.hasOwnProperty(fieldName)) {
@@ -935,13 +936,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
               child[fieldName] = htmlInput.checked;
             } else if (fieldName.endsWith("Date")) {
               // Convert date from YYYY-MM-DD to DD/MM/YYYY
-              const dateValue = htmlInput.value;
-              if (dateValue) {
-                const [year, month, day] = dateValue.split("-");
-                child[fieldName] = `${day}/${month}/${year}`;
-              } else {
-                child[fieldName] = "";
-              }
+              child[fieldName] = normalizeDate(htmlInput.value);
             } else {
               child[fieldName] = htmlInput.value;
             }
@@ -952,6 +947,15 @@ export async function displayFileInfoInExpandableArea(data: any) {
         }
       }
       return updatedData;
+
+		function normalizeDate(dateValue: string) {
+			if (dateValue) {
+				const [year, month, day] = dateValue.split("-");
+				return `${day}/${month}/${year}`;
+			} else {
+				return "";
+			}
+		}
     }
 
     // Set up the save button
