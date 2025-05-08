@@ -258,16 +258,16 @@ export async function displayFileInfoInExpandableArea(data: any) {
     if (fileData.taxYear && fileData.taxYear.trim() !== "") {
       year = fileData.taxYear;
     }
-    
+
     // Initialize the year group if it doesn't exist
     if (!filesByYear.has(year)) {
       filesByYear.set(year, []);
     }
-    
+
     // Check if this file is already in the year group
     const yearGroup = filesByYear.get(year) || [];
-    const isDuplicate = yearGroup.some(file => file.fileId === fileData.fileId);
-    
+    const isDuplicate = yearGroup.some((file) => file.fileId === fileData.fileId);
+
     // Only add the file if it's not already in the group
     if (!isDuplicate) {
       yearGroup.push(fileData);
@@ -283,40 +283,40 @@ export async function displayFileInfoInExpandableArea(data: any) {
   });
 
   // Create year-level accordions
-  sortedYears.forEach(year => {
+  sortedYears.forEach((year) => {
     const files = filesByYear.get(year) || [];
-    
+
     // Create year container
     const yearContainer = document.createElement("div") as HTMLDivElement;
     yearContainer.className = "date-accordion-container";
-    
+
     // Create year header
     const yearHeader = document.createElement("div") as HTMLDivElement;
     yearHeader.className = "date-accordion-header";
-    
+
     // Create year toggle button
     const yearToggleButton = document.createElement("button") as HTMLButtonElement;
     yearToggleButton.textContent = "+";
     yearToggleButton.className = "date-accordion-toggle-button";
     yearHeader.appendChild(yearToggleButton);
-    
+
     // Create year title
     const yearTitle = document.createElement("span") as HTMLSpanElement;
     yearTitle.textContent = year;
     yearTitle.className = "date-title";
     yearHeader.appendChild(yearTitle);
-    
+
     // Create year body
     const yearBody = document.createElement("div") as HTMLDivElement;
     yearBody.className = "date-accordion-body";
     yearBody.style.display = "none";
-    
+
     // Add toggle functionality
     yearToggleButton.onclick = () => {
       yearBody.style.display = yearBody.style.display === "none" ? "block" : "none";
       yearToggleButton.textContent = yearToggleButton.textContent === "+" ? "-" : "+";
     };
-    
+
     // Add files to year body
     files.forEach((fileData: any) => {
       const accordionContainer = document.createElement("div") as HTMLDivElement;
@@ -370,10 +370,18 @@ export async function displayFileInfoInExpandableArea(data: any) {
       accordionContainer.appendChild(accordianbody);
       yearBody.appendChild(accordionContainer);
     });
-    
+
     yearContainer.appendChild(yearHeader);
     yearContainer.appendChild(yearBody);
     expandableArea.appendChild(yearContainer);
+
+    // If this is a newly added file (check if it's the last file in the data array)
+    const lastFile = data[data.length - 1];
+    if (lastFile && lastFile.taxYear === year) {
+      // Expand the year accordion
+      yearBody.style.display = "block";
+      yearToggleButton.textContent = "-";
+    }
   });
 
   async function updateFormFunction(fileId: string, payload: any) {
@@ -876,7 +884,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
     fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
     fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false, "150px"));
     fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
- 
+
     // Append the wrapper to the container
     headerFieldsContainer.appendChild(fieldsWrapper);
   }
@@ -915,9 +923,9 @@ export async function displayFileInfoInExpandableArea(data: any) {
     //debug("displayFileInfoButtons", fileData);
     function getDataFromControls() {
       const updatedData = { ...fileData }; // Clone original fileData
-    //   if (fileData.fields) {
-    //     updatedData.fields = { ...fileData.fields }; // Preserve existing fields
-    //   }
+      //   if (fileData.fields) {
+      //     updatedData.fields = { ...fileData.fields }; // Preserve existing fields
+      //   }
 
       function isCurrencyField(fieldName: string) {
         return !(
@@ -947,10 +955,10 @@ export async function displayFileInfoInExpandableArea(data: any) {
           }
         } else if (fieldName.endsWith("Boolean")) {
           fieldValue = htmlInput.checked ? "true" : "false";
-		} else if (fieldName.endsWith("Date")) {
-			fieldValue = normalizeDate(htmlInput.value);
-		}
-	          // 🟢 **Determine where to store the updated value**
+        } else if (fieldName.endsWith("Date")) {
+          fieldValue = normalizeDate(htmlInput.value);
+        }
+        // 🟢 **Determine where to store the updated value**
         if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
           updatedData[fieldName] = fieldValue;
         } else if (fileData.fields?.hasOwnProperty(fieldName)) {
@@ -1017,14 +1025,14 @@ export async function displayFileInfoInExpandableArea(data: any) {
       }
       return updatedData;
 
-		function normalizeDate(dateValue: string) {
-			if (dateValue) {
-				const [year, month, day] = dateValue.split("-");
-				return `${day}/${month}/${year}`;
-			} else {
-				return "";
-			}
-		}
+      function normalizeDate(dateValue: string) {
+        if (dateValue) {
+          const [year, month, day] = dateValue.split("-");
+          return `${day}/${month}/${year}`;
+        } else {
+          return "";
+        }
+      }
     }
 
     // Set up the save button
@@ -1072,111 +1080,22 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
     // Save button behavior: Process and save the data
     saveButton.onclick = async () => {
-      const updatedData = getDataFromControls();
+      const formData = getDataFromControls();
 
       //debug("🔄 Updating Form Data:", updatedData);
-      await updateFormFunction(fileData.fileId, updatedData);
-
-      // Display success modal
-      await customerMessageModal({
-        title: "שמירת נתונים",
-        message: `הנתונים נשמרו בהצלחה`,
-        button1Text: "",
-        button2Text: "",
-        displayTimeInSeconds: 2,
-      });
+      const updatedData = await updateFormFunction(fileData.fileId, formData);
+      if (updatedData) {
+        // Display success modal
+        await customerMessageModal({
+          title: "שמירת נתונים",
+          message: `הנתונים נשמרו בהצלחה`,
+          button1Text: "",
+          button2Text: "",
+          displayTimeInSeconds: 2,
+        });
+        displayFileInfoInExpandableArea(updatedData);
+      }
     };
 
-    async function updateFormsWithoutFields(formsData: any) {
-      for (const fileData of formsData) {
-        // Check if the fields object is missing or empty
-        if (!fileData.fields || Object.keys(fileData.fields).length === 0) {
-          debug(`No fields found for fileId ${fileData.fileId}. Calling updateFormFunctionNewForm...`);
-
-          try {
-            // Pass the entire fileData object to updateFormFunctionNewForm
-            await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
-            debug(`Successfully updated form for fileId: ${fileData.fileId}`);
-          } catch (error) {
-            console.error(`Error updating form for fileId ${fileData.fileId}:`, error);
-          }
-        } else {
-          debug(`Fields already exist for fileId ${fileData.fileId}. Skipping update.`);
-        }
-      }
-    }
-
-    async function addFieldsToExistingForm(fileId: string, fileType: string, fileData: any) {
-      // Construct the API URL
-      const URL = API_BASE_URL + "/updateForm";
-
-      // Find the formType details
-      const formDetails = configurationData.formTypes.find((form) => form.formType === fileType) as { fieldTypes?: string[] };
-      if (!formDetails) {
-        console.error(`Form type '${fileType}' not found in configuration data.`);
-        return;
-      }
-
-      debug(`Found form details for '${fileType}':`, formDetails);
-
-      // Ensure fieldTypes exist before iterating
-      if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
-        console.warn(`No fieldTypes found for '${fileType}'.`);
-      }
-
-      // Copy existing fields from fileData (excluding the `fields` object)
-      const existingData = { ...fileData };
-      // delete existingData.fields; // do not delete existing fields
-
-      // Initialize fieldsData with existing fields from fileData.fields
-      //const fieldsData = { ...(fileData.fields || {}) };
-      const fieldsData = fileData.fields;
-      debug("field data before adding fields");
-      debug(fileData.fields);
-      // Fill missing fields from configuration with default values
-      if (formDetails.fieldTypes) {
-        formDetails.fieldTypes.forEach((field) => {
-          debug(`Adding missing field: ${field}`);
-          fieldsData[field] = "0.00"; // Default placeholder value
-        });
-      }
-
-      debug("Final fields data (separate fields object):", fieldsData);
-
-      // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
-      const payload = {
-        fileId: fileId,
-        type: fileType,
-        ...existingData, // Includes all original fileData fields
-        fields: fieldsData, // Separate section for form fields
-      };
-
-      //debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
-
-      try {
-        // Send the POST request
-        const response = await fetch(URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            customerDataEntryName: "Default",
-            formAsJSON: payload,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
-        }
-
-        // Parse and handle the response
-        const responseData = await response.json();
-        debug("Form updated successfully:", responseData);
-      } catch (error) {
-        console.error("Error updating form:", error);
-      }
-    }
   }
 }

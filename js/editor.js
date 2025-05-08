@@ -229,7 +229,7 @@ export async function displayFileInfoInExpandableArea(data) {
         }
         // Check if this file is already in the year group
         const yearGroup = filesByYear.get(year) || [];
-        const isDuplicate = yearGroup.some(file => file.fileId === fileData.fileId);
+        const isDuplicate = yearGroup.some((file) => file.fileId === fileData.fileId);
         // Only add the file if it's not already in the group
         if (!isDuplicate) {
             yearGroup.push(fileData);
@@ -245,7 +245,7 @@ export async function displayFileInfoInExpandableArea(data) {
         return parseInt(b) - parseInt(a);
     });
     // Create year-level accordions
-    sortedYears.forEach(year => {
+    sortedYears.forEach((year) => {
         const files = filesByYear.get(year) || [];
         // Create year container
         const yearContainer = document.createElement("div");
@@ -313,6 +313,13 @@ export async function displayFileInfoInExpandableArea(data) {
         yearContainer.appendChild(yearHeader);
         yearContainer.appendChild(yearBody);
         expandableArea.appendChild(yearContainer);
+        // If this is a newly added file (check if it's the last file in the data array)
+        const lastFile = data[data.length - 1];
+        if (lastFile && lastFile.taxYear === year) {
+            // Expand the year accordion
+            yearBody.style.display = "block";
+            yearToggleButton.textContent = "-";
+        }
     });
     async function updateFormFunction(fileId, payload) {
         const URL = API_BASE_URL + "/updateForm";
@@ -942,99 +949,21 @@ export async function displayFileInfoInExpandableArea(data) {
         };
         // Save button behavior: Process and save the data
         saveButton.onclick = async () => {
-            const updatedData = getDataFromControls();
+            const formData = getDataFromControls();
             //debug("🔄 Updating Form Data:", updatedData);
-            await updateFormFunction(fileData.fileId, updatedData);
-            // Display success modal
-            await customerMessageModal({
-                title: "שמירת נתונים",
-                message: `הנתונים נשמרו בהצלחה`,
-                button1Text: "",
-                button2Text: "",
-                displayTimeInSeconds: 2,
-            });
+            const updatedData = await updateFormFunction(fileData.fileId, formData);
+            if (updatedData) {
+                // Display success modal
+                await customerMessageModal({
+                    title: "שמירת נתונים",
+                    message: `הנתונים נשמרו בהצלחה`,
+                    button1Text: "",
+                    button2Text: "",
+                    displayTimeInSeconds: 2,
+                });
+                displayFileInfoInExpandableArea(updatedData);
+            }
         };
-        async function updateFormsWithoutFields(formsData) {
-            for (const fileData of formsData) {
-                // Check if the fields object is missing or empty
-                if (!fileData.fields || Object.keys(fileData.fields).length === 0) {
-                    debug(`No fields found for fileId ${fileData.fileId}. Calling updateFormFunctionNewForm...`);
-                    try {
-                        // Pass the entire fileData object to updateFormFunctionNewForm
-                        await updateFormFunctionNewForm(fileData.fileId, fileData.type, fileData);
-                        debug(`Successfully updated form for fileId: ${fileData.fileId}`);
-                    }
-                    catch (error) {
-                        console.error(`Error updating form for fileId ${fileData.fileId}:`, error);
-                    }
-                }
-                else {
-                    debug(`Fields already exist for fileId ${fileData.fileId}. Skipping update.`);
-                }
-            }
-        }
-        async function addFieldsToExistingForm(fileId, fileType, fileData) {
-            // Construct the API URL
-            const URL = API_BASE_URL + "/updateForm";
-            // Find the formType details
-            const formDetails = configurationData.formTypes.find((form) => form.formType === fileType);
-            if (!formDetails) {
-                console.error(`Form type '${fileType}' not found in configuration data.`);
-                return;
-            }
-            debug(`Found form details for '${fileType}':`, formDetails);
-            // Ensure fieldTypes exist before iterating
-            if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
-                console.warn(`No fieldTypes found for '${fileType}'.`);
-            }
-            // Copy existing fields from fileData (excluding the `fields` object)
-            const existingData = { ...fileData };
-            // delete existingData.fields; // do not delete existing fields
-            // Initialize fieldsData with existing fields from fileData.fields
-            //const fieldsData = { ...(fileData.fields || {}) };
-            const fieldsData = fileData.fields;
-            debug("field data before adding fields");
-            debug(fileData.fields);
-            // Fill missing fields from configuration with default values
-            if (formDetails.fieldTypes) {
-                formDetails.fieldTypes.forEach((field) => {
-                    debug(`Adding missing field: ${field}`);
-                    fieldsData[field] = "0.00"; // Default placeholder value
-                });
-            }
-            debug("Final fields data (separate fields object):", fieldsData);
-            // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
-            const payload = {
-                fileId: fileId,
-                type: fileType,
-                ...existingData, // Includes all original fileData fields
-                fields: fieldsData, // Separate section for form fields
-            };
-            //debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
-            try {
-                // Send the POST request
-                const response = await fetch(URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                    body: JSON.stringify({
-                        customerDataEntryName: "Default",
-                        formAsJSON: payload,
-                    }),
-                });
-                if (!response.ok) {
-                    throw new Error(`API request failed with status ${response.status}`);
-                }
-                // Parse and handle the response
-                const responseData = await response.json();
-                debug("Form updated successfully:", responseData);
-            }
-            catch (error) {
-                console.error("Error updating form:", error);
-            }
-        }
     }
 }
 //# sourceMappingURL=editor.js.map
