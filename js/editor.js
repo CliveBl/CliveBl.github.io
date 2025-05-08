@@ -283,8 +283,8 @@ export async function displayFileInfoInExpandableArea(data) {
             accordianheader.className = "accordion-header";
             // Accordion Body (Initially Hidden)
             const accordianbody = document.createElement("div");
+            accordianbody.className = "accordian-body";
             accordianbody.style.display = "none";
-            accordianbody.style.padding = "2px";
             // Toggle Button (+/-)
             const accordionToggleButton = document.createElement("toggleButton");
             displayFileInfoPlusMinusButton(accordianbody, accordionToggleButton);
@@ -457,8 +457,7 @@ export async function displayFileInfoInExpandableArea(data) {
                 return;
             let codeLabel = null;
             const fieldRow = document.createElement("div");
-            fieldRow.style.display = "flex";
-            fieldRow.style.marginBottom = "5px";
+            fieldRow.className = "field-row";
             let fieldLabel = document.createElement("label");
             const friendly = friendlyNames[key];
             fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
@@ -803,7 +802,6 @@ export async function displayFileInfoInExpandableArea(data) {
             });
         };
     }
-    /* ********************************** create the save button with cancel option ************************************** */
     async function displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, originalFileData) {
         //debug("displayFileInfoButtons", fileData);
         function getDataFromControls() {

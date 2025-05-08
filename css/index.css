@@ -2182,10 +2182,11 @@ a:not(.submit-instructions-button):visited {
 }
 
 .field-row {
-  display: flex; /* Enable flexbox for horizontal alignment */
-  flex-wrap: wrap; /* Allow wrapping if the space is insufficient */
-  gap: 5px; /* Optional: Add spacing between items */
-  width: 100%; /* Ensure it spans the full width of the parent */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 5px;
 }
 
 .field-container {
@@ -2516,4 +2517,8 @@ a:not(.submit-instructions-button):visited {
 
 .date-accordion-toggle-button:hover {
   color: var(--tax-blue);
+}
+
+.accordion-body {
+  padding: 2px;
 }
