@@ -199,7 +199,7 @@ const friendlyNames = {
   fileName: "שם הקובץ",
 };
 
-const excludedHeaderFields = ["clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
+const excludedHeaderFields = ["clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName"];
 
 export function editableFileListHasEntries() {
@@ -884,7 +884,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
     const fieldsWrapper = document.createElement("div");
     fieldsWrapper.className = "header-fields-wrapper"; // Used for layout styling
 
-    const createHeaderInput = (value: any, fieldName: string, labelText: string, isEditable = true, width = "120px") => {
+    const createHeaderInput = (value: any, fieldName: string, labelText: string, isEditable = true) => {
       const fieldContainer = document.createElement("div") as HTMLDivElement;
       fieldContainer.className = "field-container"; // Used for mobile layout
 
@@ -910,10 +910,10 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
     // Append fields to the wrapper
     //fieldsWrapper.appendChild(createHeaderInput(fileData.taxYear, "taxYear", "שנה", true, "50px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false, "150px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגונים", true, "180px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true, "180px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגונים", true));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true));
     //fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
 
     // Append the wrapper to the container
