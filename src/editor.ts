@@ -923,7 +923,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
   /* ********************************** create delete button ************************************** */
   function displayFileInfoDeleteButton(editorDeleteButton: HTMLButtonElement, fileData: any, accordionContainer: HTMLDivElement) {
-    editorDeleteButton.textContent = "X";
+    editorDeleteButton.textContent = "🗑️";
     editorDeleteButton.className = "editor-delete-button";
     editorDeleteButton.onclick = () => {
       const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
