@@ -807,8 +807,8 @@ export async function displayFileInfoInExpandableArea(data: any) {
       { text: "סוג מסמך", width: "150px" },
       { text: "שם האירגון", width: "180px" },
       { text: "שם הלקוח", width: "180px" },
-      //{ text: "מספר זיהוי", width: "150px" },
-      { text: "שם הקובץ", width: "200px" },
+      { text: "מספר זיהוי", width: "150px" },
+      //{ text: "שם הקובץ", width: "200px" },
     ];
 
     headerCaptions.forEach((caption) => {
@@ -884,8 +884,8 @@ export async function displayFileInfoInExpandableArea(data: any) {
     fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false, "150px"));
     fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגונים", true, "180px"));
     fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true, "180px"));
-    //fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
+    //fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
 
     // Append the wrapper to the container
     headerFieldsContainer.appendChild(fieldsWrapper);

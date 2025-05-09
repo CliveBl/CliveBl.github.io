@@ -2522,3 +2522,28 @@ a:not(.submit-instructions-button):visited {
 .accordion-body {
   padding: 2px;
 }
+
+/* File list toggle link styles */
+.file-list-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 0;
+  padding: 0 20px;
+}
+
+.file-list-toggle-link {
+  color: var(--tax-blue);
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.file-list-toggle-link:hover {
+  color: var(--tax-blue-dark);
+  text-decoration: underline;
+}
+
+.file-list-toggle-link.active {
+  color: var(--tax-blue-dark);
+}

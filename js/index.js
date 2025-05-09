@@ -24,7 +24,8 @@ import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGe
 import { API_BASE_URL, AUTH_BASE_URL } from './env.js';
 // Get environment from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
-const editableFileListParam = urlParams.get("editable");
+//const editableFileListParam = urlParams.get("editable");
+let editableFileList = localStorage.getItem('editableFileList') === 'true';
 const usernameParam = urlParams.get("username");
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput");
@@ -47,10 +48,9 @@ const userEmail = document.getElementById("userEmail");
 const createFormSelect = document.getElementById("createFormSelect");
 const acceptCookies = document.getElementById("acceptCookies");
 const cookieConsent = document.getElementById("cookieConsent");
-const FILE_LIST_TYPE = "EDITABLE_FILE_LIST";
 function updateFileListP(fileInfoList) {
     //if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
-    if (editableFileListParam && editableFileListParam == "true") {
+    if (editableFileList) {
         displayFileInfoInExpandableArea(fileInfoList);
         processButton.disabled = !editableFileListHasEntries();
         deleteAllButton.disabled = !editableFileListHasEntries();
@@ -61,7 +61,7 @@ function updateFileListP(fileInfoList) {
     }
 }
 function removeFileList() {
-    if (editableFileListParam && editableFileListParam == "true") {
+    if (editableFileList) {
         editableRemoveFileList();
     }
     else {
@@ -69,7 +69,7 @@ function removeFileList() {
     }
 }
 function openFileListEntryP(fileName) {
-    if (editableFileListParam && editableFileListParam == "true") {
+    if (editableFileList) {
         editableOpenFileListEntry(fileName);
     }
     else {
@@ -93,7 +93,7 @@ function openFileListEntry(fileName) {
     }
 }
 function getDocTypes() {
-    if (editableFileListParam && editableFileListParam == "true") {
+    if (editableFileList) {
         return editableGetDocTypes();
     }
     else {
@@ -208,7 +208,7 @@ async function loadExistingFiles() {
                 Accept: "application/json",
             },
             credentials: "include",
-            ...fetchConfig
+            ...fetchConfig,
         });
         if (!await handleResponse(response, "Load existing files failed")) {
             return;
@@ -243,6 +243,8 @@ window.addEventListener("load", async () => {
             cookieConsent.classList.add("active");
         }
     }
+    // Initialize the file list view
+    updateFileListView();
 });
 // Add this helper function at the start of your script
 function isValidFileType(file) {
@@ -1644,6 +1646,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             passwordInput.focus();
         }
     }
+    const toggleLink = document.getElementById('toggleFileListView');
+    if (toggleLink) {
+        toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleFileListView();
+        });
+    }
 });
 // Function to validate email format
 function isValidEmail(email) {
@@ -1938,5 +1947,32 @@ function showWarningModal(message) {
             }
         };
     });
+}
+function updateFileListView() {
+    const toggleLink = document.getElementById('toggleFileListView');
+    const fileList = document.getElementById('fileList');
+    const expandableArea = document.getElementById('expandableAreaUploadFiles');
+    if (!toggleLink || !fileList || !expandableArea) {
+        console.error('Required elements not found');
+        return;
+    }
+    if (editableFileList) {
+        toggleLink.textContent = 'נתונים קבצים';
+        toggleLink.classList.add('active');
+        fileList.style.display = 'none';
+        expandableArea.style.display = 'block';
+    }
+    else {
+        toggleLink.textContent = 'תציג נתונים מלאים';
+        toggleLink.classList.remove('active');
+        fileList.style.display = 'block';
+        expandableArea.style.display = 'none';
+    }
+}
+function toggleFileListView() {
+    editableFileList = !editableFileList;
+    localStorage.setItem('editableFileList', editableFileList.toString());
+    updateFileListView();
+    loadExistingFiles();
 }
 //# sourceMappingURL=index.js.map
