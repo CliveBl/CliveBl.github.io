@@ -102,7 +102,6 @@ const friendlyNames = {
   donationDate: "תאריך תרומה",
   nonProfitTaxFileNumber: "קוד עמותה/ארגון",
   employerTaxFileNumber: "מספר מעסיק",
-  bankName: "שם הבנק",
   branchCode: "קוד סניף",
   accountNumber: "מספר חשבון",
   matchTag: "תג התאמה",
@@ -195,9 +194,11 @@ const friendlyNames = {
   specializationCompletionDate: "תאריך סיום לימודי תואר שני",
   degreeCode: "קוד תואר ראשון",
   noteText: "הערה",
+  taxYear: "שנה",
+  clientIdentificationNumber: "מספר זיהוי",
 };
 
-const excludedHeaderFields = ["taxYear", "clientName", "clientIdentificationNumber", "documentType", "type", "fileName", "fileId", "matchTag", "fieldTypes"];
+const excludedHeaderFields = ["clientName", "documentType", "type", "fileName", "fileId", "matchTag", "fieldTypes"];
 
 export function editableFileListHasEntries() {
   const expandableArea = document.getElementById("expandableAreaUploadFiles");
@@ -802,10 +803,11 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
     const headerCaptions = [
       { text: "", width: "40px" },
-      { text: "שנה", width: "100px" },
-      { text: "שם הלקוח", width: "180px" },
-      { text: "מספר זיהוי", width: "150px" },
+      //{ text: "שנה", width: "100px" },
       { text: "סוג מסמך", width: "150px" },
+      { text: "שם האירגון", width: "180px" },
+      { text: "שם הלקוח", width: "180px" },
+      //{ text: "מספר זיהוי", width: "150px" },
       { text: "שם הקובץ", width: "200px" },
     ];
 
@@ -878,10 +880,11 @@ export async function displayFileInfoInExpandableArea(data: any) {
     };
 
     // Append fields to the wrapper
-    fieldsWrapper.appendChild(createHeaderInput(fileData.taxYear, "taxYear", "שנה", true, "50px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true, "180px"));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
+    //fieldsWrapper.appendChild(createHeaderInput(fileData.taxYear, "taxYear", "שנה", true, "50px"));
     fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false, "150px"));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגונים", true, "180px"));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true, "180px"));
+    //fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true, "80px"));
     fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
 
     // Append the wrapper to the container
