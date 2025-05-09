@@ -196,9 +196,11 @@ const friendlyNames = {
   noteText: "הערה",
   taxYear: "שנה",
   clientIdentificationNumber: "מספר זיהוי",
+  fileName: "שם הקובץ",
 };
 
-const excludedHeaderFields = ["clientName", "documentType", "type", "fileName", "fileId", "matchTag", "fieldTypes"];
+const excludedHeaderFields = ["clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
+const readOnlyFields = ["fileName"];
 
 export function editableFileListHasEntries() {
   const expandableArea = document.getElementById("expandableAreaUploadFiles");
@@ -222,14 +224,29 @@ export function editableOpenFileListEntry(fileName: string) {
   const accordionContainers = document.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
 
   for (const container of accordionContainers) {
-    // Look for the input with data-field-name="fileName" in the header fields
-    const fileNameInput = container.querySelector('input[data-field-name="fileName"]') as HTMLInputElement;
-    if (fileNameInput && fileNameInput.value === fileName) {
+    // Look for either an input or label with data-field-name="fileName"
+    const fileNameElement = container.querySelector('input[data-field-name="fileName"], label[data-field-name="fileName"]') as HTMLInputElement | HTMLLabelElement;
+    if (fileNameElement && fileNameElement.textContent === fileName) {
       // Find the toggle button (first child of the header)
       const header = container.querySelector("div") as HTMLDivElement; // First div is the header
-      const toggleButton = header.querySelector("toggleButton") as HTMLButtonElement;
+      const toggleButton = header.querySelector(".accordion-toggle-button") as HTMLButtonElement;
       if (toggleButton) {
-        toggleButton.click(); // This will trigger the accordion toggle
+        // Find the parent year accordion container and its toggle button
+        const yearContainer = container.closest(".date-accordion-container");
+        if (yearContainer) {
+          const yearToggleButton = yearContainer.querySelector(".date-accordion-toggle-button") as HTMLButtonElement;
+          const yearBody = yearContainer.querySelector(".date-accordion-body") as HTMLDivElement;
+          // Only open the year accordion if it's currently closed
+          if (yearToggleButton && yearBody && yearBody.style.display === "none") {
+            yearBody.style.display = "block";
+            yearToggleButton.textContent = "-";
+          }
+        }
+        // Only click the toggle button if the accordion is currently closed
+        const accordionBody = container.querySelector(".accordian-body") as HTMLDivElement;
+        if (accordionBody && accordionBody.style.display === "none") {
+          toggleButton.click(); // This will trigger the accordion toggle
+        }
         // Scroll the container into view with smooth behavior
         container.scrollIntoView({ behavior: "smooth", block: "center" });
         break;
@@ -335,7 +352,8 @@ export async function displayFileInfoInExpandableArea(data: any) {
       accordianbody.style.display = "none";
 
       // Toggle Button (+/-)
-      const accordionToggleButton = document.createElement("toggleButton") as HTMLButtonElement;
+      const accordionToggleButton = document.createElement("button") as HTMLButtonElement;
+      accordionToggleButton.className = "accordion-toggle-button";
 
       displayFileInfoPlusMinusButton(accordianbody, accordionToggleButton);
 
@@ -543,11 +561,23 @@ export async function displayFileInfoInExpandableArea(data: any) {
       let codeLabel = null;
       const fieldRow = document.createElement("div") as HTMLDivElement;
       fieldRow.className = "field-row";
- 
+
       let fieldLabel = document.createElement("label") as HTMLLabelElement;
       const friendly = friendlyNames[key as keyof typeof friendlyNames];
       fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
       fieldLabel.className = "field-labelx";
+
+      // For readOnlyFields, just create a label with the value
+      if (readOnlyFields.includes(key)) {
+        const valueLabel = document.createElement("label") as HTMLLabelElement;
+        valueLabel.textContent = value || "";
+        valueLabel.className = "read-only-field-value";
+        valueLabel.setAttribute("data-field-name", key);
+        fieldRow.appendChild(fieldLabel);
+        fieldRow.appendChild(valueLabel);
+        container.appendChild(fieldRow);
+        return;
+      }
 
       let input = document.createElement("input") as HTMLInputElement;
 
@@ -1096,6 +1126,5 @@ export async function displayFileInfoInExpandableArea(data: any) {
         displayFileInfoInExpandableArea(updatedData);
       }
     };
-
   }
 }

@@ -2547,3 +2547,10 @@ a:not(.submit-instructions-button):visited {
 .file-list-toggle-link.active {
   color: var(--tax-blue-dark);
 }
+
+.read-only-field-value {
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  padding: 4px 8px;
+  font-size: 14px;
+}
