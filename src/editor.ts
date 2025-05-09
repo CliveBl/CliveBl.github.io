@@ -830,6 +830,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
     // Caption row for the accordion headers
     const captionsRow = document.createElement("div") as HTMLDivElement;
     captionsRow.className = "caption-row";
+	captionsRow.id = "captionsRow";
 
     const headerCaptions = [
       { text: "", width: "40px" },
@@ -850,21 +851,19 @@ export async function displayFileInfoInExpandableArea(data: any) {
     });
 
     expandableArea.appendChild(captionsRow);
-
-    // Hide the header if it's a mobile screen
-    function toggleHeaderVisibility() {
-      if (window.innerWidth <= 768) {
-        captionsRow.style.display = "none";
-      } else {
-        captionsRow.style.display = "flex";
-      }
-    }
-
+    // Hide the header if it's a mobile screen or if there are no files
+    function setHeaderVisibility() {
+		if (window.innerWidth <= 768 || data.length === 0) {
+		  captionsRow.style.display = "none";
+		} else {
+		  captionsRow.style.display = "flex";
+		}
+	  }
     // Run on page load
-    toggleHeaderVisibility();
+    setHeaderVisibility();
 
     // Update when resizing
-    window.addEventListener("resize", toggleHeaderVisibility);
+    window.addEventListener("resize", setHeaderVisibility);
   }
 
   /* ********************************** create +_ button ************************************** */
@@ -924,7 +923,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
   /* ********************************** create delete button ************************************** */
   function displayFileInfoDeleteButton(editorDeleteButton: HTMLButtonElement, fileData: any, accordionContainer: HTMLDivElement) {
     editorDeleteButton.textContent = "🗑️";
-    editorDeleteButton.className = "editor-delete-button";
+    editorDeleteButton.className = "delete-button";
     editorDeleteButton.onclick = () => {
       const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
       fetch(deleteUrl, {

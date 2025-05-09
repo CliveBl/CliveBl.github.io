@@ -732,6 +732,7 @@ export async function displayFileInfoInExpandableArea(data) {
         // Caption row for the accordion headers
         const captionsRow = document.createElement("div");
         captionsRow.className = "caption-row";
+        captionsRow.id = "captionsRow";
         const headerCaptions = [
             { text: "", width: "40px" },
             //{ text: "שנה", width: "100px" },
@@ -749,9 +750,9 @@ export async function displayFileInfoInExpandableArea(data) {
             captionsRow.appendChild(captionElement);
         });
         expandableArea.appendChild(captionsRow);
-        // Hide the header if it's a mobile screen
-        function toggleHeaderVisibility() {
-            if (window.innerWidth <= 768) {
+        // Hide the header if it's a mobile screen or if there are no files
+        function setHeaderVisibility() {
+            if (window.innerWidth <= 768 || data.length === 0) {
                 captionsRow.style.display = "none";
             }
             else {
@@ -759,9 +760,9 @@ export async function displayFileInfoInExpandableArea(data) {
             }
         }
         // Run on page load
-        toggleHeaderVisibility();
+        setHeaderVisibility();
         // Update when resizing
-        window.addEventListener("resize", toggleHeaderVisibility);
+        window.addEventListener("resize", setHeaderVisibility);
     }
     /* ********************************** create +_ button ************************************** */
     function displayFileInfoPlusMinusButton(accordionBody, accordionToggleButton) {
@@ -809,7 +810,7 @@ export async function displayFileInfoInExpandableArea(data) {
     /* ********************************** create delete button ************************************** */
     function displayFileInfoDeleteButton(editorDeleteButton, fileData, accordionContainer) {
         editorDeleteButton.textContent = "🗑️";
-        editorDeleteButton.className = "editor-delete-button";
+        editorDeleteButton.className = "delete-button";
         editorDeleteButton.onclick = () => {
             const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
             fetch(deleteUrl, {

@@ -2418,14 +2418,6 @@ a:not(.submit-instructions-button):visited {
   margin-left: 10px;
 }
 
-.editor-delete-button {
-  color: red;
-  width: 40px;
-  text-align: center;
-  border: none;
-  background: none;
-}
-
 .accordion-toggle-button {
   width: 40px;
   text-align: center;

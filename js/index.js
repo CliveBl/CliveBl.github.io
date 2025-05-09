@@ -1607,6 +1607,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("feedbackEmail").value = userEmailValue;
         updateFeedbackButtonState();
     }
+    // Add event listeners for document count selects
+    document.querySelectorAll('select[id$="-count"]').forEach((select) => {
+        // Add option to the select only if the user can add forms
+        if (configurationData != null && configurationData.formTypes.some((formType) => formType.userCanAdd)) {
+            select.innerHTML += `<option value="create form">צור חדש</option>`;
+        }
+        // Add event listener to the select
+        select.addEventListener("change", async (e) => {
+            const target = e.target;
+            if (target.value === "create form") {
+                // Get the document type from the select's id
+                const docType = target.id.replace("-count", "");
+                const docTypeName = target.closest(".doc-item")?.getAttribute("data-doc-typename") || "";
+                // Create a new form of this type
+                const createFormSelect = document.getElementById("createFormSelect");
+                if (createFormSelect) {
+                    // Find the option that matches this document type
+                    const option = Array.from(createFormSelect.options).find(opt => opt.text.includes(docTypeName));
+                    if (option) {
+                        createFormSelect.value = option.value;
+                        // Trigger the change event on createFormSelect
+                        createFormSelect.dispatchEvent(new Event('change'));
+                    }
+                }
+                // Reset the count select to its previous value
+                target.value = target.getAttribute("data-previous-value") || "0";
+            }
+            else {
+                // Store the current value for future reference
+                target.setAttribute("data-previous-value", target.value);
+            }
+        });
+    });
     // Update form creation select elements according to the form types
     const createFormSelect = document.getElementById("createFormSelect");
     createFormSelect.innerHTML = `<option value="">צור טופס חדש</option>`;
