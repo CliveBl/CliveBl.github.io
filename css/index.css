@@ -2429,7 +2429,15 @@ a:not(.submit-instructions-button):visited {
 .accordion-toggle-button {
   width: 40px;
   text-align: center;
-  cursor: pointer; /* Add this line */
+  cursor: pointer;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.accordion-toggle-button:hover {
+  background-color: var(--border-color);
 }
 
 .accordion-container {

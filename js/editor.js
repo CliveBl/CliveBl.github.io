@@ -765,11 +765,11 @@ export async function displayFileInfoInExpandableArea(data) {
     }
     /* ********************************** create +_ button ************************************** */
     function displayFileInfoPlusMinusButton(accordionBody, accordionToggleButton) {
-        accordionToggleButton.textContent = "+";
+        accordionToggleButton.textContent = "▼";
         accordionToggleButton.className = "accordion-toggle-button";
         accordionToggleButton.onclick = () => {
             accordionBody.style.display = accordionBody.style.display === "none" ? "block" : "none";
-            accordionToggleButton.textContent = accordionToggleButton.textContent === "+" ? "-" : "+";
+            accordionToggleButton.textContent = accordionToggleButton.textContent === "▼" ? "▲" : "▼";
         };
     }
     /* ********************************** create header input (Responsive) ************************************** */
