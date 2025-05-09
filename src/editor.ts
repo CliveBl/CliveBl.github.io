@@ -1,4 +1,4 @@
-import { configurationData, debug, addMessage, handleResponse } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse, updateButtons } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 
 /* ********************************************************** Generic modal ******************************************************************** */
@@ -197,14 +197,17 @@ const friendlyNames = {
   taxYear: "שנה",
   clientIdentificationNumber: "מספר זיהוי",
   fileName: "שם הקובץ",
+  reasonText: "סיבה",
 };
 
 const excludedHeaderFields = ["clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
-const readOnlyFields = ["fileName"];
+const readOnlyFields = ["fileName", "reasonText"];
 
 export function editableFileListHasEntries() {
   const expandableArea = document.getElementById("expandableAreaUploadFiles");
-  return expandableArea && expandableArea.children.length > 0;
+  // Query the number of accordionContainer elements in the expandableArea
+  const accordionContainers = expandableArea?.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
+  return accordionContainers && accordionContainers.length > 0;
 }
 
 export function editableGetDocTypes() {
@@ -265,8 +268,6 @@ export async function displayFileInfoInExpandableArea(data: any) {
 
   expandableArea.innerHTML = "";
   expandableArea.style.display = "block";
-
-  displayFileInfoHeader(expandableArea, data);
 
   // Group files by year
   const filesByYear = new Map<string, any[]>();
@@ -334,6 +335,8 @@ export async function displayFileInfoInExpandableArea(data: any) {
       yearBody.style.display = yearBody.style.display === "none" ? "block" : "none";
       yearToggleButton.textContent = yearToggleButton.textContent === "+" ? "-" : "+";
     };
+
+    displayFileInfoHeader(yearBody, data);
 
     // Add files to year body
     files.forEach((fileData: any) => {
@@ -830,7 +833,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
     // Caption row for the accordion headers
     const captionsRow = document.createElement("div") as HTMLDivElement;
     captionsRow.className = "caption-row";
-	captionsRow.id = "captionsRow";
+    captionsRow.id = "captionsRow";
 
     const headerCaptions = [
       { text: "", width: "40px" },
@@ -853,12 +856,12 @@ export async function displayFileInfoInExpandableArea(data: any) {
     expandableArea.appendChild(captionsRow);
     // Hide the header if it's a mobile screen or if there are no files
     function setHeaderVisibility() {
-		if (window.innerWidth <= 768 || data.length === 0) {
-		  captionsRow.style.display = "none";
-		} else {
-		  captionsRow.style.display = "flex";
-		}
-	  }
+      if (window.innerWidth <= 768 || data.length === 0) {
+        captionsRow.style.display = "none";
+      } else {
+        captionsRow.style.display = "flex";
+      }
+    }
     // Run on page load
     setHeaderVisibility();
 
@@ -936,7 +939,15 @@ export async function displayFileInfoInExpandableArea(data: any) {
         .then((response) => {
           if (response.ok) {
             addMessage("קובץ נמחק בהצלחה!", "success");
+            // check if accordionContainers parent will now be empty and remove it if so
+            const parent = accordionContainer.parentElement;
             accordionContainer.remove();
+            if (parent && parent.children.length === 1) {
+              parent.remove();
+              // refresh the accordion
+              window.location.reload();
+            }
+            updateButtons();
           } else {
             addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
           }

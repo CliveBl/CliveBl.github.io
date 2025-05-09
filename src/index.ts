@@ -28,20 +28,19 @@ export function debug(...args: unknown[]): void {
   if (DEBUG) {
     console.log(...args);
   }
-} 
+}
 
 // Import image utilities
-import { convertImageToBWAndResize } from './imageUtils.js'; 
-import { cookieUtils } from './cookieUtils.js';
-import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from './editor.js';
-import { API_BASE_URL, AUTH_BASE_URL } from './env.js';
+import { convertImageToBWAndResize } from "./imageUtils.js";
+import { cookieUtils } from "./cookieUtils.js";
+import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from "./editor.js";
+import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
 
 // Get environment from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
 //const editableFileListParam = urlParams.get("editable");
-let editableFileList = localStorage.getItem('editableFileList') === 'true';
+let editableFileList = localStorage.getItem("editableFileList") === "true";
 const usernameParam = urlParams.get("username");
-
 
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput") as HTMLInputElement;
@@ -65,60 +64,61 @@ const createFormSelect = document.getElementById("createFormSelect") as HTMLSele
 const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElement;
 const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
 
-
+export function updateButtons() {
+  processButton.disabled = !editableFileListHasEntries();
+  deleteAllButton.disabled = !editableFileListHasEntries();
+}
 
 function updateFileListP(fileInfoList: { fileId: string; fileName: string }[]) {
-	//if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
-	if(editableFileList) {
-		displayFileInfoInExpandableArea(fileInfoList);
-		processButton.disabled = !editableFileListHasEntries();
-		deleteAllButton.disabled = !editableFileListHasEntries();
-		updateMissingDocuments();
-	} else {
-		updateFileList(fileInfoList);
-	}
+  //if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
+  if (editableFileList) {
+    displayFileInfoInExpandableArea(fileInfoList);
+    updateButtons();
+    updateMissingDocuments();
+  } else {
+    updateFileList(fileInfoList);
+  }
 }
 
 function removeFileList() {
-	if(editableFileList) {
-		editableRemoveFileList();
-	} else {
-		fileList.innerHTML = "";
-	}
+  if (editableFileList) {
+    editableRemoveFileList();
+  } else {
+    fileList.innerHTML = "";
+  }
 }
 
 function openFileListEntryP(fileName: string) {
-	if(editableFileList) {
-		editableOpenFileListEntry(fileName);
-	} else {
-		openFileListEntry(fileName);
-	}
+  if (editableFileList) {
+    editableOpenFileListEntry(fileName);
+  } else {
+    openFileListEntry(fileName);
+  }
 }
 
 function openFileListEntry(fileName: string) {
-    // Find the file item by looking for the span with class 'fileNameElement' that contains the fileName
-    const fileNameElements = document.querySelectorAll('.fileNameElement');
-    for (const element of fileNameElements) {
-        if (element.textContent?.trim().startsWith(fileName)) {
-            // Click the parent file-header to open the accordion
-            const fileHeader = element.closest('.file-header') as HTMLDivElement;
-            if (fileHeader) {
-				// scroll the fileHeader into view
-				fileHeader.scrollIntoView({ behavior: 'smooth' });
-                fileHeader.click();
-                break;
-            }
-        }
+  // Find the file item by looking for the span with class 'fileNameElement' that contains the fileName
+  const fileNameElements = document.querySelectorAll(".fileNameElement");
+  for (const element of fileNameElements) {
+    if (element.textContent?.trim().startsWith(fileName)) {
+      // Click the parent file-header to open the accordion
+      const fileHeader = element.closest(".file-header") as HTMLDivElement;
+      if (fileHeader) {
+        // scroll the fileHeader into view
+        fileHeader.scrollIntoView({ behavior: "smooth" });
+        fileHeader.click();
+        break;
+      }
     }
+  }
 }
 
-function getDocTypes()
-{
-	if(editableFileList) {
-		return editableGetDocTypes();
-	} else {
-		return Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));
-	}
+function getDocTypes() {
+  if (editableFileList) {
+    return editableGetDocTypes();
+  } else {
+    return Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));
+  }
 }
 
 async function signInAnonymous() {
@@ -220,11 +220,10 @@ function signOut() {
   removeFileList();
   updateMissingDocuments();
   updateDeleteAllButton();
-   clearResultsControls();
+  clearResultsControls();
   clearMessages();
   //addMessage("התנתקת בהצלחה");
 }
-
 
 // Add this function to load files with existing token
 async function loadExistingFiles() {
@@ -239,9 +238,9 @@ async function loadExistingFiles() {
       ...fetchConfig,
     });
 
-	if(!await handleResponse(response, "Load existing files failed")) {
-		return;
-	}
+    if (!(await handleResponse(response, "Load existing files failed"))) {
+      return;
+    }
 
     const fileInfoList = await response.json();
     updateFileListP(fileInfoList);
@@ -320,35 +319,34 @@ function updateProcessButton() {
 }
 
 async function uploadFilesListener(fileInput: HTMLInputElement) {
-	clearMessages();
+  clearMessages();
 
   // Filter out invalid files first
   const files = Array.from(fileInput.files || []);
   const validFiles = files.filter((file) => {
-	const validation = isValidFileType(file);
-	if (!validation.valid) {
-	  addMessage(validation.message || "", "error");
-	  return false;
-	}
-	return true;
+    const validation = isValidFileType(file);
+    if (!validation.valid) {
+      addMessage(validation.message || "", "error");
+      return false;
+    }
+    return true;
   });
 
   if (validFiles.length === 0) {
-	return;
+    return;
   }
 
   return uploadFilesWithButtonProgress(validFiles, fileInput);
-
 }
 
 // File upload handler
 fileInput.addEventListener("change", async () => {
-	await uploadFilesListener(fileInput);
+  await uploadFilesListener(fileInput);
 });
 
 // Folder upload handler. Always use individual uploads
 folderInput.addEventListener("change", async () => {
-	clearMessages();
+  clearMessages();
 
   const files = Array.from(folderInput.files || []);
 
@@ -398,60 +396,59 @@ processButton.addEventListener("click", async () => {
     if (!signedIn) {
       await signInAnonymous();
     }
-       showLoadingOverlay("מעבדת מסמכחם...");
-      // Clear previous messages
-      clearMessages();
-      // Tax results may now be invalid
-      clearTaxResults();
+    showLoadingOverlay("מעבדת מסמכחם...");
+    // Clear previous messages
+    clearMessages();
+    // Tax results may now be invalid
+    clearTaxResults();
 
-      // Show initial processing message
-      addMessage("מתחיל בעיבוד המסמכים...", "info");
+    // Show initial processing message
+    addMessage("מתחיל בעיבוד המסמכים...", "info");
 
-      const response = await fetch(`${API_BASE_URL}/processFiles`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: "Default",
-        }),
+    const response = await fetch(`${API_BASE_URL}/processFiles`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        customerDataEntryName: "Default",
+      }),
+    });
+
+    if (!(await handleResponse(response, "Process files failed"))) {
+      return;
+    }
+
+    const result = await response.json();
+    debug("Processing response:", result);
+
+    // Handle fatal error if present
+    if (result.fatalProcessingError) {
+      addMessage("שגיאה קריטית: " + result.fatalProcessingError, "error");
+    }
+
+    // Handle warnings if present
+    if (result.processingWarnings && result.processingWarnings.length > 0) {
+      result.processingWarnings.forEach((warning: string) => {
+        addMessage("אזהרה: " + warning, "warning");
       });
+    }
+    // Handle information if present
+    if (result.processingInformation && result.processingInformation.length > 0) {
+      result.processingInformation.forEach((information: string) => {
+        addMessage("מידע: " + information, "info");
+      });
+    }
 
-	  if(!await handleResponse(response, "Process files failed")) {
-		return;
-	  }
-
-      const result = await response.json();
-      debug("Processing response:", result);
-
-      // Handle fatal error if present
-      if (result.fatalProcessingError) {
-        addMessage("שגיאה קריטית: " + result.fatalProcessingError, "error");
-      }
-
-      // Handle warnings if present
-      if (result.processingWarnings && result.processingWarnings.length > 0) {
-        result.processingWarnings.forEach((warning: string) => {
-          addMessage("אזהרה: " + warning, "warning");
-        });
-      }
-	// Handle information if present
-	if (result.processingInformation && result.processingInformation.length > 0) {
-		result.processingInformation.forEach((information: string) => {
-			addMessage("מידע: " + information, "info");
-		});
-	}
-
-      // If no fatal errors, load results
-      if (!result.fatalProcessingError) {
-        //addMessage("טוען תוצאות...", "info");
-        // Wait a moment for processing to complete on server
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        await loadResults();
-        addMessage("העיבוד הושלם", "info");
-      }
-    
+    // If no fatal errors, load results
+    if (!result.fatalProcessingError) {
+      //addMessage("טוען תוצאות...", "info");
+      // Wait a moment for processing to complete on server
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await loadResults();
+      addMessage("העיבוד הושלם", "info");
+    }
   } catch (error: unknown) {
     console.error("Processing failed:", error);
     addMessage("שגיאה בעיבוד הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -503,20 +500,19 @@ async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInp
 }
 
 async function uploadFiles(validFiles: File[]) {
- 
   for (const file of validFiles) {
     try {
-	  let newFile = file;
-	  if(file.type.startsWith("image/")) {	
-		try {
-			newFile = await convertImageToBWAndResize(file) as File;
-		} catch (error: unknown) {
-			addMessage("שגיאה בעיבוד התמונה: " + file.name + " " + (error instanceof Error ? error.message : String(error)), "error");
-			continue;
-		}
-	  }
+      let newFile = file;
+      if (file.type.startsWith("image/")) {
+        try {
+          newFile = (await convertImageToBWAndResize(file)) as File;
+        } catch (error: unknown) {
+          addMessage("שגיאה בעיבוד התמונה: " + file.name + " " + (error instanceof Error ? error.message : String(error)), "error");
+          continue;
+        }
+      }
       const formData = new FormData();
-	  formData.append("file", newFile);
+      formData.append("file", newFile);
 
       const metadata = {
         customerDataEntryName: "Default",
@@ -536,18 +532,18 @@ async function uploadFiles(validFiles: File[]) {
         ...fetchConfig,
       });
 
-	  if(!await handleResponse(response, "Upload file failed")) {
-		return false;
-	  }
+      if (!(await handleResponse(response, "Upload file failed"))) {
+        return false;
+      }
 
-	  const fileInfoList = await response.json();
+      const fileInfoList = await response.json();
       debug("Upload response:", fileInfoList);
       updateFileListP(fileInfoList);
     } catch (error) {
       console.error("Upload failed:", error);
-	  clearMessages();
+      clearMessages();
       addMessage("שגיאה בהעלאת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
-	  return false;
+      return false;
     }
   }
   addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
@@ -567,7 +563,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   const textParts = text.split(":");
   // Check if the text contains a message code
   if (textParts && textParts.length > 2) {
-	// Eliminate the message code from the text
+    // Eliminate the message code from the text
     const textToDisplay = `${textParts[0]}:${textParts[2]}`;
     messageText.textContent = textToDisplay;
   } else {
@@ -587,18 +583,17 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
 
   // If the message contains fileName= then make messageDiv a clickable link to the entry for that file in the filelist
   if (text.includes("fileName=")) {
-	// Match the pattern fileName=.*,
-	const fileName = text.match(/fileName=([^,]+)/)?.[1];
+    // Match the pattern fileName=.*,
+    const fileName = text.match(/fileName=([^,]+)/)?.[1];
     if (fileName) {
-		// Add clickable class to show it's interactive
-		messageDiv.classList.add("clickable");
-		// Make the messageDiv a clickable link to the fileItem	
-		messageDiv.addEventListener("click", () => {
-			openFileListEntryP(fileName);
-		});
+      // Add clickable class to show it's interactive
+      messageDiv.classList.add("clickable");
+      // Make the messageDiv a clickable link to the fileItem
+      messageDiv.addEventListener("click", () => {
+        openFileListEntryP(fileName);
+      });
     }
   }
-
 
   // Scroll to the bottom of the page if type is not "success" or "info"
   if (type !== "success" && type !== "info" && scrollToMessageSection) {
@@ -773,9 +768,9 @@ async function loadResults(scrollToMessageSection = true) {
       ...fetchConfig,
     });
 
-	if(!await handleResponse(response, "Load results failed")) {
-		return;
-	}
+    if (!(await handleResponse(response, "Load results failed"))) {
+      return;
+    }
 
     const results = await response.json();
 
@@ -943,9 +938,9 @@ async function downloadResult(fileName: string) {
       ...fetchConfig,
     });
 
-	if(!await handleResponse(response, "Download result failed")) {
-		return;
-	}
+    if (!(await handleResponse(response, "Download result failed"))) {
+      return;
+    }
 
     // Create blob from response
     const blob = await response.blob();
@@ -983,9 +978,9 @@ deleteAllButton.addEventListener("click", async () => {
       ...fetchConfig,
     });
 
-	if(!await handleResponse(response, "Delete all files failed")) {
-		return;
-	}
+    if (!(await handleResponse(response, "Delete all files failed"))) {
+      return;
+    }
 
     removeFileList();
     updateDeleteAllButton();
@@ -999,7 +994,6 @@ deleteAllButton.addEventListener("click", async () => {
     addMessage("שגיאה במחיקת הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
   }
 });
-
 
 // Keep the docDetails object for hover functionality
 const docDetails = {
@@ -1239,8 +1233,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-
-
 function clearTaxResults() {
   debug("clearTaxResults");
   const taxResultsContainer = document.getElementById("taxResultsContainer") as HTMLDivElement;
@@ -1265,7 +1257,6 @@ function clearResultsControls() {
   resultsList.innerHTML = "";
 }
 
-
 async function loadConfiguration() {
   debug("loadConfiguration");
   if (!configurationData) {
@@ -1277,9 +1268,9 @@ async function loadConfiguration() {
       ...fetchConfig,
     });
 
-	if(!await handleResponse(response, "Load configuration failed")) {
-		return;
-	}
+    if (!(await handleResponse(response, "Load configuration failed"))) {
+      return;
+    }
 
     debug("loadConfiguration loaded");
 
@@ -1295,7 +1286,7 @@ function formatNumber(key: string, value: any) {
   }
 }
 
-function addFileToList(fileInfo :any) {
+function addFileToList(fileInfo: any) {
   let status;
   let statusMessage;
   const fileId = fileInfo.fileId;
@@ -1306,10 +1297,10 @@ function addFileToList(fileInfo :any) {
   } else if (fileInfo.fileName.includes("ידני")) {
     status = null;
     // Add clent name and id number
-    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber} ${fileInfo.noteText ? ` (${fileInfo.noteText})` : ''}`;
+    statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber} ${fileInfo.noteText ? ` (${fileInfo.noteText})` : ""}`;
   } else {
     status = null;
-    statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}${fileInfo.noteText ? ` (${fileInfo.noteText})` : ''}`;
+    statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}${fileInfo.noteText ? ` (${fileInfo.noteText})` : ""}`;
   }
 
   const li = document.createElement("li");
@@ -1463,13 +1454,13 @@ function addFileToList(fileInfo :any) {
         ...fetchConfig,
       });
 
-	  if(!await handleResponse(response, "Update form failed")) {
-		return;
-	  }
+      if (!(await handleResponse(response, "Update form failed"))) {
+        return;
+      }
 
       const fileInfoList = await response.json();
       updateFileListP(fileInfoList);
-	  clearMessages();
+      clearMessages();
       addMessage(`הטופס ${formJson.fileName} עודכן בהצלחה`, "success");
     } catch (error: unknown) {
       console.error("Edit failed:", error);
@@ -1480,7 +1471,7 @@ function addFileToList(fileInfo :any) {
   // Add click handler for accordion
   fileHeader.addEventListener("click", (e) => {
     // Don't toggle if clicking delete button
-    if (e.target && (e.target as HTMLElement).closest(".delete-button") || (e.target as HTMLElement).closest(".edit-button")) return;
+    if ((e.target && (e.target as HTMLElement).closest(".delete-button")) || (e.target as HTMLElement).closest(".edit-button")) return;
 
     // Close any other open accordions first
     const allAccordions = document.querySelectorAll(".accordion-content");
@@ -1517,8 +1508,7 @@ function addFileToList(fileInfo :any) {
   deleteButton.className = "delete-button";
   deleteButton.title = "מחק";
   deleteButton.addEventListener("click", async () => {
-	deleteFile(fileId);
-
+    deleteFile(fileId);
   });
 
   li.appendChild(fileInfoElement);
@@ -1526,100 +1516,98 @@ function addFileToList(fileInfo :any) {
   // In the case of an error form we add a retry button
   if (fileInfo.type === "FormError") {
     const retryInput = document.createElement("input");
-	retryInput.type = "file";
-	retryInput.id = "xfileInput";
-	retryInput.accept = ".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png";
-	retryInput.className = "retry-input";
-	retryInput.multiple = true;
-	
-	const retryButton = document.createElement("button") as HTMLButtonElement;
-	retryButton.innerHTML = "ניסיון שנית";
-	//retryInputLabel.className = "custom-file-input-label";
-	//retryButton.htmlFor =  "xfileInput";
-	retryButton.addEventListener('click', () => {
-		retryInput.click();
-	  });
-	const retryInputContainer = document.createElement("div");
-	retryInputContainer.appendChild(retryInput);
-	retryInputContainer.appendChild(retryButton);
-	fileInfoElement.appendChild(retryInputContainer);
+    retryInput.type = "file";
+    retryInput.id = "xfileInput";
+    retryInput.accept = ".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png";
+    retryInput.className = "retry-input";
+    retryInput.multiple = true;
+
+    const retryButton = document.createElement("button") as HTMLButtonElement;
+    retryButton.innerHTML = "ניסיון שנית";
+    //retryInputLabel.className = "custom-file-input-label";
+    //retryButton.htmlFor =  "xfileInput";
+    retryButton.addEventListener("click", () => {
+      retryInput.click();
+    });
+    const retryInputContainer = document.createElement("div");
+    retryInputContainer.appendChild(retryInput);
+    retryInputContainer.appendChild(retryButton);
+    fileInfoElement.appendChild(retryInputContainer);
 
     retryInput.addEventListener("change", async (event) => {
-		// Open the select document dialog
-		deleteFileQuietly(fileId);
+      // Open the select document dialog
+      deleteFileQuietly(fileId);
 
-		const success = await uploadFilesListener(retryInput);
-		if(success) {
-		}
-    });	
+      const success = await uploadFilesListener(retryInput);
+      if (success) {
+      }
+    });
   }
 
   li.appendChild(editButton);
   li.appendChild(deleteButton);
   fileList.appendChild(li);
 
-	async function deleteFile(fileId :string) {
-		try {
-		const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
-			method: "DELETE",
-			headers: {},
-			credentials: "include",
-			...fetchConfig,
-		});
+  async function deleteFile(fileId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+        method: "DELETE",
+        headers: {},
+        credentials: "include",
+        ...fetchConfig,
+      });
 
-		if(!await handleResponse(response, "Delete failed")) {
-			return;
-		}
+      if (!(await handleResponse(response, "Delete failed"))) {
+        return;
+      }
 
-		fileList.removeChild(li);
-		updateDeleteAllButton();
-		updateProcessButton();
-		updateMissingDocuments();
-		clearResultsControls();
-		} catch (error: unknown) {
-		console.error("Delete failed:", error);
-		addMessage("שגיאה במחיקת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
-		}
-	}
+      fileList.removeChild(li);
+      updateDeleteAllButton();
+      updateProcessButton();
+      updateMissingDocuments();
+      clearResultsControls();
+    } catch (error: unknown) {
+      console.error("Delete failed:", error);
+      addMessage("שגיאה במחיקת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
+    }
+  }
 
-	async function deleteFileQuietly(fileId :string) {
-		try {
-		const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
-			method: "DELETE",
-			headers: {},
-			credentials: "include",
-			...fetchConfig,
-		});
+  async function deleteFileQuietly(fileId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+        method: "DELETE",
+        headers: {},
+        credentials: "include",
+        ...fetchConfig,
+      });
 
-		if(!await handleResponse(response, "Delete failed")) {
-			return;
-		}
-
-
-		} catch (error) {
-		console.error("Delete failed:", error);
-		}
-	}
+      if (!(await handleResponse(response, "Delete failed"))) {
+        return;
+      }
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
+  }
 }
 
 // Return true if the response is ok, false if we signed out otherwise throw an exception..
-export async function handleResponse(response :any, errorMessage :string) {
-	if (!response.ok) {
-        const errorData = await response.json();
-		debug(errorData);
+export async function handleResponse(response: any, errorMessage: string) {
+  if (!response.ok) {
+    const errorData = await response.json();
+    debug(errorData);
 
-		if (errorData.detail.includes("JWT")) {
-			signOut();
-			// The session timed out. Please reconnect.
-			addMessage("הסשן פג תוקף. אנא התחבר מחדש.", "error");
-			return false;
-		}
-		throw new Error(errorData.detail);
-	}
-	return true;
+    if (errorData.detail.includes("JWT")) {
+      signOut();
+      // The session timed out. Please reconnect.
+      addMessage("הסשן פג תוקף. אנא התחבר מחדש.", "error");
+      return false;
+    }
+    throw new Error(errorData.detail);
+  }
+  return true;
 }
 
-async function calculateTax(fileName :string) {
+async function calculateTax(fileName: string) {
   try {
     if (!signedIn) {
       await signInAnonymous();
@@ -1627,40 +1615,39 @@ async function calculateTax(fileName :string) {
     debug("calculateTax", fileName);
     // Extract <name>_<year>.dat
     const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
- 
+
     clearMessages();
 
+    showLoadingOverlay("מחשב מס...");
 
-      showLoadingOverlay("מחשב מס...");
+    const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        customerDataEntryName: "Default",
+        taxYear: taxCalcTaxYear,
+      }),
+      ...fetchConfig,
+    });
 
-      const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: "Default",
-          taxYear: taxCalcTaxYear,
-        }),
-        ...fetchConfig,
-      });
+    if (!(await handleResponse(response, "Calculate tax failed"))) {
+      return;
+    }
 
-	  if(!await handleResponse(response, "Calculate tax failed")) {
-		return;
-	  }
+    const result = await response.json();
 
-      const result = await response.json();
+    // Show success message
+    addMessage("חישוב המס הושלם בהצלחה", "info");
 
-      // Show success message
-      addMessage("חישוב המס הושלם בהצלחה", "info");
-
-      // Store and display results with scroll
-      displayTaxCalculation(result, taxCalcTaxYear, true);
-      // Add this function to store tax results
-      localStorage.setItem("taxResultsYear", taxCalcTaxYear);
-      localStorage.setItem("taxResults", JSON.stringify(result));
+    // Store and display results with scroll
+    displayTaxCalculation(result, taxCalcTaxYear, true);
+    // Add this function to store tax results
+    localStorage.setItem("taxResultsYear", taxCalcTaxYear);
+    localStorage.setItem("taxResults", JSON.stringify(result));
   } catch (error: unknown) {
     console.error("Calculate tax failed:", error);
     addMessage("שגיאה בחישוב המס: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -1669,15 +1656,13 @@ async function calculateTax(fileName :string) {
   }
 }
 
-
 function updateDeleteAllButton() {
   const deleteAllButton = document.getElementById("deleteAllButton") as HTMLButtonElement;
   deleteAllButton.disabled = fileList.children.length === 0 || uploading;
 }
 
-
 // Add this function to display tax results
-function displayTaxCalculation(result :any, year :string, shouldScroll = false) {
+function displayTaxCalculation(result: any, year: string, shouldScroll = false) {
   debug("displayTaxCalculation");
   const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
   taxCalculationContent.innerHTML = ""; // Clear existing results
@@ -1703,7 +1688,7 @@ function displayTaxCalculation(result :any, year :string, shouldScroll = false) 
 
   // Add table body
   const tbody = document.createElement("tbody");
-  result.forEach((row :any) => {
+  result.forEach((row: any) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
           <td>${row.title}</td>
@@ -1792,7 +1777,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       signedIn = true;
 
       initializeDocumentIcons();
-	  await loadConfiguration();
+      await loadConfiguration();
       await loadExistingFiles();
       await loadResults(false); // Dont scroll
       debug("Successfully loaded files and results with existing token");
@@ -1804,7 +1789,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     debug("Failed to fetch version:");
   }
 
-
   restoreSelectedDocTypes();
   updateSignInUI();
 
@@ -1815,39 +1799,37 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Add event listeners for document count selects
-document.querySelectorAll('select[id$="-count"]').forEach((select) => {
-	// Add option to the select only if the user can add forms
-	if (configurationData != null && configurationData.formTypes.some((formType) => formType.userCanAdd)) {
-		select.innerHTML += `<option value="create form">צור חדש</option>`;
-	}
-	// Add event listener to the select
-	select.addEventListener("change", async (e) => {
-	  const target = e.target as HTMLSelectElement;
-	  if (target.value === "create form") {
-		// Get the document type from the select's id
-		const docType = target.id.replace("-count", "");
-		const docTypeName = target.closest(".doc-item")?.getAttribute("data-doc-typename") || "";
-		
-		// Create a new form of this type
-		const createFormSelect = document.getElementById("createFormSelect") as HTMLSelectElement;
-		if (createFormSelect) {
-		  // Find the option that matches this document type
-		  const option = Array.from(createFormSelect.options).find(opt => 
-			opt.text.includes(docTypeName)
-		  );
-		  if (option) {
-			createFormSelect.value = option.value;
-			// Trigger the change event on createFormSelect
-			createFormSelect.dispatchEvent(new Event('change'));
-		  }
-		}
-		// Reset the count select to its previous value
-		target.value = target.getAttribute("data-previous-value") || "0";
-	  } else {
-		// Store the current value for future reference
-		target.setAttribute("data-previous-value", target.value);
-	  }
-	});
+  document.querySelectorAll('select[id$="-count"]').forEach((select) => {
+    // Add option to the select only if the user can add forms
+    if (configurationData != null && configurationData.formTypes.some((formType) => formType.userCanAdd)) {
+      select.innerHTML += `<option value="create form">צור חדש</option>`;
+    }
+    // Add event listener to the select
+    select.addEventListener("change", async (e) => {
+      const target = e.target as HTMLSelectElement;
+      if (target.value === "create form") {
+        // Get the document type from the select's id
+        const docType = target.id.replace("-count", "");
+        const docTypeName = target.closest(".doc-item")?.getAttribute("data-doc-typename") || "";
+
+        // Create a new form of this type
+        const createFormSelect = document.getElementById("createFormSelect") as HTMLSelectElement;
+        if (createFormSelect) {
+          // Find the option that matches this document type
+          const option = Array.from(createFormSelect.options).find((opt) => opt.text.includes(docTypeName));
+          if (option) {
+            createFormSelect.value = option.value;
+            // Trigger the change event on createFormSelect
+            createFormSelect.dispatchEvent(new Event("change"));
+          }
+        }
+        // Reset the count select to its previous value
+        target.value = target.getAttribute("data-previous-value") || "0";
+      } else {
+        // Store the current value for future reference
+        target.setAttribute("data-previous-value", target.value);
+      }
+    });
   });
 
   // Update form creation select elements according to the form types
@@ -1861,42 +1843,41 @@ document.querySelectorAll('select[id$="-count"]').forEach((select) => {
       .join("");
   }
 
-
   // Add this new code
   if (usernameParam) {
     // Show the login modal
     //loginOverlay.style.display = "flex";
-	loginOverlay.classList.add("active");
-	if (signedIn && userEmail.textContent == ANONYMOUS_EMAIL) {
-	  (document.querySelector(".toggle-button[data-mode='signup']") as HTMLButtonElement).click();
-	  isAnonymousConversion = true;
-	} else {
-	  (document.querySelector(".toggle-button[data-mode='signin']") as HTMLButtonElement).click();
-	  isAnonymousConversion = false;
-	}
-    
+    loginOverlay.classList.add("active");
+    if (signedIn && userEmail.textContent == ANONYMOUS_EMAIL) {
+      (document.querySelector(".toggle-button[data-mode='signup']") as HTMLButtonElement).click();
+      isAnonymousConversion = true;
+    } else {
+      (document.querySelector(".toggle-button[data-mode='signin']") as HTMLButtonElement).click();
+      isAnonymousConversion = false;
+    }
+
     // Get the email input field and set its value
     const emailInput = document.getElementById("email") as HTMLInputElement;
     if (emailInput) {
-        emailInput.value = usernameParam;
+      emailInput.value = usernameParam;
     }
-    
+
     // Make sure we're in login mode (not register mode)
     const loginToggle = document.querySelector('[data-mode="login"]') as HTMLButtonElement;
     if (loginToggle) {
-        loginToggle.click();
+      loginToggle.click();
     }
-    
+
     // Focus on the password field since we already have the email
     const passwordInput = document.getElementById("password") as HTMLInputElement;
     if (passwordInput) {
-        passwordInput.focus();
+      passwordInput.focus();
     }
   }
 
-  const toggleLink = document.getElementById('toggleFileListView');
+  const toggleLink = document.getElementById("toggleFileListView");
   if (toggleLink) {
-    toggleLink.addEventListener('click', (e) => {
+    toggleLink.addEventListener("click", (e) => {
       e.preventDefault();
       toggleFileListView();
     });
@@ -1940,9 +1921,9 @@ function updateFeedbackButtonState() {
       ...fetchConfig,
     });
 
-	if(!await handleResponse(response, "Feedback submission failed")) {
-		return;
-	}
+    if (!(await handleResponse(response, "Feedback submission failed"))) {
+      return;
+    }
 
     addMessage("תודה על המשוב שלך!", "success");
     // Clear the form
@@ -2028,9 +2009,9 @@ function restoreSelectedDocTypes() {
       ...fetchConfig,
     });
 
-	if(!await handleResponse(response, "Create form failed")) {
-		return;
-	}
+    if (!(await handleResponse(response, "Create form failed"))) {
+      return;
+    }
 
     const fileInfoList = await response.json();
     debug("createForm response:", fileInfoList);
@@ -2047,7 +2028,6 @@ function restoreSelectedDocTypes() {
   // return the control to its first option
   (e.target as HTMLSelectElement).value = "";
 });
-
 
 // Add this function to update missing document counts
 function updateMissingDocuments() {
@@ -2151,7 +2131,7 @@ async function convertAnonymousAccount(email: string, password: string, fullName
     }),
   });
 
-  if(!await handleResponse(response, "Convert anonymous account failed")) {
+  if (!(await handleResponse(response, "Convert anonymous account failed"))) {
     return;
   }
 
@@ -2227,33 +2207,31 @@ function showWarningModal(message: string) {
 }
 
 function updateFileListView() {
-  const toggleLink = document.getElementById('toggleFileListView') as HTMLAnchorElement;
-  const fileList = document.getElementById('fileList') as HTMLElement;
-  const expandableArea = document.getElementById('expandableAreaUploadFiles') as HTMLElement;
-  
+  const toggleLink = document.getElementById("toggleFileListView") as HTMLAnchorElement;
+  const fileList = document.getElementById("fileList") as HTMLElement;
+  const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLElement;
+
   if (!toggleLink || !fileList || !expandableArea) {
-    console.error('Required elements not found');
+    console.error("Required elements not found");
     return;
   }
 
   if (editableFileList) {
-    toggleLink.textContent = 'נתונים קבצים';
-    toggleLink.classList.add('active');
-    fileList.style.display = 'none';
-    expandableArea.style.display = 'block';
+    toggleLink.textContent = "נתונים קבצים";
+    toggleLink.classList.add("active");
+    fileList.style.display = "none";
+    expandableArea.style.display = "block";
   } else {
-    toggleLink.textContent = 'תציג נתונים מלאים';
-    toggleLink.classList.remove('active');
-    fileList.style.display = 'block';
-    expandableArea.style.display = 'none';
+    toggleLink.textContent = "תציג נתונים מלאים";
+    toggleLink.classList.remove("active");
+    fileList.style.display = "block";
+    expandableArea.style.display = "none";
   }
 }
 
 function toggleFileListView() {
   editableFileList = !editableFileList;
-  localStorage.setItem('editableFileList', editableFileList.toString());
+  localStorage.setItem("editableFileList", editableFileList.toString());
   updateFileListView();
   loadExistingFiles();
 }
-
-

@@ -1,4 +1,4 @@
-import { configurationData, debug, addMessage, handleResponse } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse, updateButtons } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0, }) {
@@ -173,12 +173,15 @@ const friendlyNames = {
     taxYear: "שנה",
     clientIdentificationNumber: "מספר זיהוי",
     fileName: "שם הקובץ",
+    reasonText: "סיבה",
 };
 const excludedHeaderFields = ["clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
-const readOnlyFields = ["fileName"];
+const readOnlyFields = ["fileName", "reasonText"];
 export function editableFileListHasEntries() {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
-    return expandableArea && expandableArea.children.length > 0;
+    // Query the number of accordionContainer elements in the expandableArea
+    const accordionContainers = expandableArea?.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
+    return accordionContainers && accordionContainers.length > 0;
 }
 export function editableGetDocTypes() {
     // Get all accordionContainers and map to their document types
@@ -232,7 +235,6 @@ export async function displayFileInfoInExpandableArea(data) {
     }
     expandableArea.innerHTML = "";
     expandableArea.style.display = "block";
-    displayFileInfoHeader(expandableArea, data);
     // Group files by year
     const filesByYear = new Map();
     data.forEach((fileData) => {
@@ -290,6 +292,7 @@ export async function displayFileInfoInExpandableArea(data) {
             yearBody.style.display = yearBody.style.display === "none" ? "block" : "none";
             yearToggleButton.textContent = yearToggleButton.textContent === "+" ? "-" : "+";
         };
+        displayFileInfoHeader(yearBody, data);
         // Add files to year body
         files.forEach((fileData) => {
             const accordionContainer = document.createElement("div");
@@ -823,7 +826,15 @@ export async function displayFileInfoInExpandableArea(data) {
                 .then((response) => {
                 if (response.ok) {
                     addMessage("קובץ נמחק בהצלחה!", "success");
+                    // check if accordionContainers parent will now be empty and remove it if so
+                    const parent = accordionContainer.parentElement;
                     accordionContainer.remove();
+                    if (parent && parent.children.length === 1) {
+                        parent.remove();
+                        // refresh the accordion
+                        window.location.reload();
+                    }
+                    updateButtons();
                 }
                 else {
                     addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");

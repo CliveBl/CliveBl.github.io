@@ -18,14 +18,14 @@ export function debug(...args) {
     }
 }
 // Import image utilities
-import { convertImageToBWAndResize } from './imageUtils.js';
-import { cookieUtils } from './cookieUtils.js';
-import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from './editor.js';
-import { API_BASE_URL, AUTH_BASE_URL } from './env.js';
+import { convertImageToBWAndResize } from "./imageUtils.js";
+import { cookieUtils } from "./cookieUtils.js";
+import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from "./editor.js";
+import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
 // Get environment from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
 //const editableFileListParam = urlParams.get("editable");
-let editableFileList = localStorage.getItem('editableFileList') === 'true';
+let editableFileList = localStorage.getItem("editableFileList") === "true";
 const usernameParam = urlParams.get("username");
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput");
@@ -48,12 +48,15 @@ const userEmail = document.getElementById("userEmail");
 const createFormSelect = document.getElementById("createFormSelect");
 const acceptCookies = document.getElementById("acceptCookies");
 const cookieConsent = document.getElementById("cookieConsent");
+export function updateButtons() {
+    processButton.disabled = !editableFileListHasEntries();
+    deleteAllButton.disabled = !editableFileListHasEntries();
+}
 function updateFileListP(fileInfoList) {
     //if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
     if (editableFileList) {
         displayFileInfoInExpandableArea(fileInfoList);
-        processButton.disabled = !editableFileListHasEntries();
-        deleteAllButton.disabled = !editableFileListHasEntries();
+        updateButtons();
         updateMissingDocuments();
     }
     else {
@@ -78,14 +81,14 @@ function openFileListEntryP(fileName) {
 }
 function openFileListEntry(fileName) {
     // Find the file item by looking for the span with class 'fileNameElement' that contains the fileName
-    const fileNameElements = document.querySelectorAll('.fileNameElement');
+    const fileNameElements = document.querySelectorAll(".fileNameElement");
     for (const element of fileNameElements) {
         if (element.textContent?.trim().startsWith(fileName)) {
             // Click the parent file-header to open the accordion
-            const fileHeader = element.closest('.file-header');
+            const fileHeader = element.closest(".file-header");
             if (fileHeader) {
                 // scroll the fileHeader into view
-                fileHeader.scrollIntoView({ behavior: 'smooth' });
+                fileHeader.scrollIntoView({ behavior: "smooth" });
                 fileHeader.click();
                 break;
             }
@@ -210,7 +213,7 @@ async function loadExistingFiles() {
             credentials: "include",
             ...fetchConfig,
         });
-        if (!await handleResponse(response, "Load existing files failed")) {
+        if (!(await handleResponse(response, "Load existing files failed"))) {
             return;
         }
         const fileInfoList = await response.json();
@@ -361,7 +364,7 @@ processButton.addEventListener("click", async () => {
                 customerDataEntryName: "Default",
             }),
         });
-        if (!await handleResponse(response, "Process files failed")) {
+        if (!(await handleResponse(response, "Process files failed"))) {
             return;
         }
         const result = await response.json();
@@ -443,7 +446,7 @@ async function uploadFiles(validFiles) {
             let newFile = file;
             if (file.type.startsWith("image/")) {
                 try {
-                    newFile = await convertImageToBWAndResize(file);
+                    newFile = (await convertImageToBWAndResize(file));
                 }
                 catch (error) {
                     addMessage("שגיאה בעיבוד התמונה: " + file.name + " " + (error instanceof Error ? error.message : String(error)), "error");
@@ -465,7 +468,7 @@ async function uploadFiles(validFiles) {
                 body: formData,
                 ...fetchConfig,
             });
-            if (!await handleResponse(response, "Upload file failed")) {
+            if (!(await handleResponse(response, "Upload file failed"))) {
                 return false;
             }
             const fileInfoList = await response.json();
@@ -517,7 +520,7 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
         if (fileName) {
             // Add clickable class to show it's interactive
             messageDiv.classList.add("clickable");
-            // Make the messageDiv a clickable link to the fileItem	
+            // Make the messageDiv a clickable link to the fileItem
             messageDiv.addEventListener("click", () => {
                 openFileListEntryP(fileName);
             });
@@ -681,7 +684,7 @@ async function loadResults(scrollToMessageSection = true) {
             credentials: "include",
             ...fetchConfig,
         });
-        if (!await handleResponse(response, "Load results failed")) {
+        if (!(await handleResponse(response, "Load results failed"))) {
             return;
         }
         const results = await response.json();
@@ -830,7 +833,7 @@ async function downloadResult(fileName) {
             credentials: "include",
             ...fetchConfig,
         });
-        if (!await handleResponse(response, "Download result failed")) {
+        if (!(await handleResponse(response, "Download result failed"))) {
             return;
         }
         // Create blob from response
@@ -866,7 +869,7 @@ deleteAllButton.addEventListener("click", async () => {
             credentials: "include",
             ...fetchConfig,
         });
-        if (!await handleResponse(response, "Delete all files failed")) {
+        if (!(await handleResponse(response, "Delete all files failed"))) {
             return;
         }
         removeFileList();
@@ -1136,7 +1139,7 @@ async function loadConfiguration() {
             },
             ...fetchConfig,
         });
-        if (!await handleResponse(response, "Load configuration failed")) {
+        if (!(await handleResponse(response, "Load configuration failed"))) {
             return;
         }
         debug("loadConfiguration loaded");
@@ -1163,11 +1166,11 @@ function addFileToList(fileInfo) {
     else if (fileInfo.fileName.includes("ידני")) {
         status = null;
         // Add clent name and id number
-        statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber} ${fileInfo.noteText ? ` (${fileInfo.noteText})` : ''}`;
+        statusMessage = `עבור: ${fileInfo.clientName} ת.ז. ${fileInfo.clientIdentificationNumber} ${fileInfo.noteText ? ` (${fileInfo.noteText})` : ""}`;
     }
     else {
         status = null;
-        statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}${fileInfo.noteText ? ` (${fileInfo.noteText})` : ''}`;
+        statusMessage = `זוהה כ-${fileInfo.type} לשנת ${fileInfo.taxYear}${fileInfo.noteText ? ` (${fileInfo.noteText})` : ""}`;
     }
     const li = document.createElement("li");
     li.className = "file-item";
@@ -1302,7 +1305,7 @@ function addFileToList(fileInfo) {
                 }),
                 ...fetchConfig,
             });
-            if (!await handleResponse(response, "Update form failed")) {
+            if (!(await handleResponse(response, "Update form failed"))) {
                 return;
             }
             const fileInfoList = await response.json();
@@ -1318,7 +1321,7 @@ function addFileToList(fileInfo) {
     // Add click handler for accordion
     fileHeader.addEventListener("click", (e) => {
         // Don't toggle if clicking delete button
-        if (e.target && e.target.closest(".delete-button") || e.target.closest(".edit-button"))
+        if ((e.target && e.target.closest(".delete-button")) || e.target.closest(".edit-button"))
             return;
         // Close any other open accordions first
         const allAccordions = document.querySelectorAll(".accordion-content");
@@ -1368,7 +1371,7 @@ function addFileToList(fileInfo) {
         retryButton.innerHTML = "ניסיון שנית";
         //retryInputLabel.className = "custom-file-input-label";
         //retryButton.htmlFor =  "xfileInput";
-        retryButton.addEventListener('click', () => {
+        retryButton.addEventListener("click", () => {
             retryInput.click();
         });
         const retryInputContainer = document.createElement("div");
@@ -1394,7 +1397,7 @@ function addFileToList(fileInfo) {
                 credentials: "include",
                 ...fetchConfig,
             });
-            if (!await handleResponse(response, "Delete failed")) {
+            if (!(await handleResponse(response, "Delete failed"))) {
                 return;
             }
             fileList.removeChild(li);
@@ -1416,7 +1419,7 @@ function addFileToList(fileInfo) {
                 credentials: "include",
                 ...fetchConfig,
             });
-            if (!await handleResponse(response, "Delete failed")) {
+            if (!(await handleResponse(response, "Delete failed"))) {
                 return;
             }
         }
@@ -1463,7 +1466,7 @@ async function calculateTax(fileName) {
             }),
             ...fetchConfig,
         });
-        if (!await handleResponse(response, "Calculate tax failed")) {
+        if (!(await handleResponse(response, "Calculate tax failed"))) {
             return;
         }
         const result = await response.json();
@@ -1624,11 +1627,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const createFormSelect = document.getElementById("createFormSelect");
                 if (createFormSelect) {
                     // Find the option that matches this document type
-                    const option = Array.from(createFormSelect.options).find(opt => opt.text.includes(docTypeName));
+                    const option = Array.from(createFormSelect.options).find((opt) => opt.text.includes(docTypeName));
                     if (option) {
                         createFormSelect.value = option.value;
                         // Trigger the change event on createFormSelect
-                        createFormSelect.dispatchEvent(new Event('change'));
+                        createFormSelect.dispatchEvent(new Event("change"));
                     }
                 }
                 // Reset the count select to its previous value
@@ -1679,9 +1682,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             passwordInput.focus();
         }
     }
-    const toggleLink = document.getElementById('toggleFileListView');
+    const toggleLink = document.getElementById("toggleFileListView");
     if (toggleLink) {
-        toggleLink.addEventListener('click', (e) => {
+        toggleLink.addEventListener("click", (e) => {
             e.preventDefault();
             toggleFileListView();
         });
@@ -1718,7 +1721,7 @@ document.getElementById("sendFeedbackButton").addEventListener("click", async ()
             }),
             ...fetchConfig,
         });
-        if (!await handleResponse(response, "Feedback submission failed")) {
+        if (!(await handleResponse(response, "Feedback submission failed"))) {
             return;
         }
         addMessage("תודה על המשוב שלך!", "success");
@@ -1802,7 +1805,7 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
             }),
             ...fetchConfig,
         });
-        if (!await handleResponse(response, "Create form failed")) {
+        if (!(await handleResponse(response, "Create form failed"))) {
             return;
         }
         const fileInfoList = await response.json();
@@ -1917,7 +1920,7 @@ async function convertAnonymousAccount(email, password, fullName) {
             fullName: fullName,
         }),
     });
-    if (!await handleResponse(response, "Convert anonymous account failed")) {
+    if (!(await handleResponse(response, "Convert anonymous account failed"))) {
         return;
     }
     const result = await response.json();
@@ -1982,29 +1985,29 @@ function showWarningModal(message) {
     });
 }
 function updateFileListView() {
-    const toggleLink = document.getElementById('toggleFileListView');
-    const fileList = document.getElementById('fileList');
-    const expandableArea = document.getElementById('expandableAreaUploadFiles');
+    const toggleLink = document.getElementById("toggleFileListView");
+    const fileList = document.getElementById("fileList");
+    const expandableArea = document.getElementById("expandableAreaUploadFiles");
     if (!toggleLink || !fileList || !expandableArea) {
-        console.error('Required elements not found');
+        console.error("Required elements not found");
         return;
     }
     if (editableFileList) {
-        toggleLink.textContent = 'נתונים קבצים';
-        toggleLink.classList.add('active');
-        fileList.style.display = 'none';
-        expandableArea.style.display = 'block';
+        toggleLink.textContent = "נתונים קבצים";
+        toggleLink.classList.add("active");
+        fileList.style.display = "none";
+        expandableArea.style.display = "block";
     }
     else {
-        toggleLink.textContent = 'תציג נתונים מלאים';
-        toggleLink.classList.remove('active');
-        fileList.style.display = 'block';
-        expandableArea.style.display = 'none';
+        toggleLink.textContent = "תציג נתונים מלאים";
+        toggleLink.classList.remove("active");
+        fileList.style.display = "block";
+        expandableArea.style.display = "none";
     }
 }
 function toggleFileListView() {
     editableFileList = !editableFileList;
-    localStorage.setItem('editableFileList', editableFileList.toString());
+    localStorage.setItem("editableFileList", editableFileList.toString());
     updateFileListView();
     loadExistingFiles();
 }
