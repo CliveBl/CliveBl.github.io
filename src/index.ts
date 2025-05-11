@@ -572,6 +572,8 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     // Match the pattern fileName=.*,
     const fileName = text.match(/fileName=([^,]+)/)?.[1];
     if (fileName) {
+      // Eliminate fileName= from the text
+      messageText.textContent = messageText.textContent.replace("fileName=", "");
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
       // Make the messageDiv a clickable link to the fileItem
