@@ -366,7 +366,14 @@ export async function displayFileInfoInExpandableArea(data: any) {
       const headerFieldsContainer = document.createElement("div") as HTMLDivElement;
       headerFieldsContainer.style.display = "flex";
 
-      displayFileInfoLine(headerFieldsContainer, fileData);
+	  if(fileData.type === "FormError"){
+		displayFileInfoLineError(headerFieldsContainer, fileData);
+		accordionContainer.classList.add("error");
+
+	  }
+	  else{
+		displayFileInfoLine(headerFieldsContainer, fileData);
+	  }
 
       accordianheader.appendChild(headerFieldsContainer);
 
@@ -881,6 +888,33 @@ export async function displayFileInfoInExpandableArea(data: any) {
   }
 
   /* ********************************** create header input (Responsive) ************************************** */
+  function displayFileInfoLineError(headerFieldsContainer: HTMLDivElement, fileData: any) {
+    // If it is an error document type
+
+    const fileName = { name: fileData.fileName, size: 0, path: fileData.path };
+
+    const fileInfoElement = document.createElement("div");
+    fileInfoElement.className = "file-info";
+
+    const fileHeader = document.createElement("div");
+    fileHeader.className = "file-header";
+
+    const fileNameElement = document.createElement("span") as HTMLSpanElement;
+    fileNameElement.className = "fileNameElement";
+
+    fileNameElement.textContent = fileName.path || fileName.name;
+    fileNameElement.textContent = fileNameElement.textContent + " " + "❌";
+
+    fileHeader.appendChild(fileNameElement);
+    fileInfoElement.appendChild(fileHeader);
+
+    const statusMessageSpan = document.createElement("span");
+    statusMessageSpan.className = "status-message";
+    statusMessageSpan.textContent = fileData.reasonText;
+    fileInfoElement.appendChild(statusMessageSpan);
+    // Append the wrapper to the container
+    headerFieldsContainer.appendChild(fileInfoElement);
+  }
 
   function displayFileInfoLine(headerFieldsContainer: HTMLDivElement, fileData: any) {
     // Create a wrapper for the header fields

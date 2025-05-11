@@ -372,7 +372,7 @@ ul {
   /* white-space: nowrap; */
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(100% - 80px); /* Account for icons and buttons */
+  /* max-width: calc(100% - 80px); Account for icons and buttons */
   flex-grow: 1;
 }
 .fileNameElement.expanded {
@@ -2436,6 +2436,11 @@ a:not(.submit-instructions-button):visited {
   border: 1px solid var(--border-color);
   margin-bottom: 10px;
 }
+.accordion-container.error {
+	border-right-color: var(--error-border);
+	background-color: var(--error-bg);
+  }
+
 
 .accordion-header {
   padding: 2px;
