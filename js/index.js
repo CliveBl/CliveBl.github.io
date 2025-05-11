@@ -1,4 +1,4 @@
-const uiVersion = "0.43";
+const uiVersion = "0.44";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -236,19 +236,6 @@ async function loadExistingFiles() {
         throw error;
     }
 }
-// Update window load event to include cookie consent check
-window.addEventListener("load", async () => {
-    // Check if user has already accepted cookies
-    const cookiesAccepted = cookieUtils.get("cookiesAccepted");
-    if (!cookiesAccepted) {
-        const cookieConsent = document.getElementById("cookieConsent");
-        if (cookieConsent) {
-            cookieConsent.classList.add("active");
-        }
-    }
-    // Initialize the file list view
-    updateFileListView();
-});
 // Add this helper function at the start of your script
 function isValidFileType(file) {
     const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/gif", "image/bmp", "image/png"];
@@ -1689,6 +1676,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             toggleFileListView();
         });
     }
+    // Check if user has already accepted cookies
+    const cookiesAccepted = cookieUtils.get("cookiesAccepted");
+    if (!cookiesAccepted) {
+        const cookieConsent = document.getElementById("cookieConsent");
+        if (cookieConsent) {
+            cookieConsent.classList.add("active");
+        }
+    }
+    // Check if disclaimer has been accepted
+    const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
+    if (!disclaimerAccepted) {
+        //await showDisclaimerModal();
+        await showInfoModal("אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדוח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.");
+        cookieUtils.set("disclaimerAccepted", "true", 365);
+    }
+    // Initialize the file list view
+    updateFileListView();
 });
 // Function to validate email format
 function isValidEmail(email) {

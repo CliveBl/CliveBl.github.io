@@ -202,7 +202,7 @@ ul {
 .custom-file-input label {
   background-color: #3498db;
   color: var(--button-text);
-  padding: 5px 15px;
+  padding: 8px 10px;
   border-radius: 3px;
   cursor: pointer;
   display: inline-block;
