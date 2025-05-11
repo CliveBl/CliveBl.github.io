@@ -549,8 +549,8 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   const textParts = text.split(":");
   // Check if the text contains a message code
   if (textParts && textParts.length > 2) {
-    // Eliminate the message code from the text
-    const textToDisplay = `${textParts[0]}:${textParts[2]}`;
+    // Eliminate the textParts[1] code from the text
+    const textToDisplay = `${textParts[0]}:${textParts.slice(2).join(':')}`;
     messageText.textContent = textToDisplay;
   } else {
     messageText.textContent = text;
