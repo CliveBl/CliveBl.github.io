@@ -1,4 +1,4 @@
-import { configurationData, debug, addMessage, handleResponse, updateButtons } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 
 /* ********************************************************** Generic modal ******************************************************************** */
@@ -7,7 +7,7 @@ function customerMessageModal({
   message,
   button1Text,
   button2Text = null,
-  displayTimeInSeconds = 0,
+  displayTimeInSeconds = 1,
 }: {
   title: string;
   message: string;
@@ -198,6 +198,7 @@ const friendlyNames = {
   clientIdentificationNumber: "מספר זיהוי",
   fileName: "שם הקובץ",
   reasonText: "סיבה",
+  movedHereDuringYearBoolean: "עברתי לכאן במהלך השנה"
 };
 
 const excludedHeaderFields = ["clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
@@ -982,6 +983,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
               window.location.reload();
             }
             updateButtons();
+			fileModifiedActions();
           } else {
             addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
           }
@@ -1142,6 +1144,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
           if (updatedData) {
             // Remove the add fields button
             displayFileInfoInExpandableArea(updatedData);
+            fileModifiedActions();
           }
         };
       }
@@ -1164,10 +1167,11 @@ export async function displayFileInfoInExpandableArea(data: any) {
           title: "שמירת נתונים",
           message: `הנתונים נשמרו בהצלחה`,
           button1Text: "",
-          button2Text: "",
-          displayTimeInSeconds: 2,
+          button2Text: ""
         });
         displayFileInfoInExpandableArea(updatedData);
+        fileModifiedActions();
+		addMessage("נתונים נשמרו בהצלחה", "success");
       }
     };
   }

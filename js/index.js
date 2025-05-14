@@ -195,9 +195,7 @@ function signOut() {
     // Update UI to show logged out state
     updateSignInUI();
     removeFileList();
-    updateMissingDocuments();
-    updateDeleteAllButton();
-    clearResultsControls();
+    fileModifiedActions();
     clearMessages();
     //addMessage("התנתקת בהצלחה");
 }
@@ -862,10 +860,7 @@ deleteAllButton.addEventListener("click", async () => {
             return;
         }
         removeFileList();
-        updateDeleteAllButton();
-        updateProcessButton();
-        updateMissingDocuments();
-        clearResultsControls();
+        fileModifiedActions();
         clearMessages();
         addMessage("כל הקבצים נמחקו בהצלחה");
     }
@@ -1390,10 +1385,7 @@ function addFileToList(fileInfo) {
                 return;
             }
             fileList.removeChild(li);
-            updateDeleteAllButton();
-            updateProcessButton();
-            updateMissingDocuments();
-            clearResultsControls();
+            fileModifiedActions();
         }
         catch (error) {
             console.error("Delete failed:", error);
@@ -1416,6 +1408,12 @@ function addFileToList(fileInfo) {
             console.error("Delete failed:", error);
         }
     }
+}
+export function fileModifiedActions() {
+    updateDeleteAllButton();
+    updateProcessButton();
+    updateMissingDocuments();
+    clearResultsControls();
 }
 // Return true if the response is ok, false if we signed out otherwise throw an exception..
 export async function handleResponse(response, errorMessage) {

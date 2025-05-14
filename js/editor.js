@@ -1,7 +1,7 @@
-import { configurationData, debug, addMessage, handleResponse, updateButtons } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 /* ********************************************************** Generic modal ******************************************************************** */
-function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 0, }) {
+function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 1, }) {
     return new Promise((resolve) => {
         // Remove any existing modal
         const existingModal = document.getElementById("customModal");
@@ -174,6 +174,7 @@ const friendlyNames = {
     clientIdentificationNumber: "מספר זיהוי",
     fileName: "שם הקובץ",
     reasonText: "סיבה",
+    movedHereDuringYearBoolean: "עברתי לכאן במהלך השנה"
 };
 const excludedHeaderFields = ["clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
@@ -861,6 +862,7 @@ export async function displayFileInfoInExpandableArea(data) {
                         window.location.reload();
                     }
                     updateButtons();
+                    fileModifiedActions();
                 }
                 else {
                     addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
@@ -1006,6 +1008,7 @@ export async function displayFileInfoInExpandableArea(data) {
                     if (updatedData) {
                         // Remove the add fields button
                         displayFileInfoInExpandableArea(updatedData);
+                        fileModifiedActions();
                     }
                 };
             }
@@ -1026,10 +1029,11 @@ export async function displayFileInfoInExpandableArea(data) {
                     title: "שמירת נתונים",
                     message: `הנתונים נשמרו בהצלחה`,
                     button1Text: "",
-                    button2Text: "",
-                    displayTimeInSeconds: 2,
+                    button2Text: ""
                 });
                 displayFileInfoInExpandableArea(updatedData);
+                fileModifiedActions();
+                addMessage("נתונים נשמרו בהצלחה", "success");
             }
         };
     }

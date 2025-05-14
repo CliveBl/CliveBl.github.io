@@ -218,9 +218,7 @@ function signOut() {
   // Update UI to show logged out state
   updateSignInUI();
   removeFileList();
-  updateMissingDocuments();
-  updateDeleteAllButton();
-  clearResultsControls();
+  fileModifiedActions();
   clearMessages();
   //addMessage("התנתקת בהצלחה");
 }
@@ -971,10 +969,7 @@ deleteAllButton.addEventListener("click", async () => {
     }
 
     removeFileList();
-    updateDeleteAllButton();
-    updateProcessButton();
-    updateMissingDocuments();
-    clearResultsControls();
+    fileModifiedActions();
     clearMessages();
     addMessage("כל הקבצים נמחקו בהצלחה");
   } catch (error: unknown) {
@@ -1550,15 +1545,13 @@ function addFileToList(fileInfo: any) {
       }
 
       fileList.removeChild(li);
-      updateDeleteAllButton();
-      updateProcessButton();
-      updateMissingDocuments();
-      clearResultsControls();
+      fileModifiedActions();
     } catch (error: unknown) {
       console.error("Delete failed:", error);
       addMessage("שגיאה במחיקת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
     }
   }
+
 
   async function deleteFileQuietly(fileId: string) {
     try {
@@ -1576,6 +1569,13 @@ function addFileToList(fileInfo: any) {
       console.error("Delete failed:", error);
     }
   }
+}
+
+export function fileModifiedActions() {
+    updateDeleteAllButton();
+    updateProcessButton();
+    updateMissingDocuments();
+    clearResultsControls();
 }
 
 // Return true if the response is ok, false if we signed out otherwise throw an exception..
