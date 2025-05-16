@@ -64,16 +64,16 @@ const createFormSelect = document.getElementById("createFormSelect") as HTMLSele
 const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElement;
 const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
 
-export function updateButtons() {
-  processButton.disabled = !editableFileListHasEntries();
-  deleteAllButton.disabled = !editableFileListHasEntries();
+export function updateButtons(hasEntries: boolean) {
+  processButton.disabled = !hasEntries;
+  deleteAllButton.disabled = !hasEntries;
 }
 
 function updateFileListP(fileInfoList: { fileId: string; fileName: string }[]) {
   //if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
   if (editableFileList) {
     displayFileInfoInExpandableArea(fileInfoList);
-    updateButtons();
+    updateButtons(editableFileListHasEntries());
     updateMissingDocuments();
   } else {
     updateFileList(fileInfoList);
@@ -218,7 +218,7 @@ function signOut() {
   // Update UI to show logged out state
   updateSignInUI();
   removeFileList();
-  fileModifiedActions();
+  fileModifiedActions(false);
   clearMessages();
   //addMessage("התנתקת בהצלחה");
 }
@@ -291,15 +291,15 @@ function updateFileList(fileInfoList: { fileId: string; fileName: string }[]) {
   });
 
   // Enable/disable delete all button based on file list
-  updateDeleteAllButton();
+  updateDeleteAllButton(fileList.children.length > 0);
   // Enable/disable process button based on file list
-  updateProcessButton();
+  updateProcessButton(fileInfoList.length > 0);
   updateMissingDocuments();
 }
 
 // Add function to update process button state
-function updateProcessButton() {
-  processButton.disabled = fileList.children.length === 0;
+function updateProcessButton(hasEntries: boolean) {
+  processButton.disabled = !hasEntries;
 }
 
 async function uploadFilesListener(fileInput: HTMLInputElement) {
@@ -476,7 +476,7 @@ async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInp
     folderInput.disabled = false;
     createFormSelect.disabled = false;
     uploading = false;
-    updateDeleteAllButton();
+    updateDeleteAllButton(fileList.children.length > 0);
     // Clear all containers
     clearResultsControls();
   }
@@ -969,7 +969,7 @@ deleteAllButton.addEventListener("click", async () => {
     }
 
     removeFileList();
-    fileModifiedActions();
+    fileModifiedActions(fileList.children.length > 0);
     clearMessages();
     addMessage("כל הקבצים נמחקו בהצלחה");
   } catch (error: unknown) {
@@ -1545,7 +1545,7 @@ function addFileToList(fileInfo: any) {
       }
 
       fileList.removeChild(li);
-      fileModifiedActions();
+      fileModifiedActions(fileList.children.length > 0);
     } catch (error: unknown) {
       console.error("Delete failed:", error);
       addMessage("שגיאה במחיקת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -1571,9 +1571,9 @@ function addFileToList(fileInfo: any) {
   }
 }
 
-export function fileModifiedActions() {
-    updateDeleteAllButton();
-    updateProcessButton();
+export function fileModifiedActions(hasEntries: boolean) {
+    updateDeleteAllButton(hasEntries);
+    updateProcessButton(hasEntries);
     updateMissingDocuments();
     clearResultsControls();
 }
@@ -1644,9 +1644,9 @@ async function calculateTax(fileName: string) {
   }
 }
 
-function updateDeleteAllButton() {
+function updateDeleteAllButton(hasEntries: boolean) {
   const deleteAllButton = document.getElementById("deleteAllButton") as HTMLButtonElement;
-  deleteAllButton.disabled = fileList.children.length === 0 || uploading;
+  deleteAllButton.disabled = !hasEntries || uploading;
 }
 
 // Add this function to display tax results

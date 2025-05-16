@@ -206,9 +206,13 @@ const readOnlyFields = ["fileName", "reasonText"];
 
 export function editableFileListHasEntries() {
   const expandableArea = document.getElementById("expandableAreaUploadFiles");
+  if (!expandableArea) {
+    console.error('Element with id "expandableAreaUploadFiles" not found!');
+    return false;
+  }
   // Query the number of accordionContainer elements in the expandableArea
   const accordionContainers = expandableArea?.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
-  return accordionContainers && accordionContainers.length > 0;
+  return accordionContainers.length > 0;
 }
 
 export function editableGetDocTypes() {
@@ -982,8 +986,8 @@ export async function displayFileInfoInExpandableArea(data: any) {
               // refresh the accordion
               window.location.reload();
             }
-            updateButtons();
-			fileModifiedActions();
+            updateButtons(editableFileListHasEntries());
+			fileModifiedActions(editableFileListHasEntries());
           } else {
             addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
           }
@@ -1144,7 +1148,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
           if (updatedData) {
             // Remove the add fields button
             displayFileInfoInExpandableArea(updatedData);
-            fileModifiedActions();
+            fileModifiedActions(editableFileListHasEntries());
           }
         };
       }
@@ -1170,7 +1174,7 @@ export async function displayFileInfoInExpandableArea(data: any) {
           button2Text: ""
         });
         displayFileInfoInExpandableArea(updatedData);
-        fileModifiedActions();
+        fileModifiedActions(editableFileListHasEntries());
 		addMessage("נתונים נשמרו בהצלחה", "success");
       }
     };
