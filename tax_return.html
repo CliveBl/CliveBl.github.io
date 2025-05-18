@@ -435,6 +435,437 @@
             </div>
         </div>
     </div>
+
+	<div class="container_867_templates" id="template_867_2022" hidden>	
+		<fieldset>
+			<legend>Form 867 A+B - Capital Gains Details</legend>
+			<p>Based on income data structure in Form 867 A+B. Note numbers refer to fields in the original form.</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Tax Rate</th>
+						<th>Taxable gains excluding losses (1)</th>
+						<th>Gains from oil partnerships (2)</th>
+						<th>Exempt gains (6)</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>0 %</td>
+						<td><input type="text"  class ="field-input" data-field-name="ProfitIncomeTaxedAtPercent0" value="0.00"></td>
+						<td><input type="text"  class ="field-input" name="867ab-oilgains-0" value="0.00"></td>
+						 <td><input type="text"  class ="field-input" name="867ab-exempt-0" value="0.00"></td>
+					</tr>
+					 <tr>
+						<td>15 %</td>
+						<td><input type="text"  class ="field-input" data-field-name="ProfitIncomeTaxedAtPercent15" value="0.00"></td>
+						<td><input type="text"  class ="field-input" name="867ab-oilgains-15" value="0.00"></td>
+						 <td><input type="text"  class ="field-input" name="867ab-exempt-15" value="0.00"></td>
+					</tr>
+					 <tr>
+						<td>20 %</td>
+						<td><input type="text"  class ="field-input" data-field-name="ProfitIncomeTaxedAtPercent20" value="0.00"></td>
+						<td><input type="text"  class ="field-input" name="867ab-oilgains-20" value="0.00"></td>
+						 <td><input type="text"  class ="field-input" name="867ab-exempt-20" value="0.00"></td>
+					</tr>
+					 <tr>
+						<td>25 %</td>
+						<td><input type="text"  class ="field-input" data-field-name="ProfitIncomeTaxedAtPercent25" value="0.00"></td>
+						<td><input type="text"  class ="field-input" name="867ab-oilgains-25" value="0.00"></td>
+						 <td><input type="text"  class ="field-input" name="867ab-exempt-25" value="0.00"></td>
+					</tr>
+					<tr>
+						<td>23 % (Companies)</td>
+						<td><input type="text"  class ="field-input" data-field-name="ProfitIncomeTaxedAtPercent23" value="0.00"></td>
+						<td><input type="text"  class ="field-input" name="867ab-oilgains-23c" value="0.00"></td>
+						 <td><input type="text"  class ="field-input" name="867ab-exempt-23c" value="0.00"></td>
+					</tr>
+					 <tr>
+						<td>35 %</td>
+						<td><input type="text"  class ="field-input" data-field-name="ProfitIncomeTaxedAtPercent35" value="0.00"></td>
+						<td><input type="text"  class ="field-input" name="867ab-oilgains-35" value="0.00"></td>
+						 <td><input type="text"  class ="field-input" name="867ab-exempt-35" value="0.00"></td>
+					</tr>
+				</tbody>
+			</table>
+			<cite></cite>
+	
+			<div>
+				<label for="867ab-setoff-losses">Losses eligible for set-off (3):</label>
+				<input type="text"  class ="field-input" id="867ab-setoff-losses" name="867ab-setoff-losses" value="0.00">
+				 <cite></cite>
+			</div>
+			 <div>
+				<label for="867ab-reit-losses">Losses from sale of REIT shares:</label>
+				<input type="text"  class ="field-input" id="867ab-reit-losses" name="867ab-reit-losses" value="0.00">
+				 <cite></cite>
+			</div>
+			 <div>
+				<label for="867ab-nonsetoff-losses">Losses not eligible for set-off (4):</label>
+				<input type="text"  class ="field-input" id="867ab-nonsetoff-losses" name="867ab-nonsetoff-losses" value="0.00">
+				 <cite></cite>
+			</div>
+			 <div>
+				<label for="867ab-sales-turnover">Sales turnover (5):</label>
+				<input type="text"  class ="field-input" id="867ab-sales-turnover" name="867ab-sales-turnover" value="0.00">
+				 <cite></cite>
+			</div>
+			 <div>
+				<label for="867ab-transactions-count">Number of transactions:</label>
+				<input type="text"  class ="field-input" id="867ab-transactions-count" name="867ab-transactions-count" value="0">
+				 <cite></cite>
+			</div>
+			 <div>
+				<label for="867ab-exemption-reason">Reason for exemption (6):</label>
+				<input type="text" id="867ab-exemption-reason" name="867ab-exemption-reason" value=""> <!-- Empty in source -->
+				 <cite></cite>
+				 <p>Possible reasons for exemption (6): תושב חוץ, תושב חוזר ותיק, תושב ישראל לראשונה.</p>
+				 <cite></cite>
+			</div>
+			 <div>
+				<label for="867ab-tax-withheld">Tax withheld at source (7):</label>
+				<input type="text"  class ="field-input" id="867ab-tax-withheld" name="867ab-tax-withheld" value="0.00">
+				 <cite></cite>
+			</div>
+		</fieldset>
+	
+		 <fieldset>
+			<legend>Form 867 Gimmel - Dividend & Interest from Securities Details</legend>
+	
+			<fieldset>
+				<legend>Dividend / Profit Distribution from Securities</legend>
+				 <table>
+					<thead>
+						<tr>
+							<th>Tax Rate</th>
+							<th>Dividend income before loss set-off (Israel & abroad) (2)</th>
+							<th>Dividend income abroad (3) (Included in left column)</th>
+							<th>Exempt profits (9)</th>
+							<th>Tax paid abroad allowed for deduction/credit (8)</th>
+							<th>Tax paid abroad not allowed</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>00 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeTaxedAtPercent0" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeAbroadTaxedAtPercent0" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="ExemptProfitsTaxedAtPercent0" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-allowed-00" value="0.00"></td>
+							  <td><input type="text"  class ="field-input" name="867g-div-taxabroad-notallowed-00" value="0.00"></td>
+						</tr>
+						<tr>
+							<td>04 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeTaxedAtPercent4" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeAbroadTaxedAtPercent4" value="0.00"></td>
+							<td><input type="text"  class ="field-input" name="867g-div-exempt-04" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-allowed-04" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-notallowed-04" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>15 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeTaxedAtPercent15" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeAbroadTaxedAtPercent15" value="0.00"></td>
+							<td><input type="text"  class ="field-input" name="867g-div-exempt-15" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-allowed-15" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-notallowed-15" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>20 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeTaxedAtPercent20" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeAbroadTaxedAtPercent20" value="0.00"></td>
+							<td><input type="text"  class ="field-input" name="867g-div-exempt-20" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-allowed-20" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-notallowed-20" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>25 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeTaxedAtPercent25" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeAbroadTaxedAtPercent25" value="0.00"></td>
+							<td><input type="text"  class ="field-input" name="867g-div-exempt-25" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-allowed-25" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-notallowed-25" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>23 % (Companies) (6)</td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeTaxedAtPercent23" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="DividendIncomeAbroadTaxedAtPercent23" value="0.00"></td>
+							<td><input type="text"  class ="field-input" name="867g-div-exempt-23c" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-allowed-23c" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-div-taxabroad-notallowed-23c" value="0.00"></td>
+						</tr>
+					</tbody>
+				</table>
+				<cite></cite>
+	
+				<table>
+					 <thead>
+						<tr>
+							<th>Tax Rate</th>
+							<th>Income from foreign funds traded in Israel, exempt mutual funds and ETFs (5)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>00 %</td>
+							<td><input type="text"  class ="field-input" name="867g-div-funds-00" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>04 %</td>
+							 <td><input type="text"  class ="field-input" name="867g-div-funds-04" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>15 %</td>
+							 <td><input type="text"  class ="field-input" name="867g-div-funds-15" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>20 %</td>
+							 <td><input type="text"  class ="field-input" name="867g-div-funds-20" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>25 %</td>
+							 <td><input type="text"  class ="field-input" name="867g-div-funds-25" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>23 % (Companies) (6)</td>
+							 <td><input type="text"  class ="field-input" name="867g-div-funds-23c" value="0.00"></td>
+						</tr>
+					</tbody>
+				</table>
+				<cite></cite>
+	
+				 <div>
+					<label for="867g-div-tax-withheld">Tax withheld at source from dividend/profit distribution (7):</label>
+					<input type="text"  class ="field-input" id="867g-div-tax-withheld" data-field-name="TaxDeductedAtSourceDividend_040" value="0.00">
+					 <cite></cite>
+				</div>
+			</fieldset>
+	
+			 <fieldset>
+				<legend>Interest / Discount Fee from Securities</legend>
+				<table>
+					<thead>
+						<tr>
+							<th>Tax Rate</th>
+							<th>Interest/Discount fee income before loss set-off (Israel & abroad) (2)</th>
+							<th>Interest income abroad (3) (Included in left column)</th>
+							 <th>Exempt profits</th> <!-- Label in source -->
+							<th>Tax paid abroad allowed for deduction/credit (8)</th>
+							 <th>Tax paid abroad not allowed</th>
+						</tr>
+					</thead>
+					<tbody>
+						 <tr>
+							<td>0 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeTaxedAtPercent0" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeAbroadTaxedAtPercent0" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-exempt-0" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-allowed-0" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-notallowed-0" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>10 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeTaxedAtPercent10" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeAbroadTaxedAtPercent10" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-exempt-10" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-allowed-10" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-notallowed-10" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>15 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeTaxedAtPercent15" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeAbroadTaxedAtPercent15" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-exempt-15" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-allowed-15" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-notallowed-15" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>20 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeTaxedAtPercent20" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeAbroadTaxedAtPercent20" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-exempt-20" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-allowed-20" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-notallowed-20" value="0.00"></td>
+						</tr>
+						 <tr>
+							<td>25 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeTaxedAtPercent25" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeAbroadTaxedAtPercent25" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-exempt-25" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-allowed-25" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-notallowed-25" value="0.00"></td>
+						</tr>
+						<tr>
+							<td>23 % (Companies) (6)</td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeTaxedAtPercent23" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeAbroadTaxedAtPercent23" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-exempt-23c" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-allowed-23c" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-notallowed-23c" value="0.00"></td>
+						</tr>
+						<tr>
+							<td>35 %</td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeTaxedAtPercent35" value="0.00"></td>
+							<td><input type="text"  class ="field-input" data-field-name="InterestIncomeAbroadTaxedAtPercent35" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-exempt-35" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-allowed-35" value="0.00"></td>
+							 <td><input type="text"  class ="field-input" name="867g-int-taxabroad-notallowed-35" value="0.00"></td>
+						</tr>
+					</tbody>
+				</table>
+				 <cite></cite>
+	
+				 <div>
+					<label for="867g-int-tax-withheld">Tax withheld at source from interest / discount fee (7):</label>
+					<input type="text"  class ="field-input" id="867g-int-tax-withheld" data-field-name=""="TaxDeductedAtSourceInterest_040" value="0.00">
+					 <cite></cite>
+				</div>
+			</fieldset>
+	
+			<div>
+				<label for="867g-exemption-reason">Reason for exemption (9):</label>
+				<input type="text" id="867g-exemption-reason" name="867g-exemption-reason" value=""> <!-- Empty in source -->
+			</div>
+	
+		 </fieldset>
+	
+		 <fieldset>
+			<legend>Form 867 Dalet - Interest & Profits from Deposits/Savings Details</legend>
+			 <p>Based on income data structure in Form 867 Dalet. Note numbers refer to fields in the original form.</p>
+	
+			<table>
+				<thead>
+					<tr>
+						<th>Product / Income Type</th>
+						<th>Field Number</th>
+						<th>Amount (ILS)</th>
+						<th>Tax Rate (Implied)</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>הכנסה חייבת מריבית על יתרות עו"ש בזכות</td>
+						<td>שדה 076</td>
+						<td><input type="text"  class ="field-input" data-field-name="DepositCurrentAccountIncomeTaxedAtPercent10_076" value="0.00"></td>
+						 <td>10 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית על יתרות עו"ש בזכות</td>
+						<td>שדה 078</td>
+						<td><input type="text"  class ="field-input" data-field-name="DepositCurrentAccountIncomeTaxedAtPercent15_078" value="0.00"></td>
+						 <td>15 %</td>
+					</tr>
+					<tr>
+						<td>הכנסה חייבת מריבית על פקדונות</td>
+						<td>שדה 076</td>
+						<td><input type="text"  class ="field-input" data-field-name="DepositIncomeTaxedAtPercent10_076" value="0.00"></td>
+						 <td>10 %</td>
+					</tr>
+					<tr>
+						<td>הכנסה חייבת מריבית על פקדונות</td>
+						<td>שדה 078</td>
+						<td><input type="text"  class ="field-input" data-field-name="DepositIncomeTaxedAtPercent15_078" value="0.00"></td>
+						 <td>15 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית על פקדונות</td>
+						<td>שדה 076</td>
+						<td><input type="text"  class ="field-input" data-field-name="DepositIncomeTaxedAtPercent20_126" value="0.00"></td>
+						 <td>20 %</td>
+					</tr>
+					<tr>
+						<td>הכנסה חייבת מריבית על פקדונות</td>
+						<td>שדה 078</td>
+						<td><input type="text"  class ="field-input" data-field-name="DepositIncomeTaxedAtPercent25_142" value="0.00"></td>
+						 <td>25 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית על פקדונות</td>
+						<td>שדה 126</td>
+						<td><input type="text"  class ="field-input" data-field-name="" value="0.00"></td>
+						 <td>23 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית על פקדונות</td>
+						<td>שדה 142</td>
+						<td><input type="text"  class ="field-input" name="867d-deposit-income-25" value="0.00"></td>
+						 <td>25 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית על פקדונות</td>
+						<td>N/A (Implied)</td> <!-- No field number in source for this rate -->
+						<td><input type="text"  class ="field-input" name="867d-deposit-income-23c" value="0.00"></td>
+						 <td>23 % (Companies)</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית על פקדונות</td>
+						<td>שדה 053</td>
+						<td><input type="text"  class ="field-input" data-field-name="DepositIncomeTaxedAtPercent35_053" value="0.00"></td>
+						 <td>35 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+						<td>שדה 078</td>
+						<td><input type="text"  class ="field-input" name="867d-forex-deposit-income-15" value="0.00"></td>
+						 <td>15 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+						<td>שדה 126</td>
+						<td><input type="text"  class ="field-input" name="867d-forex-deposit-income-20" value="0.00"></td>
+						 <td>20 %</td>
+					</tr>
+					<tr>
+						<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+						<td>שדה 142</td>
+						<td><input type="text"  class ="field-input" name="867d-forex-deposit-income-25" value="0.00"></td>
+						 <td>25 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+						<td>N/A (Implied)</td> <!-- No field number in source for this rate -->
+						<td><input type="text"  class ="field-input" name="867d-forex-deposit-income-23c" value="0.00"></td>
+						 <td>23 % (Companies)</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+						<td>שדה 053</td>
+						<td><input type="text"  class ="field-input" name="867d-forex-deposit-income-35" value="0.00"></td>
+						 <td>35 %</td>
+					</tr>
+					 <tr>
+						<td>הכנסה חייבת מתשלומי ריבית אחרים</td>
+						<td>N/A (Implied)</td> <!-- No field number in source -->
+						<td><input type="text"  class ="field-input" name="867d-other-interest-income" value="0.00"></td>
+						 <td>N/A (Implied)</td> <!-- Tax rate not specified in source line -->
+					</tr>
+				</tbody>
+				 <cite></cite>
+			</table>
+	
+			 <div>
+				<label for="867d-total-exempt-interest">Total exempt interest and indexation differences (Field 209):</label>
+				<input type="text"  class ="field-input" id="867d-total-exempt-interest" data-field-name="TotalExemptInterestAndIndexLinkageDifference_209" value="0.00">
+				 <cite></cite>
+			</div>
+			 <div>
+				<label for="867d-exemption-reason">Reason for exemption (4):</label>
+				<input type="text" id="867d-exemption-reason" name="867d-exemption-reason" value=""> <!-- Empty in source -->
+				 <cite></cite>
+				 <p>Reason for exemption (4): Exemption granted by the withholder according to one of the exemption orders or Income Tax Regulations.</p>
+			</div>
+			 <div>
+				<label for="867d-total-tax-withheld">Total Tax Withheld at Source from Deposits Before Refund (Field 043):</label>
+				<input type="text"  class ="field-input" id="867d-total-tax-withheld" data-field-name="TaxDeductedAtSourceDeposit_043" value="0.00">
+				 <cite></cite>
+			</div>
+	
+		</fieldset>
+		
+	<!-- </form> -->
+	</div>
+	</div>
+
     <script>nl_pos = "br";nl_compact = "1";</script>
     <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
   </body>

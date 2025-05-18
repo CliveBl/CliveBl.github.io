@@ -174,15 +174,19 @@ const friendlyNames = {
     clientIdentificationNumber: "מספר זיהוי",
     fileName: "שם הקובץ",
     reasonText: "סיבה",
-    movedHereDuringYearBoolean: "עברתי לכאן במהלך השנה"
+    movedHereDuringYearBoolean: "עברתי לכאן במהלך השנה",
 };
 const excludedHeaderFields = ["clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
 export function editableFileListHasEntries() {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
+    if (!expandableArea) {
+        console.error('Element with id "expandableAreaUploadFiles" not found!');
+        return false;
+    }
     // Query the number of accordionContainer elements in the expandableArea
     const accordionContainers = expandableArea?.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
-    return accordionContainers && accordionContainers.length > 0;
+    return accordionContainers.length > 0;
 }
 export function editableGetDocTypes() {
     // Get all accordionContainers and map to their document types
@@ -228,7 +232,7 @@ export function editableOpenFileListEntry(fileName) {
         }
     }
 }
-export async function displayFileInfoInExpandableArea(data) {
+export async function displayFileInfoInExpandableArea(data, withTemplate = false) {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
     if (!expandableArea) {
         console.error('Element with id "expandableAreaUploadFiles" not found!');
@@ -329,7 +333,7 @@ export async function displayFileInfoInExpandableArea(data) {
             accordianheader.appendChild(editorDeleteButton);
             accordionContainer.appendChild(accordianheader);
             // First, display additional fields in the body (excluding header fields)
-            renderFields(fileData, accordianbody);
+            renderFields(fileData, accordianbody, withTemplate);
             // Update Button
             const saveButton = document.createElement("button");
             const cancelButton = document.createElement("button");
@@ -350,46 +354,61 @@ export async function displayFileInfoInExpandableArea(data) {
             yearToggleButton.textContent = "-";
         }
     });
-    async function updateFormFunction(fileId, payload) {
-        const URL = API_BASE_URL + "/updateForm";
-        //debug("This is the payload in updateFormFunction:",JSON.stringify(payload));
+    async function updateForm(fileId, payload) {
         if (payload.fields) {
             // Remove fields with value "0.00"
             const filteredFields = Object.fromEntries(Object.entries(payload.fields).filter(([_, value]) => value !== "0.00"));
             payload.fields = filteredFields;
+            payload.fileId = fileId; // Ensure fileId is included in the payload
             //debug("filtered fields", filteredFields);
         }
-        //debug("This is the updated payload in updateFormFunction:",JSON.stringify(payload));
-        try {
-            // Send the POST request
-            const response = await fetch(URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    customerDataEntryName: "Default",
-                    formAsJSON: {
-                        ...payload,
-                        fileId: fileId, // Ensure fileId is included in the payload
-                    },
-                }),
-            });
-            if (!(await handleResponse(response, "Failed to update form"))) {
-                return;
-            }
-            // Parse and handle the response
-            const responseData = await response.json();
-            //debug("Form updated successfully:", responseData);
-            return responseData; // Return the response if needed
-        }
-        catch (error) {
-            console.error("Error updating form:", error);
-            addMessage("שגיאה בעריכת הטופס: " + error.message, "error");
-        }
+        return updateFormAPI(fileId, payload);
     }
-    async function updateFormFunctionNewForm(fileId, fileType, fileData) {
+    function updateFormAllFields2(data, fileId, fileType, fileData) {
+        // Find the formType details
+        const formDetails = configurationData.formTypes.find((form) => form.formType === fileType);
+        if (!formDetails) {
+            console.error(`Form type '${fileType}' not found in configuration data.`);
+            return;
+        }
+        debug(`Found form details for '${fileType}':`, formDetails);
+        // Ensure fieldTypes exist before iterating
+        if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
+            console.warn(`No fieldTypes found for '${fileType}'.`);
+        }
+        debug("fileData", fileData);
+        // Copy existing fields from fileData (excluding the `fields` object)
+        const updatedFileData = structuredClone(fileData);
+        //delete existingData.fields; // Ensure we don't mix fields with other properties
+        // Initialize fieldsData with existing fields from fileData.fields
+        const fieldsData = updatedFileData.fields || {};
+        // Fill missing fields from configuration with default values
+        if (formDetails.fieldTypes) {
+            formDetails.fieldTypes.forEach((field) => {
+                if (!(field in fieldsData)) {
+                    fieldsData[field] = "0.00"; // Default placeholder value
+                }
+            });
+            debug("existingData", updatedFileData);
+            debug("fieldsData", fieldsData);
+        }
+        debug("data", data);
+        // Create a new list of obkects.
+        let updatedData = [];
+        // Now clone data, (which is an array of file objects), into updatedData item by item.
+        data.forEach((file) => {
+            if (file.fileId === fileId) {
+                updatedData.push(updatedFileData);
+                debug("updatedFileData", updatedFileData);
+            }
+            else {
+                updatedData.push(structuredClone(file));
+            }
+        });
+        debug("updatedData", updatedData);
+        return updatedData;
+    }
+    async function updateFormAllFields(fileId, fileType, fileData) {
         // Find the formType details
         const formDetails = configurationData.formTypes.find((form) => form.formType === fileType);
         if (!formDetails) {
@@ -414,7 +433,6 @@ export async function displayFileInfoInExpandableArea(data) {
                 }
             });
         }
-        //debug("Final fields data (separate fields object):", fieldsData);
         // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
         const payload = {
             fileId: fileId,
@@ -422,7 +440,9 @@ export async function displayFileInfoInExpandableArea(data) {
             ...existingData, // Includes all original fileData fields
             fields: fieldsData, // Separate section for form fields
         };
-        //debug("Final payload to be sent:", JSON.stringify(payload, null, 2));
+        return updateFormAPI(fileId, payload);
+    }
+    async function updateFormAPI(fileId, payload) {
         try {
             // Construct the API URL
             const URL = API_BASE_URL + "/updateForm";
@@ -438,9 +458,6 @@ export async function displayFileInfoInExpandableArea(data) {
                     formAsJSON: payload,
                 }),
             });
-            //   if (!response.ok) {
-            //     throw new Error(`API request failed with status ${response.status}`);
-            //   }
             if (!(await handleResponse(response, "Failed to update form"))) {
                 return;
             }
@@ -474,7 +491,7 @@ export async function displayFileInfoInExpandableArea(data) {
             throw error;
         }
     }
-    function renderFields(fileData, body) {
+    function renderFields(fileData, body, withTemplate = false) {
         // Store the action buttons before clearing
         const actionButtons = body.querySelectorAll(".form-action-button");
         const buttonsArray = Array.from(actionButtons);
@@ -621,12 +638,12 @@ export async function displayFileInfoInExpandableArea(data) {
                 // 🟢 **Default: Currency Field (if no other condition matched)**
                 input.type = "text";
                 if (key.includes("_")) {
+                    // Field code from friendlyNames[key]. It is the text after the underscore.
                     const fieldCode = key.split("_")[1];
                     codeLabel = document.createElement("label");
                     codeLabel.textContent = fieldCode;
                     codeLabel.className = "codeLabel";
                 }
-                // Firld code from friendlyNames[key]. It is the text after the underscore.
                 let numericValue = parseFloat(value);
                 if (isNaN(numericValue)) {
                     numericValue = 0.0;
@@ -634,20 +651,7 @@ export async function displayFileInfoInExpandableArea(data) {
                 input.value = formatCurrencyWithSymbol(numericValue);
                 // **Restrict typing to valid numeric input**
                 input.addEventListener("input", (e) => {
-                    let rawValue = input.value.replace(/[^\d.]/g, "");
-                    if (rawValue.split(".").length > 2) {
-                        rawValue = rawValue.substring(0, rawValue.lastIndexOf("."));
-                    }
-                    let parts = rawValue.split(".");
-                    // Restrict max 10 digits before decimal
-                    if (parts[0].length > 10) {
-                        parts[0] = parts[0].slice(0, 10);
-                    }
-                    // Restrict max 2 digits after decimal
-                    if (parts[1] && parts[1].length > 2) {
-                        parts[1] = parts[1].slice(0, 2);
-                    }
-                    input.value = parts.join(".");
+                    currencyEventListener(input);
                 });
                 // 🟢 **Format on Blur**
                 input.addEventListener("blur", () => {
@@ -666,16 +670,61 @@ export async function displayFileInfoInExpandableArea(data) {
             }
             container.appendChild(fieldRow);
         }
+        function currencyEventListener(input) {
+            let rawValue = input.value.replace(/[^\d.]/g, "");
+            if (rawValue.split(".").length > 2) {
+                rawValue = rawValue.substring(0, rawValue.lastIndexOf("."));
+            }
+            let parts = rawValue.split(".");
+            // Restrict max 10 digits before decimal
+            if (parts[0].length > 10) {
+                parts[0] = parts[0].slice(0, 10);
+            }
+            // Restrict max 2 digits after decimal
+            if (parts[1] && parts[1].length > 2) {
+                parts[1] = parts[1].slice(0, 2);
+            }
+            input.value = parts.join(".");
+        }
+        function populateField(container, key, value) {
+            // Find the field in the container
+            const field = container.querySelector(`input[data-field-name="${key}"]`);
+            if (field) {
+                let numericValue = parseFloat(value);
+                if (isNaN(numericValue)) {
+                    numericValue = 0.0;
+                }
+                field.value = formatCurrencyWithSymbol(numericValue);
+                field.addEventListener("input", (e) => {
+                    currencyEventListener(field);
+                });
+            }
+        }
         // Process main fields (thicker border)
         Object.entries(fileData).forEach(([key, value]) => {
             if (key !== "fields" && key !== "genericFields" && key !== "children") {
                 createFieldRow(body, key, value, true);
             }
         });
-        // Process nested fields inside `fileData.fields` (thinner border)
-        Object.entries(fileData.fields || {}).forEach(([key, value]) => {
-            createFieldRow(body, key, value, false);
-        });
+        // If it is an 867 form and we are not on mobile we render according to the template
+        if (fileData.documentType === "טופס 867" && window.innerWidth > 768 && withTemplate) {
+            // Clone template_867_2022
+            const template = document.getElementById("template_867_2022");
+            const clone = template.cloneNode(true);
+            clone.id = "";
+            // Populate the clone with the fileData
+            Object.entries(fileData.fields || {}).forEach(([key, value]) => {
+                populateField(clone, key, value);
+            });
+            clone.removeAttribute("hidden");
+            body.appendChild(clone);
+        }
+        else {
+            // Process nested fields inside `fileData.fields` (thinner border)
+            Object.entries(fileData.fields || {}).forEach(([key, value]) => {
+                createFieldRow(body, key, value, false);
+            });
+        }
         // Only show children section if there are children or if this is a form that can have children
         if (fileData.children) {
             // Title for the children with a control button before the title, that adds a new child.
@@ -861,8 +910,8 @@ export async function displayFileInfoInExpandableArea(data) {
                         // refresh the accordion
                         window.location.reload();
                     }
-                    updateButtons();
-                    fileModifiedActions();
+                    updateButtons(editableFileListHasEntries());
+                    fileModifiedActions(editableFileListHasEntries());
                 }
                 else {
                     addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
@@ -893,6 +942,7 @@ export async function displayFileInfoInExpandableArea(data) {
                     fieldName.endsWith("Boolean") ||
                     fieldName.endsWith("Options"));
             }
+            const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type);
             // Update main fields and fields object
             accordianBody.querySelectorAll("input[data-field-name]:not(.child-container input)").forEach((input) => {
                 const htmlInput = input;
@@ -910,12 +960,15 @@ export async function displayFileInfoInExpandableArea(data) {
                 else if (fieldName.endsWith("Date")) {
                     fieldValue = normalizeDate(htmlInput.value);
                 }
-                // 🟢 **Determine where to store the updated value**
-                if (fieldName in fileData && !fileData.fields?.hasOwnProperty(fieldName)) {
-                    updatedData[fieldName] = fieldValue;
-                }
-                else if (fileData.fields?.hasOwnProperty(fieldName)) {
+                // Search the fieldTypes array for a field with the same name as fieldName
+                const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
+                // Determine where to store the updated value
+                if (isField) {
+                    debug("fieldName/fieldValue", fieldName, fieldValue);
                     updatedData.fields[fieldName] = fieldValue;
+                }
+                else if (fieldName in fileData) {
+                    updatedData[fieldName] = fieldValue;
                 }
             });
             // Update Options fields and fields object
@@ -1003,12 +1056,14 @@ export async function displayFileInfoInExpandableArea(data) {
                 //  add fields to an existing form
                 addFieldsButton.onclick = async () => {
                     debug("Adding fields to an existing form");
-                    //await updateFormsWithoutFields(data);
-                    const updatedData = await updateFormFunctionNewForm(fileData.fileId, fileData.type, getDataFromControls());
+                    // If it is a 867 form and we are not on mobile we render according to the template
+                    const withTemplate = fileData.documentType === "טופס 867";
+                    const updatedData = updateFormAllFields2(data, fileData.fileId, fileData.type, getDataFromControls());
                     if (updatedData) {
-                        // Remove the add fields button
-                        displayFileInfoInExpandableArea(updatedData);
-                        fileModifiedActions();
+                        displayFileInfoInExpandableArea(updatedData, withTemplate);
+                        fileModifiedActions(editableFileListHasEntries());
+                        // reopen the file accordian
+                        editableOpenFileListEntry(fileData.fileName);
                     }
                 };
             }
@@ -1022,17 +1077,17 @@ export async function displayFileInfoInExpandableArea(data) {
         saveButton.onclick = async () => {
             const formData = getDataFromControls();
             //debug("🔄 Updating Form Data:", updatedData);
-            const updatedData = await updateFormFunction(fileData.fileId, formData);
+            const updatedData = await updateForm(fileData.fileId, formData);
             if (updatedData) {
                 // Display success modal
                 await customerMessageModal({
                     title: "שמירת נתונים",
                     message: `הנתונים נשמרו בהצלחה`,
                     button1Text: "",
-                    button2Text: ""
+                    button2Text: "",
                 });
                 displayFileInfoInExpandableArea(updatedData);
-                fileModifiedActions();
+                fileModifiedActions(editableFileListHasEntries());
                 addMessage("נתונים נשמרו בהצלחה", "success");
             }
         };

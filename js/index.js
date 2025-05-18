@@ -48,15 +48,15 @@ const userEmail = document.getElementById("userEmail");
 const createFormSelect = document.getElementById("createFormSelect");
 const acceptCookies = document.getElementById("acceptCookies");
 const cookieConsent = document.getElementById("cookieConsent");
-export function updateButtons() {
-    processButton.disabled = !editableFileListHasEntries();
-    deleteAllButton.disabled = !editableFileListHasEntries();
+export function updateButtons(hasEntries) {
+    processButton.disabled = !hasEntries;
+    deleteAllButton.disabled = !hasEntries;
 }
 function updateFileListP(fileInfoList) {
     //if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
     if (editableFileList) {
         displayFileInfoInExpandableArea(fileInfoList);
-        updateButtons();
+        updateButtons(editableFileListHasEntries());
         updateMissingDocuments();
     }
     else {
@@ -195,7 +195,7 @@ function signOut() {
     // Update UI to show logged out state
     updateSignInUI();
     removeFileList();
-    fileModifiedActions();
+    fileModifiedActions(false);
     clearMessages();
     //addMessage("התנתקת בהצלחה");
 }
@@ -259,14 +259,14 @@ function updateFileList(fileInfoList) {
         addFileToList(fileInfo);
     });
     // Enable/disable delete all button based on file list
-    updateDeleteAllButton();
+    updateDeleteAllButton(fileList.children.length > 0);
     // Enable/disable process button based on file list
-    updateProcessButton();
+    updateProcessButton(fileInfoList.length > 0);
     updateMissingDocuments();
 }
 // Add function to update process button state
-function updateProcessButton() {
-    processButton.disabled = fileList.children.length === 0;
+function updateProcessButton(hasEntries) {
+    processButton.disabled = !hasEntries;
 }
 async function uploadFilesListener(fileInput) {
     clearMessages();
@@ -419,7 +419,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
         folderInput.disabled = false;
         createFormSelect.disabled = false;
         uploading = false;
-        updateDeleteAllButton();
+        updateDeleteAllButton(fileList.children.length > 0);
         // Clear all containers
         clearResultsControls();
     }
@@ -860,7 +860,7 @@ deleteAllButton.addEventListener("click", async () => {
             return;
         }
         removeFileList();
-        fileModifiedActions();
+        fileModifiedActions(fileList.children.length > 0);
         clearMessages();
         addMessage("כל הקבצים נמחקו בהצלחה");
     }
@@ -1385,7 +1385,7 @@ function addFileToList(fileInfo) {
                 return;
             }
             fileList.removeChild(li);
-            fileModifiedActions();
+            fileModifiedActions(fileList.children.length > 0);
         }
         catch (error) {
             console.error("Delete failed:", error);
@@ -1409,9 +1409,9 @@ function addFileToList(fileInfo) {
         }
     }
 }
-export function fileModifiedActions() {
-    updateDeleteAllButton();
-    updateProcessButton();
+export function fileModifiedActions(hasEntries) {
+    updateDeleteAllButton(hasEntries);
+    updateProcessButton(hasEntries);
     updateMissingDocuments();
     clearResultsControls();
 }
@@ -1473,9 +1473,9 @@ async function calculateTax(fileName) {
         hideLoadingOverlay();
     }
 }
-function updateDeleteAllButton() {
+function updateDeleteAllButton(hasEntries) {
     const deleteAllButton = document.getElementById("deleteAllButton");
-    deleteAllButton.disabled = fileList.children.length === 0 || uploading;
+    deleteAllButton.disabled = !hasEntries || uploading;
 }
 // Add this function to display tax results
 function displayTaxCalculation(result, year, shouldScroll = false) {
