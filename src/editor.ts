@@ -201,7 +201,7 @@ const friendlyNames = {
   movedHereDuringYearBoolean: "עברתי לכאן במהלך השנה",
 };
 
-const excludedHeaderFields = ["clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
+const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
 
 export function editableFileListHasEntries() {
@@ -263,9 +263,8 @@ export function editableOpenFileListEntry(fileName: string) {
   }
 }
 
-export async function displayFileInfoInExpandableArea(data: any, withTemplate = false) {
+export async function displayFileInfoInExpandableArea(allFilesData: any, backupAllFilesData: any, withAllFields = false) {
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLDivElement;
-
   if (!expandableArea) {
     console.error('Element with id "expandableAreaUploadFiles" not found!');
     return;
@@ -276,7 +275,7 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
 
   // Group files by year
   const filesByYear = new Map<string, any[]>();
-  data.forEach((fileData: any) => {
+  allFilesData.forEach((fileData: any) => {
     // Use taxYear for grouping
     let year = "No Year";
     if (fileData.taxYear && fileData.taxYear.trim() !== "") {
@@ -341,7 +340,7 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
       yearToggleButton.textContent = yearToggleButton.textContent === "+" ? "-" : "+";
     };
 
-    displayFileInfoHeader(yearBody, data);
+    displayFileInfoHeader(yearBody, allFilesData);
 
     // Add files to year body
     files.forEach((fileData: any) => {
@@ -389,13 +388,13 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
       accordionContainer.appendChild(accordianheader);
 
       // First, display additional fields in the body (excluding header fields)
-      renderFields(fileData, accordianbody, withTemplate);
+      renderFields(fileData, accordianbody, withAllFields);
 
       // Update Button
       const saveButton = document.createElement("button") as HTMLButtonElement;
       const cancelButton = document.createElement("button") as HTMLButtonElement;
 
-      displayFileInfoButtons(saveButton, cancelButton, fileData, accordianbody, data);
+      displayFileInfoButtons(saveButton, cancelButton, fileData, accordianbody, allFilesData);
 
       accordianbody.appendChild(saveButton);
       accordianbody.appendChild(cancelButton);
@@ -408,7 +407,7 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
     expandableArea.appendChild(yearContainer);
 
     // If this is a newly added file (check if it's the last file in the data array)
-    const lastFile = data[data.length - 1];
+    const lastFile = allFilesData[allFilesData.length - 1];
     if (lastFile && lastFile.taxYear === year) {
       // Expand the year accordion
       yearBody.style.display = "block";
@@ -427,7 +426,7 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
     return updateFormAPI(fileId, payload);
   }
 
-  function updateFormAllFields2(data: any, fileId: string, fileType: string, fileData: any) {
+  function updateFormAllFields(allFilesData: any, fileId: string, fileType: string, fileData: any, withAllFields: boolean) {
     // Find the formType details
     const formDetails = configurationData.formTypes.find((form) => form.formType === fileType) as { fieldTypes?: string[] };
     if (!formDetails) {
@@ -435,88 +434,51 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
       return;
     }
 
-    debug(`Found form details for '${fileType}':`, formDetails);
+    //debug(`Found form details for '${fileType}':`, formDetails);
 
     // Ensure fieldTypes exist before iterating
     if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
       console.warn(`No fieldTypes found for '${fileType}'.`);
     }
 
-    debug("fileData", fileData);
-    // Copy existing fields from fileData (excluding the `fields` object)
+    // Deep copy existing fields from fileData (excluding the `fields` object)
     const updatedFileData = structuredClone(fileData);
     //delete existingData.fields; // Ensure we don't mix fields with other properties
 
-    // Initialize fieldsData with existing fields from fileData.fields
+    // Initialize fieldsData reference to existing fields from fileData.fields
     const fieldsData = updatedFileData.fields || {};
 
-    // Fill missing fields from configuration with default values
     if (formDetails.fieldTypes) {
-      formDetails.fieldTypes.forEach((field) => {
-        if (!(field in fieldsData)) {
-          fieldsData[field] = "0.00"; // Default placeholder value
-        }
-      });
-      debug("existingData", updatedFileData);
-      debug("fieldsData", fieldsData);
+      if (withAllFields) {
+        // Fill missing fields from configuration with default values
+        formDetails.fieldTypes.forEach((field) => {
+          if (!(field in fieldsData)) {
+            fieldsData[field] = "0.00"; // Default placeholder value
+          }
+        });
+      } else {
+        // Remove any fields with 0 value
+        Object.keys(fieldsData).forEach((key) => {
+          if (fieldsData[key] === "0.00") {
+            delete fieldsData[key];
+          }
+        });
+      }
     }
-    debug("data", data);
     // Create a new list of obkects.
     let updatedData: any[] = [];
     // Now clone data, (which is an array of file objects), into updatedData item by item.
-    data.forEach((file: any) => {
+    allFilesData.forEach((file: any) => {
       if (file.fileId === fileId) {
         updatedData.push(updatedFileData);
-        debug("updatedFileData", updatedFileData);
       } else {
+        // Deep clone the file object
         updatedData.push(structuredClone(file));
       }
     });
-    debug("updatedData", updatedData);
     return updatedData;
   }
 
-  async function updateFormAllFields(fileId: string, fileType: string, fileData: any) {
-    // Find the formType details
-    const formDetails = configurationData.formTypes.find((form) => form.formType === fileType) as { fieldTypes?: string[] };
-    if (!formDetails) {
-      console.error(`Form type '${fileType}' not found in configuration data.`);
-      return;
-    }
-
-    debug(`Found form details for '${fileType}':`, formDetails);
-
-    // Ensure fieldTypes exist before iterating
-    if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
-      console.warn(`No fieldTypes found for '${fileType}'.`);
-    }
-
-    // Copy existing fields from fileData (excluding the `fields` object)
-    const existingData = { ...fileData };
-    delete existingData.fields; // Ensure we don't mix fields with other properties
-
-    // Initialize fieldsData with existing fields from fileData.fields
-    const fieldsData = { ...(fileData.fields || {}) };
-
-    // Fill missing fields from configuration with default values
-    if (formDetails.fieldTypes) {
-      formDetails.fieldTypes.forEach((field) => {
-        if (!(field in fieldsData)) {
-          fieldsData[field] = "0.00"; // Default placeholder value
-        }
-      });
-    }
-
-    // Construct the JSON payload using ALL copied fields + generated missing fields inside "fields" section
-    const payload = {
-      fileId: fileId,
-      type: fileType,
-      ...existingData, // Includes all original fileData fields
-      fields: fieldsData, // Separate section for form fields
-    };
-
-    return updateFormAPI(fileId, payload);
-  }
 
   async function updateFormAPI(fileId: string, payload: any) {
     try {
@@ -572,7 +534,7 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
     }
   }
 
-  function renderFields(fileData: any, body: HTMLElement, withTemplate = false) {
+  function renderFields(fileData: any, body: HTMLElement, withAllFields = false) {
     // Store the action buttons before clearing
     const actionButtons = body.querySelectorAll(".form-action-button");
     const buttonsArray = Array.from(actionButtons);
@@ -797,7 +759,7 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
       }
     });
     // If it is an 867 form and we are not on mobile we render according to the template
-    if (fileData.documentType === "טופס 867" && window.innerWidth > 768 && withTemplate) {
+    if (fileData.documentType === "טופס 867" && window.innerWidth > 768 && withAllFields) {
       // Clone template_867_2022
       const template = document.getElementById("template_867_2022") as HTMLDivElement;
       const clone = template.cloneNode(true) as HTMLDivElement;
@@ -1010,6 +972,7 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
   function displayFileInfoDeleteButton(editorDeleteButton: HTMLButtonElement, fileData: any, accordionContainer: HTMLDivElement) {
     editorDeleteButton.textContent = "🗑️";
     editorDeleteButton.className = "delete-button";
+
     editorDeleteButton.onclick = () => {
       const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
       fetch(deleteUrl, {
@@ -1030,6 +993,11 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
               // refresh the accordion
               window.location.reload();
             }
+            // Remove the file from the backupAllFilesData array
+            const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
+            if (backupFormIndex !== -1) {
+              backupAllFilesData.splice(backupFormIndex, 1);
+            }
             updateButtons(editableFileListHasEntries());
             fileModifiedActions(editableFileListHasEntries());
           } else {
@@ -1043,8 +1011,7 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
     };
   }
 
-  async function displayFileInfoButtons(saveButton: HTMLButtonElement, cancelButton: HTMLButtonElement, fileData: any, accordianBody: HTMLElement, originalFileData: any) {
-    //debug("displayFileInfoButtons", fileData);
+  async function displayFileInfoButtons(saveButton: HTMLButtonElement, cancelButton: HTMLButtonElement, fileData: any, accordianBody: HTMLElement, allFilesData: any) {
     function getDataFromControls() {
       const updatedData = { ...fileData }; // Clone original fileData
       //   if (fileData.fields) {
@@ -1089,7 +1056,6 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
 
         // Determine where to store the updated value
         if (isField) {
-          debug("fieldName/fieldValue", fieldName, fieldValue);
           updatedData.fields[fieldName] = fieldValue;
         } else if (fieldName in fileData) {
           updatedData[fieldName] = fieldValue;
@@ -1174,41 +1140,26 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
     cancelButton.className = "form-action-button";
 
     if (fileData.fields && configurationData) {
-      //debug("fileData.fields", fileData.fields);
-      // Check if the number of fields is the same as the number of fields in the formType
-      const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
+      const addFieldsButton = document.createElement("button") as HTMLButtonElement;
+      addFieldsButton.textContent = "הוספת שדות קלט";
+      addFieldsButton.className = "form-action-button";
+      accordianBody.appendChild(addFieldsButton);
 
-      // Count the number of properties in the fileData.fields object
-      const fileDataFieldsLength = Object.keys(fileData.fields).length;
-      //debug("fileDataFieldsLength", fileDataFieldsLength);
-      // Only if it is different add the add fields buton.
-      if (formDetails?.fieldTypes?.length !== fileDataFieldsLength) {
-        //debug("Lengths:", formDetails?.fieldTypes?.length, fileDataFieldsLength);
-        const addFieldsButton = document.createElement("button") as HTMLButtonElement;
-        addFieldsButton.textContent = "הוספת שדות קלט";
-        addFieldsButton.className = "form-action-button";
-        accordianBody.appendChild(addFieldsButton);
-
-        //  add fields to an existing form
-        addFieldsButton.onclick = async () => {
-          debug("Adding fields to an existing form");
-
-          // If it is a 867 form and we are not on mobile we render according to the template
-          const withTemplate = fileData.documentType === "טופס 867";
-          const updatedData = updateFormAllFields2(data, fileData.fileId, fileData.type, getDataFromControls());
-          if (updatedData) {
-            displayFileInfoInExpandableArea(updatedData, withTemplate);
-            fileModifiedActions(editableFileListHasEntries());
-            // reopen the file accordian
-            editableOpenFileListEntry(fileData.fileName);
-          }
-        };
-      }
+      //  add fields to an existing form
+      addFieldsButton.onclick = async () => {
+        handleAddFields(addFieldsButton, withAllFields);
+      };
     }
+    //}
     // Cancel button behavior: Restore original file info
     cancelButton.onclick = async () => {
       debug("🔄 Cancel button clicked, restoring original data");
-      displayFileInfoInExpandableArea(originalFileData);
+      // Restore only this form from the backupAllFilesData
+      const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
+      if (backupFormIndex !== -1) {
+        // Replace the form in the allFilesData array with the form in the backupAllFilesData array
+        renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
+      }
     };
 
     // Save button behavior: Process and save the data
@@ -1225,10 +1176,40 @@ export async function displayFileInfoInExpandableArea(data: any, withTemplate = 
           button1Text: "",
           button2Text: "",
         });
-        displayFileInfoInExpandableArea(updatedData);
+        // Just update the backupAllFilesData with the updatedData
+        const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
+        if (formIndex !== -1) {
+          const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
+          if (backupFormIndex !== -1) {
+            backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
+          }
+        }
         fileModifiedActions(editableFileListHasEntries());
         addMessage("נתונים נשמרו בהצלחה", "success");
       }
     };
+
+    function handleAddFields(addFieldsButton: HTMLButtonElement, withAllFields: boolean) {
+      // If it is a 867 form and we are not on mobile we render according to the template
+      if (!withAllFields) {
+        addFieldsButton.textContent = "הסר שדות קלט";
+      } else {
+        addFieldsButton.textContent = "הוספת שדות קלט";
+      }
+
+      const updatedData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(), !withAllFields);
+      if (updatedData) {
+        const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
+        if (formIndex !== -1) {
+          renderFields(updatedData[formIndex], accordianBody, !withAllFields);
+          addFieldsButton.onclick = async () => {
+            handleAddFields(addFieldsButton, !withAllFields);
+          };
+        }
+        fileModifiedActions(editableFileListHasEntries());
+        // reopen the file accordian
+        editableOpenFileListEntry(fileData.fileName);
+      }
+    }
   }
 }

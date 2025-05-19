@@ -1,4 +1,4 @@
-const uiVersion = "0.44";
+const uiVersion = "0.45";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -55,7 +55,7 @@ export function updateButtons(hasEntries) {
 function updateFileListP(fileInfoList) {
     //if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
     if (editableFileList) {
-        displayFileInfoInExpandableArea(fileInfoList);
+        displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false);
         updateButtons(editableFileListHasEntries());
         updateMissingDocuments();
     }
