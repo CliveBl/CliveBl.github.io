@@ -1217,8 +1217,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function clearTaxResults() {
-  debug("clearTaxResults");
-  const taxResultsContainer = document.getElementById("taxResultsContainer") as HTMLDivElement;
+   const taxResultsContainer = document.getElementById("taxResultsContainer") as HTMLDivElement;
   const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
   // Hide containers
   taxResultsContainer.classList.remove("active");
@@ -1230,7 +1229,6 @@ function clearTaxResults() {
 }
 
 function clearResultsControls() {
-  debug("clearResultsControls");
   const resultsContainer = document.getElementById("resultsContainer") as HTMLDivElement;
   const resultsList = document.getElementById("resultsList") as HTMLUListElement;
   clearTaxResults();
@@ -2039,7 +2037,6 @@ function restoreSelectedDocTypes() {
 
 // Add this function to update missing document counts
 function updateMissingDocuments() {
-  debug("updateMissingDocuments");
   // Get all documents from file list
   const fileListDocs = getDocTypes();
 

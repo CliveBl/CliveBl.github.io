@@ -1092,7 +1092,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 function clearTaxResults() {
-    debug("clearTaxResults");
     const taxResultsContainer = document.getElementById("taxResultsContainer");
     const taxCalculationContent = document.getElementById("taxCalculationContent");
     // Hide containers
@@ -1104,7 +1103,6 @@ function clearTaxResults() {
     localStorage.removeItem("taxResultsYear");
 }
 function clearResultsControls() {
-    debug("clearResultsControls");
     const resultsContainer = document.getElementById("resultsContainer");
     const resultsList = document.getElementById("resultsList");
     clearTaxResults();
@@ -1830,7 +1828,6 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
 });
 // Add this function to update missing document counts
 function updateMissingDocuments() {
-    debug("updateMissingDocuments");
     // Get all documents from file list
     const fileListDocs = getDocTypes();
     // Count documents by type
