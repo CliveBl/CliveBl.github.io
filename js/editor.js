@@ -177,6 +177,8 @@ const friendlyNames = {
 };
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
+const addFieldsText = "הצג כל השדות";
+const removeFieldsText = "הסר שדות קלט";
 export function editableFileListHasEntries() {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
     if (!expandableArea) {
@@ -481,21 +483,21 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     }
                 }
             }
-            function handleAddFields(toggleLink, withAllFields) {
-                // If it is a 867 form and we are not on mobile we render according to the template
-                if (!withAllFields) {
-                    toggleLink.textContent = "הסר שדות קלט";
+            function toggleFieldsView(toggleLink) {
+                // Get desired state.
+                const showAllFields = toggleLink.textContent === addFieldsText;
+                // Perform the toggle by changing the text content of the toggle link.
+                if (showAllFields) {
+                    toggleLink.textContent = removeFieldsText;
                 }
                 else {
-                    toggleLink.textContent = "הוספת שדות קלט";
+                    toggleLink.textContent = addFieldsText;
                 }
-                const updatedData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(), !withAllFields);
+                const updatedData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(), showAllFields);
                 if (updatedData) {
                     const formIndex = updatedData.findIndex((form) => form.fileId === fileData.fileId);
                     if (formIndex !== -1) {
-                        renderFields(updatedData[formIndex], accordianBody, !withAllFields);
-                        toggleLink.removeEventListener("click", handleToggleClick);
-                        toggleLink.addEventListener("click", handleToggleClick2);
+                        renderFields(updatedData[formIndex], accordianBody, showAllFields);
                     }
                     fileModifiedActions(editableFileListHasEntries());
                 }
@@ -503,13 +505,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             function handleToggleClick(e) {
                 e.preventDefault(); // Prevent scrolling to the top of the page
                 const toggleLink = e.currentTarget;
-                handleAddFields(toggleLink, withAllFields);
-            }
-            function handleToggleClick2(e) {
-                e.preventDefault();
-                const toggleLink = e.currentTarget;
-                withAllFields = !withAllFields;
-                handleAddFields(toggleLink, withAllFields);
+                toggleFieldsView(toggleLink);
             }
             if (fileData.fields && configurationData) {
                 // Create div with a toggle link for displaying all fields
@@ -517,7 +513,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 toggleLinkContainer.className = "fields-toggle";
                 const toggleLink = document.createElement("a");
                 toggleLink.className = "fields-toggle-link";
-                toggleLink.textContent = "הצג כל השדות";
+                toggleLink.textContent = addFieldsText;
                 toggleLink.href = "#";
                 toggleLink.addEventListener("click", handleToggleClick);
                 toggleLinkContainer.appendChild(toggleLink);
