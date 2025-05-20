@@ -126,7 +126,6 @@ const friendlyNames = {
     ProfitIncomeTaxedAtPercent35: "רווח הון ממוסה ב-35%",
     OffsetableLosses: "הפסדים ניתנים לקיזוז",
     TotalSales_256: 'סה"כ מכירות',
-    NumberOfDeals: "מספר עסקאות",
     TaxDeductedAtSource_040: "מס שנוכה במקור",
     DividendFXIncomeTaxedAtPercent0: 'דיבידנד מט"ח ממוסה ב-0%',
     DividendFXIncomeTaxedAtPercent4: 'דיבידנד מט"ח ממוסה ב-4%',
@@ -468,32 +467,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         const buttonsArray = Array.from(actionButtons);
         // Clear the body
         body.innerHTML = "";
-        function createFieldRow(container, key, value, isMainField = false) {
-            // Skip fields already displayed in the header
-            if (excludedHeaderFields.includes(key))
-                return;
-            let codeLabel = null;
-            const fieldRow = document.createElement("div");
-            fieldRow.className = "field-row";
-            let fieldLabel = document.createElement("label");
-            const friendly = friendlyNames[key];
-            fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
-            fieldLabel.className = "field-labelx";
-            // For readOnlyFields, just create a label with the value
-            if (readOnlyFields.includes(key)) {
-                const valueLabel = document.createElement("label");
-                valueLabel.textContent = value || "";
-                valueLabel.className = "read-only-field-value";
-                valueLabel.setAttribute("data-field-name", key);
-                fieldRow.appendChild(fieldLabel);
-                fieldRow.appendChild(valueLabel);
-                container.appendChild(fieldRow);
-                return;
-            }
-            let input = document.createElement("input");
-            input.className = "field-input";
-            input.setAttribute("data-field-name", key); // Add data-field-name attribute
-            // 🟢 **Apply Field Formatting Rules**
+        function formatInput(key, input, value) {
             if (key.endsWith("Name")) {
                 input.type = "text";
                 input.maxLength = 50;
@@ -585,6 +559,58 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 };
             }
             else if (key.endsWith("Options")) {
+                // Deal with this later
+            }
+            else {
+                // 🟢 **Default: Currency Field (if no other condition matched)**
+                input.type = "text";
+                let numericValue = parseFloat(value);
+                if (isNaN(numericValue)) {
+                    numericValue = 0.0;
+                }
+                input.value = formatCurrencyWithSymbol(numericValue);
+                // **Restrict typing to valid numeric input**
+                input.addEventListener("input", (e) => {
+                    currencyEventListener(input);
+                });
+                // 🟢 **Format on Blur**
+                input.addEventListener("blur", () => {
+                    let rawValue = input.value.replace(/[^\d.]/g, "");
+                    let parsedNum = parseFloat(rawValue);
+                    if (isNaN(parsedNum)) {
+                        parsedNum = 0.0;
+                    }
+                    input.value = formatCurrencyWithSymbol(parsedNum);
+                });
+            }
+        }
+        function createFieldRow(container, key, value, isMainField = false) {
+            // Skip fields already displayed in the header
+            if (excludedHeaderFields.includes(key))
+                return;
+            const fieldRow = document.createElement("div");
+            fieldRow.className = "field-row";
+            let fieldLabel = document.createElement("label");
+            const friendly = friendlyNames[key];
+            fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
+            fieldLabel.className = "field-labelx";
+            // For readOnlyFields, just create a label with the value
+            if (readOnlyFields.includes(key)) {
+                const valueLabel = document.createElement("label");
+                valueLabel.textContent = value || "";
+                valueLabel.className = "read-only-field-value";
+                valueLabel.setAttribute("data-field-name", key);
+                fieldRow.appendChild(fieldLabel);
+                fieldRow.appendChild(valueLabel);
+                container.appendChild(fieldRow);
+                return;
+            }
+            let input = document.createElement("input");
+            input.className = "field-input";
+            input.setAttribute("data-field-name", key); // Add data-field-name attribute
+            // 🟢 **Apply Field Formatting Rules**
+            formatInput(key, input, value);
+            if (key.endsWith("Options")) {
                 const friendly = friendlyNames[key];
                 fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
                 const controls = document.createElement("div");
@@ -605,38 +631,14 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 });
                 input = controls;
             }
-            else {
-                // 🟢 **Default: Currency Field (if no other condition matched)**
-                input.type = "text";
-                if (key.includes("_")) {
-                    // Field code from friendlyNames[key]. It is the text after the underscore.
-                    const fieldCode = key.split("_")[1];
-                    codeLabel = document.createElement("label");
-                    codeLabel.textContent = fieldCode;
-                    codeLabel.className = "codeLabel";
-                }
-                let numericValue = parseFloat(value);
-                if (isNaN(numericValue)) {
-                    numericValue = 0.0;
-                }
-                input.value = formatCurrencyWithSymbol(numericValue);
-                // **Restrict typing to valid numeric input**
-                input.addEventListener("input", (e) => {
-                    currencyEventListener(input);
-                });
-                // 🟢 **Format on Blur**
-                input.addEventListener("blur", () => {
-                    let rawValue = input.value.replace(/[^\d.]/g, "");
-                    let parsedNum = parseFloat(rawValue);
-                    if (isNaN(parsedNum)) {
-                        parsedNum = 0.0;
-                    }
-                    input.value = formatCurrencyWithSymbol(parsedNum);
-                });
-            }
             fieldRow.appendChild(fieldLabel);
             fieldRow.appendChild(input);
-            if (codeLabel) {
+            if (key.includes("_")) {
+                // Field code from friendlyNames[key]. It is the text after the underscore.
+                const fieldCode = key.split("_")[1];
+                const codeLabel = document.createElement("label");
+                codeLabel.textContent = fieldCode;
+                codeLabel.className = "codeLabel";
                 fieldRow.appendChild(codeLabel);
             }
             container.appendChild(fieldRow);
@@ -661,14 +663,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             // Find the field in the container
             const field = container.querySelector(`input[data-field-name="${key}"]`);
             if (field) {
-                let numericValue = parseFloat(value);
-                if (isNaN(numericValue)) {
-                    numericValue = 0.0;
-                }
-                field.value = formatCurrencyWithSymbol(numericValue);
-                field.addEventListener("input", (e) => {
-                    currencyEventListener(field);
-                });
+                formatInput(key, field, value);
             }
         }
         // Process main fields (thicker border)

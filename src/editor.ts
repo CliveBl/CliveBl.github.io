@@ -150,7 +150,6 @@ const friendlyNames = {
   ProfitIncomeTaxedAtPercent35: "רווח הון ממוסה ב-35%",
   OffsetableLosses: "הפסדים ניתנים לקיזוז",
   TotalSales_256: 'סה"כ מכירות',
-  NumberOfDeals: "מספר עסקאות",
   TaxDeductedAtSource_040: "מס שנוכה במקור",
   DividendFXIncomeTaxedAtPercent0: 'דיבידנד מט"ח ממוסה ב-0%',
   DividendFXIncomeTaxedAtPercent4: 'דיבידנד מט"ח ממוסה ב-4%',
@@ -479,7 +478,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     return updatedData;
   }
 
-
   async function updateFormAPI(fileId: string, payload: any) {
     try {
       // Construct the API URL
@@ -542,11 +540,121 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Clear the body
     body.innerHTML = "";
 
+	function formatInput(key: string, input: HTMLInputElement, value: any) {
+		if (key.endsWith("Name")) {
+			input.type = "text";
+			input.maxLength = 50;
+			input.value = value;
+		} else if (key.endsWith("Text")) {
+			input.type = "text";
+			input.maxLength = 20;
+			input.pattern = "\\d*";
+			input.value = value;
+			input.oninput = () => {
+				input.value = input.value.replace(/\D/g, "");
+			};
+		} else if (key.endsWith("Number")) {
+			input.type = "text";
+			input.maxLength = 9;
+			input.pattern = "\\d{9}";
+			input.value = value;
+			input.oninput = () => {
+				input.value = input.value.replace(/\D/g, "").slice(0, 9);
+			};
+		} else if (key.endsWith("taxYear")) {
+			input.type = "text";
+			input.maxLength = 4;
+			input.pattern = "\\d{4}";
+			input.value = value;
+			input.oninput = () => {
+				input.value = input.value.replace(/\D/g, "").slice(0, 4);
+			};
+		} else if (key.endsWith("Code")) {
+			input.type = "text";
+			input.maxLength = 3;
+			input.pattern = "\\d{3}";
+			input.value = value;
+			input.oninput = () => {
+				input.value = input.value.replace(/\D/g, "").slice(0, 3);
+			};
+		} else if (key.endsWith("Date")) {
+			input.type = "date";
+			if (value === "" || value === null) {
+				input.value = "";
+			} else {
+				input.value = value.split("/").reverse().join("-");
+			}
+			input.onblur = () => {
+				if (input.value != "") {
+					const isValidDate = !isNaN(new Date(input.value).getTime());
+					if (!isValidDate) {
+						alert("Invalid date format " + input.value);
+						input.value = "";
+					}
+				}
+			};
+		} else if (key.endsWith("Months")) {
+			input.type = "text";
+			input.maxLength = 2;
+			input.pattern = "\\d{1,2}";
+			input.value = value;
+			input.oninput = () => {
+				input.value = input.value.replace(/\D/g, "").slice(0, 2);
+			};
+		} else if (key.endsWith("Integer")) {
+			input.type = "text";
+			input.maxLength = 3;
+			input.pattern = "\\d{1,3}";
+			input.value = value;
+			input.oninput = () => {
+				input.value = input.value.replace(/\D/g, "").slice(0, 3);
+			};
+		} else if (key.endsWith("Boolean")) {
+			input.type = "checkbox";
+			input.value = value;
+			input.checked = value === true || value === "true";
+			input.onchange = () => {
+				if (input.checked) {
+					input.value = "true";
+				} else {
+					input.value = "false";
+				}
+			};
+		} else if (key.endsWith("Options")) {
+			// Deal with this later
+		} else {
+			// 🟢 **Default: Currency Field (if no other condition matched)**
+			input.type = "text";
+
+			let numericValue = parseFloat(value);
+			if (isNaN(numericValue)) {
+				numericValue = 0.0;
+			}
+			input.value = formatCurrencyWithSymbol(numericValue);
+
+			// **Restrict typing to valid numeric input**
+			input.addEventListener("input", (e) => {
+				currencyEventListener(input);
+			});
+
+			// 🟢 **Format on Blur**
+			input.addEventListener("blur", () => {
+				let rawValue = input.value.replace(/[^\d.]/g, "");
+				let parsedNum = parseFloat(rawValue);
+
+				if (isNaN(parsedNum)) {
+					parsedNum = 0.0;
+				}
+
+				input.value = formatCurrencyWithSymbol(parsedNum);
+			});
+		}
+	}
+
     function createFieldRow(container: HTMLElement, key: string, value: any, isMainField = false) {
       // Skip fields already displayed in the header
       if (excludedHeaderFields.includes(key)) return;
 
-      let codeLabel = null;
       const fieldRow = document.createElement("div") as HTMLDivElement;
       fieldRow.className = "field-row";
 
@@ -573,86 +681,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.setAttribute("data-field-name", key); // Add data-field-name attribute
 
       // 🟢 **Apply Field Formatting Rules**
-      if (key.endsWith("Name")) {
-        input.type = "text";
-        input.maxLength = 50;
-        input.value = value;
-      } else if (key.endsWith("Text")) {
-        input.type = "text";
-        input.maxLength = 20;
-        input.pattern = "\\d*";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "");
-        };
-      } else if (key.endsWith("Number")) {
-        input.type = "text";
-        input.maxLength = 9;
-        input.pattern = "\\d{9}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 9);
-        };
-      } else if (key.endsWith("taxYear")) {
-        input.type = "text";
-        input.maxLength = 4;
-        input.pattern = "\\d{4}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 4);
-        };
-      } else if (key.endsWith("Code")) {
-        input.type = "text";
-        input.maxLength = 3;
-        input.pattern = "\\d{3}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 3);
-        };
-      } else if (key.endsWith("Date")) {
-        input.type = "date";
-        if (value === "" || value === null) {
-          input.value = "";
-        } else {
-          input.value = value.split("/").reverse().join("-");
-        }
-        input.onblur = () => {
-          if (input.value != "") {
-            const isValidDate = !isNaN(new Date(input.value).getTime());
-            if (!isValidDate) {
-              alert("Invalid date format " + input.value);
-              input.value = "";
-            }
-          }
-        };
-      } else if (key.endsWith("Months")) {
-        input.type = "text";
-        input.maxLength = 2;
-        input.pattern = "\\d{1,2}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 2);
-        };
-      } else if (key.endsWith("Integer")) {
-        input.type = "text";
-        input.maxLength = 3;
-        input.pattern = "\\d{1,3}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 3);
-        };
-      } else if (key.endsWith("Boolean")) {
-        input.type = "checkbox";
-        input.value = value;
-        input.checked = value === true || value === "true";
-        input.onchange = () => {
-          if (input.checked) {
-            input.value = "true";
-          } else {
-            input.value = "false";
-          }
-        };
-      } else if (key.endsWith("Options")) {
+      formatInput(key, input, value);
+
+      if (key.endsWith("Options")) {
         const friendly = friendlyNames[key as keyof typeof friendlyNames];
         fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
         const controls = document.createElement("div") as HTMLDivElement;
@@ -673,48 +704,21 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           controls.appendChild(label);
         });
         input = controls as HTMLInputElement;
-      } else {
-        // 🟢 **Default: Currency Field (if no other condition matched)**
-        input.type = "text";
-        if (key.includes("_")) {
-          // Field code from friendlyNames[key]. It is the text after the underscore.
-          const fieldCode = key.split("_")[1];
-          codeLabel = document.createElement("label");
-          codeLabel.textContent = fieldCode;
-          codeLabel.className = "codeLabel";
-        }
-
-        let numericValue = parseFloat(value);
-        if (isNaN(numericValue)) {
-          numericValue = 0.0;
-        }
-        input.value = formatCurrencyWithSymbol(numericValue);
-
-        // **Restrict typing to valid numeric input**
-        input.addEventListener("input", (e) => {
-          currencyEventListener(input);
-        });
-
-        // 🟢 **Format on Blur**
-        input.addEventListener("blur", () => {
-          let rawValue = input.value.replace(/[^\d.]/g, "");
-          let parsedNum = parseFloat(rawValue);
-
-          if (isNaN(parsedNum)) {
-            parsedNum = 0.0;
-          }
-
-          input.value = formatCurrencyWithSymbol(parsedNum);
-        });
       }
-
       fieldRow.appendChild(fieldLabel);
       fieldRow.appendChild(input);
-      if (codeLabel) {
+      if (key.includes("_")) {
+        // Field code from friendlyNames[key]. It is the text after the underscore.
+        const fieldCode = key.split("_")[1];
+        const codeLabel = document.createElement("label");
+        codeLabel.textContent = fieldCode;
+        codeLabel.className = "codeLabel";
         fieldRow.appendChild(codeLabel);
       }
       container.appendChild(fieldRow);
     }
+
+
 
     function currencyEventListener(input: HTMLInputElement) {
       let rawValue = input.value.replace(/[^\d.]/g, "");
@@ -741,14 +745,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       // Find the field in the container
       const field = container.querySelector(`input[data-field-name="${key}"]`) as HTMLInputElement;
       if (field) {
-        let numericValue = parseFloat(value);
-        if (isNaN(numericValue)) {
-          numericValue = 0.0;
-        }
-        field.value = formatCurrencyWithSymbol(numericValue);
-        field.addEventListener("input", (e) => {
-          currencyEventListener(field);
-        });
+		formatInput(key, field, value);
       }
     }
 
