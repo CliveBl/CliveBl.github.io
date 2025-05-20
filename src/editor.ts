@@ -556,7 +556,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       function toggleFieldsView(toggleLink: HTMLAnchorElement) {
 		// Get desired state.
-        const showAllFields = toggleLink.textContent === addFieldsText;
+        const showAllFields : boolean = toggleLink.textContent === addFieldsText;
         // Perform the toggle by changing the text content of the toggle link.
         if (showAllFields) {
           toggleLink.textContent = removeFieldsText;
