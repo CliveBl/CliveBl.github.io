@@ -2475,13 +2475,27 @@ a:not(.submit-instructions-button):visited {
   background-color: var(--item-bg);
 }
 
+
 .date-accordion-header {
   display: flex;
   align-items: center;
   padding: 10px;
   cursor: pointer;
-  background-color: var(--item-bg);
+  /* background-color: var(--item-bg); */
   border-radius: 4px 4px 0 0;
+}
+
+/* Add hover effects */
+.date-accordion-header:hover {
+	background-color: var(--border-color);
+}
+
+.date-accordion-header.error {
+	background-color: var(--error-bg);
+}
+
+.date-accordion-header.error:hover {
+	background-color: var(--error-bg);
 }
 
 .date-accordion-toggle-button {
@@ -2490,12 +2504,6 @@ a:not(.submit-instructions-button):visited {
   font-size: 1.2em;
   margin-left: 20px;
   cursor: pointer;
-  color: var(--text-color);
-}
-
-.date-title {
-  /* font-size: 1.1em; */
-  font-weight: 500;
   color: var(--text-color);
 }
 
@@ -2515,13 +2523,17 @@ a:not(.submit-instructions-button):visited {
   margin: 0;
 }
 
-/* Add hover effects */
-.date-accordion-header:hover {
-  background-color: var(--border-color);
-}
+
+
 
 .date-accordion-toggle-button:hover {
   color: var(--tax-blue);
+}
+
+.date-title {
+	/* font-size: 1.1em; */
+	font-weight: 500;
+	color: var(--text-color);
 }
 
 .accordion-body {
@@ -2575,4 +2587,8 @@ a:not(.submit-instructions-button):visited {
   background-color: var(--bg-color);
   padding: 4px 8px;
   font-size: 14px;
+}
+
+.disabled-field {
+  opacity: 0.5;
 }

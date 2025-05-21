@@ -179,6 +179,17 @@ const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", 
 const readOnlyFields = ["fileName", "reasonText"];
 const addFieldsText = "הצג כל השדות";
 const removeFieldsText = "הסר שדות קלט";
+const MAX_INTEGER_LENGTH = 10;
+// Template map years: template name
+const template867YearsMap = {
+    2018: "template_867_2022",
+    2019: "template_867_2022",
+    2020: "template_867_2022",
+    2021: "template_867_2022",
+    2022: "template_867_2022",
+    2023: "template_867_2022",
+    2024: "template_867_2022"
+};
 export function editableFileListHasEntries() {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
     if (!expandableArea) {
@@ -279,6 +290,9 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         // Create year header
         const yearHeader = document.createElement("div");
         yearHeader.className = "date-accordion-header";
+        if (files.some((file) => file.type === "FormError")) {
+            yearHeader.className += " error";
+        }
         // Create year toggle button
         const yearToggleButton = document.createElement("button");
         yearToggleButton.textContent = "+";
@@ -535,7 +549,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         expandableArea.appendChild(yearContainer);
         // If this is a newly added file (check if it's the last file in the data array)
         const lastFile = allFilesData[allFilesData.length - 1];
-        if (lastFile && lastFile.taxYear === year) {
+        if (lastFile && (lastFile.taxYear === year || lastFile.type === "FormError")) {
             // Expand the year accordion
             yearBody.style.display = "block";
             yearToggleButton.textContent = "-";
@@ -710,11 +724,11 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             }
             else if (key.endsWith("Integer")) {
                 input.type = "text";
-                input.maxLength = 3;
-                input.pattern = "\\d{1,3}";
-                input.value = value;
+                input.maxLength = MAX_INTEGER_LENGTH;
+                input.pattern = "\\d+";
+                input.value = Math.round(parseFloat(value)).toString();
                 input.oninput = () => {
-                    input.value = input.value.replace(/\D/g, "").slice(0, 3);
+                    input.value = input.value.replace(/\D/g, "").slice(0, MAX_INTEGER_LENGTH);
                 };
             }
             else if (key.endsWith("Boolean")) {
@@ -847,7 +861,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         // If it is an 867 form and we are not on mobile we render according to the template
         if (fileData.documentType === "טופס 867" && window.innerWidth > 768 && withAllFields) {
             // Clone template_867_2022
-            const template = document.getElementById("template_867_2022");
+            const template = document.getElementById(template867YearsMap[fileData.taxYear]);
             const clone = template.cloneNode(true);
             clone.id = "";
             // Populate the clone with the fileData

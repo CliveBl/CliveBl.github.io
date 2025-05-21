@@ -1,4 +1,4 @@
-const uiVersion = "0.45";
+const uiVersion = "0.46";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -53,7 +53,6 @@ export function updateButtons(hasEntries) {
     deleteAllButton.disabled = !hasEntries;
 }
 function updateFileListP(fileInfoList) {
-    //if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
     if (editableFileList) {
         displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false);
         updateButtons(editableFileListHasEntries());
@@ -426,6 +425,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
     return success;
 }
 async function uploadFiles(validFiles) {
+    let fileInfoList = null;
     for (const file of validFiles) {
         try {
             let newFile = file;
@@ -456,8 +456,7 @@ async function uploadFiles(validFiles) {
             if (!(await handleResponse(response, "Upload file failed"))) {
                 return false;
             }
-            const fileInfoList = await response.json();
-            debug("Upload response:", fileInfoList);
+            fileInfoList = await response.json();
             updateFileListP(fileInfoList);
         }
         catch (error) {
@@ -467,7 +466,14 @@ async function uploadFiles(validFiles) {
             return false;
         }
     }
-    addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+    // Count the error types in the fileInfoList
+    const errorTypes = fileInfoList.filter((fileInfo) => fileInfo.type === "FormError").length;
+    if (errorTypes > 0) {
+        addMessage(`הועלו ${validFiles.length} קבצים בהצלחה, מתוך ${fileInfoList.length} קבצים יש שגיאות ${errorTypes}`, "warning");
+    }
+    else {
+        addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+    }
     return true;
 }
 // Update addMessage function to handle message types

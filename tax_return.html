@@ -505,7 +505,7 @@
         <cite></cite>
 
         <div>
-          <label for="867ab-setoff-losses">Losses eligible for set-off (3):</label>
+          <label for="867ab-setoff-losses">Losses eligible for set-off:</label>
           <input type="text" class="field-input" data-field-name="OffsetableLosses" id="867ab-setoff-losses" name="867ab-setoff-losses" value="0.00" />
           <cite></cite>
         </div>
@@ -515,12 +515,12 @@
           <cite></cite>
         </div>
         <div>
-          <label for="867ab-nonsetoff-losses">Losses not eligible for set-off (4):</label>
+          <label for="867ab-nonsetoff-losses">Losses not eligible for set-off:</label>
           <input type="text" class="field-input" id="867ab-nonsetoff-losses" name="867ab-nonsetoff-losses" value="0.00" />
           <cite></cite>
         </div>
         <div>
-          <label for="867ab-sales-turnover">Sales turnover (5):</label>
+          <label for="867ab-sales-turnover">Sales turnover:</label>
           <input type="text" class="field-input" id="867ab-sales-turnover" data-field-name="TotalSales_256" value="0.00" />
           <cite></cite>
         </div>
@@ -529,8 +529,8 @@
           <input type="text" class="field-input" id="867ab-transactions-count" data-field-name="NumberOfDealsInteger" value="0" />
           <cite></cite>
         </div>
-        <div>
-          <label for="867ab-exemption-reason">Reason for exemption (6):</label>
+        <div class="disabled-field">
+          <label for="867ab-exemption-reason">Reason for exemption:</label>
           <input type="text" id="867ab-exemption-reason" name="867ab-exemption-reason" value="" />
           <!-- Empty in source -->
           <cite></cite>
@@ -538,8 +538,8 @@
           <cite></cite>
         </div>
         <div>
-          <label for="867ab-tax-withheld">Tax withheld at source (7):</label>
-          <input type="text" class="field-input" id="867ab-tax-withheld" name="867ab-tax-withheld" value="0.00" />
+          <label for="867ab-tax-withheld">Tax withheld at source:</label>
+          <input type="text" class="field-input" id="867ab-tax-withheld" data-field-name="TaxDeductedAtSource_040" value="0.00" />
           <cite></cite>
         </div>
       </fieldset>
@@ -722,7 +722,7 @@
           <cite></cite>
 
           <div>
-            <label for="867g-div-tax-withheld">Tax withheld at source from dividend/profit distribution (7):</label>
+            <label for="867g-div-tax-withheld">Tax withheld at source from dividend/profit distribution:</label>
             <input type="text" class="field-input" id="867g-div-tax-withheld" data-field-name="TaxDeductedAtSourceDividend_040" value="0.00" />
             <cite></cite>
           </div>
@@ -874,14 +874,14 @@
           <cite></cite>
 
           <div>
-            <label for="867g-int-tax-withheld">Tax withheld at source from interest / discount fee (7):</label>
-            <input type="text" class="field-input" id="867g-int-tax-withheld" data-field-name="" ="TaxDeductedAtSourceInterest_040" value="0.00" />
+            <label for="867g-int-tax-withheld">Tax withheld at source from interest / discount fee:</label>
+            <input type="text" class="field-input" id="867g-int-tax-withheld" data-field-name="TaxDeductedAtSourceInterest_040" value="0.00" />
             <cite></cite>
           </div>
         </fieldset>
 
-        <div>
-          <label for="867g-exemption-reason">Reason for exemption (9):</label>
+        <div class="disabled-field">
+          <label for="867g-exemption-reason">Reason for exemption:</label>
           <input type="text" id="867g-exemption-reason" name="867g-exemption-reason" value="" />
           <!-- Empty in source -->
         </div>
@@ -935,7 +935,7 @@
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית על פקדונות</td>
-              <td>שדה 076</td>
+              <td>שדה 126</td>
               <td>
                 <input type="text" class="field-input" data-field-name="DepositIncomeTaxedAtPercent20_126" value="0.00" />
               </td>
@@ -943,37 +943,20 @@
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית על פקדונות</td>
-              <td>שדה 078</td>
+              <td>שדה 142</td>
               <td>
                 <input type="text" class="field-input" data-field-name="DepositIncomeTaxedAtPercent25_142" value="0.00" />
               </td>
               <td>25 %</td>
             </tr>
-            <tr>
-              <td>הכנסה חייבת מריבית על פקדונות</td>
-              <td>שדה 126</td>
-              <td>
-                <input type="text" class="field-input" data-field-name="" value="0.00" />
-              </td>
-              <td>23 %</td>
-            </tr>
-            <tr>
-              <td>הכנסה חייבת מריבית על פקדונות</td>
-              <td>שדה 142</td>
-              <td>
-                <input type="text" class="field-input" name="867d-deposit-income-25" value="0.00" />
-              </td>
-              <td>25 %</td>
-            </tr>
-            <tr>
-              <td>הכנסה חייבת מריבית על פקדונות</td>
-              <td>N/A (Implied)</td>
-              <!-- No field number in source for this rate -->
-              <td>
-                <input type="text" class="field-input" name="867d-deposit-income-23c" value="0.00" />
-              </td>
-              <td>23 % (Companies)</td>
-            </tr>
+			<tr class="disabled-field">
+				<td>הכנסה חייבת מריבית על פקדונות</td>
+				<td>N/A (Implied)</td>
+				<td>
+				  <input type="text" class="field-input" data-field-name="867d-deposit-income-23c" disabled value="0.00" />
+				</td>
+				<td>23 % (Companies)</td>
+			  </tr>
             <tr>
               <td>הכנסה חייבת מריבית על פקדונות</td>
               <td>שדה 053</td>
@@ -986,7 +969,7 @@
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
               <td>שדה 078</td>
               <td>
-                <input type="text" class="field-input" name="867d-forex-deposit-income-15" value="0.00" />
+                <input type="text" class="field-input" data-field-name="DepositFXIncomeTaxedAtPercent15_078" value="0.00" />
               </td>
               <td>15 %</td>
             </tr>
@@ -994,7 +977,7 @@
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
               <td>שדה 126</td>
               <td>
-                <input type="text" class="field-input" name="867d-forex-deposit-income-20" value="0.00" />
+                <input type="text" class="field-input" data-field-name="DepositFXIncomeTaxedAtPercent20_126" value="0.00" />
               </td>
               <td>20 %</td>
             </tr>
@@ -1002,14 +985,13 @@
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
               <td>שדה 142</td>
               <td>
-                <input type="text" class="field-input" name="867d-forex-deposit-income-25" value="0.00" />
+                <input type="text" class="field-input" data-field-name="DepositFXIncomeTaxedAtPercent25_142" value="0.00" />
               </td>
               <td>25 %</td>
             </tr>
-            <tr>
+            <tr class="disabled-field">
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
               <td>N/A (Implied)</td>
-              <!-- No field number in source for this rate -->
               <td>
                 <input type="text" class="field-input" name="867d-forex-deposit-income-23c" value="0.00" />
               </td>
@@ -1019,16 +1001,15 @@
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
               <td>שדה 053</td>
               <td>
-                <input type="text" class="field-input" name="867d-forex-deposit-income-35" value="0.00" />
+                <input type="text" class="field-input" data-field-name="DepositFXIncomeTaxedAtPercent35_053" value="0.00" />
               </td>
               <td>35 %</td>
             </tr>
-            <tr>
+            <tr class="disabled-field">
               <td>הכנסה חייבת מתשלומי ריבית אחרים</td>
               <td>N/A (Implied)</td>
-              <!-- No field number in source -->
               <td>
-                <input type="text" class="field-input" name="867d-other-interest-income" value="0.00" />
+                <input type="text" class="field-input" name="867d-other-interest-income" disabled value="0.00" />
               </td>
               <td>N/A (Implied)</td>
               <!-- Tax rate not specified in source line -->
@@ -1042,9 +1023,9 @@
           <input type="text" class="field-input" id="867d-total-exempt-interest" data-field-name="TotalExemptInterestAndIndexLinkageDifference_209" value="0.00" />
           <cite></cite>
         </div>
-        <div>
+        <div class="disabled-field">
           <label for="867d-exemption-reason">Reason for exemption (4):</label>
-          <input type="text" id="867d-exemption-reason" name="867d-exemption-reason" value="" />
+          <input type="text" id="867d-exemption-reason" name="867d-exemption-reason" disabled value="" />
           <!-- Empty in source -->
           <cite></cite>
           <p>Reason for exemption (4): Exemption granted by the withholder according to one of the exemption orders or Income Tax Regulations.</p>

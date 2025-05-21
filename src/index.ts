@@ -1,4 +1,4 @@
-const uiVersion = "0.45";
+const uiVersion = "0.46";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -70,7 +70,6 @@ export function updateButtons(hasEntries: boolean) {
 }
 
 function updateFileListP(fileInfoList: { fileId: string; fileName: string }[]) {
-  //if(FILE_LIST_TYPE == "EDITABLE_FILE_LIST") {
   if (editableFileList) {
     displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false);
     updateButtons(editableFileListHasEntries());
@@ -261,7 +260,6 @@ async function loadExistingFiles() {
     throw error;
   }
 }
-
 
 // Add this helper function at the start of your script
 function isValidFileType(file: File) {
@@ -484,6 +482,7 @@ async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInp
 }
 
 async function uploadFiles(validFiles: File[]) {
+  let fileInfoList = null;
   for (const file of validFiles) {
     try {
       let newFile = file;
@@ -520,8 +519,7 @@ async function uploadFiles(validFiles: File[]) {
         return false;
       }
 
-      const fileInfoList = await response.json();
-      debug("Upload response:", fileInfoList);
+      fileInfoList = await response.json();
       updateFileListP(fileInfoList);
     } catch (error) {
       console.error("Upload failed:", error);
@@ -530,7 +528,13 @@ async function uploadFiles(validFiles: File[]) {
       return false;
     }
   }
-  addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+  // Count the error types in the fileInfoList
+  const errorTypes = fileInfoList.filter((fileInfo: { type: string }) => fileInfo.type === "FormError").length;
+  if (errorTypes > 0) {
+    addMessage(`הועלו ${validFiles.length} קבצים בהצלחה, מתוך ${fileInfoList.length} קבצים יש שגיאות ${errorTypes}`, "warning");
+  } else {
+    addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+  }
   return true;
 }
 
@@ -1217,7 +1221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function clearTaxResults() {
-   const taxResultsContainer = document.getElementById("taxResultsContainer") as HTMLDivElement;
+  const taxResultsContainer = document.getElementById("taxResultsContainer") as HTMLDivElement;
   const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
   // Hide containers
   taxResultsContainer.classList.remove("active");
@@ -1550,7 +1554,6 @@ function addFileToList(fileInfo: any) {
     }
   }
 
-
   async function deleteFileQuietly(fileId: string) {
     try {
       const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
@@ -1570,10 +1573,10 @@ function addFileToList(fileInfo: any) {
 }
 
 export function fileModifiedActions(hasEntries: boolean) {
-    updateDeleteAllButton(hasEntries);
-    updateProcessButton(hasEntries);
-    updateMissingDocuments();
-    clearResultsControls();
+  updateDeleteAllButton(hasEntries);
+  updateProcessButton(hasEntries);
+  updateMissingDocuments();
+  clearResultsControls();
 }
 
 // Return true if the response is ok, false if we signed out otherwise throw an exception..
@@ -1883,7 +1886,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!disclaimerAccepted) {
     //await showDisclaimerModal();
 	await showInfoModal("אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדוח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.");
-	cookieUtils.set("disclaimerAccepted", "true", 365);
+    cookieUtils.set("disclaimerAccepted", "true", 365);
   }
 
   // Initialize the file list view
