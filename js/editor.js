@@ -525,12 +525,12 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 // Create div with a toggle link for displaying all fields
                 const toggleLinkContainer = document.createElement("div");
                 toggleLinkContainer.className = "fields-toggle";
-                const toggleLink = document.createElement("a");
-                toggleLink.className = "fields-toggle-link";
-                toggleLink.textContent = addFieldsText;
-                toggleLink.href = "#";
-                toggleLink.addEventListener("click", handleToggleClick);
-                toggleLinkContainer.appendChild(toggleLink);
+                const fieldsToggleLink = document.createElement("a");
+                fieldsToggleLink.className = "fields-toggle-link";
+                fieldsToggleLink.textContent = addFieldsText;
+                fieldsToggleLink.href = "#";
+                fieldsToggleLink.addEventListener("click", handleToggleClick);
+                toggleLinkContainer.appendChild(fieldsToggleLink);
                 accordianBody.appendChild(toggleLinkContainer);
             }
             // First, display additional fields in the body (excluding header fields)
@@ -646,12 +646,12 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         // Store the action buttons before clearing
         const actionButtons = body.querySelectorAll(".form-action-button");
         const buttonsArray = Array.from(actionButtons);
-        const fieldstoggleLink = body.querySelector(".fields-toggle-link");
+        const fieldsToggleLink = body.querySelector(".fields-toggle-link");
         // Clear the body
         body.innerHTML = "";
-        if (fieldstoggleLink) {
+        if (fieldsToggleLink) {
             debug("Adding the toggle link to the body");
-            body.appendChild(fieldstoggleLink);
+            body.appendChild(fieldsToggleLink);
         }
         function formatInput(key, input, value) {
             if (key.endsWith("Name")) {
