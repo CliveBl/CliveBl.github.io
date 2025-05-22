@@ -4,7 +4,7 @@ const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
 let latestFileInfoList = [];
 let documentIcons = {};
-let uploading = false;
+let isUploading = false;
 let userEmailValue = "";
 let signedIn = false;
 const fetchConfig = {
@@ -49,8 +49,10 @@ const createFormSelect = document.getElementById("createFormSelect");
 const acceptCookies = document.getElementById("acceptCookies");
 const cookieConsent = document.getElementById("cookieConsent");
 export function updateButtons(hasEntries) {
-    processButton.disabled = !hasEntries;
-    deleteAllButton.disabled = !hasEntries;
+    if (!isUploading) {
+        processButton.disabled = !hasEntries;
+        deleteAllButton.disabled = !hasEntries;
+    }
 }
 function updateFileListP(fileInfoList) {
     if (editableFileList) {
@@ -390,7 +392,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
     const buttonLabel = button.nextElementSibling;
     const originalText = buttonLabel.textContent;
     let success = false;
-    uploading = true;
+    isUploading = true;
     // Disable the upload buttons
     fileInput.disabled = true;
     folderInput.disabled = true;
@@ -417,8 +419,9 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
         fileInput.disabled = false;
         folderInput.disabled = false;
         createFormSelect.disabled = false;
-        uploading = false;
-        updateDeleteAllButton(fileList.children.length > 0);
+        isUploading = false;
+        //updateDeleteAllButton(fileList.children.length > 0);
+        updateButtons(editableFileListHasEntries() || fileList.children.length > 0);
         // Clear all containers
         clearResultsControls();
     }
@@ -1479,7 +1482,7 @@ async function calculateTax(fileName) {
 }
 function updateDeleteAllButton(hasEntries) {
     const deleteAllButton = document.getElementById("deleteAllButton");
-    deleteAllButton.disabled = !hasEntries || uploading;
+    deleteAllButton.disabled = !hasEntries || isUploading;
 }
 // Add this function to display tax results
 function displayTaxCalculation(result, year, shouldScroll = false) {

@@ -7,6 +7,7 @@
   --warning-bg: #fef9e7;
   --success-bg: #e8f8f5;
   --error-bg: #fde9e7;
+  --error-bg-hover: #cea4a1;
   --default-border: #95a5a6;
   --warning-border: #f1c40f;
   --success-border: #2ecc71;
@@ -30,6 +31,7 @@
     --warning-bg: #3d3415;
     --success-bg: #1e3d32;
     --error-bg: #3d1f1d;
+	--error-bg-hover: #50201d;
     --default-border: #606060;
     --warning-border: #b7950b;
     --success-border: #27ae60;
@@ -2441,7 +2443,10 @@ a:not(.submit-instructions-button):visited {
 	background-color: var(--error-bg);
   }
 
-
+  .accordion-container.error:hover {
+	border-right-color: var(--error-border);
+	background-color: var(--error-bg-hover);
+  }
 .accordion-header {
   padding: 2px;
   display: flex;
@@ -2495,7 +2500,7 @@ a:not(.submit-instructions-button):visited {
 }
 
 .date-accordion-header.error:hover {
-	background-color: var(--error-bg);
+	background-color: var(--error-bg-hover);
 }
 
 .date-accordion-toggle-button {

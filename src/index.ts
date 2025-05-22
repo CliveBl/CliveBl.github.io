@@ -14,7 +14,7 @@ interface ConfigurationData {
 export let configurationData: ConfigurationData;
 let latestFileInfoList: { fileId: string; fileName: string }[] = [];
 let documentIcons: Record<string, string | null> = {};
-let uploading = false;
+let isUploading = false;
 let userEmailValue = "";
 let signedIn = false;
 const fetchConfig = {
@@ -64,9 +64,12 @@ const createFormSelect = document.getElementById("createFormSelect") as HTMLSele
 const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElement;
 const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
 
+
 export function updateButtons(hasEntries: boolean) {
-  processButton.disabled = !hasEntries;
-  deleteAllButton.disabled = !hasEntries;
+  if (!isUploading) {
+    processButton.disabled = !hasEntries;
+    deleteAllButton.disabled = !hasEntries;
+  }
 }
 
 function updateFileListP(fileInfoList: { fileId: string; fileName: string }[]) {
@@ -443,7 +446,7 @@ async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInp
   const buttonLabel = button.nextElementSibling as HTMLSpanElement;
   const originalText = buttonLabel.textContent;
   let success = false;
-  uploading = true;
+  isUploading = true;
 
   // Disable the upload buttons
   fileInput.disabled = true;
@@ -473,8 +476,9 @@ async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInp
     fileInput.disabled = false;
     folderInput.disabled = false;
     createFormSelect.disabled = false;
-    uploading = false;
-    updateDeleteAllButton(fileList.children.length > 0);
+    isUploading = false;
+    //updateDeleteAllButton(fileList.children.length > 0);
+    updateButtons(editableFileListHasEntries() || fileList.children.length > 0);
     // Clear all containers
     clearResultsControls();
   }
@@ -1647,7 +1651,7 @@ async function calculateTax(fileName: string) {
 
 function updateDeleteAllButton(hasEntries: boolean) {
   const deleteAllButton = document.getElementById("deleteAllButton") as HTMLButtonElement;
-  deleteAllButton.disabled = !hasEntries || uploading;
+  deleteAllButton.disabled = !hasEntries || isUploading;
 }
 
 // Add this function to display tax results
