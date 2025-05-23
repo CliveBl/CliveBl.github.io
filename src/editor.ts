@@ -639,18 +639,16 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
     function formatInput(key: string, input: HTMLInputElement, value: any) {
       if (key.endsWith("Name")) {
+		input.className = "field-text-input";
+        input.type = "text";
+        input.maxLength = 30;
+        input.value = value;
+      } else if (key.endsWith("Text")) {
+		input.className = "field-text-input";
         input.type = "text";
         input.maxLength = 50;
         input.value = value;
-      } else if (key.endsWith("Text")) {
-        input.type = "text";
-        input.maxLength = 20;
-        input.pattern = "\\d*";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "");
-        };
-      } else if (key.endsWith("Number")) {
+       } else if (key.endsWith("Number")) {
         input.type = "text";
         input.maxLength = 9;
         input.pattern = "\\d{9}";

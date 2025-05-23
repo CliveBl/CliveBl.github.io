@@ -2248,7 +2248,17 @@ a:not(.submit-instructions-button):visited {
   border: 1px solid gray;
   background-color: var(--bg-color);
   color: var(--text-color);
+  max-width: 100px;
 }
+
+.field-text-input {
+	padding: 0px;
+	text-align: right;
+	border: 1px solid gray;
+	background-color: var(--bg-color);
+	color: var(--text-color);
+  }
+
 .field-labelx {
   flex: 0 0 250px;
   text-align: right;
