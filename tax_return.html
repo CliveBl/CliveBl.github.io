@@ -4,6 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="Yearly tax return preparation tool for Israeli taxpayers">
     <link rel="icon" type="image/x-icon" href="tax-day.ico" />
     <title>דו"ח שנתי - עשה זאת בעצמך</title>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
@@ -28,7 +29,7 @@
           </div>
 
           <form class="login-form" id="loginForm">
-            <input type="email" id="email" placeholder="דוא״ל" required />
+            <input type="email" id="email" placeholder="דוא״ל" required autocomplete="email"/>
             <div id="fullNameField" style="display: none">
               <input type="text" id="fullName" placeholder="שם מלא" required />
             </div>
@@ -87,12 +88,12 @@
                 </button>
               </div>
               <div class="doc-controls">
-                <span>כמות</span>
+                <label>כמות
                 <select name="identity-document-count" id="identity-document-count">
                   <option value="0">0</option>
                   <option value="1">1</option>
                   <option value="2" selected>2</option>
-                </select>
+                </select></label>
                 <label for="identity-document-count" id="identity-document-missing" class="doc-status"></label>
               </div>
             </div>
@@ -107,7 +108,7 @@
                 </button>
               </div>
               <div class="doc-controls">
-                <span>כמות</span>
+                <label>כמות
                 <select name="form106-count" id="form106-count">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -115,7 +116,7 @@
                   <option value="3">3</option>
                   <option value="4">4</option>
                   <option value="5">5</option>
-                </select>
+                </select></label>
                 <label for="form106-count" id="form106-missing" class="doc-status"></label>
               </div>
             </div>
@@ -130,7 +131,7 @@
                 </button>
               </div>
               <div class="doc-controls">
-                <span>כמות</span>
+                <label>כמות
                 <select name="capital-gains-count" id="capital-gains-count">
                   <option value="0">0</option>
                   <option value="1" selected>1</option>
@@ -143,7 +144,7 @@
                   <option value="8">8</option>
                   <option value="9">9</option>
                   <option value="10">10</option>
-                </select>
+                </select></label>
                 <label for="capital-gains-count" id="capital-gains-missing" class="doc-status"></label>
               </div>
             </div>
@@ -158,12 +159,12 @@
                 </button>
               </div>
               <div class="doc-controls">
-                <span>כמות</span>
+                <label>כמות
                 <select name="residency-count" id="residency-count">
                   <option value="0" selected>0</option>
                   <option value="1">1</option>
                   <option value="2">2</option>
-                </select>
+                </select></label>
                 <label for="residency-count" id="residency-missing" class="doc-status"></label>
               </div>
             </div>
@@ -178,7 +179,7 @@
                 </button>
               </div>
               <div class="doc-controls">
-                <span>כמות</span>
+                <label>כמות
                 <select name="donations-count" id="donations-count">
                   <option value="0" selected>0</option>
                   <option value="1">1</option>
@@ -191,7 +192,7 @@
                   <option value="8">8</option>
                   <option value="9">9</option>
                   <option value="10">10</option>
-                </select>
+                </select></label>
                 <label for="donations-count" id="donations-missing" class="doc-status"></label>
               </div>
             </div>
@@ -206,14 +207,14 @@
                 </button>
               </div>
               <div class="doc-controls">
-                <span>כמות</span>
+                <label>כמות
                 <select name="national-insurance-count" id="national-insurance-count">
                   <option value="0" selected>0</option>
                   <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
                   <option value="4">4</option>
-                </select>
+                </select></label>
                 <label for="national-insurance-count" id="national-insurance-missing" class="doc-status"></label>
               </div>
             </div>
@@ -228,12 +229,12 @@
                 </button>
               </div>
               <div class="doc-controls">
-                <span>כמות</span>
+                <label>כמות
                 <select name="education-count" id="education-count">
                   <option value="0" selected>0</option>
                   <option value="1">1</option>
                   <option value="2">2</option>
-                </select>
+                </select></label>
                 <label for="education-count" id="education-missing" class="doc-status"></label>
               </div>
             </div>
@@ -248,18 +249,17 @@
                 </button>
               </div>
               <div class="doc-controls">
-                <span>כמות</span>
+                <label>כמות
                 <select name="service-release-count" id="service-release-count">
                   <option value="0" selected>0</option>
                   <option value="1">1</option>
                   <option value="2">2</option>
-                </select>
+                </select></label>
                 <label for="service-release-count" id="service-release-missing" class="doc-status"></label>
               </div>
             </div>
           </div>
           <div class="missing-docs-warning" id="missingDocsWarning">
-            <ul class="missing-docs-list" id="missingDocsList"></ul>
           </div>
         </div>
 
@@ -280,7 +280,7 @@
               <label for="fileInput">העלאת מסמכים...</label>
               <input type="file" id="folderInput" accept=".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png" webkitdirectory directory multiple />
               <label for="folderInput">העלאת תיקיי...</label>
-              <select id="createFormSelect" class="form-select"></select>
+              <select aria-label="Create Form" id="createFormSelect" class="form-select"></select>
               <button id="deleteAllButton" class="delete-all-button" disabled>מחק הכל</button>
             </div>
             <div class="action-buttons"></div>
@@ -317,7 +317,7 @@
           <div class="feedback-form">
             <div class="feedback-input-group">
               <label for="feedbackEmail">דוא"ל:</label>
-              <input type="email" id="feedbackEmail" placeholder="הכנס את כתובת הדוא״ל שלך" />
+              <input type="email" id="feedbackEmail" autocomplete="email" placeholder="הכנס את כתובת הדוא״ל שלך" />
             </div>
             <div class="feedback-input-group">
               <label for="feedbackMessage">הודעה:</label>
@@ -329,7 +329,7 @@
             </div>
             <button id="sendFeedbackButton" class="send-feedback-button" disabled>שלח משוב</button>
           </div>
-        </div>
+        </div> 
       </div>
       <!-- Add version footer -->
       <footer class="version-footer">
@@ -505,41 +505,41 @@
         <cite></cite>
 
         <div>
-          <label for="867ab-setoff-losses">Losses eligible for set-off:</label>
-          <input type="text" class="field-input" data-field-name="OffsetableLosses" id="867ab-setoff-losses" name="867ab-setoff-losses" value="0.00" />
+          <label >Losses eligible for set-off:</label>
+          <input type="text" class="field-input" data-field-name="OffsetableLosses" value="0.00" />
           <cite></cite>
         </div>
         <div>
-          <label for="867ab-reit-losses">Losses from sale of REIT shares:</label>
-          <input type="text" class="field-input" id="867ab-reit-losses" name="867ab-reit-losses" value="0.00" />
+          <label >Losses from sale of REIT shares:</label>
+          <input type="text" class="field-input" data-field-name="867ab-reit-losses" value="0.00" />
           <cite></cite>
         </div>
         <div>
-          <label for="867ab-nonsetoff-losses">Losses not eligible for set-off:</label>
-          <input type="text" class="field-input" id="867ab-nonsetoff-losses" name="867ab-nonsetoff-losses" value="0.00" />
+          <label >Losses not eligible for set-off:</label>
+          <input type="text" class="field-input" data-field-name="867ab-nonsetoff-losses" value="0.00" />
           <cite></cite>
         </div>
         <div>
-          <label for="867ab-sales-turnover">Sales turnover:</label>
-          <input type="text" class="field-input" id="867ab-sales-turnover" data-field-name="TotalSales_256" value="0.00" />
+          <label >Sales turnover:</label>
+          <input type="text" class="field-input" data-field-name="TotalSales_256" value="0.00" />
           <cite></cite>
         </div>
         <div>
-          <label for="867ab-transactions-count">Number of transactions:</label>
-          <input type="text" class="field-input" id="867ab-transactions-count" data-field-name="NumberOfDealsInteger" value="0" />
+          <label >Number of transactions:</label>
+          <input type="text" class="field-input" data-field-name="NumberOfDealsInteger" value="0" />
           <cite></cite>
         </div>
         <div class="disabled-field">
-          <label for="867ab-exemption-reason">Reason for exemption:</label>
-          <input type="text" id="867ab-exemption-reason" name="867ab-exemption-reason" value="" />
+          <label >Reason for exemption:</label>
+          <input type="text" name="867ab-exemption-reason" disabled value="" />
           <!-- Empty in source -->
           <cite></cite>
           <p>Possible reasons for exemption (6): תושב חוץ, תושב חוזר ותיק, תושב ישראל לראשונה.</p>
           <cite></cite>
         </div>
         <div>
-          <label for="867ab-tax-withheld">Tax withheld at source:</label>
-          <input type="text" class="field-input" id="867ab-tax-withheld" data-field-name="TaxDeductedAtSource_040" value="0.00" />
+          <label >Tax withheld at source:</label>
+          <input type="text" class="field-input" data-field-name="TaxDeductedAtSource_040" value="0.00" />
           <cite></cite>
         </div>
       </fieldset>
@@ -703,8 +703,8 @@
           <cite></cite>
 
           <div>
-            <label for="867g-div-tax-withheld">Tax withheld at source from dividend/profit distribution:</label>
-            <input type="text" class="field-input" id="867g-div-tax-withheld" data-field-name="TaxDeductedAtSourceDividend_040" value="0.00" />
+            <label >Tax withheld at source from dividend/profit distribution:</label>
+            <input type="text" class="field-input" data-field-name="TaxDeductedAtSourceDividend_040" value="0.00" />
             <cite></cite>
           </div>
         </fieldset>
@@ -833,15 +833,15 @@
           <cite></cite>
 
           <div>
-            <label for="867g-int-tax-withheld">Tax withheld at source from interest / discount fee:</label>
-            <input type="text" class="field-input" id="867g-int-tax-withheld" data-field-name="TaxDeductedAtSourceInterest_040" value="0.00" />
+            <label >Tax withheld at source from interest / discount fee:</label>
+            <input type="text" class="field-input"  data-field-name="TaxDeductedAtSourceInterest_040" value="0.00" />
             <cite></cite>
           </div>
         </fieldset>
 
         <div class="disabled-field">
-          <label for="867g-exemption-reason">Reason for exemption:</label>
-          <input type="text" id="867g-exemption-reason" name="867g-exemption-reason" value="" />
+          <label >Reason for exemption:</label>
+          <input type="text" name="867g-exemption-reason" disabled value="" />
           <!-- Empty in source -->
         </div>
       </fieldset>

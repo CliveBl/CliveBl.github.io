@@ -1,6 +1,6 @@
 import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions } from "./index.js";
 import { API_BASE_URL } from "./env.js";
-
+import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({
   title,
@@ -93,112 +93,6 @@ function customerMessageModal({
   });
 }
 
-/* ********************************************* friendly names ************************************ */
-const friendlyNames = {
-  organizationName: "שם הארגון",
-  explanationText: "תאור",
-  value: "סכום",
-  receiptInteger: "מספר קבלה",
-  donationDate: "תאריך תרומה",
-  nonProfitTaxFileNumber: "קוד עמותה/ארגון",
-  employerTaxFileNumber: "מספר מעסיק",
-  branchCode: "קוד סניף",
-  accountNumber: "מספר חשבון",
-  matchTag: "תג התאמה",
-  reason: "סיבה",
-  cityName: "שם העיר",
-  startDate: "תאריך התחלה",
-  endDate: "תאריך סיום",
-  NumberOfDealsInteger: "כמות עיסקאות",
-  releaseDate: "תאריך שחרור",
-  numberOfServiceMonths: "חודשי שרות",
-  NONE: "ללא",
-  ReceivedFromNI_196_194: "התקבל מהמוסד לביטוח לאומי",
-  Salary_172_158: "שכר עבודה",
-  LeavingBonus_272_258: "מענק פרישה",
-  TaxFreeLeavingBonus_209: "מענק פרישה פטור ממס",
-  EducationFund_219_218: "השכר לקרן השתלמות",
-  EmployerKupatGemel_249_248: "קופת גמל מעסיק",
-  InsuredIncome_245_244: "הכנסה מבוטחת",
-  IncomeTaxDeduction_042: "מס הכנסה",
-  NationalInsuranceIncomeTaxDeduction_040: "מס הכנסה מקצבה ביטוח לאומי",
-  Donations_237_037: "תרומות",
-  NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
-  TemporarySalaryReductionRecuperationFund_012_011: "השתתפות זמנית הפחתת דמי הבראה",
-  PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
-  SettlementDiscount_327_287: "הנחה יישובית",
-  ShiftAllowance_069_068: "תוספת משמרות",
-  DepositToNewPensionFund_180_135: "הפקדה לקרן פנסיה חדשה",
-  DepositCurrentAccountIncomeTaxedAtPercent10_076: "הכנסה מחשבון עובר ושב ממוסה ב-10%",
-  DepositCurrentAccountIncomeTaxedAtPercent15_217: "הכנסה מחשבון עובר ושב ממוסה ב-15%",
-  DepositIncomeTaxedAtPercent10_076: "ריבית על פיקדונות ממוסה ב-10%",
-  DepositIncomeTaxedAtPercent15_078: "ריבית על פיקדונות ממוסה ב-15%",
-  DepositIncomeTaxedAtPercent20_126: "ריבית על פיקדונות ממוסה ב-20%",
-  DepositIncomeTaxedAtPercent25_142: "ריבית על פיקדונות ממוסה ב-25%",
-  DepositIncomeTaxedAtPercent35_053: "ריבית על פיקדונות ממוסה ב-35%",
-  DepositFXIncomeTaxedAtPercent15_317: 'ריבית על פיקדונות מט"ח ממוסה ב-15%',
-  DepositFXIncomeTaxedAtPercent20_226: 'ריבית על פיקדונות מט"ח ממוסה ב-20%',
-  DepositFXIncomeTaxedAtPercent25_242: 'ריבית על פיקדונות מט"ח ממוסה ב-25%',
-  DepositFXIncomeTaxedAtPercent23_232: 'ריבית על פיקדונות מט"ח ממוסה ב-23%',
-  DepositFXIncomeTaxedAtPercent35_1043: 'ריבית על פיקדונות מט"ח ממוסה ב-35%',
-  ProfitIncomeTaxedAtPercent0: "רווח הון ממוסה ב-0%",
-  ProfitIncomeTaxedAtPercent15: "רווח הון ממוסה ב-15%",
-  ProfitIncomeTaxedAtPercent20: "רווח הון ממוסה ב-20%",
-  ProfitIncomeTaxedAtPercent25: "רווח הון ממוסה ב-25%",
-  ProfitIncomeTaxedAtPercent23: "רווח הון ממוסה ב-23%",
-  ProfitIncomeTaxedAtPercent30: "רווח הון ממוסה ב-30%",
-  ProfitIncomeTaxedAtPercent35: "רווח הון ממוסה ב-35%",
-  OffsetableLosses: "הפסדים ניתנים לקיזוז",
-  TotalSales_256: 'סה"כ מכירות',
-  TaxDeductedAtSource_040: "מס שנוכה במקור",
-  DividendFXIncomeTaxedAtPercent0: 'דיבידנד מט"ח ממוסה ב-0%',
-  DividendFXIncomeTaxedAtPercent4: 'דיבידנד מט"ח ממוסה ב-4%',
-  DividendFXIncomeTaxedAtPercent15: 'דיבידנד מט"ח ממוסה ב-15%',
-  DividendFXIncomeTaxedAtPercent20: 'דיבידנד מט"ח ממוסה ב-20%',
-  DividendFXIncomeTaxedAtPercent25: 'דיבידנד מט"ח ממוסה ב-25%',
-  DividendFXIncomeTaxedAtPercent23: 'דיבידנד מט"ח ממוסה ב-23%',
-  DividendIncomeTaxedAtPercent0: "דיבידנד ממוסה ב-0%",
-  DividendIncomeTaxedAtPercent4: "דיבידנד ממוסה ב-4%",
-  DividendIncomeTaxedAtPercent15: "דיבידנד ממוסה ב-15%",
-  DividendIncomeTaxedAtPercent20: "דיבידנד ממוסה ב-20%",
-  DividendIncomeTaxedAtPercent25: "דיבידנד ממוסה ב-25%",
-  DividendIncomeTaxedAtPercent23: "דיבידנד ממוסה ב-23%",
-  InterestIncomeTaxedAtPercent0: "ריבית מניירות ערך ממוסה ב-0%",
-  InterestIncomeTaxedAtPercent10: "ריבית מניירות ערך ממוסה ב-10%",
-  InterestIncomeTaxedAtPercent15: "ריבית מנייות ערך ממוסה ב-15%",
-  InterestIncomeTaxedAtPercent20: "ריבית מניירות ערך ממוסה ב-20%",
-  InterestIncomeTaxedAtPercent25: "ריבית מניירות ערך ממוסה ב-25%",
-  InterestIncomeTaxedAtPercent23: "ריבית מניירות ערך ממוסה ב-23%",
-  InterestIncomeTaxedAtPercent35: "ריבית מניירות ערך ממוסה ב-35%",
-  TaxDeductedAtSourceDeposit_043: "מס שנוכה במקור (פקדון)",
-  TaxDeductedAtSourceDividend_040: "מס שנוכה במקור (דיבידנד)",
-  TaxDeductedAtSourceInterest_040: "מס שנוכה במקור (ריבית)",
-  TotalExemptInterestAndIndexLinkageDifference_209: "ריבית פטורה והפרש הצמדה",
-  LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת",
-  maritalStatusOptions: {
-    name: "מצב משפחתי",
-    options: ["רווק", "נשוי", "אלמן", "גרוש", "פרוד"],
-  },
-  genderOptions: { name: "מין", options: ["זכר", "נקבה"] },
-  registeredTaxpayerBoolean: "בן/בת זוג רשום",
-  birthDate: "תאריך לידה",
-  children: "ילדים",
-  noSecondParentBoolean: "אין הורה שני",
-  caringForBoolean: "הילד בהחזקתי",
-  requestDelayOfPointsBoolean: "בקשה לדחיי נקודות",
-  requestUsePointsFromLastYearBoolean: "בקשה להשתמש בנקודות משנה קודמת",
-  newImmigrantArrivalDate: "תאריך עליה",
-  returningResidentReturnDate: "תאריך חזרה, תושב חוזר",
-  degreeCompletionDate: "תאריך סיום לימודי תואר ראשון",
-  specializationCompletionDate: "תאריך סיום לימודי תואר שני",
-  degreeCode: "קוד תואר ראשון",
-  noteText: "הערה",
-  taxYear: "שנה",
-  clientIdentificationNumber: "מספר זיהוי",
-  fileName: "שם הקובץ",
-  reasonText: "סיבה",
-  movedHereDuringYearBoolean: "עברתי לכאן במהלך השנה",
-};
 
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
@@ -569,8 +463,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
 
       function toggleFieldsView(toggleLink: HTMLAnchorElement) {
-		// Get desired state.
-        const showAllFields : boolean = toggleLink.textContent === addFieldsText;
+        // Get desired state.
+        const showAllFields: boolean = toggleLink.textContent === addFieldsText;
         // Perform the toggle by changing the text content of the toggle link.
         if (showAllFields) {
           toggleLink.textContent = removeFieldsText;
@@ -583,7 +477,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
           if (formIndex !== -1) {
             renderFields(updatedData[formIndex], accordianBody, showAllFields);
-           }
+          }
           fileModifiedActions(editableFileListHasEntries());
         }
       }
@@ -739,7 +633,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     body.innerHTML = "";
 
     if (fieldsToggleLink) {
-      debug("Adding the toggle link to the body");
+      //debug("Adding the toggle link to the body");
       body.appendChild(fieldsToggleLink);
     }
 
@@ -862,9 +756,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       fieldRow.className = "field-row";
 
       let fieldLabel = document.createElement("label") as HTMLLabelElement;
-      const friendly = friendlyNames[key as keyof typeof friendlyNames];
-      fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
+      fieldLabel.textContent = getFriendlyName(key);
       fieldLabel.className = "field-labelx";
+
+	  const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
       // For readOnlyFields, just create a label with the value
       if (readOnlyFields.includes(key)) {
@@ -872,6 +767,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         valueLabel.textContent = value || "";
         valueLabel.className = "read-only-field-value";
         valueLabel.setAttribute("data-field-name", key);
+		valueLabel.id = fieldId;
+		fieldLabel.setAttribute('for', fieldId)
+  
         fieldRow.appendChild(fieldLabel);
         fieldRow.appendChild(valueLabel);
         container.appendChild(fieldRow);
@@ -879,26 +777,28 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
 
       let input = document.createElement("input") as HTMLInputElement;
-
       input.className = "field-input";
-      input.setAttribute("data-field-name", key); // Add data-field-name attribute
+      input.setAttribute("data-field-name", key);
+      // Associate the input with a unique ID and connect it to the label so that screen readers can read the label when the input is focused.
+      input.id = fieldId;
+      fieldLabel.setAttribute('for', fieldId)
 
       // 🟢 **Apply Field Formatting Rules**
       formatInput(key, input, value);
 
       if (key.endsWith("Options")) {
-        const friendly = friendlyNames[key as keyof typeof friendlyNames];
-        fieldLabel.textContent = typeof friendly === "string" ? friendly : friendly?.name ?? "";
+        fieldLabel.textContent = getFriendlyName(key);
         const controls = document.createElement("div") as HTMLDivElement;
         controls.setAttribute("data-field-name", key); // Add data-field-name attribute
+        controls.id = fieldId;
 
-        const options = typeof friendly === "object" && "options" in friendly ? friendly.options : [];
+        const options = getFriendlyOptions(key);
         options.forEach((option: string) => {
           const radioButton = document.createElement("input") as HTMLInputElement;
           const label = document.createElement("label") as HTMLLabelElement;
           radioButton.type = "radio";
           radioButton.value = option;
-          const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
+          const name = getFriendlyOptionName(key);
           radioButton.name = name;
           radioButton.id = name + option;
           radioButton.checked = value === option;
@@ -908,6 +808,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         });
         input = controls as HTMLInputElement;
       }
+
       fieldRow.appendChild(fieldLabel);
       fieldRow.appendChild(input);
       if (key.includes("_")) {
@@ -916,6 +817,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         const codeLabel = document.createElement("label");
         codeLabel.textContent = fieldCode;
         codeLabel.className = "codeLabel";
+        codeLabel.htmlFor = fieldId;
         fieldRow.appendChild(codeLabel);
       }
       container.appendChild(fieldRow);
@@ -1146,6 +1048,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.setAttribute("data-field-name", fieldName);
       input.className = "header-input";
       input.readOnly = !isEditable;
+      const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+      input.id = fieldId;
+      headerFieldlabel.htmlFor = fieldId; // or label.setAttribute('for', fieldId)
 
       // Append label and input (label appears only in mobile)
       fieldContainer.appendChild(headerFieldlabel);

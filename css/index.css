@@ -997,8 +997,8 @@ ul {
   width: 150px;
   direction: ltr;
   text-align: left;
-  appearance: textfield;
   -moz-appearance: textfield; /* Firefox */
+  appearance: textfield;
 }
 
 .taxpayer-input-container input:focus {
@@ -1805,8 +1805,8 @@ button:disabled {
   padding: 4px;
   background-color: var(--bg-color);
   color: var(--text-color);
-  appearance: textfield;
   -moz-appearance: textfield; /* Firefox */
+  appearance: textfield;
 }
 
 .children-table input::-webkit-outer-spin-button,

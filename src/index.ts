@@ -1,3 +1,5 @@
+import { getFriendlyName } from "./constants.js";
+
 const uiVersion = "0.46";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
@@ -1359,7 +1361,7 @@ function addFileToList(fileInfo: any) {
 
         const fieldGroup = document.createElement("div");
         fieldGroup.className = "field-group";
-        fieldGroup.innerHTML = `<strong>${key}:</strong>`;
+        fieldGroup.innerHTML = `<strong>${getFriendlyName(key)}:</strong>`;
 
         // Create nested list for embedded fields
         const nestedList = document.createElement("ul");
@@ -1379,7 +1381,7 @@ function addFileToList(fileInfo: any) {
               Object.entries(item).forEach(([itemKey, itemValue]) => {
                 const itemField = document.createElement("li");
                 itemField.className = "nestedListItemField";
-                itemField.innerHTML = formatNumber(itemKey, itemValue);
+                itemField.innerHTML = formatNumber(getFriendlyName(itemKey), itemValue);
                 itemList.appendChild(itemField);
               });
 
@@ -1394,7 +1396,7 @@ function addFileToList(fileInfo: any) {
             if (nestedValue !== null) {
               const nestedItem = document.createElement("li");
               nestedItem.className = "nestedListItemField";
-              nestedItem.innerHTML = formatNumber(nestedKey, nestedValue);
+              nestedItem.innerHTML = formatNumber(getFriendlyName(nestedKey), nestedValue);
               nestedList.appendChild(nestedItem);
             }
           });
@@ -1406,7 +1408,7 @@ function addFileToList(fileInfo: any) {
         // Regular field
         const field = document.createElement("div");
         field.style.marginBottom = "5px";
-        field.innerHTML = `<strong>${key}:</strong> ${value}`;
+        field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value}`;
         accordionContent.appendChild(field);
       }
     }
@@ -2087,11 +2089,14 @@ function updateMissingDocuments() {
 
   // Update warning section
   const warningSection = document.getElementById("missingDocsWarning") as HTMLDivElement;
-  const warningList = document.getElementById("missingDocsList") as HTMLUListElement;
+  //const warningList = document.getElementById("missingDocsList") as HTMLUListElement;
 
   if (missingDocs.length > 0) {
-    warningList.innerHTML = `<strong>שים לב!</strong> חסרים המסמכים הבאים: ${missingDocs.map((doc: { name: string }) => doc.name).join(", ")}`;
+    warningSection.innerHTML = `<strong>שים לב!</strong> חסרים המסמכים הבאים: ${missingDocs.map((doc: { name: string }) => doc.name).join(", ")}`;
+	const warningList = document.createElement("ul") as HTMLUListElement;
+	warningList.className ="missing-docs-list";
     warningList.innerHTML += missingDocs.map((doc: { name: string; count: number }) => `<li>${doc.name}: חסר ${doc.count}</li>`).join("");
+    warningSection.appendChild(warningList);
     warningSection.classList.add("visible");
     warningSection.classList.remove("success");
   } else if (Object.keys(docCounts).length > 0) {
@@ -2111,7 +2116,7 @@ function updateMissingDocuments() {
         return `<li>${docName}: ${count} מסמכים</li>`;
       })
       .join("");
-    warningList.innerHTML = `<strong>סיכום מסמכים:</strong>${summary}`;
+    warningSection.innerHTML = `<strong>סיכום מסמכים:</strong>${summary}`;
   } else {
     warningSection.classList.remove("visible");
     warningSection.classList.remove("success");
