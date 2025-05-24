@@ -755,146 +755,6 @@ ul {
   padding-right: 10px;
 }
 
-.questionnaire-button {
-  background-color: var(--tax-blue);
-  color: var(--button-text);
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-}
-
-.questionnaire-button::after {
-  content: "▼";
-  font-size: 0.8em;
-  transition: transform 0.3s ease;
-}
-
-.questionnaire-button.active::after {
-  transform: rotate(180deg);
-}
-
-.questionnaire-button:hover {
-  background-color: #2980b9;
-}
-
-.questionnaire-container {
-  display: none;
-  background-color: var(--bg-color);
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border-color);
-  width: fit-content;
-  min-width: min(100%, 600px);
-  max-width: 100%;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-.questionnaire-container.active {
-  display: block;
-  margin: 20px 0;
-}
-
-.questionnaire-modal {
-  background-color: var(--bg-color);
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border-color);
-}
-
-.questionnaire-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.questionnaire-header h2 {
-  margin: 0;
-}
-
-.questionnaire-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.question-group {
-  border: 1px solid var(--border-color);
-  padding: 15px;
-  border-radius: 6px;
-  background-color: var(--item-bg);
-}
-
-.question-text {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.question-controls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.question-controls input[type="text"],
-.question-controls input[type="number"],
-.question-controls input[type="date"] {
-  padding: 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
-
-.question-controls input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-}
-
-.question-controls input[type="radio"] {
-  width: 20px;
-  height: 20px;
-}
-
-.question-controls input[type="number"] {
-  /* width: 120px; */
-  padding: 4px 8px;
-}
-
-/* Date input styling */
-.question-controls input[type="text"][pattern] {
-  /* width: 120px; */
-  padding: 4px 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  text-align: center;
-  font-family: inherit;
-}
-
-/* Date pair container styling */
-.date-pair-container {
-  display: flex;
-  gap: 15px;
-  align-items: flex-start;
-}
-
-.date-pair-container > div {
-  flex: 0 0 auto;
-}
-
-.date-pair-container input {
-  width: 100px;
-  margin-top: 4px;
-}
 
 .save-button {
   background-color: var(--tax-green);
@@ -908,12 +768,6 @@ ul {
 
 .save-button:hover {
   background-color: var(--tax-green-hover);
-}
-
-.questionnaire-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .year-selector {
@@ -1557,14 +1411,7 @@ button:disabled {
   font-weight: bold;
 }
 
-.questionnaire-buttons {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
 .save-button,
-.duplicate-button,
 .cancel-button {
   padding: 8px 16px;
   border: none;
@@ -1592,14 +1439,6 @@ button:disabled {
   background-color: #c0392b; /* Darker red on hover */
 }
 
-.duplicate-button {
-  background-color: var(--tax-blue);
-  color: var(--button-text);
-}
-
-.duplicate-button:hover {
-  background-color: #2980b9;
-}
 
 .doc-controls {
   display: flex;
@@ -1787,72 +1626,8 @@ button:disabled {
   }
 }
 
-.children-table {
-  width: 100%;
-}
 
-.children-table td:first-child {
-  text-align: right;
-  width: 40%;
-  white-space: normal;
-  line-height: 1.3;
-}
 
-.children-table input {
-  width: 30px;
-  text-align: center;
-  border: 1px solid var(--border-color);
-  padding: 4px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  -moz-appearance: textfield; /* Firefox */
-  appearance: textfield;
-}
-
-.children-table input::-webkit-outer-spin-button,
-.children-table input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.codes-info {
-  background-color: var(--item-bg);
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.code-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-  font-weight: bold;
-}
-
-.code-details {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.code-details div {
-  padding: 5px 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.children-button {
-  background-color: var(--tax-blue);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s;
-}
-
-.children-button:hover {
-  background-color: #2980b9;
-}
 
 .result-buttons {
   display: flex;
@@ -1905,32 +1680,6 @@ button:disabled {
   background-color: var(--tax-green-hover);
 }
 
-.id-input-container {
-  display: flex;
-  gap: 10px;
-}
-
-.id-input-group {
-  flex: 1;
-}
-
-.question-sub-label {
-  display: block;
-  margin-bottom: 3px;
-  font-size: 0.9em;
-  color: var(--text-color);
-}
-
-.id-input {
-  direction: ltr;
-  text-align: left;
-  width: 120px;
-  padding: 4px 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
 
 .modal-footer {
   display: flex;
@@ -1980,10 +1729,6 @@ button:disabled {
     width: 100%;
   }
 
-  .questionnaire-button {
-    width: 100%;
-    text-align: center;
-  }
 
   .custom-file-input label {
     text-align: center;
@@ -1994,15 +1739,6 @@ button:disabled {
     align-items: stretch;
   }
 
-  .questionnaire-buttons {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .questionnaire-buttons button {
-    width: 100%;
-    margin: 5px 0;
-  }
 }
 
 .version-footer {
@@ -2034,38 +1770,9 @@ button:disabled {
 }
 
 @media (max-width: 600px) {
-  .questionnaire-container {
-    width: 100%;
-    min-width: 100%;
-    margin: 0;
-  }
 
-  .questionnaire-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }
 
-.question-sub-label {
-  margin-bottom: 0px;
-}
-
-.small-integer-pair-container {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  white-space: nowrap;
-}
-
-.small-integer-pair-container select,
-.question-controls select {
-  padding: 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  /* min-width: 120px; */
-}
 
 /* Add styles for the instructions page */
 .instructions-section {
@@ -2387,13 +2094,13 @@ a:not(.submit-instructions-button):visited {
   cursor: pointer;
 }
 
-/* Children section styles */
-.children-title {
+/* Item section styles */
+.item-title {
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.child-container {
+.item-container {
   margin-right: 30px;
   margin-bottom: 5px;
   display: block;
@@ -2401,13 +2108,13 @@ a:not(.submit-instructions-button):visited {
   gap: 10px;
 }
 
-.child-title-text {
+.item-title-text {
   margin-right: 30px;
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.add-child-button {
+.add-item-button {
   margin-right: 10px;
 }
 
@@ -2463,7 +2170,7 @@ a:not(.submit-instructions-button):visited {
   align-items: center;
 }
 
-.remove-child-button {
+.remove-item-button {
   color: red;
   border: none;
   background: none;
@@ -2472,11 +2179,11 @@ a:not(.submit-instructions-button):visited {
   font-size: 14px;
 }
 
-.remove-child-button:hover {
+.remove-item-button:hover {
   background-color: rgba(255, 0, 0, 0.1);
   border-radius: 3px;
 }
-.child-fields-container {
+.item-fields-container {
   display: flex;
   flex-direction: column;
   gap: 8px; /* optional, for spacing */

@@ -359,10 +359,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             fieldName.endsWith("Integer") ||
             fieldName.endsWith("Code") ||
             fieldName.endsWith("Boolean") ||
-            fieldName.endsWith("Options")
+            fieldName.endsWith("Options") ||
+            fieldName.endsWith("Type")
           );
         }
-		
+
         function normalizeDate(dateValue: string) {
           if (dateValue) {
             const [year, month, day] = dateValue.split("-");
@@ -374,8 +375,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
         const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
 
-        // Update main fields and fields object
-        accordianBody.querySelectorAll("input[data-field-name]:not(.child-container input)").forEach((input) => {
+        // Update from main fields and fields object
+        accordianBody.querySelectorAll("input[data-field-name]:not(.item-container input)").forEach((input) => {
           const htmlInput = input as HTMLInputElement;
           const fieldName = htmlInput.getAttribute("data-field-name") as string;
           let fieldValue = htmlInput.value;
@@ -401,8 +402,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           }
         });
 
-        // Update Options fields and fields object
-        accordianBody.querySelectorAll("div[data-field-name]:not(.child-container input)").forEach((div) => {
+        // Update from Options fields and fields object
+        accordianBody.querySelectorAll("div[data-field-name]:not(.item-container input)").forEach((div) => {
           const htmlDiv = div as HTMLDivElement;
           const fieldName = htmlDiv.getAttribute("data-field-name") as string;
 
@@ -418,7 +419,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           }
         });
 
-        // Update header fields
+        // Update from header fields
         const headerContainer = accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
         if (headerContainer) {
           headerContainer.querySelectorAll("input[data-field-name]").forEach((input: Element) => {
@@ -428,36 +429,63 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           });
         }
 
-        // Update children array
-        if (fileData.children) {
-          updatedData.children = [];
-          const childContainers = Array.from(accordianBody.querySelectorAll(".child-container"));
+        // Function to update item arrays like children and genericFields
+        function updateItemArray(fileData: any, updatedData: any, itemArrayName: string, containerSelector: string) {
+          if (fileData[itemArrayName]) {
+            updatedData[itemArrayName] = [];
+            const itemContainers = Array.from(accordianBody.querySelectorAll(containerSelector));
 
-          for (let i = 0; i < childContainers.length; i++) {
-            const container = childContainers[i];
-            const child: any = {};
+            for (let i = 0; i < itemContainers.length; i++) {
+              const container = itemContainers[i];
+              const item: any = {};
 
-            // Get all inputs within this child container, including those in nested divs
-            const inputs = Array.from(container.querySelectorAll("input[data-field-name]"));
+              // Get all inputs within this item container, including those in nested divs
+              const selectInputs: HTMLSelectElement[] = Array.from(container.querySelectorAll("select[data-field-name]"));
 
-            for (const input of inputs) {
-              const htmlInput = input as HTMLInputElement;
-              const fieldName = htmlInput.getAttribute("data-field-name") as string;
+              for (const input of selectInputs) {
+                const htmlSelect = input as HTMLSelectElement;
+                const fieldName = htmlSelect.getAttribute("data-field-name") as string;
 
-              if (fieldName.endsWith("Boolean")) {
-                child[fieldName] = htmlInput.checked;
-              } else if (fieldName.endsWith("Date")) {
-                // Convert date from YYYY-MM-DD to DD/MM/YYYY
-                child[fieldName] = normalizeDate(htmlInput.value);
-              } else {
-                child[fieldName] = htmlInput.value;
+                item[fieldName] = htmlSelect.value;
               }
-            }
 
-            debug(`Child ${i} data:`, child);
-            updatedData.children.push(child);
+              const inputs: HTMLInputElement[] = Array.from(container.querySelectorAll("input[data-field-name]"));
+
+              for (const input of inputs) {
+                const htmlInput = input as HTMLInputElement;
+                const fieldName = htmlInput.getAttribute("data-field-name") as string;
+
+                let fieldValue = htmlInput.value;
+                if (isCurrencyField(fieldName)) {
+                  fieldValue = fieldValue.replace(/[₪,]/g, "");
+                  if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
+                    fieldValue = parseFloat(fieldValue).toFixed(2);
+                    item[fieldName] = fieldValue;
+                  } else {
+                    item[fieldName] = "0.00";
+                  }
+                } else if (fieldName.endsWith("Boolean")) {
+                  item[fieldName] = htmlInput.checked;
+                } else if (fieldName.endsWith("Date")) {
+                  // Convert date from YYYY-MM-DD to DD/MM/YYYY
+                  item[fieldName] = normalizeDate(htmlInput.value);
+                } else {
+                  item[fieldName] = fieldValue;
+                }
+              }
+
+              debug(`Item ${i} data:`, item);
+              updatedData[itemArrayName].push(item);
+            }
           }
         }
+
+        // Update children array
+        updateItemArray(fileData, updatedData, "children", ".item-container");
+
+        // Update genericFields array
+        updateItemArray(fileData, updatedData, "genericFields", ".item-container");
+
         return updatedData;
       }
 
@@ -816,6 +844,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           optionElement.appendChild(document.createTextNode(optionText));
           dropdown.appendChild(optionElement);
         });
+		// Select the option that is currently selected
+		dropdown.value = value;
         fieldRow.appendChild(dropdown);
       } else {
         let input = document.createElement("input") as HTMLInputElement;
@@ -914,12 +944,12 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         // Title for the children or generic fields with a control button before the title, that adds a new item.
         const titleElement = document.createElement("div") as HTMLDivElement;
         titleElement.textContent = title;
-        titleElement.className = "children-title";
+        titleElement.className = "item-title";
         accordianBody.appendChild(titleElement);
         // Add a button to add a new item on the same line as the title
         const addButton = document.createElement("button");
         addButton.textContent = addButtonLabel;
-        addButton.className = "add-child-button";
+        addButton.className = "add-item-button";
         accordianBody.appendChild(addButton);
         addButton.onclick = () => {
           itemArray.push(itemTemplate);
@@ -933,17 +963,17 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           itemCount++;
           // Title and container for the item
           const itemContainer = document.createElement("div") as HTMLDivElement;
-          itemContainer.className = "child-container";
+          itemContainer.className = "item-container";
 
           const itemTitleText = document.createElement("span") as HTMLSpanElement;
           itemTitleText.textContent = title + " " + itemCount;
-          itemTitleText.className = "child-title-text";
+          itemTitleText.className = "item-title-text";
           itemContainer.appendChild(itemTitleText);
 
           // Add remove button
           const removeButton = document.createElement("button") as HTMLButtonElement;
           removeButton.textContent = "X";
-          removeButton.className = "remove-child-button";
+          removeButton.className = "remove-item-button";
           removeButton.onclick = () => {
             itemArray.splice(index, 1);
             // Re-render the fields

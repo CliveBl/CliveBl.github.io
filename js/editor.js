@@ -300,7 +300,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                         fieldName.endsWith("Integer") ||
                         fieldName.endsWith("Code") ||
                         fieldName.endsWith("Boolean") ||
-                        fieldName.endsWith("Options"));
+                        fieldName.endsWith("Options") ||
+                        fieldName.endsWith("Type"));
                 }
                 function normalizeDate(dateValue) {
                     if (dateValue) {
@@ -312,8 +313,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     }
                 }
                 const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type);
-                // Update main fields and fields object
-                accordianBody.querySelectorAll("input[data-field-name]:not(.child-container input)").forEach((input) => {
+                // Update from main fields and fields object
+                accordianBody.querySelectorAll("input[data-field-name]:not(.item-container input)").forEach((input) => {
                     const htmlInput = input;
                     const fieldName = htmlInput.getAttribute("data-field-name");
                     let fieldValue = htmlInput.value;
@@ -339,8 +340,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                         updatedData[fieldName] = fieldValue;
                     }
                 });
-                // Update Options fields and fields object
-                accordianBody.querySelectorAll("div[data-field-name]:not(.child-container input)").forEach((div) => {
+                // Update from Options fields and fields object
+                accordianBody.querySelectorAll("div[data-field-name]:not(.item-container input)").forEach((div) => {
                     const htmlDiv = div;
                     const fieldName = htmlDiv.getAttribute("data-field-name");
                     if (fieldName.endsWith("Options")) {
@@ -354,7 +355,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                         }
                     }
                 });
-                // Update header fields
+                // Update from header fields
                 const headerContainer = accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
                 if (headerContainer) {
                     headerContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
@@ -363,33 +364,56 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                         updatedData[fieldName] = fieldValue;
                     });
                 }
-                // Update children array
-                if (fileData.children) {
-                    updatedData.children = [];
-                    const childContainers = Array.from(accordianBody.querySelectorAll(".child-container"));
-                    for (let i = 0; i < childContainers.length; i++) {
-                        const container = childContainers[i];
-                        const child = {};
-                        // Get all inputs within this child container, including those in nested divs
-                        const inputs = Array.from(container.querySelectorAll("input[data-field-name]"));
-                        for (const input of inputs) {
-                            const htmlInput = input;
-                            const fieldName = htmlInput.getAttribute("data-field-name");
-                            if (fieldName.endsWith("Boolean")) {
-                                child[fieldName] = htmlInput.checked;
+                // Function to update item arrays like children and genericFields
+                function updateItemArray(fileData, updatedData, itemArrayName, containerSelector) {
+                    if (fileData[itemArrayName]) {
+                        updatedData[itemArrayName] = [];
+                        const itemContainers = Array.from(accordianBody.querySelectorAll(containerSelector));
+                        for (let i = 0; i < itemContainers.length; i++) {
+                            const container = itemContainers[i];
+                            const item = {};
+                            // Get all inputs within this item container, including those in nested divs
+                            const selectInputs = Array.from(container.querySelectorAll("select[data-field-name]"));
+                            for (const input of selectInputs) {
+                                const htmlSelect = input;
+                                const fieldName = htmlSelect.getAttribute("data-field-name");
+                                item[fieldName] = htmlSelect.value;
                             }
-                            else if (fieldName.endsWith("Date")) {
-                                // Convert date from YYYY-MM-DD to DD/MM/YYYY
-                                child[fieldName] = normalizeDate(htmlInput.value);
+                            const inputs = Array.from(container.querySelectorAll("input[data-field-name]"));
+                            for (const input of inputs) {
+                                const htmlInput = input;
+                                const fieldName = htmlInput.getAttribute("data-field-name");
+                                let fieldValue = htmlInput.value;
+                                if (isCurrencyField(fieldName)) {
+                                    fieldValue = fieldValue.replace(/[₪,]/g, "");
+                                    if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
+                                        fieldValue = parseFloat(fieldValue).toFixed(2);
+                                        item[fieldName] = fieldValue;
+                                    }
+                                    else {
+                                        item[fieldName] = "0.00";
+                                    }
+                                }
+                                else if (fieldName.endsWith("Boolean")) {
+                                    item[fieldName] = htmlInput.checked;
+                                }
+                                else if (fieldName.endsWith("Date")) {
+                                    // Convert date from YYYY-MM-DD to DD/MM/YYYY
+                                    item[fieldName] = normalizeDate(htmlInput.value);
+                                }
+                                else {
+                                    item[fieldName] = fieldValue;
+                                }
                             }
-                            else {
-                                child[fieldName] = htmlInput.value;
-                            }
+                            debug(`Item ${i} data:`, item);
+                            updatedData[itemArrayName].push(item);
                         }
-                        debug(`Child ${i} data:`, child);
-                        updatedData.children.push(child);
                     }
                 }
+                // Update children array
+                updateItemArray(fileData, updatedData, "children", ".item-container");
+                // Update genericFields array
+                updateItemArray(fileData, updatedData, "genericFields", ".item-container");
                 return updatedData;
             }
             function toggleFieldsView(toggleLink) {
@@ -730,6 +754,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     optionElement.appendChild(document.createTextNode(optionText));
                     dropdown.appendChild(optionElement);
                 });
+                // Select the option that is currently selected
+                dropdown.value = value;
                 fieldRow.appendChild(dropdown);
             }
             else {
@@ -818,12 +844,12 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 // Title for the children or generic fields with a control button before the title, that adds a new item.
                 const titleElement = document.createElement("div");
                 titleElement.textContent = title;
-                titleElement.className = "children-title";
+                titleElement.className = "item-title";
                 accordianBody.appendChild(titleElement);
                 // Add a button to add a new item on the same line as the title
                 const addButton = document.createElement("button");
                 addButton.textContent = addButtonLabel;
-                addButton.className = "add-child-button";
+                addButton.className = "add-item-button";
                 accordianBody.appendChild(addButton);
                 addButton.onclick = () => {
                     itemArray.push(itemTemplate);
@@ -836,15 +862,15 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     itemCount++;
                     // Title and container for the item
                     const itemContainer = document.createElement("div");
-                    itemContainer.className = "child-container";
+                    itemContainer.className = "item-container";
                     const itemTitleText = document.createElement("span");
                     itemTitleText.textContent = title + " " + itemCount;
-                    itemTitleText.className = "child-title-text";
+                    itemTitleText.className = "item-title-text";
                     itemContainer.appendChild(itemTitleText);
                     // Add remove button
                     const removeButton = document.createElement("button");
                     removeButton.textContent = "X";
-                    removeButton.className = "remove-child-button";
+                    removeButton.className = "remove-item-button";
                     removeButton.onclick = () => {
                         itemArray.splice(index, 1);
                         // Re-render the fields
