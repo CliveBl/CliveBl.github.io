@@ -2257,7 +2257,7 @@ a:not(.submit-instructions-button):visited {
 	border: 1px solid gray;
 	background-color: var(--bg-color);
 	color: var(--text-color);
-  }
+}
 
 .field-labelx {
   flex: 0 0 250px;

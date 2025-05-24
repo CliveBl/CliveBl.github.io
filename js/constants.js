@@ -1,4 +1,5 @@
 const friendlyNames = {
+    field867Type: "סוג שדה 867",
     fields: "שדות",
     genericFields: "שדות כלליים",
     clientName: "שם הלקוח",
@@ -110,6 +111,9 @@ const friendlyNames = {
 };
 export function getFriendlyName(key) {
     const friendly = friendlyNames[key];
+    if (friendly === undefined) {
+        console.error(`Friendly name for ${key} not found`);
+    }
     return typeof friendly === "string" ? friendly : friendly?.name ?? "";
 }
 export function getFriendlyOptions(key) {

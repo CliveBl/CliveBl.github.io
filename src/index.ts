@@ -1381,7 +1381,11 @@ function addFileToList(fileInfo: any) {
               Object.entries(item).forEach(([itemKey, itemValue]) => {
                 const itemField = document.createElement("li");
                 itemField.className = "nestedListItemField";
-                itemField.innerHTML = formatNumber(getFriendlyName(itemKey), itemValue);
+				if(itemKey.endsWith("Type")) {
+					itemField.innerHTML = formatNumber(getFriendlyName(itemKey), getFriendlyName(String(itemValue)));
+				} else {
+					itemField.innerHTML = formatNumber(getFriendlyName(itemKey), itemValue);
+				}
                 itemList.appendChild(itemField);
               });
 

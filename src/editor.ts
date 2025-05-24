@@ -93,7 +93,6 @@ function customerMessageModal({
   });
 }
 
-
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
 const addFieldsText = "הצג כל השדות";
@@ -107,7 +106,7 @@ const template867YearsMap = {
   2021: "template_867_2022",
   2022: "template_867_2022",
   2023: "template_867_2022",
-  2024: "template_867_2022"
+  2024: "template_867_2022",
 };
 
 export function editableFileListHasEntries() {
@@ -296,7 +295,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       accordianheader.appendChild(editorDeleteButton);
       accordionContainer.appendChild(accordianheader);
 
-      async function displayFileInfoButtons(saveButton: HTMLButtonElement, cancelButton: HTMLButtonElement, fileData: any, accordianBody: HTMLElement, allFilesData: any) {
+      async function displayFileInfoButtons(saveButton: HTMLButtonElement, cancelButton: HTMLButtonElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any) {
         // Set up the save button
         saveButton.textContent = "שמור שינויים";
         saveButton.className = "form-action-button";
@@ -362,6 +361,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             fieldName.endsWith("Boolean") ||
             fieldName.endsWith("Options")
           );
+        }
+		
+        function normalizeDate(dateValue: string) {
+          if (dateValue) {
+            const [year, month, day] = dateValue.split("-");
+            return `${day}/${month}/${year}`;
+          } else {
+            return "";
+          }
         }
 
         const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
@@ -451,15 +459,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           }
         }
         return updatedData;
-
-        function normalizeDate(dateValue: string) {
-          if (dateValue) {
-            const [year, month, day] = dateValue.split("-");
-            return `${day}/${month}/${year}`;
-          } else {
-            return "";
-          }
-        }
       }
 
       function toggleFieldsView(toggleLink: HTMLAnchorElement) {
@@ -623,32 +622,32 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     }
   }
 
-  function renderFields(fileData: any, body: HTMLElement, withAllFields = false) {
+  function renderFields(fileData: any, accordianBody: HTMLDivElement, withAllFields = false) {
     // Store the action buttons before clearing
-    const actionButtons = body.querySelectorAll(".form-action-button");
+    const actionButtons = accordianBody.querySelectorAll(".form-action-button");
     const buttonsArray = Array.from(actionButtons);
-    const fieldsToggleLink = body.querySelector(".fields-toggle-link") as HTMLAnchorElement;
+    const fieldsToggleLink = accordianBody.querySelector(".fields-toggle-link") as HTMLAnchorElement;
 
     // Clear the body
-    body.innerHTML = "";
+    accordianBody.innerHTML = "";
 
     if (fieldsToggleLink) {
       //debug("Adding the toggle link to the body");
-      body.appendChild(fieldsToggleLink);
+      accordianBody.appendChild(fieldsToggleLink);
     }
 
     function formatInput(key: string, input: HTMLInputElement, value: any) {
       if (key.endsWith("Name")) {
-		input.className = "field-text-input";
+        input.className = "field-text-input";
         input.type = "text";
         input.maxLength = 30;
         input.value = value;
       } else if (key.endsWith("Text")) {
-		input.className = "field-text-input";
+        input.className = "field-text-input";
         input.type = "text";
         input.maxLength = 50;
         input.value = value;
-       } else if (key.endsWith("Number")) {
+      } else if (key.endsWith("Number")) {
         input.type = "text";
         input.maxLength = 9;
         input.pattern = "\\d{9}";
@@ -717,6 +716,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         };
       } else if (key.endsWith("Options")) {
         // Deal with this later
+      } else if (key.endsWith("field867Type")) {
+        // Deal with this later
       } else {
         // 🟢 **Default: Currency Field (if no other condition matched)**
         input.type = "text";
@@ -756,8 +757,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       let fieldLabel = document.createElement("label") as HTMLLabelElement;
       fieldLabel.textContent = getFriendlyName(key);
       fieldLabel.className = "field-labelx";
+      fieldRow.appendChild(fieldLabel);
 
-	  const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+      const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+      fieldLabel.setAttribute("for", fieldId);
 
       // For readOnlyFields, just create a label with the value
       if (readOnlyFields.includes(key)) {
@@ -765,29 +768,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         valueLabel.textContent = value || "";
         valueLabel.className = "read-only-field-value";
         valueLabel.setAttribute("data-field-name", key);
-		valueLabel.id = fieldId;
-		fieldLabel.setAttribute('for', fieldId)
-  
-        fieldRow.appendChild(fieldLabel);
+        valueLabel.id = fieldId;
         fieldRow.appendChild(valueLabel);
         container.appendChild(fieldRow);
         return;
       }
 
-      let input = document.createElement("input") as HTMLInputElement;
-      input.className = "field-input";
-      input.setAttribute("data-field-name", key);
-      // Associate the input with a unique ID and connect it to the label so that screen readers can read the label when the input is focused.
-      input.id = fieldId;
-      fieldLabel.setAttribute('for', fieldId)
-
-      // 🟢 **Apply Field Formatting Rules**
-      formatInput(key, input, value);
-
       if (key.endsWith("Options")) {
-        fieldLabel.textContent = getFriendlyName(key);
         const controls = document.createElement("div") as HTMLDivElement;
-        controls.setAttribute("data-field-name", key); // Add data-field-name attribute
+        controls.setAttribute("data-field-name", key);
         controls.id = fieldId;
 
         const options = getFriendlyOptions(key);
@@ -804,11 +793,42 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           label.appendChild(document.createTextNode(option));
           controls.appendChild(label);
         });
-        input = controls as HTMLInputElement;
+        fieldRow.appendChild(controls);
+      } else if (key.endsWith("field867Type")) {
+        // Create a dropdown with the options
+        const dropdown = document.createElement("select") as HTMLSelectElement;
+        dropdown.className = "form-select";
+        dropdown.id = fieldId;
+        dropdown.name = key;
+        dropdown.setAttribute("data-field-name", key);
+        dropdown.appendChild(document.createTextNode(value));
+        // Add options to the dropdown from the configuration data
+        const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
+
+        formDetails.fieldTypes?.forEach((option: string) => {
+          const optionElement = document.createElement("option") as HTMLOptionElement;
+          optionElement.value = option;
+          let optionText = getFriendlyName(option);
+          if (option.includes("_")) {
+            // Field code from friendlyNames[key]. It is the text after the underscore.
+            optionText += " (" + option.split("_")[1] + ")";
+          }
+          optionElement.appendChild(document.createTextNode(optionText));
+          dropdown.appendChild(optionElement);
+        });
+        fieldRow.appendChild(dropdown);
+      } else {
+        let input = document.createElement("input") as HTMLInputElement;
+        input.className = "field-input";
+        input.setAttribute("data-field-name", key);
+        // Associate the input with a unique ID and connect it to the label so that screen readers can read the label when the input is focused.
+        input.id = fieldId;
+
+        // 🟢 **Apply Field Formatting Rules**
+        formatInput(key, input, value);
+        fieldRow.appendChild(input);
       }
 
-      fieldRow.appendChild(fieldLabel);
-      fieldRow.appendChild(input);
       if (key.includes("_")) {
         // Field code from friendlyNames[key]. It is the text after the underscore.
         const fieldCode = key.split("_")[1];
@@ -853,7 +873,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
       if (key !== "fields" && key !== "genericFields" && key !== "children") {
-        createFieldRow(body, key, value, true);
+        createFieldRow(accordianBody, key, value, true);
       }
     });
     // If it is an 867 form and we are not on mobile we render according to the template
@@ -867,72 +887,87 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         populateField(clone, key, value);
       });
       clone.removeAttribute("hidden");
-      body.appendChild(clone);
+      accordianBody.appendChild(clone);
     } else {
       // Process nested fields inside `fileData.fields` (thinner border)
       Object.entries(fileData.fields || {}).forEach(([key, value]) => {
-        createFieldRow(body, key, value, false);
+        createFieldRow(accordianBody, key, value, false);
       });
     }
 
-    // Only show children section if there are children or if this is a form that can have children
-    if (fileData.children) {
-      // Title for the children with a control button before the title, that adds a new child.
-      const childrenTitle = document.createElement("div") as HTMLDivElement;
-      childrenTitle.textContent = "ילדים";
-      childrenTitle.className = "children-title";
-      body.appendChild(childrenTitle);
-      // add a button to add a new child on the same line as the title
-      const addChildButton = document.createElement("button");
-      addChildButton.textContent = "הוספת ילד";
-      addChildButton.className = "add-child-button";
-      body.appendChild(addChildButton);
-      addChildButton.onclick = () => {
-        fileData.children.push({
-          birthDate: "",
-          noSecondParentBoolean: false,
-          caringForBoolean: true,
-          requestDelayOfPointsBoolean: false,
-          requestUsePointsFromLastYearBoolean: false,
-        });
-        // Re-render the fields
-        renderFields(fileData, body);
-      };
+    const Child = {
+      birthDate: "",
+      noSecondParentBoolean: false,
+      caringForBoolean: true,
+      requestDelayOfPointsBoolean: false,
+      requestUsePointsFromLastYearBoolean: false,
+    };
 
-      // Process child fields inside `fileData.children` (thinner border)
-      let childCount = 0;
-      fileData.children.forEach((child: any, index: number) => {
-        childCount++;
-        // Title and container for the child
-        const childContainer = document.createElement("div") as HTMLDivElement;
-        childContainer.className = "child-container";
+    const Generic867Item = {
+      field867Type: "NONE",
+      value: "0.00",
+      explanationText: "",
+    };
 
-        const childTitleText = document.createElement("span") as HTMLSpanElement;
-        childTitleText.textContent = "ילד " + childCount;
-        childTitleText.className = "child-title-text";
-        childContainer.appendChild(childTitleText);
-
-        // Add remove button
-        const removeButton = document.createElement("button") as HTMLButtonElement;
-        removeButton.textContent = "X";
-        removeButton.className = "remove-child-button";
-        removeButton.onclick = () => {
-          fileData.children.splice(index, 1);
+    function renderItemArray(itemArray: any, accordianBody: HTMLDivElement, title: string, addButtonLabel: string, itemTemplate: any) {
+      if (itemArray) {
+        // Title for the children or generic fields with a control button before the title, that adds a new item.
+        const titleElement = document.createElement("div") as HTMLDivElement;
+        titleElement.textContent = title;
+        titleElement.className = "children-title";
+        accordianBody.appendChild(titleElement);
+        // Add a button to add a new item on the same line as the title
+        const addButton = document.createElement("button");
+        addButton.textContent = addButtonLabel;
+        addButton.className = "add-child-button";
+        accordianBody.appendChild(addButton);
+        addButton.onclick = () => {
+          itemArray.push(itemTemplate);
           // Re-render the fields
-          renderFields(fileData, body);
+          renderFields(fileData, accordianBody);
         };
-        childContainer.appendChild(removeButton);
 
-        body.appendChild(childContainer);
-        Object.entries(child).forEach(([key, value]) => {
-          createFieldRow(childContainer, key, value, false);
+        // Process child or generic fields inside `data` (thinner border)
+        let itemCount = 0;
+        itemArray.forEach((item: any, index: number) => {
+          itemCount++;
+          // Title and container for the item
+          const itemContainer = document.createElement("div") as HTMLDivElement;
+          itemContainer.className = "child-container";
+
+          const itemTitleText = document.createElement("span") as HTMLSpanElement;
+          itemTitleText.textContent = title + " " + itemCount;
+          itemTitleText.className = "child-title-text";
+          itemContainer.appendChild(itemTitleText);
+
+          // Add remove button
+          const removeButton = document.createElement("button") as HTMLButtonElement;
+          removeButton.textContent = "X";
+          removeButton.className = "remove-child-button";
+          removeButton.onclick = () => {
+            itemArray.splice(index, 1);
+            // Re-render the fields
+            renderFields(fileData, accordianBody);
+          };
+          itemContainer.appendChild(removeButton);
+
+          accordianBody.appendChild(itemContainer);
+          Object.entries(item).forEach(([key, value]) => {
+            createFieldRow(itemContainer, key, value, false);
+          });
         });
-      });
+      }
     }
+
+    // Call the function for children
+    renderItemArray(fileData.children, accordianBody, "ילדים", "הוספת ילד", Child);
+
+    // Call the function for generic fields
+    renderItemArray(fileData.genericFields, accordianBody, "שדות גנריים", "הוספת שדה גנרי", Generic867Item);
 
     // Re-add the action buttons
     buttonsArray.forEach((button) => {
-      body.appendChild(button);
+      accordianBody.appendChild(button);
     });
   }
 
