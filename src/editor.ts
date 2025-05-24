@@ -773,6 +773,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           input.value = formatCurrencyWithSymbol(parsedNum);
         });
       }
+      input.onchange = () => {
+        // make the background green by adjusting the css class
+        input.classList.add("changed");
+      };
     }
 
     function createFieldRow(container: HTMLElement, key: string, value: any, isMainField = false) {
@@ -844,8 +848,12 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           optionElement.appendChild(document.createTextNode(optionText));
           dropdown.appendChild(optionElement);
         });
-		// Select the option that is currently selected
-		dropdown.value = value;
+        // Select the option that is currently selected
+        dropdown.value = value;
+        dropdown.onchange = () => {
+          // make the background green by adjusting the css class
+          dropdown.classList.add("changed");
+        };
         fieldRow.appendChild(dropdown);
       } else {
         let input = document.createElement("input") as HTMLInputElement;

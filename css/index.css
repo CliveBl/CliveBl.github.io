@@ -20,6 +20,8 @@
   --tax-blue: #3498db;
   --tax-green: #2ecc71;
   --tax-green-hover: #4b8a65;
+  --changed-bg: #657c65;
+  --link-visited: #bb86fc; /* Light purple for better contrast in dark mode */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,6 +46,7 @@
     --tax-blue: #3498db;
     --tax-green: #27ae60;
     --tax-green-hover: #4b8a65;
+    --changed-bg: #2d462d;
     --link-visited: #bb86fc; /* Light purple for better contrast in dark mode */
   }
 }
@@ -1469,6 +1472,10 @@ button:disabled {
   margin-left: 10px;
 }
 
+.form-select.changed {
+	background-color: var(--changed-bg);
+}
+
 .form-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -1957,7 +1964,9 @@ a:not(.submit-instructions-button):visited {
   color: var(--text-color);
   max-width: 100px;
 }
-
+.field-input.changed {
+	background-color: var(--changed-bg);
+}
 .field-text-input {
 	padding: 0px;
 	text-align: right;
@@ -1965,10 +1974,16 @@ a:not(.submit-instructions-button):visited {
 	background-color: var(--bg-color);
 	color: var(--text-color);
 }
-
 .field-labelx {
-  flex: 0 0 250px;
-  text-align: right;
+	flex: 0 0 250px;
+	text-align: right;
+  }
+
+.field-labelx.changed {
+	background-color: var(--changed-bg);
+}
+.field-text-input.changed {
+	background-color: var(--changed-bg);
 }
 
 /* 🟢 Ensure hidden caption does not take up space */

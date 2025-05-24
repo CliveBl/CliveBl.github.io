@@ -689,6 +689,10 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     input.value = formatCurrencyWithSymbol(parsedNum);
                 });
             }
+            input.onchange = () => {
+                // make the background green by adjusting the css class
+                input.classList.add("changed");
+            };
         }
         function createFieldRow(container, key, value, isMainField = false) {
             // Skip fields already displayed in the header
@@ -756,6 +760,10 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 });
                 // Select the option that is currently selected
                 dropdown.value = value;
+                dropdown.onchange = () => {
+                    // make the background green by adjusting the css class
+                    dropdown.classList.add("changed");
+                };
                 fieldRow.appendChild(dropdown);
             }
             else {

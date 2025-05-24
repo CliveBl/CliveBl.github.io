@@ -21,7 +21,7 @@ const friendlyNames = {
     NumberOfDealsInteger: "כמות עיסקאות",
     releaseDate: "תאריך שחרור",
     numberOfServiceMonths: "חודשי שרות",
-    NONE: "ללא",
+    NONE: "בוחר",
     ReceivedFromNI_196_194: "התקבל מהמוסד לביטוח לאומי",
     Salary_172_158: "שכר עבודה",
     LeavingBonus_272_258: "מענק פרישה",
