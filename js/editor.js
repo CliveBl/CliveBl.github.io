@@ -157,11 +157,10 @@ function getDataFromControls(accordionBody, fileData) {
         return fieldValue;
     }
     const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type);
-    accordionBody.querySelectorAll("input[data-field-name],div[data-field-name]:not(.item-container input)").forEach((input) => {
-        const htmlInput = input;
-        const fieldName = htmlInput.getAttribute("data-field-name");
+    accordionBody.querySelectorAll("input[data-field-name],select[data-field-name],div[data-field-name]:not(.item-container input)").forEach((htmlElement) => {
+        const fieldName = htmlElement.getAttribute("data-field-name");
         const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
-        const fieldValue = getControlValue(htmlInput, fieldName);
+        const fieldValue = getControlValue(htmlElement, fieldName);
         if (isField) {
             updatedData.fields[fieldName] = fieldValue;
         }
@@ -171,9 +170,9 @@ function getDataFromControls(accordionBody, fileData) {
     });
     const headerContainer = accordionBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
     if (headerContainer) {
-        headerContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
-            const fieldName = input.getAttribute("data-field-name");
-            let fieldValue = getControlValue(input, fieldName);
+        headerContainer.querySelectorAll("input[data-field-name]").forEach((htmlElement) => {
+            const fieldName = htmlElement.getAttribute("data-field-name");
+            let fieldValue = getControlValue(htmlElement, fieldName);
             updatedData[fieldName] = fieldValue;
         });
     }
@@ -837,7 +836,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                             updatedAllFilesData[formIndex][title].push(itemTemplate);
                             fileData = updatedAllFilesData[formIndex];
                             // Re-render the fields
-                            renderFields(fileData, accordianBody);
+                            renderFields(fileData, accordianBody, withAllFields);
                         }
                         enableFormActionButtons(accordianBody);
                     }
@@ -868,7 +867,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                                 // Remove the item from the item array
                                 updatedAllFilesData[formIndex][title].splice(index, 1);
                                 // Re-render the fields
-                                renderFields(updatedAllFilesData[formIndex], accordianBody);
+                                renderFields(updatedAllFilesData[formIndex], accordianBody, withAllFields);
                             }
                             enableFormActionButtons(accordianBody);
                         }
@@ -1045,7 +1044,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             if (backupFormIndex !== -1) {
                 // Replace the form in the allFilesData array with the form in the backupAllFilesData array
                 renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
-                clearChanged(accordianBody, fileData);
+                clearChanged(accordianBody);
             }
         };
         // Save button behavior: Process and save the data
@@ -1069,22 +1068,21 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                         backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
                     }
                 }
-                clearChanged(accordianBody, fileData);
+                clearChanged(accordianBody);
                 fileModifiedActions(editableFileListHasEntries());
                 addMessage("נתונים נשמרו בהצלחה", "success");
             }
         };
     }
-    function clearChanged(accordianBody, fileData) {
+    function clearChanged(accordianBody) {
         // Clear changed class from all inputs and controls
-        accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]").forEach((element) => {
+        const allElements = [
+            ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
+            ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
+            ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || [])
+        ];
+        allElements.forEach((element) => {
             element.classList.remove("changed");
-        });
-        // Clear changed class from item containers
-        accordianBody.querySelectorAll(".item-container").forEach((container) => {
-            container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]").forEach((element) => {
-                element.classList.remove("changed");
-            });
         });
         // Disable save and cancel buttons
         accordianBody.querySelectorAll(".form-action-button").forEach((button) => {

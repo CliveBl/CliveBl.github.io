@@ -186,11 +186,10 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
 
   const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
 
-  accordionBody.querySelectorAll("input[data-field-name],div[data-field-name]:not(.item-container input)").forEach((input) => {
-    const htmlInput = input as HTMLInputElement;
-    const fieldName = htmlInput.getAttribute("data-field-name") as string;
+  accordionBody.querySelectorAll("input[data-field-name],select[data-field-name],div[data-field-name]:not(.item-container input)").forEach((htmlElement: Element) => {
+    const fieldName = htmlElement.getAttribute("data-field-name") as string;
     const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
-    const fieldValue = getControlValue(htmlInput, fieldName);
+    const fieldValue = getControlValue(htmlElement as HTMLElement, fieldName);
     if (isField) {
       updatedData.fields[fieldName] = fieldValue;
     } else if (fieldName in fileData) {
@@ -200,9 +199,9 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
 
   const headerContainer = accordionBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
   if (headerContainer) {
-    headerContainer.querySelectorAll("input[data-field-name]").forEach((input: Element) => {
-      const fieldName = input.getAttribute("data-field-name") as string;
-      let fieldValue = getControlValue(input as HTMLElement, fieldName);
+    headerContainer.querySelectorAll("input[data-field-name]").forEach((htmlElement: Element) => {
+      const fieldName = htmlElement.getAttribute("data-field-name") as string;
+      let fieldValue = getControlValue(htmlElement as HTMLElement, fieldName);
       updatedData[fieldName] = fieldValue;
     });
   }
@@ -1169,7 +1168,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       if (backupFormIndex !== -1) {
         // Replace the form in the allFilesData array with the form in the backupAllFilesData array
         renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
-        clearChanged(accordianBody, fileData);
+        clearChanged(accordianBody);
       }
     };
 
@@ -1195,24 +1194,23 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
           }
         }
-        clearChanged(accordianBody, fileData);
+        clearChanged(accordianBody);
         fileModifiedActions(editableFileListHasEntries());
         addMessage("נתונים נשמרו בהצלחה", "success");
       }
     };
   }
 
-  function clearChanged(accordianBody: HTMLDivElement, fileData: any) {
+  function clearChanged(accordianBody: HTMLDivElement) {
     // Clear changed class from all inputs and controls
-    accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]").forEach((element) => {
-      element.classList.remove("changed");
-    });
+    const allElements = [
+      ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
+      ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
+      ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || [])
+    ];
 
-    // Clear changed class from item containers
-    accordianBody.querySelectorAll(".item-container").forEach((container) => {
-      container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]").forEach((element) => {
-        element.classList.remove("changed");
-      });
+    allElements.forEach((element) => {
+      element.classList.remove("changed");
     });
 
     // Disable save and cancel buttons
