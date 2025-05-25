@@ -245,10 +245,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             async function displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, allFilesData) {
                 // Set up the save button
                 saveButton.textContent = "שמור שינויים";
-                saveButton.className = "form-action-button";
                 // Create the cancel button
                 cancelButton.textContent = "ביטול שינויים";
-                cancelButton.className = "form-action-button";
                 // Cancel button behavior: Restore original file info
                 cancelButton.onclick = async () => {
                     debug("🔄 Cancel button clicked, restoring original data");
@@ -426,10 +424,13 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 else {
                     toggleLink.textContent = addFieldsText;
                 }
+                // Render the new form with the data from the controls of the current form.
                 const updatedData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(), showAllFields);
                 if (updatedData) {
+                    // Find the form in the allFilesData array.
                     const formIndex = updatedData.findIndex((form) => form.fileId === fileData.fileId);
                     if (formIndex !== -1) {
+                        // Render the new form with the data from the controls of the current form.
                         renderFields(updatedData[formIndex], accordianBody, showAllFields);
                     }
                     fileModifiedActions(editableFileListHasEntries());
@@ -452,11 +453,15 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 toggleLinkContainer.appendChild(fieldsToggleLink);
                 accordianBody.appendChild(toggleLinkContainer);
             }
+            // Form Action Buttons
+            const saveButton = document.createElement("button");
+            saveButton.className = "form-action-button";
+            saveButton.disabled = true;
+            const cancelButton = document.createElement("button");
+            cancelButton.className = "form-action-button";
+            cancelButton.disabled = true;
             // First, display additional fields in the body (excluding header fields)
             renderFields(fileData, accordianBody, withAllFields);
-            // Update Button
-            const saveButton = document.createElement("button");
-            const cancelButton = document.createElement("button");
             displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, allFilesData);
             accordianBody.appendChild(saveButton);
             accordianBody.appendChild(cancelButton);
@@ -563,9 +568,9 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
     }
     function renderFields(fileData, accordianBody, withAllFields = false) {
         // Store the action buttons before clearing
+        const fieldsToggleLink = accordianBody.querySelector(".fields-toggle-link");
         const actionButtons = accordianBody.querySelectorAll(".form-action-button");
         const buttonsArray = Array.from(actionButtons);
-        const fieldsToggleLink = accordianBody.querySelector(".fields-toggle-link");
         // Clear the body
         accordianBody.innerHTML = "";
         if (fieldsToggleLink) {
@@ -689,10 +694,20 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     input.value = formatCurrencyWithSymbol(parsedNum);
                 });
             }
-            input.onchange = () => {
+            input.addEventListener("change", () => {
                 // make the background green by adjusting the css class
                 input.classList.add("changed");
-            };
+                // enable save and cancel buttons
+                enableFormActionButtons();
+            });
+        }
+        // Enables Save and Cancel buttons
+        function enableFormActionButtons() {
+            const actionButtons = accordianBody.querySelectorAll(".form-action-button");
+            const buttonsArray = Array.from(actionButtons);
+            buttonsArray.forEach((button) => {
+                button.disabled = false;
+            });
         }
         function createFieldRow(container, key, value, isMainField = false) {
             // Skip fields already displayed in the header
@@ -863,6 +878,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     itemArray.push(itemTemplate);
                     // Re-render the fields
                     renderFields(fileData, accordianBody);
+                    enableFormActionButtons();
                 };
                 // Process child or generic fields inside `data` (thinner border)
                 let itemCount = 0;
@@ -883,6 +899,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                         itemArray.splice(index, 1);
                         // Re-render the fields
                         renderFields(fileData, accordianBody);
+                        enableFormActionButtons();
                     };
                     itemContainer.appendChild(removeButton);
                     accordianBody.appendChild(itemContainer);
@@ -995,6 +1012,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
             input.id = fieldId;
             headerFieldlabel.htmlFor = fieldId; // or label.setAttribute('for', fieldId)
+            //formatInput(fieldName, input, value);
             // Append label and input (label appears only in mobile)
             fieldContainer.appendChild(headerFieldlabel);
             fieldContainer.appendChild(input);
