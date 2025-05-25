@@ -310,26 +310,51 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                         return "";
                     }
                 }
-                const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type);
-                // Update from main fields and fields object
-                accordianBody.querySelectorAll("input[data-field-name]:not(.item-container input)").forEach((input) => {
-                    const htmlInput = input;
-                    const fieldName = htmlInput.getAttribute("data-field-name");
-                    let fieldValue = htmlInput.value;
+                function getElementValue(element) {
+                    if (element instanceof HTMLInputElement) {
+                        return element.value;
+                    }
+                    else if (element instanceof HTMLSelectElement) {
+                        return element.value;
+                    }
+                    return "";
+                }
+                function getControlValue(htmlElement, fieldName) {
+                    let fieldValue = getElementValue(htmlElement);
                     if (isCurrencyField(fieldName)) {
                         fieldValue = fieldValue.replace(/[₪,]/g, "");
                         if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
                             fieldValue = parseFloat(fieldValue).toFixed(2);
                         }
-                    }
-                    else if (fieldName.endsWith("Boolean")) {
-                        fieldValue = htmlInput.checked ? "true" : "false";
+                        else {
+                            fieldValue = "0.00";
+                        }
                     }
                     else if (fieldName.endsWith("Date")) {
-                        fieldValue = normalizeDate(htmlInput.value);
+                        // Convert date from YYYY-MM-DD to DD/MM/YYYY
+                        fieldValue = normalizeDate(getElementValue(htmlElement));
                     }
+                    else if (fieldName.endsWith("Options")) {
+                        // Iterate over the radio buttons and check which one is checked.
+                        const radioButtons = htmlElement.querySelectorAll("input[type='radio']");
+                        for (const radioButton of radioButtons) {
+                            const rb = radioButton;
+                            if (rb.checked) {
+                                fieldValue = rb.value;
+                                break;
+                            }
+                        }
+                    }
+                    return fieldValue;
+                }
+                const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type);
+                // Update from main fields and fields object
+                accordianBody.querySelectorAll("input[data-field-name],div[data-field-name]:not(.item-container input)").forEach((input) => {
+                    const htmlInput = input;
+                    const fieldName = htmlInput.getAttribute("data-field-name");
                     // Search the fieldTypes array for a field with the same name as fieldName
                     const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
+                    const fieldValue = getControlValue(htmlInput, fieldName);
                     // Determine where to store the updated value
                     if (isField) {
                         updatedData.fields[fieldName] = fieldValue;
@@ -338,80 +363,37 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                         updatedData[fieldName] = fieldValue;
                     }
                 });
-                // Update from Options fields and fields object
-                accordianBody.querySelectorAll("div[data-field-name]:not(.item-container input)").forEach((div) => {
-                    const htmlDiv = div;
-                    const fieldName = htmlDiv.getAttribute("data-field-name");
-                    if (fieldName.endsWith("Options")) {
-                        // Iterate over the radio buttons and check which one is checked.
-                        const radioButtons = htmlDiv.querySelectorAll("input[type='radio']");
-                        for (const radioButton of radioButtons) {
-                            const rb = radioButton;
-                            if (rb.checked) {
-                                updatedData[fieldName] = rb.value;
-                            }
-                        }
-                    }
-                });
                 // Update from header fields
                 const headerContainer = accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
                 if (headerContainer) {
                     headerContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
                         const fieldName = input.getAttribute("data-field-name");
-                        let fieldValue = input.value.trim();
+                        let fieldValue = getControlValue(input, fieldName);
                         updatedData[fieldName] = fieldValue;
                     });
                 }
                 // Function to update item arrays like children and genericFields
-                function updateItemArray(fileData, updatedData, itemArrayName, containerSelector) {
+                function updateItemArray(fileData, updatedData, itemArrayName) {
                     if (fileData[itemArrayName]) {
                         updatedData[itemArrayName] = [];
-                        const itemContainers = Array.from(accordianBody.querySelectorAll(containerSelector));
+                        const itemContainers = Array.from(accordianBody.querySelectorAll(".item-container"));
                         for (let i = 0; i < itemContainers.length; i++) {
                             const container = itemContainers[i];
                             const item = {};
                             // Get all inputs within this item container, including those in nested divs
-                            const selectInputs = Array.from(container.querySelectorAll("select[data-field-name]"));
-                            for (const input of selectInputs) {
-                                const htmlSelect = input;
-                                const fieldName = htmlSelect.getAttribute("data-field-name");
-                                item[fieldName] = htmlSelect.value;
+                            const htmlElements = Array.from(container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]"));
+                            for (const htmlElement of htmlElements) {
+                                const fieldName = htmlElement.getAttribute("data-field-name");
+                                item[fieldName] = getControlValue(htmlElement, fieldName);
                             }
-                            const inputs = Array.from(container.querySelectorAll("input[data-field-name]"));
-                            for (const input of inputs) {
-                                const htmlInput = input;
-                                const fieldName = htmlInput.getAttribute("data-field-name");
-                                let fieldValue = htmlInput.value;
-                                if (isCurrencyField(fieldName)) {
-                                    fieldValue = fieldValue.replace(/[₪,]/g, "");
-                                    if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
-                                        fieldValue = parseFloat(fieldValue).toFixed(2);
-                                        item[fieldName] = fieldValue;
-                                    }
-                                    else {
-                                        item[fieldName] = "0.00";
-                                    }
-                                }
-                                else if (fieldName.endsWith("Boolean")) {
-                                    item[fieldName] = htmlInput.checked;
-                                }
-                                else if (fieldName.endsWith("Date")) {
-                                    // Convert date from YYYY-MM-DD to DD/MM/YYYY
-                                    item[fieldName] = normalizeDate(htmlInput.value);
-                                }
-                                else {
-                                    item[fieldName] = fieldValue;
-                                }
-                            }
-                            debug(`Item ${i} data:`, item);
                             updatedData[itemArrayName].push(item);
                         }
                     }
                 }
                 // Update children array
-                updateItemArray(fileData, updatedData, "children", ".item-container");
+                updateItemArray(fileData, updatedData, "children");
                 // Update genericFields array
-                updateItemArray(fileData, updatedData, "genericFields", ".item-container");
+                updateItemArray(fileData, updatedData, "genericFields");
                 return updatedData;
             }
             function toggleFieldsView(toggleLink) {
