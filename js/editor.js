@@ -537,7 +537,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             button.disabled = false;
         });
     }
-    function formatInput(accordianBody, key, input, value) {
+    function formatInput(key, input, value) {
         if (key.endsWith("Name")) {
             input.className = "field-text-input";
             input.type = "text";
@@ -660,12 +660,6 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 input.value = formatCurrencyWithSymbol(parsedNum);
             });
         }
-        input.addEventListener("change", () => {
-            // make the background green by adjusting the css class
-            input.classList.add("changed");
-            // enable save and cancel buttons
-            enableFormActionButtons(accordianBody);
-        });
     }
     function renderFields(fileData, accordianBody, withAllFields = false) {
         // Store the action buttons before clearing
@@ -765,7 +759,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 // Associate the input with a unique ID and connect it to the label so that screen readers can read the label when the input is focused.
                 input.id = fieldId;
                 // 🟢 **Apply Field Formatting Rules**
-                formatInput(accordianBody, key, input, value);
+                formatInput(key, input, value);
+                addChangeHandler(input, accordianBody);
                 fieldRow.appendChild(input);
             }
             if (key.includes("_")) {
@@ -783,7 +778,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             // Find the field in the container
             const field = container.querySelector(`input[data-field-name="${key}"]`);
             if (field) {
-                formatInput(accordianBody, key, field, value);
+                formatInput(key, field, value);
+                addChangeHandler(field, accordianBody);
             }
         }
         // Process main fields (thicker border)
@@ -889,6 +885,32 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             accordianBody.appendChild(button);
         });
     }
+    // Called when a form field is changed
+    function addChangeHandler(field, accordianBody) {
+        field.addEventListener("change", () => {
+            // make the background green by adjusting the css class
+            field.classList.add("changed");
+            // enable save and cancel buttons
+            enableFormActionButtons(accordianBody);
+        });
+    }
+    // Called to clear the effect of the change handler
+    function clearChanged(accordianBody) {
+        // Collect all inputs and controls
+        const allElements = [
+            ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
+            ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
+            ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || []),
+        ];
+        // Clear changed class from all inputs and controls
+        allElements.forEach((element) => {
+            element.classList.remove("changed");
+        });
+        // Disable save and cancel buttons
+        accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
+            button.disabled = true;
+        });
+    }
     /* **************** display header for file info ******************** */
     function displayFileInfoHeader(expandableArea, data) {
         // Caption row for the accordion headers
@@ -975,7 +997,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
             input.id = fieldId;
             headerFieldlabel.setAttribute("for", fieldId);
-            formatInput(accordianBody, fieldName, input, value);
+            formatInput(fieldName, input, value);
+            addChangeHandler(input, accordianBody);
             // Append label and input (label appears only in mobile)
             fieldContainer.appendChild(headerFieldlabel);
             fieldContainer.appendChild(input);
@@ -1073,21 +1096,6 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 addMessage("נתונים נשמרו בהצלחה", "success");
             }
         };
-    }
-    function clearChanged(accordianBody) {
-        // Clear changed class from all inputs and controls
-        const allElements = [
-            ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
-            ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
-            ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || [])
-        ];
-        allElements.forEach((element) => {
-            element.classList.remove("changed");
-        });
-        // Disable save and cancel buttons
-        accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
-            button.disabled = true;
-        });
     }
 }
 //# sourceMappingURL=editor.js.map
