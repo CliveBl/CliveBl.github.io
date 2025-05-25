@@ -926,7 +926,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
               fileData = updatedAllFilesData[formIndex];
 
               // Re-render the fields
-              renderFields(fileData, accordianBody);
+              renderFields(fileData, accordianBody,withAllFields);
             }
             enableFormActionButtons(accordianBody);
           }
@@ -961,7 +961,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
                 updatedAllFilesData[formIndex][title].splice(index, 1);
 
                 // Re-render the fields
-                renderFields(updatedAllFilesData[formIndex], accordianBody);
+                renderFields(updatedAllFilesData[formIndex], accordianBody,withAllFields);
               }
               enableFormActionButtons(accordianBody);
             }
