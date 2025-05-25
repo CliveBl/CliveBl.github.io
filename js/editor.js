@@ -822,11 +822,11 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 titleElement.setAttribute("name", title);
                 accordianBody.appendChild(titleElement);
                 // Add a button to add a new item on the same line as the title
-                const addButton = document.createElement("button");
-                addButton.textContent = addButtonLabel;
-                addButton.className = "add-item-button";
-                accordianBody.appendChild(addButton);
-                addButton.onclick = () => {
+                const addItemButton = document.createElement("button");
+                addItemButton.textContent = addButtonLabel;
+                addItemButton.className = "add-item-button";
+                titleElement.appendChild(addItemButton);
+                addItemButton.onclick = () => {
                     // Update the form from the controls
                     const updatedAllFilesData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(accordianBody, fileData), withAllFields);
                     if (updatedAllFilesData) {
@@ -884,7 +884,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         // Call the function for children
         renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
         // Call the function for generic fields
-        renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה גנרי", Generic867Item, withAllFields);
+        renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה כללי", Generic867Item, withAllFields);
         // Re-add the action buttons
         buttonsArray.forEach((button) => {
             accordianBody.appendChild(button);
