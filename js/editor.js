@@ -759,9 +759,9 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 return;
             }
             if (key.endsWith("Options")) {
-                const controls = document.createElement("div");
-                controls.setAttribute("data-field-name", key);
-                controls.id = fieldId;
+                const radioGroup = document.createElement("div");
+                radioGroup.setAttribute("data-field-name", key);
+                radioGroup.id = fieldId;
                 const options = getFriendlyOptions(key);
                 options.forEach((option) => {
                     const radioButton = document.createElement("input");
@@ -774,9 +774,15 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     radioButton.checked = value === option;
                     label.appendChild(radioButton);
                     label.appendChild(document.createTextNode(option));
-                    controls.appendChild(label);
+                    radioGroup.appendChild(label);
                 });
-                fieldRow.appendChild(controls);
+                radioGroup.addEventListener("change", () => {
+                    // make the background green by adjusting the css class
+                    radioGroup.classList.add("changed");
+                    // enable save and cancel buttons
+                    enableFormActionButtons(accordianBody);
+                });
+                fieldRow.appendChild(radioGroup);
             }
             else if (key.endsWith("field867Type")) {
                 // Create a dropdown with the options
@@ -801,10 +807,12 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 });
                 // Select the option that is currently selected
                 dropdown.value = value;
-                dropdown.onchange = () => {
+                dropdown.addEventListener("change", () => {
                     // make the background green by adjusting the css class
                     dropdown.classList.add("changed");
-                };
+                    // enable save and cancel buttons
+                    enableFormActionButtons(accordianBody);
+                });
                 fieldRow.appendChild(dropdown);
             }
             else {
@@ -823,7 +831,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 const codeLabel = document.createElement("label");
                 codeLabel.textContent = fieldCode;
                 codeLabel.className = "codeLabel";
-                codeLabel.htmlFor = fieldId;
+                codeLabel.setAttribute("for", fieldId);
                 fieldRow.appendChild(codeLabel);
             }
             container.appendChild(fieldRow);
@@ -1013,7 +1021,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             input.readOnly = !isEditable;
             const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
             input.id = fieldId;
-            headerFieldlabel.htmlFor = fieldId; // or label.setAttribute('for', fieldId)
+            headerFieldlabel.setAttribute("for", fieldId);
             formatInput(accordianBody, fieldName, input, value);
             // Append label and input (label appears only in mobile)
             fieldContainer.appendChild(headerFieldlabel);
@@ -1021,12 +1029,10 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             return fieldContainer;
         };
         // Append fields to the wrapper
-        //fieldsWrapper.appendChild(createHeaderInput(fileData.taxYear, "taxYear", "שנה", true, "50px"));
         fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false));
         fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגונים", true));
         fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true));
         fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true));
-        //fieldsWrapper.appendChild(createHeaderInput(fileData.fileName, "fileName", "שם הקובץ", false, "150px"));
         // Append the wrapper to the container
         headerFieldsContainer.appendChild(fieldsWrapper);
     }
