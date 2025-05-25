@@ -85,6 +85,122 @@ const template867YearsMap = {
     2023: "template_867_2022",
     2024: "template_867_2022",
 };
+const Child = {
+    birthDate: "",
+    noSecondParentBoolean: false,
+    caringForBoolean: true,
+    requestDelayOfPointsBoolean: false,
+    requestUsePointsFromLastYearBoolean: false,
+};
+const Generic867Item = {
+    field867Type: "NONE",
+    value: "0.00",
+    explanationText: "",
+};
+function getDataFromControls(accordionBody, fileData) {
+    const updatedData = { ...fileData }; // Clone original fileData
+    function isCurrencyField(fieldName) {
+        return !(fieldName.endsWith("Name") ||
+            fieldName.endsWith("Text") ||
+            fieldName.endsWith("Number") ||
+            fieldName.endsWith("taxYear") ||
+            fieldName.endsWith("Date") ||
+            fieldName.endsWith("Months") ||
+            fieldName.endsWith("Integer") ||
+            fieldName.endsWith("Code") ||
+            fieldName.endsWith("Boolean") ||
+            fieldName.endsWith("Options") ||
+            fieldName.endsWith("Type"));
+    }
+    function normalizeDate(dateValue) {
+        if (dateValue) {
+            const [year, month, day] = dateValue.split("-");
+            return `${day}/${month}/${year}`;
+        }
+        else {
+            return "";
+        }
+    }
+    function getElementValue(element) {
+        if (element instanceof HTMLInputElement) {
+            return element.value;
+        }
+        else if (element instanceof HTMLSelectElement) {
+            return element.value;
+        }
+        return "";
+    }
+    function getControlValue(htmlElement, fieldName) {
+        let fieldValue = getElementValue(htmlElement);
+        if (isCurrencyField(fieldName)) {
+            fieldValue = fieldValue.replace(/[₪,]/g, "");
+            if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
+                fieldValue = parseFloat(fieldValue).toFixed(2);
+            }
+            else {
+                fieldValue = "0.00";
+            }
+        }
+        else if (fieldName.endsWith("Date")) {
+            fieldValue = normalizeDate(getElementValue(htmlElement));
+        }
+        else if (fieldName.endsWith("Options")) {
+            const radioButtons = htmlElement.querySelectorAll("input[type='radio']");
+            for (const radioButton of radioButtons) {
+                const rb = radioButton;
+                if (rb.checked) {
+                    fieldValue = rb.value;
+                    break;
+                }
+            }
+        }
+        return fieldValue;
+    }
+    const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type);
+    accordionBody.querySelectorAll("input[data-field-name],div[data-field-name]:not(.item-container input)").forEach((input) => {
+        const htmlInput = input;
+        const fieldName = htmlInput.getAttribute("data-field-name");
+        const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
+        const fieldValue = getControlValue(htmlInput, fieldName);
+        if (isField) {
+            updatedData.fields[fieldName] = fieldValue;
+        }
+        else if (fieldName in fileData) {
+            updatedData[fieldName] = fieldValue;
+        }
+    });
+    const headerContainer = accordionBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
+    if (headerContainer) {
+        headerContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
+            const fieldName = input.getAttribute("data-field-name");
+            let fieldValue = getControlValue(input, fieldName);
+            updatedData[fieldName] = fieldValue;
+        });
+    }
+    // Iterate over all item container titles and get the item array name.
+    const itemTitles = Array.from(accordionBody.querySelectorAll(".item-title"));
+    for (const itemTitle of itemTitles) {
+        const itemArrayName = itemTitle.getAttribute("name") || "";
+        // Get all item containers with the name attribute matching itemArrayName.
+        const itemContainers = Array.from(accordionBody.querySelectorAll(".item-container")).filter((container) => container.getAttribute("name") === itemArrayName);
+        if (itemContainers.length > 0) {
+            updatedData[itemArrayName] = [];
+            // Iterate over all item containers and update the item data.
+            for (let i = 0; i < itemContainers.length; i++) {
+                const container = itemContainers[i];
+                const item = {};
+                const htmlElements = Array.from(container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]"));
+                // Iterate over all html elements and populate an item with the field names and values from the controls.
+                for (const htmlElement of htmlElements) {
+                    const fieldName = htmlElement.getAttribute("data-field-name");
+                    item[fieldName] = getControlValue(htmlElement, fieldName);
+                }
+                updatedData[itemArrayName].push(item);
+            }
+        }
+    }
+    return updatedData;
+}
 export function editableFileListHasEntries() {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
     if (!expandableArea) {
@@ -242,160 +358,6 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             displayFileInfoDeleteButton(editorDeleteButton, fileData, accordionContainer);
             accordianheader.appendChild(editorDeleteButton);
             accordionContainer.appendChild(accordianheader);
-            async function displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, allFilesData) {
-                // Set up the save button
-                saveButton.textContent = "שמור שינויים";
-                // Create the cancel button
-                cancelButton.textContent = "ביטול שינויים";
-                // Cancel button behavior: Restore original file info
-                cancelButton.onclick = async () => {
-                    debug("🔄 Cancel button clicked, restoring original data");
-                    // Restore only this form from the backupAllFilesData
-                    const backupFormIndex = backupAllFilesData.findIndex((form) => form.fileId === fileData.fileId);
-                    if (backupFormIndex !== -1) {
-                        // Replace the form in the allFilesData array with the form in the backupAllFilesData array
-                        renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
-                    }
-                };
-                // Save button behavior: Process and save the data
-                saveButton.onclick = async () => {
-                    const formData = getDataFromControls();
-                    //debug("🔄 Updating Form Data:", updatedData);
-                    const updatedData = await updateForm(fileData.fileId, formData);
-                    if (updatedData) {
-                        // Display success modal
-                        await customerMessageModal({
-                            title: "שמירת נתונים",
-                            message: `הנתונים נשמרו בהצלחה`,
-                            button1Text: "",
-                            button2Text: "",
-                        });
-                        // Just update the backupAllFilesData with the updatedData
-                        const formIndex = updatedData.findIndex((form) => form.fileId === fileData.fileId);
-                        if (formIndex !== -1) {
-                            const backupFormIndex = backupAllFilesData.findIndex((form) => form.fileId === fileData.fileId);
-                            if (backupFormIndex !== -1) {
-                                backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
-                            }
-                        }
-                        fileModifiedActions(editableFileListHasEntries());
-                        addMessage("נתונים נשמרו בהצלחה", "success");
-                    }
-                };
-            }
-            function getDataFromControls() {
-                const updatedData = { ...fileData }; // Clone original fileData
-                //   if (fileData.fields) {
-                //     updatedData.fields = { ...fileData.fields }; // Preserve existing fields
-                //   }
-                function isCurrencyField(fieldName) {
-                    return !(fieldName.endsWith("Name") ||
-                        fieldName.endsWith("Text") ||
-                        fieldName.endsWith("Number") ||
-                        fieldName.endsWith("taxYear") ||
-                        fieldName.endsWith("Date") ||
-                        fieldName.endsWith("Months") ||
-                        fieldName.endsWith("Integer") ||
-                        fieldName.endsWith("Code") ||
-                        fieldName.endsWith("Boolean") ||
-                        fieldName.endsWith("Options") ||
-                        fieldName.endsWith("Type"));
-                }
-                function normalizeDate(dateValue) {
-                    if (dateValue) {
-                        const [year, month, day] = dateValue.split("-");
-                        return `${day}/${month}/${year}`;
-                    }
-                    else {
-                        return "";
-                    }
-                }
-                function getElementValue(element) {
-                    if (element instanceof HTMLInputElement) {
-                        return element.value;
-                    }
-                    else if (element instanceof HTMLSelectElement) {
-                        return element.value;
-                    }
-                    return "";
-                }
-                function getControlValue(htmlElement, fieldName) {
-                    let fieldValue = getElementValue(htmlElement);
-                    if (isCurrencyField(fieldName)) {
-                        fieldValue = fieldValue.replace(/[₪,]/g, "");
-                        if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
-                            fieldValue = parseFloat(fieldValue).toFixed(2);
-                        }
-                        else {
-                            fieldValue = "0.00";
-                        }
-                    }
-                    else if (fieldName.endsWith("Date")) {
-                        // Convert date from YYYY-MM-DD to DD/MM/YYYY
-                        fieldValue = normalizeDate(getElementValue(htmlElement));
-                    }
-                    else if (fieldName.endsWith("Options")) {
-                        // Iterate over the radio buttons and check which one is checked.
-                        const radioButtons = htmlElement.querySelectorAll("input[type='radio']");
-                        for (const radioButton of radioButtons) {
-                            const rb = radioButton;
-                            if (rb.checked) {
-                                fieldValue = rb.value;
-                                break;
-                            }
-                        }
-                    }
-                    return fieldValue;
-                }
-                const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type);
-                // Update from main fields and fields object
-                accordianBody.querySelectorAll("input[data-field-name],div[data-field-name]:not(.item-container input)").forEach((input) => {
-                    const htmlInput = input;
-                    const fieldName = htmlInput.getAttribute("data-field-name");
-                    // Search the fieldTypes array for a field with the same name as fieldName
-                    const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
-                    const fieldValue = getControlValue(htmlInput, fieldName);
-                    // Determine where to store the updated value
-                    if (isField) {
-                        updatedData.fields[fieldName] = fieldValue;
-                    }
-                    else if (fieldName in fileData) {
-                        updatedData[fieldName] = fieldValue;
-                    }
-                });
-                // Update from header fields
-                const headerContainer = accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
-                if (headerContainer) {
-                    headerContainer.querySelectorAll("input[data-field-name]").forEach((input) => {
-                        const fieldName = input.getAttribute("data-field-name");
-                        let fieldValue = getControlValue(input, fieldName);
-                        updatedData[fieldName] = fieldValue;
-                    });
-                }
-                // Function to update item arrays like children and genericFields
-                function updateItemArray(fileData, updatedData, itemArrayName) {
-                    if (fileData[itemArrayName]) {
-                        updatedData[itemArrayName] = [];
-                        const itemContainers = Array.from(accordianBody.querySelectorAll(".item-container"));
-                        for (let i = 0; i < itemContainers.length; i++) {
-                            const container = itemContainers[i];
-                            const item = {};
-                            // Get all inputs within this item container, including those in nested divs
-                            const htmlElements = Array.from(container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]"));
-                            for (const htmlElement of htmlElements) {
-                                const fieldName = htmlElement.getAttribute("data-field-name");
-                                item[fieldName] = getControlValue(htmlElement, fieldName);
-                            }
-                            updatedData[itemArrayName].push(item);
-                        }
-                    }
-                }
-                // Update children array
-                updateItemArray(fileData, updatedData, "children");
-                // Update genericFields array
-                updateItemArray(fileData, updatedData, "genericFields");
-                return updatedData;
-            }
             function toggleFieldsView(toggleLink) {
                 // Get desired state.
                 const showAllFields = toggleLink.textContent === addFieldsText;
@@ -407,7 +369,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     toggleLink.textContent = addFieldsText;
                 }
                 // Render the new form with the data from the controls of the current form.
-                const updatedData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(), showAllFields);
+                const updatedData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(accordianBody, fileData), showAllFields);
                 if (updatedData) {
                     // Find the form in the allFilesData array.
                     const formIndex = updatedData.findIndex((form) => form.fileId === fileData.fileId);
@@ -507,18 +469,18 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             }
         }
         // Create a new list of obkects.
-        let updatedData = [];
+        let updatedAllFilesData = [];
         // Now clone data, (which is an array of file objects), into updatedData item by item.
         allFilesData.forEach((file) => {
             if (file.fileId === fileId) {
-                updatedData.push(updatedFileData);
+                updatedAllFilesData.push(updatedFileData);
             }
             else {
                 // Deep clone the file object
-                updatedData.push(structuredClone(file));
+                updatedAllFilesData.push(structuredClone(file));
             }
         });
-        return updatedData;
+        return updatedAllFilesData;
     }
     async function updateFormAPI(fileId, payload) {
         try {
@@ -850,24 +812,14 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 createFieldRow(accordianBody, key, value, false);
             });
         }
-        const Child = {
-            birthDate: "",
-            noSecondParentBoolean: false,
-            caringForBoolean: true,
-            requestDelayOfPointsBoolean: false,
-            requestUsePointsFromLastYearBoolean: false,
-        };
-        const Generic867Item = {
-            field867Type: "NONE",
-            value: "0.00",
-            explanationText: "",
-        };
-        function renderItemArray(itemArray, accordianBody, title, addButtonLabel, itemTemplate) {
+        function renderItemArray(itemArray, accordianBody, title, addButtonLabel, itemTemplate, withAllFields) {
             if (itemArray) {
                 // Title for the children or generic fields with a control button before the title, that adds a new item.
                 const titleElement = document.createElement("div");
-                titleElement.textContent = title;
+                const titleText = getFriendlyName(title);
+                titleElement.textContent = titleText;
                 titleElement.className = "item-title";
+                titleElement.setAttribute("name", title);
                 accordianBody.appendChild(titleElement);
                 // Add a button to add a new item on the same line as the title
                 const addButton = document.createElement("button");
@@ -875,10 +827,20 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 addButton.className = "add-item-button";
                 accordianBody.appendChild(addButton);
                 addButton.onclick = () => {
-                    itemArray.push(itemTemplate);
-                    // Re-render the fields
-                    renderFields(fileData, accordianBody);
-                    enableFormActionButtons(accordianBody);
+                    // Update the form from the controls
+                    const updatedAllFilesData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(accordianBody, fileData), withAllFields);
+                    if (updatedAllFilesData) {
+                        // Find the form in the allFilesData array.
+                        const formIndex = updatedAllFilesData.findIndex((form) => form.fileId === fileData.fileId);
+                        if (formIndex !== -1) {
+                            // Add the new item to the item array
+                            updatedAllFilesData[formIndex][title].push(itemTemplate);
+                            fileData = updatedAllFilesData[formIndex];
+                            // Re-render the fields
+                            renderFields(fileData, accordianBody);
+                        }
+                        enableFormActionButtons(accordianBody);
+                    }
                 };
                 // Process child or generic fields inside `data` (thinner border)
                 let itemCount = 0;
@@ -887,8 +849,9 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     // Title and container for the item
                     const itemContainer = document.createElement("div");
                     itemContainer.className = "item-container";
+                    itemContainer.setAttribute("name", title);
                     const itemTitleText = document.createElement("span");
-                    itemTitleText.textContent = title + " " + itemCount;
+                    itemTitleText.textContent = titleText + " " + itemCount;
                     itemTitleText.className = "item-title-text";
                     itemContainer.appendChild(itemTitleText);
                     // Add remove button
@@ -896,10 +859,19 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     removeButton.textContent = "X";
                     removeButton.className = "remove-item-button";
                     removeButton.onclick = () => {
-                        itemArray.splice(index, 1);
-                        // Re-render the fields
-                        renderFields(fileData, accordianBody);
-                        enableFormActionButtons(accordianBody);
+                        // Update the form from the controls
+                        const updatedAllFilesData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(accordianBody, fileData), withAllFields);
+                        if (updatedAllFilesData) {
+                            // Find the form in the allFilesData array.
+                            const formIndex = updatedAllFilesData.findIndex((form) => form.fileId === fileData.fileId);
+                            if (formIndex !== -1) {
+                                // Remove the item from the item array
+                                updatedAllFilesData[formIndex][title].splice(index, 1);
+                                // Re-render the fields
+                                renderFields(updatedAllFilesData[formIndex], accordianBody);
+                            }
+                            enableFormActionButtons(accordianBody);
+                        }
                     };
                     itemContainer.appendChild(removeButton);
                     accordianBody.appendChild(itemContainer);
@@ -910,9 +882,9 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             }
         }
         // Call the function for children
-        renderItemArray(fileData.children, accordianBody, "ילדים", "הוספת ילד", Child);
+        renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
         // Call the function for generic fields
-        renderItemArray(fileData.genericFields, accordianBody, "שדות גנריים", "הוספת שדה גנרי", Generic867Item);
+        renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה גנרי", Generic867Item, withAllFields);
         // Re-add the action buttons
         buttonsArray.forEach((button) => {
             accordianBody.appendChild(button);
@@ -1059,6 +1031,65 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 console.error("Delete error:", error);
             });
         };
+    }
+    async function displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, allFilesData) {
+        // Set up the save button
+        saveButton.textContent = "שמור שינויים";
+        // Create the cancel button
+        cancelButton.textContent = "ביטול שינויים";
+        // Cancel button behavior: Restore original file info
+        cancelButton.onclick = async () => {
+            debug("🔄 Cancel button clicked, restoring original data");
+            // Restore only this form from the backupAllFilesData
+            const backupFormIndex = backupAllFilesData.findIndex((form) => form.fileId === fileData.fileId);
+            if (backupFormIndex !== -1) {
+                // Replace the form in the allFilesData array with the form in the backupAllFilesData array
+                renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
+                clearChanged(accordianBody, fileData);
+            }
+        };
+        // Save button behavior: Process and save the data
+        saveButton.onclick = async () => {
+            const formData = getDataFromControls(accordianBody, fileData);
+            //debug("🔄 Updating Form Data:", updatedData);
+            const updatedData = await updateForm(fileData.fileId, formData);
+            if (updatedData) {
+                // Display success modal
+                await customerMessageModal({
+                    title: "שמירת נתונים",
+                    message: `הנתונים נשמרו בהצלחה`,
+                    button1Text: "",
+                    button2Text: "",
+                });
+                // Just update the backupAllFilesData with the updatedData
+                const formIndex = updatedData.findIndex((form) => form.fileId === fileData.fileId);
+                if (formIndex !== -1) {
+                    const backupFormIndex = backupAllFilesData.findIndex((form) => form.fileId === fileData.fileId);
+                    if (backupFormIndex !== -1) {
+                        backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
+                    }
+                }
+                clearChanged(accordianBody, fileData);
+                fileModifiedActions(editableFileListHasEntries());
+                addMessage("נתונים נשמרו בהצלחה", "success");
+            }
+        };
+    }
+    function clearChanged(accordianBody, fileData) {
+        // Clear changed class from all inputs and controls
+        accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]").forEach((element) => {
+            element.classList.remove("changed");
+        });
+        // Clear changed class from item containers
+        accordianBody.querySelectorAll(".item-container").forEach((container) => {
+            container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]").forEach((element) => {
+                element.classList.remove("changed");
+            });
+        });
+        // Disable save and cancel buttons
+        accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
+            button.disabled = true;
+        });
     }
 }
 //# sourceMappingURL=editor.js.map
