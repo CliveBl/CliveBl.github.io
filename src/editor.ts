@@ -282,7 +282,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         displayFileInfoLineError(headerFieldsContainer, fileData);
         accordionContainer.classList.add("error");
       } else {
-        displayFileInfoLine(headerFieldsContainer, fileData);
+        displayFileInfoLine(accordianBody, headerFieldsContainer, fileData);
       }
 
       accordianheader.appendChild(headerFieldsContainer);
@@ -655,6 +655,164 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     }
   }
 
+  function formatCurrencyWithSymbol(value: number) {
+    let parts = value.toFixed(2).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas for thousands
+    return `₪${parts.join(".")}`;
+  }
+
+  function currencyEventListener(input: HTMLInputElement) {
+    let rawValue = input.value.replace(/[^\d.]/g, "");
+
+    if (rawValue.split(".").length > 2) {
+      rawValue = rawValue.substring(0, rawValue.lastIndexOf("."));
+    }
+
+    let parts = rawValue.split(".");
+
+    // Restrict max 10 digits before decimal
+    if (parts[0].length > 10) {
+      parts[0] = parts[0].slice(0, 10);
+    }
+    // Restrict max 2 digits after decimal
+    if (parts[1] && parts[1].length > 2) {
+      parts[1] = parts[1].slice(0, 2);
+    }
+
+    input.value = parts.join(".");
+  }
+
+  function enableFormActionButtons(accordianBody: HTMLDivElement) {
+    const actionButtons = accordianBody.querySelectorAll(".form-action-button");
+    const buttonsArray: HTMLButtonElement[] = Array.from(actionButtons) as HTMLButtonElement[];
+    buttonsArray.forEach((button: HTMLButtonElement) => {
+      button.disabled = false;
+    });
+  }
+
+  function formatInput(accordianBody: HTMLDivElement, key: string, input: HTMLInputElement, value: any) {
+    if (key.endsWith("Name")) {
+      input.className = "field-text-input";
+      input.type = "text";
+      input.maxLength = 30;
+      input.value = value;
+    } else if (key.endsWith("Text")) {
+      input.className = "field-text-input";
+      input.type = "text";
+      input.maxLength = 50;
+      input.value = value;
+    } else if (key.endsWith("IdentificationNumber")) {
+      input.type = "text";
+      input.maxLength = 9;
+      input.pattern = "\\d{9}";
+      input.value = value;
+      input.oninput = () => {
+        input.value = input.value.replace(/\D/g, "").slice(0, 9);
+      };
+    } else if (key.endsWith("taxYear")) {
+      input.type = "text";
+      input.maxLength = 4;
+      input.pattern = "\\d{4}";
+      input.value = value;
+      input.oninput = () => {
+        input.value = input.value.replace(/\D/g, "").slice(0, 4);
+      };
+    } else if (key.endsWith("Code")) {
+      input.type = "text";
+      input.maxLength = 3;
+      input.pattern = "\\d{3}";
+      input.value = value;
+      input.oninput = () => {
+        input.value = input.value.replace(/\D/g, "").slice(0, 3);
+      };
+    } else if (key.endsWith("Date")) {
+      input.className = "field-date-input";
+      input.type = "date";
+      if (value === "" || value === null) {
+        input.value = "";
+      } else {
+        input.value = value.split("/").reverse().join("-");
+      }
+      input.onblur = () => {
+        if (input.value != "") {
+          const isValidDate = !isNaN(new Date(input.value).getTime());
+          if (!isValidDate) {
+            alert("Invalid date format " + input.value);
+            input.value = "";
+          }
+        }
+      };
+    } else if (key.endsWith("Months")) {
+      input.type = "text";
+      input.maxLength = 2;
+      input.pattern = "\\d{1,2}";
+      input.value = value;
+      input.oninput = () => {
+        input.value = input.value.replace(/\D/g, "").slice(0, 2);
+      };
+    } else if (key.endsWith("Integer")) {
+      input.type = "text";
+      input.maxLength = MAX_INTEGER_LENGTH;
+      input.pattern = "\\d+";
+      input.value = Math.round(parseFloat(value)).toString();
+      input.oninput = () => {
+        input.value = input.value.replace(/\D/g, "").slice(0, MAX_INTEGER_LENGTH);
+      };
+    } else if (key.endsWith("Boolean")) {
+      input.type = "checkbox";
+      input.value = value;
+      input.checked = value === true || value === "true";
+      input.onchange = () => {
+        if (input.checked) {
+          input.value = "true";
+        } else {
+          input.value = "false";
+        }
+      };
+    } else if (key.endsWith("Options")) {
+      // Deal with this later
+    } else if (key.endsWith("field867Type")) {
+      // Deal with this later
+    } else if (key.endsWith("documentType")) {
+      input.type = "text";
+      input.value = value;
+      // Deal with this later
+    } else {
+      // 🟢 **Default: Currency Field (if no other condition matched)**
+      input.type = "text";
+
+      let numericValue = parseFloat(value);
+      if (isNaN(numericValue)) {
+        numericValue = 0.0;
+      }
+      input.value = formatCurrencyWithSymbol(numericValue);
+
+      // **Restrict typing to valid numeric input**
+      input.addEventListener("input", (e) => {
+        currencyEventListener(input);
+      });
+
+      // 🟢 **Format on Blur**
+      input.addEventListener("blur", () => {
+        let rawValue = input.value.replace(/[^\d.]/g, "");
+        let parsedNum = parseFloat(rawValue);
+
+        if (isNaN(parsedNum)) {
+          parsedNum = 0.0;
+        }
+
+        input.value = formatCurrencyWithSymbol(parsedNum);
+      });
+    }
+
+    input.addEventListener("change", () => {
+      // make the background green by adjusting the css class
+      input.classList.add("changed");
+      // enable save and cancel buttons
+      enableFormActionButtons(accordianBody);
+    });
+  }
+
   function renderFields(fileData: any, accordianBody: HTMLDivElement, withAllFields = false) {
     // Store the action buttons before clearing
     const fieldsToggleLink = accordianBody.querySelector(".fields-toggle-link") as HTMLAnchorElement;
@@ -667,132 +825,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     if (fieldsToggleLink) {
       //debug("Adding the toggle link to the body");
       accordianBody.appendChild(fieldsToggleLink);
-    }
-
-    function formatInput(key: string, input: HTMLInputElement, value: any) {
-      if (key.endsWith("Name")) {
-        input.className = "field-text-input";
-        input.type = "text";
-        input.maxLength = 30;
-        input.value = value;
-      } else if (key.endsWith("Text")) {
-        input.className = "field-text-input";
-        input.type = "text";
-        input.maxLength = 50;
-        input.value = value;
-      } else if (key.endsWith("Number")) {
-        input.type = "text";
-        input.maxLength = 9;
-        input.pattern = "\\d{9}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 9);
-        };
-      } else if (key.endsWith("taxYear")) {
-        input.type = "text";
-        input.maxLength = 4;
-        input.pattern = "\\d{4}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 4);
-        };
-      } else if (key.endsWith("Code")) {
-        input.type = "text";
-        input.maxLength = 3;
-        input.pattern = "\\d{3}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 3);
-        };
-      } else if (key.endsWith("Date")) {
-        input.type = "date";
-        if (value === "" || value === null) {
-          input.value = "";
-        } else {
-          input.value = value.split("/").reverse().join("-");
-        }
-        input.onblur = () => {
-          if (input.value != "") {
-            const isValidDate = !isNaN(new Date(input.value).getTime());
-            if (!isValidDate) {
-              alert("Invalid date format " + input.value);
-              input.value = "";
-            }
-          }
-        };
-      } else if (key.endsWith("Months")) {
-        input.type = "text";
-        input.maxLength = 2;
-        input.pattern = "\\d{1,2}";
-        input.value = value;
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, 2);
-        };
-      } else if (key.endsWith("Integer")) {
-        input.type = "text";
-        input.maxLength = MAX_INTEGER_LENGTH;
-        input.pattern = "\\d+";
-        input.value = Math.round(parseFloat(value)).toString();
-        input.oninput = () => {
-          input.value = input.value.replace(/\D/g, "").slice(0, MAX_INTEGER_LENGTH);
-        };
-      } else if (key.endsWith("Boolean")) {
-        input.type = "checkbox";
-        input.value = value;
-        input.checked = value === true || value === "true";
-        input.onchange = () => {
-          if (input.checked) {
-            input.value = "true";
-          } else {
-            input.value = "false";
-          }
-        };
-      } else if (key.endsWith("Options")) {
-        // Deal with this later
-      } else if (key.endsWith("field867Type")) {
-        // Deal with this later
-      } else {
-        // 🟢 **Default: Currency Field (if no other condition matched)**
-        input.type = "text";
-
-        let numericValue = parseFloat(value);
-        if (isNaN(numericValue)) {
-          numericValue = 0.0;
-        }
-        input.value = formatCurrencyWithSymbol(numericValue);
-
-        // **Restrict typing to valid numeric input**
-        input.addEventListener("input", (e) => {
-          currencyEventListener(input);
-        });
-
-        // 🟢 **Format on Blur**
-        input.addEventListener("blur", () => {
-          let rawValue = input.value.replace(/[^\d.]/g, "");
-          let parsedNum = parseFloat(rawValue);
-
-          if (isNaN(parsedNum)) {
-            parsedNum = 0.0;
-          }
-
-          input.value = formatCurrencyWithSymbol(parsedNum);
-        });
-      }
-      input.addEventListener("change", () => {
-        // make the background green by adjusting the css class
-        input.classList.add("changed");
-        // enable save and cancel buttons
-        enableFormActionButtons();
-      });
-    }
-
-    // Enables Save and Cancel buttons
-    function enableFormActionButtons() {
-      const actionButtons = accordianBody.querySelectorAll(".form-action-button");
-      const buttonsArray: HTMLButtonElement[] = Array.from(actionButtons) as HTMLButtonElement[];
-      buttonsArray.forEach((button: HTMLButtonElement) => {
-        button.disabled = false;
-      });
     }
 
     function createFieldRow(container: HTMLElement, key: string, value: any, isMainField = false) {
@@ -879,7 +911,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         input.id = fieldId;
 
         // 🟢 **Apply Field Formatting Rules**
-        formatInput(key, input, value);
+        formatInput(accordianBody, key, input, value);
         fieldRow.appendChild(input);
       }
 
@@ -895,32 +927,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       container.appendChild(fieldRow);
     }
 
-    function currencyEventListener(input: HTMLInputElement) {
-      let rawValue = input.value.replace(/[^\d.]/g, "");
-
-      if (rawValue.split(".").length > 2) {
-        rawValue = rawValue.substring(0, rawValue.lastIndexOf("."));
-      }
-
-      let parts = rawValue.split(".");
-
-      // Restrict max 10 digits before decimal
-      if (parts[0].length > 10) {
-        parts[0] = parts[0].slice(0, 10);
-      }
-      // Restrict max 2 digits after decimal
-      if (parts[1] && parts[1].length > 2) {
-        parts[1] = parts[1].slice(0, 2);
-      }
-
-      input.value = parts.join(".");
-    }
-
     function populateField(container: HTMLElement, key: string, value: any) {
       // Find the field in the container
       const field = container.querySelector(`input[data-field-name="${key}"]`) as HTMLInputElement;
       if (field) {
-        formatInput(key, field, value);
+        formatInput(accordianBody, key, field, value);
       }
     }
 
@@ -979,7 +990,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           itemArray.push(itemTemplate);
           // Re-render the fields
           renderFields(fileData, accordianBody);
-          enableFormActionButtons();
+          enableFormActionButtons(accordianBody);
         };
 
         // Process child or generic fields inside `data` (thinner border)
@@ -1003,7 +1014,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             itemArray.splice(index, 1);
             // Re-render the fields
             renderFields(fileData, accordianBody);
-            enableFormActionButtons();
+            enableFormActionButtons(accordianBody);
           };
           itemContainer.appendChild(removeButton);
 
@@ -1025,13 +1036,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     buttonsArray.forEach((button) => {
       accordianBody.appendChild(button);
     });
-  }
-
-  // 🟢 **Function to Format Currency with Commas & Symbol**
-  function formatCurrencyWithSymbol(value: number) {
-    let parts = value.toFixed(2).split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas for thousands
-    return `₪${parts.join(".")}`;
   }
 
   /* **************** display header for file info ******************** */
@@ -1116,7 +1120,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     headerFieldsContainer.appendChild(fileInfoElement);
   }
 
-  function displayFileInfoLine(headerFieldsContainer: HTMLDivElement, fileData: any) {
+  function displayFileInfoLine(accordianBody: HTMLDivElement, headerFieldsContainer: HTMLDivElement, fileData: any) {
     // Create a wrapper for the header fields
     const fieldsWrapper = document.createElement("div");
     fieldsWrapper.className = "header-fields-wrapper"; // Used for layout styling
@@ -1132,8 +1136,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       // Create input field
       const input = document.createElement("input") as HTMLInputElement;
-      input.type = "text";
-      input.value = value || "";
       input.setAttribute("data-field-name", fieldName);
       input.className = "header-input";
       input.readOnly = !isEditable;
@@ -1141,7 +1143,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.id = fieldId;
       headerFieldlabel.htmlFor = fieldId; // or label.setAttribute('for', fieldId)
 
-      //formatInput(fieldName, input, value);
+      formatInput(accordianBody, fieldName, input, value);
       // Append label and input (label appears only in mobile)
       fieldContainer.appendChild(headerFieldlabel);
       fieldContainer.appendChild(input);

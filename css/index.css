@@ -22,6 +22,7 @@
   --tax-green-hover: #4b8a65;
   --changed-bg: #657c65;
   --link-visited: #bb86fc; /* Light purple for better contrast in dark mode */
+  --gray: #808080; /* Added gray color variable */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,7 +34,7 @@
     --warning-bg: #3d3415;
     --success-bg: #1e3d32;
     --error-bg: #3d1f1d;
-	--error-bg-hover: #50201d;
+    --error-bg-hover: #50201d;
     --default-border: #606060;
     --warning-border: #b7950b;
     --success-border: #27ae60;
@@ -48,6 +49,7 @@
     --tax-green-hover: #4b8a65;
     --changed-bg: #2d462d;
     --link-visited: #bb86fc; /* Light purple for better contrast in dark mode */
+    --gray: #a0a0a0; /* Darker gray for dark mode */
   }
 }
 
@@ -1889,6 +1891,9 @@ a:not(.submit-instructions-button):visited {
   background-color: var(--bg-color);
   color: var(--text-color);
 }
+.header-input.changed {
+	background-color: var(--changed-bg);
+}
 
 /* 🟢 Reduce accordion item width */
 .accordion-item {
@@ -1959,7 +1964,7 @@ a:not(.submit-instructions-button):visited {
   flex: 0 0 120px;
   padding: 0px;
   text-align: right;
-  border: 1px solid gray;
+  border: 1px solid var(--gray);
   background-color: var(--bg-color);
   color: var(--text-color);
   max-width: 100px;
@@ -1970,10 +1975,19 @@ a:not(.submit-instructions-button):visited {
 .field-text-input {
 	padding: 0px;
 	text-align: right;
-	border: 1px solid gray;
+	border: 1px solid var(--gray);
 	background-color: var(--bg-color);
 	color: var(--text-color);
 }
+.field-date-input {
+	flex: 0 0 120px;
+	padding: 0px;
+	text-align: right;
+	border: 1px solid var(--gray);
+	background-color: var(--bg-color);
+	color: var(--text-color);
+	max-width: 120px;
+  }
 .field-labelx {
 	flex: 0 0 250px;
 	text-align: right;
@@ -1985,6 +1999,10 @@ a:not(.submit-instructions-button):visited {
 .field-text-input.changed {
 	background-color: var(--changed-bg);
 }
+.field-date-input.changed {
+	background-color: var(--changed-bg);
+}
+
 
 /* 🟢 Ensure hidden caption does not take up space */
 @media (max-width: 768px) {
@@ -2039,7 +2057,7 @@ a:not(.submit-instructions-button):visited {
     flex: 0 0 120px;
     padding: 0px;
     text-align: right;
-    border: 1px solid gray;
+    border: 1px solid var(--gray);
     background-color: var(--bg-color);
     color: var(--text-color);
   }
