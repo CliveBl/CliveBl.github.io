@@ -2037,6 +2037,9 @@ function restoreSelectedDocTypes() {
     updateFileListP(fileInfoList);
     clearResultsControls();
     clearMessages();
+	// Jump to the last file in the file list
+	openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName);
+
     addMessage("הטופס נוצר בהצלחה", "success");
     // Reset select to default option
     (e.target as HTMLSelectElement).value = "";

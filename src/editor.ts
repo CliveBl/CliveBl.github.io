@@ -628,11 +628,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.maxLength = 30;
       input.value = value;
     } else if (key.endsWith("Text")) {
-      if (!input.className) input.className = "field-text-input";
+      input.className = "field-text-input";
       input.type = "text";
       input.maxLength = 50;
       input.value = value;
-    } else if (key.endsWith("IdentificationNumber")) {
+    } else if (key.endsWith("Number")) {
       input.type = "text";
       input.maxLength = 9;
       input.pattern = "\\d{9}";
@@ -657,7 +657,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         input.value = input.value.replace(/\D/g, "").slice(0, 3);
       };
     } else if (key.endsWith("Date")) {
-      if (!input.className) input.className = "field-date-input";
+      input.className = "field-date-input";
       input.type = "date";
       if (value === "" || value === null) {
         input.value = "";
