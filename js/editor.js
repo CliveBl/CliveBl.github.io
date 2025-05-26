@@ -539,13 +539,15 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
     }
     function formatInput(key, input, value) {
         if (key.endsWith("Name")) {
-            input.className = "field-text-input";
+            if (!input.className)
+                input.className = "field-text-input";
             input.type = "text";
             input.maxLength = 30;
             input.value = value;
         }
         else if (key.endsWith("Text")) {
-            input.className = "field-text-input";
+            if (!input.className)
+                input.className = "field-text-input";
             input.type = "text";
             input.maxLength = 50;
             input.value = value;
@@ -578,7 +580,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             };
         }
         else if (key.endsWith("Date")) {
-            input.className = "field-date-input";
+            if (!input.className)
+                input.className = "field-date-input";
             input.type = "date";
             if (value === "" || value === null) {
                 input.value = "";
