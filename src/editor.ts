@@ -791,7 +791,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           radioButton.value = option;
           const name = getFriendlyOptionName(key);
           radioButton.name = name;
-          radioButton.id = name + option;
+          //radioButton.id = name + option;
           radioButton.checked = value === option;
           label.appendChild(radioButton);
           label.appendChild(document.createTextNode(option));
