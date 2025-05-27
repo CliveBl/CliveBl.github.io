@@ -727,13 +727,11 @@ function switchMode(mode: string) {
   modalTitle.textContent = isSignup ? "הרשמה" : "התחברות";
   submitButton.textContent = isSignup ? "הירשם" : "התחבר";
   const fullNameInput = document.getElementById("fullName") as HTMLInputElement;
+  const fullNameField = document.getElementById("fullNameField") as HTMLDivElement;
+  fullNameField.style.display = isSignup ? "block" : "none";
   if (isSignup) {
-    const fullNameField = document.getElementById("fullNameField") as HTMLDivElement;
-    fullNameField.style.display = "block";
     fullNameInput.setAttribute("required", "");
   } else {
-    const fullNameField = document.getElementById("fullNameField") as HTMLDivElement;
-    fullNameField.style.display = "none";
     fullNameInput.removeAttribute("required");
   }
   googleButtonText.textContent = isSignup ? "הרשמה עם Google" : "התחבר עם Google";

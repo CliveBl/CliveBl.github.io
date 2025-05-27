@@ -635,14 +635,12 @@ function switchMode(mode) {
     modalTitle.textContent = isSignup ? "הרשמה" : "התחברות";
     submitButton.textContent = isSignup ? "הירשם" : "התחבר";
     const fullNameInput = document.getElementById("fullName");
+    const fullNameField = document.getElementById("fullNameField");
+    fullNameField.style.display = isSignup ? "block" : "none";
     if (isSignup) {
-        const fullNameField = document.getElementById("fullNameField");
-        fullNameField.style.display = "block";
         fullNameInput.setAttribute("required", "");
     }
     else {
-        const fullNameField = document.getElementById("fullNameField");
-        fullNameField.style.display = "none";
         fullNameInput.removeAttribute("required");
     }
     googleButtonText.textContent = isSignup ? "הרשמה עם Google" : "התחבר עם Google";
