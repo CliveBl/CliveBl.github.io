@@ -253,7 +253,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
     const filesByYear = new Map();
     allFilesData.forEach((fileData) => {
         // Use taxYear for grouping
-        let year = "No Year";
+        let year = "ללא שנה";
         if (fileData.taxYear && fileData.taxYear.trim() !== "") {
             year = fileData.taxYear;
         }

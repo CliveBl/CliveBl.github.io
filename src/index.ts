@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
 
-const uiVersion = "0.47";
+const uiVersion = "0.48";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -9,18 +9,26 @@ interface FormType {
   userCanAdd: boolean;
 }
 
+interface FileInfo {
+  fileId: string;
+  fileName: string;
+  taxYear?: string;
+  documentType?: string;
+  [key: string]: any;
+}
+
 interface ConfigurationData {
   formTypes: FormType[];
 }
 
 export let configurationData: ConfigurationData;
-let latestFileInfoList: { fileId: string; fileName: string }[] = [];
+let latestFileInfoList: FileInfo[] = [];
 let documentIcons: Record<string, string | null> = {};
 let isUploading = false;
 let userEmailValue = "";
 let signedIn = false;
 const fetchConfig = {
-  mode: "cors" as RequestMode
+  mode: "cors" as RequestMode,
 };
 
 // Add this near the top of your script
@@ -66,7 +74,6 @@ const createFormSelect = document.getElementById("createFormSelect") as HTMLSele
 const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElement;
 const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
 
-
 export function updateButtons(hasEntries: boolean) {
   if (!isUploading) {
     processButton.disabled = !hasEntries;
@@ -74,7 +81,7 @@ export function updateButtons(hasEntries: boolean) {
   }
 }
 
-function updateFileListP(fileInfoList: { fileId: string; fileName: string }[]) {
+function updateFileListP(fileInfoList: FileInfo[]) {
   if (editableFileList) {
     displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false);
     updateButtons(editableFileListHasEntries());
@@ -284,13 +291,85 @@ function isInGeneratedTaxFormsFolder(filePath: string) {
 }
 
 // Add this function to update the file list from server response
-function updateFileList(fileInfoList: { fileId: string; fileName: string }[]) {
+function updateFileList(fileInfoList: FileInfo[]) {
   debug("updateFileList");
   // Store the latest fileInfoList for later reference
   latestFileInfoList = fileInfoList;
+
+  const fileList = document.getElementById("fileList");
+  if (!fileList) return;
+
+  // Clear existing list
   fileList.innerHTML = "";
+
+  // Group files by year
+  const filesByYear = new Map<string, FileInfo[]>();
   fileInfoList.forEach((fileInfo) => {
-    addFileToList(fileInfo);
+    const year = fileInfo.taxYear || "ללא שנה";
+    if (!filesByYear.has(year)) {
+      filesByYear.set(year, []);
+    }
+    filesByYear.get(year)?.push(fileInfo);
+  });
+
+  // Sort years in descending order
+  const sortedYears = Array.from(filesByYear.keys()).sort((a, b) => {
+    if (a === "Other") return 1;
+    if (b === "Other") return -1;
+    return parseInt(b) - parseInt(a);
+  });
+
+  // Create year accordions
+  sortedYears.forEach((year) => {
+    const yearFiles = filesByYear.get(year) || [];
+
+    const yearAccordion = document.createElement("div") as HTMLDivElement;
+    yearAccordion.className = "date-accordion-container";
+
+    const yearHeader = document.createElement("div") as HTMLDivElement;
+    yearHeader.className = "date-accordion-header";
+    if (yearFiles.some((file) => file.type === "FormError")) {
+      yearHeader.className += " error";
+    }
+
+    const yearToggle = document.createElement("button") as HTMLButtonElement;
+    yearToggle.className = "date-accordion-toggle-button";
+    yearToggle.textContent = "+";
+    yearHeader.appendChild(yearToggle);
+
+    const yearTitle = document.createElement("span") as HTMLSpanElement;
+    yearTitle.textContent = year;
+    yearTitle.className = "date-title";
+    yearHeader.appendChild(yearTitle);
+
+    const yearBody = document.createElement("div") as HTMLDivElement;
+    yearBody.className = "date-accordion-body";
+    yearBody.style.display = "none";
+
+    // Add click handler for year accordion
+    yearHeader.addEventListener("click", () => {
+      const isExpanded = yearBody.style.display !== "none";
+      yearBody.style.display = isExpanded ? "none" : "block";
+      yearToggle.textContent = isExpanded ? "+" : "-";
+    });
+
+    // Add files for this year
+    yearFiles.forEach((fileInfo: FileInfo) => {
+      const fileElement = addFileToList(fileInfo);
+      yearBody.appendChild(fileElement);
+    });
+
+    yearAccordion.appendChild(yearHeader);
+    yearAccordion.appendChild(yearBody);
+    fileList.appendChild(yearAccordion);
+
+    // If this is a newly added file (check if it's the last file in the data array)
+    const lastFile = fileInfoList[fileInfoList.length - 1];
+    if (lastFile && (lastFile.taxYear === year || lastFile.type === "FormError")) {
+      // Expand the year accordion
+      yearBody.style.display = "block";
+      yearToggle.textContent = "-";
+    }
   });
 
   // Enable/disable delete all button based on file list
@@ -558,7 +637,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   // Check if the text contains a message code
   if (textParts && textParts.length > 2) {
     // Eliminate the textParts[1] code from the text
-    const textToDisplay = `${textParts[0]}:${textParts.slice(2).join(':')}`;
+    const textToDisplay = `${textParts[0]}:${textParts.slice(2).join(":")}`;
     messageText.textContent = textToDisplay;
   } else {
     messageText.textContent = text;
@@ -1278,6 +1357,43 @@ function formatNumber(key: string, value: any) {
 }
 
 function addFileToList(fileInfo: any) {
+  async function deleteFile(fileId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+        method: "DELETE",
+        headers: {},
+        credentials: "include",
+        ...fetchConfig,
+      });
+
+      if (!(await handleResponse(response, "Delete failed"))) {
+        return;
+      }
+
+      fileList.removeChild(li);
+      fileModifiedActions(fileList.children.length > 0);
+    } catch (error: unknown) {
+      console.error("Delete failed:", error);
+      addMessage("שגיאה במחיקת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
+    }
+  }
+
+  async function deleteFileQuietly(fileId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+        method: "DELETE",
+        headers: {},
+        credentials: "include",
+        ...fetchConfig,
+      });
+
+      if (!(await handleResponse(response, "Delete failed"))) {
+        return;
+      }
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
+  }
   let status;
   let statusMessage;
   const fileId = fileInfo.fileId;
@@ -1381,11 +1497,11 @@ function addFileToList(fileInfo: any) {
               Object.entries(item).forEach(([itemKey, itemValue]) => {
                 const itemField = document.createElement("li");
                 itemField.className = "nestedListItemField";
-				if(itemKey.endsWith("Type")) {
-					itemField.innerHTML = formatNumber(itemKey, getFriendlyName(String(itemValue)));
-				} else {
-					itemField.innerHTML = formatNumber(itemKey, itemValue);
-				}
+                if (itemKey.endsWith("Type")) {
+                  itemField.innerHTML = formatNumber(itemKey, getFriendlyName(String(itemValue)));
+                } else {
+                  itemField.innerHTML = formatNumber(itemKey, itemValue);
+                }
                 itemList.appendChild(itemField);
               });
 
@@ -1543,43 +1659,7 @@ function addFileToList(fileInfo: any) {
   li.appendChild(deleteButton);
   fileList.appendChild(li);
 
-  async function deleteFile(fileId: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
-        method: "DELETE",
-        headers: {},
-        credentials: "include",
-        ...fetchConfig,
-      });
-
-      if (!(await handleResponse(response, "Delete failed"))) {
-        return;
-      }
-
-      fileList.removeChild(li);
-      fileModifiedActions(fileList.children.length > 0);
-    } catch (error: unknown) {
-      console.error("Delete failed:", error);
-      addMessage("שגיאה במחיקת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
-    }
-  }
-
-  async function deleteFileQuietly(fileId: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
-        method: "DELETE",
-        headers: {},
-        credentials: "include",
-        ...fetchConfig,
-      });
-
-      if (!(await handleResponse(response, "Delete failed"))) {
-        return;
-      }
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
-  }
+  return li;
 }
 
 export function fileModifiedActions(hasEntries: boolean) {
@@ -1895,7 +1975,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
   if (!disclaimerAccepted) {
     //await showDisclaimerModal();
-	await showInfoModal("אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדוח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.");
+    await showInfoModal(
+      "אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדוח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש."
+    );
     cookieUtils.set("disclaimerAccepted", "true", 365);
   }
 
@@ -2037,8 +2119,8 @@ function restoreSelectedDocTypes() {
     updateFileListP(fileInfoList);
     clearResultsControls();
     clearMessages();
-	// Jump to the last file in the file list
-	openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName);
+    // Jump to the last file in the file list
+    openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName);
 
     addMessage("הטופס נוצר בהצלחה", "success");
     // Reset select to default option
@@ -2100,8 +2182,8 @@ function updateMissingDocuments() {
 
   if (missingDocs.length > 0) {
     warningSection.innerHTML = `<strong>שים לב!</strong> חסרים המסמכים הבאים: ${missingDocs.map((doc: { name: string }) => doc.name).join(", ")}`;
-	const warningList = document.createElement("ul") as HTMLUListElement;
-	warningList.className ="missing-docs-list";
+    const warningList = document.createElement("ul") as HTMLUListElement;
+    warningList.className = "missing-docs-list";
     warningList.innerHTML += missingDocs.map((doc: { name: string; count: number }) => `<li>${doc.name}: חסר ${doc.count}</li>`).join("");
     warningSection.appendChild(warningList);
     warningSection.classList.add("visible");
