@@ -714,20 +714,16 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     label.appendChild(document.createTextNode(option));
                     radioGroup.appendChild(label);
                 });
-                radioGroup.addEventListener("change", () => {
-                    // make the background green by adjusting the css class
-                    radioGroup.classList.add("changed");
-                    // enable save and cancel buttons
-                    enableFormActionButtons(accordianBody);
-                });
+                addChangeHandler(radioGroup, accordianBody);
                 fieldRow.appendChild(radioGroup);
             }
             else if (key.endsWith("field867Type")) {
                 // Create a dropdown with the options
                 const dropdown = document.createElement("select");
-                dropdown.className = "form-select";
+                dropdown.className = "editor-select";
                 dropdown.id = fieldId;
                 dropdown.name = key;
+                dropdown.textContent = key;
                 dropdown.setAttribute("data-field-name", key);
                 dropdown.appendChild(document.createTextNode(value));
                 // Add options to the dropdown from the configuration data
@@ -745,12 +741,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 });
                 // Select the option that is currently selected
                 dropdown.value = value;
-                dropdown.addEventListener("change", () => {
-                    // make the background green by adjusting the css class
-                    dropdown.classList.add("changed");
-                    // enable save and cancel buttons
-                    enableFormActionButtons(accordianBody);
-                });
+                addChangeHandler(dropdown, accordianBody);
                 fieldRow.appendChild(dropdown);
             }
             else {
@@ -846,15 +837,15 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     const itemContainer = document.createElement("div");
                     itemContainer.className = "item-container";
                     itemContainer.setAttribute("name", title);
-                    const itemTitleText = document.createElement("span");
+                    const itemTitleText = document.createElement("label");
                     itemTitleText.textContent = titleText + " " + itemCount;
                     itemTitleText.className = "item-title-text";
                     itemContainer.appendChild(itemTitleText);
                     // Add remove button
-                    const removeButton = document.createElement("button");
-                    removeButton.textContent = "X";
-                    removeButton.className = "remove-item-button";
-                    removeButton.onclick = () => {
+                    const deleteItemButton = document.createElement("button");
+                    deleteItemButton.textContent = "🗑️";
+                    deleteItemButton.className = "delete-item-button";
+                    deleteItemButton.onclick = () => {
                         // Update the form from the controls
                         const updatedAllFilesData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(accordianBody, fileData), withAllFields);
                         if (updatedAllFilesData) {
@@ -869,7 +860,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                             enableFormActionButtons(accordianBody);
                         }
                     };
-                    itemContainer.appendChild(removeButton);
+                    itemContainer.appendChild(deleteItemButton);
                     accordianBody.appendChild(itemContainer);
                     Object.entries(item).forEach(([key, value]) => {
                         createFieldRow(itemContainer, key, value, false);
