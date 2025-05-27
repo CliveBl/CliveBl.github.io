@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
 
-const uiVersion = "0.48";
+const uiVersion = "0.49";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {

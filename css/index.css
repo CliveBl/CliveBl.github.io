@@ -1884,22 +1884,6 @@ a:not(.submit-instructions-button):visited {
   color: var(--link-visited);
 }
 
-.back-button {
-  background-color: var(--button-blue);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  text-decoration: none;
-  display: block;
-  margin: 30px auto 0;
-  width: fit-content;
-}
-
-.back-button:hover {
-  background-color: var(--button-blue-hover);
-}
 
 /* For editor */
 /* Make all input fields have the same fixed width and narrow height */
@@ -2380,3 +2364,23 @@ margin-bottom: 15px;
 margin-top: 15px;
 }
 
+
+.start-button {
+	background-color: var(--button-blue);
+	color: var(--button-text);
+	border: none;
+	padding: 12px 40px;
+	font-size: 1.2em;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
+
+.start-button:hover {
+	background-color: var(--button-blue-hover);
+}
+
+.start-button:disabled {
+	background-color: var(--border-color);
+	cursor: not-allowed;
+}
