@@ -167,6 +167,11 @@ ul {
   margin-left: 0;
   margin-right: 10px;
 }
+
+.fileitem-field-label {
+  margin-bottom: 5px;
+}
+
 /* Delete button styling */
 .delete-button {
   background: transparent;

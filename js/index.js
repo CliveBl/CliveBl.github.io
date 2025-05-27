@@ -1364,7 +1364,7 @@ function addFileToList(fileInfo) {
             else {
                 // Regular field
                 const field = document.createElement("div");
-                field.style.marginBottom = "5px";
+                field.className = "fileitem-field-label";
                 field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value}`;
                 accordionContent.appendChild(field);
             }
