@@ -125,4 +125,17 @@ export function getFriendlyOptionName(key) {
     const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
     return name;
 }
+export function isCurrencyField(fieldName) {
+    return !(fieldName.endsWith("Name") ||
+        fieldName.endsWith("Text") ||
+        fieldName.endsWith("Number") ||
+        fieldName.endsWith("taxYear") ||
+        fieldName.endsWith("Date") ||
+        fieldName.endsWith("Months") ||
+        fieldName.endsWith("Integer") ||
+        fieldName.endsWith("Code") ||
+        fieldName.endsWith("Boolean") ||
+        fieldName.endsWith("Options") ||
+        fieldName.endsWith("Type"));
+}
 //# sourceMappingURL=constants.js.map

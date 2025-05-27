@@ -1,6 +1,6 @@
 import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions } from "./index.js";
 import { API_BASE_URL } from "./env.js";
-import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName } from "./constants.js";
+import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 1, }) {
     return new Promise((resolve) => {
@@ -99,19 +99,6 @@ const Generic867Item = {
 };
 function getDataFromControls(accordionBody, fileData) {
     const updatedData = { ...fileData }; // Clone original fileData
-    function isCurrencyField(fieldName) {
-        return !(fieldName.endsWith("Name") ||
-            fieldName.endsWith("Text") ||
-            fieldName.endsWith("Number") ||
-            fieldName.endsWith("taxYear") ||
-            fieldName.endsWith("Date") ||
-            fieldName.endsWith("Months") ||
-            fieldName.endsWith("Integer") ||
-            fieldName.endsWith("Code") ||
-            fieldName.endsWith("Boolean") ||
-            fieldName.endsWith("Options") ||
-            fieldName.endsWith("Type"));
-    }
     function normalizeDate(dateValue) {
         if (dateValue) {
             const [year, month, day] = dateValue.split("-");

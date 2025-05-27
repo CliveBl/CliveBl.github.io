@@ -1,5 +1,5 @@
-import { getFriendlyName } from "./constants.js";
-const uiVersion = "0.46";
+import { getFriendlyName, isCurrencyField } from "./constants.js";
+const uiVersion = "0.47";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -1139,11 +1139,11 @@ async function loadConfiguration() {
     }
 }
 function formatNumber(key, value) {
-    if (!isNaN(value)) {
-        return `<em>${key}:</em> ${new Intl.NumberFormat(undefined, { style: "decimal", minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value)}`;
+    if (isCurrencyField(key)) {
+        return `<em>${getFriendlyName(key)}:</em> ${new Intl.NumberFormat(undefined, { style: "decimal", minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value)}`;
     }
     else {
-        return `<em>${key}:</em> ${value}`;
+        return `<em>${getFriendlyName(key)}:</em> ${value}`;
     }
 }
 function addFileToList(fileInfo) {
@@ -1238,10 +1238,10 @@ function addFileToList(fileInfo) {
                                 const itemField = document.createElement("li");
                                 itemField.className = "nestedListItemField";
                                 if (itemKey.endsWith("Type")) {
-                                    itemField.innerHTML = formatNumber(getFriendlyName(itemKey), getFriendlyName(String(itemValue)));
+                                    itemField.innerHTML = formatNumber(itemKey, getFriendlyName(String(itemValue)));
                                 }
                                 else {
-                                    itemField.innerHTML = formatNumber(getFriendlyName(itemKey), itemValue);
+                                    itemField.innerHTML = formatNumber(itemKey, itemValue);
                                 }
                                 itemList.appendChild(itemField);
                             });
@@ -1257,7 +1257,7 @@ function addFileToList(fileInfo) {
                         if (nestedValue !== null) {
                             const nestedItem = document.createElement("li");
                             nestedItem.className = "nestedListItemField";
-                            nestedItem.innerHTML = formatNumber(getFriendlyName(nestedKey), nestedValue);
+                            nestedItem.innerHTML = formatNumber(nestedKey, nestedValue);
                             nestedList.appendChild(nestedItem);
                         }
                     });
