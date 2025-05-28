@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
 
-const uiVersion = "0.49";
+const uiVersion = "0.50";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -99,15 +99,15 @@ function removeFileList() {
   }
 }
 
-function openFileListEntryP(fileName: string) {
+function openFileListEntryP(fileName: string, property: string | null) {
   if (editableFileList) {
-    editableOpenFileListEntry(fileName);
+    editableOpenFileListEntry(fileName, property);
   } else {
-    openFileListEntry(fileName);
+    openFileListEntry(fileName, property);
   }
 }
 
-function openFileListEntry(fileName: string) {
+function openFileListEntry(fileName: string, property: string | null) {
   // Find the file item by looking for the span with class 'fileNameElement' that contains the fileName
   const fileNameElements = document.querySelectorAll(".fileNameElement");
   for (const element of fileNameElements) {
@@ -633,13 +633,13 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
 
   const messageText = document.createElement("span");
   messageText.className = "message-text";
-  const textParts = text.split(":");
-  // Check if the text contains a message code
-  if (textParts && textParts.length > 2) {
-    // Eliminate the textParts[1] code from the text
-    const textToDisplay = `${textParts[0]}:${textParts.slice(2).join(":")}`;
-    messageText.textContent = textToDisplay;
-  } else {
+  // ^<message code> indicates a message code
+  const messageCode = text.match(/\^([^ ]+)/)?.[1];
+  if (messageCode) {
+    // Eliminate the message code from the text
+    messageText.textContent = text.replace(`^${messageCode} `, "");
+  }
+  else{
     messageText.textContent = text;
   }
 
@@ -663,12 +663,24 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       messageText.textContent = messageText.textContent.replace("fileName=", "");
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
+      // If the message contains property= then make messageDiv a clickable link to the entry for that file in the filelist
+      let property = null;
+      if (text.includes("property=")) {
+        // Match the pattern property=.*,
+        const result = text.match(/property=([^,]+)/)?.[1];
+        // Eliminate property=<property> from the text
+        messageText.textContent = messageText.textContent.replace(`property=${result},`, "");
+        if (result) {
+          property = result;
+        }
+      }
       // Make the messageDiv a clickable link to the fileItem
       messageDiv.addEventListener("click", () => {
-        openFileListEntryP(fileName);
+        openFileListEntryP(fileName, property);
       });
     }
   }
+
 
   // Scroll to the bottom of the page if type is not "success" or "info"
   if (type !== "success" && type !== "info" && scrollToMessageSection) {
@@ -2118,7 +2130,7 @@ function restoreSelectedDocTypes() {
     clearResultsControls();
     clearMessages();
     // Jump to the last file in the file list
-    openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName);
+    openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName, null);
 
     addMessage("הטופס נוצר בהצלחה", "success");
     // Reset select to default option

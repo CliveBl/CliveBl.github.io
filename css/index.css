@@ -1902,6 +1902,10 @@ a:not(.submit-instructions-button):visited {
 	background-color: var(--changed-bg);
 }
 
+.header-input.error {
+	background-color: var(--error-bg);
+}
+
 /* 🟢 Reduce accordion item width */
 .accordion-item {
   width: 95% !important; /* Shrinks width */
@@ -1979,6 +1983,10 @@ a:not(.submit-instructions-button):visited {
 .field-input.changed {
 	background-color: var(--changed-bg);
 }
+.field-input.error {
+	background-color: var(--error-bg);
+}
+
 .field-text-input {
 	padding: 0px;
 	text-align: right;
@@ -2010,7 +2018,15 @@ a:not(.submit-instructions-button):visited {
 .field-date-input.changed {
 	background-color: var(--changed-bg);
 }
-
+.field-labelx.error {
+	background-color: var(--error-bg);
+}
+.field-text-input.error {
+	background-color: var(--error-bg);
+}
+.field-date-input.error {
+	background-color: var(--error-bg);
+}
 
 /* 🟢 Ensure hidden caption does not take up space */
 @media (max-width: 768px) {

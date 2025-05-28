@@ -207,7 +207,7 @@ export function editableRemoveFileList() {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
     expandableArea.innerHTML = "";
 }
-export function editableOpenFileListEntry(fileName) {
+export function editableOpenFileListEntry(fileName, property) {
     // Find the accordion container that contains the file name in its header fields
     const accordionContainers = document.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
     for (const container of accordionContainers) {
@@ -234,11 +234,31 @@ export function editableOpenFileListEntry(fileName) {
                 if (accordionBody && accordionBody.style.display === "none") {
                     toggleButton.click(); // This will trigger the accordion toggle
                 }
+                if (property) {
+                    // Mark the field with the property as error. Search for the field by data
+                    const field = container.querySelector(`input[data-field-name="${property}"]`);
+                    setFieldError(field);
+                }
                 // Scroll the container into view with smooth behavior
                 container.scrollIntoView({ behavior: "smooth", block: "center" });
                 break;
             }
         }
+    }
+}
+function setFieldError(field) {
+    if (field) {
+        field.classList.remove("changed");
+        field.classList.add("error");
+    }
+}
+function setFieldChanged(field) {
+    if (field) {
+        field.classList.remove("error");
+        field.classList.add("changed");
+    }
+    else {
+        console.error("Field not found");
     }
 }
 export async function displayFileInfoInExpandableArea(allFilesData, backupAllFilesData, withAllFields = false) {
@@ -868,7 +888,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
     function addChangeHandler(field, accordianBody) {
         field.addEventListener("change", () => {
             // make the background green by adjusting the css class
-            field.classList.add("changed");
+            setFieldChanged(field);
             // enable save and cancel buttons
             enableFormActionButtons(accordianBody);
         });

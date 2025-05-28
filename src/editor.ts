@@ -239,7 +239,7 @@ export function editableRemoveFileList() {
   expandableArea.innerHTML = "";
 }
 
-export function editableOpenFileListEntry(fileName: string) {
+export function editableOpenFileListEntry(fileName: string, property: string | null) {
   // Find the accordion container that contains the file name in its header fields
   const accordionContainers = document.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
 
@@ -267,11 +267,34 @@ export function editableOpenFileListEntry(fileName: string) {
         if (accordionBody && accordionBody.style.display === "none") {
           toggleButton.click(); // This will trigger the accordion toggle
         }
+        if (property) {
+          // Mark the field with the property as error. Search for the field by data
+          const field = container.querySelector(`input[data-field-name="${property}"]`) as HTMLInputElement;
+          setFieldError(field);
+        }
+
         // Scroll the container into view with smooth behavior
         container.scrollIntoView({ behavior: "smooth", block: "center" });
         break;
       }
     }
+  }
+}
+
+function setFieldError(field: HTMLElement) {
+  if (field) {
+    field.classList.remove("changed");
+    field.classList.add("error");
+  }
+}
+
+function setFieldChanged(field: HTMLElement) {
+  if (field) {
+    field.classList.remove("error");
+    field.classList.add("changed");
+  }
+  else {
+    console.error("Field not found");
   }
 }
 
@@ -961,7 +984,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   function addChangeHandler(field: HTMLElement, accordianBody: HTMLDivElement) {
     field.addEventListener("change", () => {
       // make the background green by adjusting the css class
-      field.classList.add("changed");
+      setFieldChanged(field);
       // enable save and cancel buttons
       enableFormActionButtons(accordianBody);
     });
