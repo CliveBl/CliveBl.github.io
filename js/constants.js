@@ -1,5 +1,6 @@
 const friendlyNames = {
     field867Type: "סוג שדה 867",
+    field106Type: "סוג שדה 106",
     fields: "שדות",
     genericFields: "שדות כלליים",
     clientName: "שם הלקוח",
@@ -7,6 +8,7 @@ const friendlyNames = {
     organizationName: "שם הארגון",
     explanationText: "הסבר",
     value: "סכום",
+    valueInteger: "קוד",
     receiptInteger: "מספר קבלה",
     donationDate: "תאריך תרומה",
     nonProfitTaxFileNumber: "קוד עמותה/ארגון",
@@ -35,7 +37,7 @@ const friendlyNames = {
     NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
     TemporarySalaryReductionRecuperationFund_012_011: "השתתפות זמנית הפחתת דמי הבראה",
     PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
-    SettlementDiscount_327_287: "הנחה יישובית",
+    SettlementDiscount_327_287: "הנחה ישוב",
     ShiftAllowance_069_068: "תוספת משמרות",
     DepositToNewPensionFund_180_135: "הפקדה לקרן פנסיה חדשה",
     DepositCurrentAccountIncomeTaxedAtPercent10_076: "הכנסה מחשבון עובר ושב ממוסה ב-10%",
@@ -137,5 +139,12 @@ export function isCurrencyField(fieldName) {
         fieldName.endsWith("Boolean") ||
         fieldName.endsWith("Options") ||
         fieldName.endsWith("Type"));
+}
+const exceptionalIntegerFieldNames = [
+    "SettlementDiscount_327_287",
+    "NumberOfDealsInteger"
+];
+export function isExceptionalIntegerField(fieldName) {
+    return exceptionalIntegerFieldNames.includes(fieldName);
 }
 //# sourceMappingURL=constants.js.map

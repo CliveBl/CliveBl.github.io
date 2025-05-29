@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
-const uiVersion = "0.50";
+const uiVersion = "0.51";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -115,7 +115,6 @@ async function signInAnonymous() {
             },
             credentials: "include",
         });
-        debug("Sign in response:", response.status);
         if (!response.ok) {
             const errorData = await response.json();
             debug(errorData);
@@ -416,7 +415,6 @@ processButton.addEventListener("click", async () => {
             return;
         }
         const result = await response.json();
-        debug("Processing response:", result);
         // Handle fatal error if present
         if (result.fatalProcessingError) {
             addMessage("שגיאה קריטית: " + result.fatalProcessingError, "error");
@@ -590,6 +588,11 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
             }
             // Make the messageDiv a clickable link to the fileItem
             messageDiv.addEventListener("click", () => {
+                if (!editableFileList) {
+                    // switch to the editable file list view
+                    editableFileList = true;
+                    updateFileListView();
+                }
                 openFileListEntryP(fileName, property);
             });
         }
@@ -788,7 +791,7 @@ async function loadResults(scrollToMessageSection = true) {
         }
     }
 }
-function clearMessages() {
+export function clearMessages() {
     messageContainer.innerHTML = "";
 }
 function descriptionFromFileName(fileName) {
@@ -1227,7 +1230,17 @@ function addFileToList(fileInfo) {
             if (!(await handleResponse(response, "Delete failed"))) {
                 return;
             }
-            fileList.removeChild(li);
+            // Find the year accordion container that contains this file
+            const yearContainer = li.closest('.date-accordion-container');
+            if (yearContainer) {
+                // Remove the file item
+                li.remove();
+                // If this was the last file in the year container, remove the year container too
+                const yearBody = yearContainer.querySelector('.date-accordion-body');
+                if (yearBody && yearBody.children.length === 0) {
+                    yearContainer.remove();
+                }
+            }
             fileModifiedActions(fileList.children.length > 0);
         }
         catch (error) {
@@ -1896,7 +1909,6 @@ document.getElementById("createFormSelect").addEventListener("change", async (e)
             return;
         }
         const fileInfoList = await response.json();
-        debug("createForm response:", fileInfoList);
         updateFileListP(fileInfoList);
         clearResultsControls();
         clearMessages();

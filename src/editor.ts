@@ -1,6 +1,6 @@
-import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages } from "./index.js";
 import { API_BASE_URL } from "./env.js";
-import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField } from "./constants.js";
+import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 function customerMessageModal({
   title,
@@ -109,6 +109,11 @@ const template867YearsMap = {
   2024: "template_867_2022",
 };
 
+interface Value {
+  type: string;
+  value: any;
+}
+
 const Child = {
   birthDate: "",
   noSecondParentBoolean: false,
@@ -119,6 +124,11 @@ const Child = {
 
 const Generic867Item = {
   field867Type: "NONE",
+  value: "0.00",
+  explanationText: "",
+};
+const Generic106Item = {
+  field106Type: "NONE",
   value: "0.00",
   explanationText: "",
 };
@@ -292,9 +302,15 @@ function setFieldChanged(field: HTMLElement) {
   if (field) {
     field.classList.remove("error");
     field.classList.add("changed");
-  }
-  else {
+  } else {
     console.error("Field not found");
+  }
+}
+
+function setFieldNotChanged(field: HTMLElement) {
+  if (field) {
+    field.classList.remove("changed");
+	field.classList.remove("error");
   }
 }
 
@@ -586,8 +602,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       // Parse and handle the response
       const responseData = await response.json();
-      debug("Form updated successfully:", responseData);
-      return responseData;
+       return responseData;
     } catch (error: any) {
       addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
     }
@@ -628,22 +643,22 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     });
   }
 
-  function formatInput(key: string, input: HTMLInputElement, value: any) {
+  function formatInput(key: string, input: HTMLInputElement, fieldValue: Value) {
     if (key.endsWith("Name")) {
       if (!input.className) input.className = "field-text-input";
       input.type = "text";
       input.maxLength = 30;
-      input.value = value;
+      input.value = fieldValue.value;
     } else if (key.endsWith("Text")) {
       input.className = "field-text-input";
       input.type = "text";
       input.maxLength = 50;
-      input.value = value;
+      input.value = fieldValue.value;
     } else if (key.endsWith("Number")) {
       input.type = "text";
       input.maxLength = 9;
       input.pattern = "\\d{9}";
-      input.value = value;
+      input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 9);
       };
@@ -651,7 +666,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 4;
       input.pattern = "\\d{4}";
-      input.value = value;
+      input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 4);
       };
@@ -659,17 +674,17 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 3;
       input.pattern = "\\d{3}";
-      input.value = value;
+      input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 3);
       };
     } else if (key.endsWith("Date")) {
       input.className = "field-date-input";
       input.type = "date";
-      if (value === "" || value === null) {
+      if (fieldValue.value === "" || fieldValue.value === null) {
         input.value = "";
       } else {
-        input.value = value.split("/").reverse().join("-");
+        input.value = fieldValue.value.split("/").reverse().join("-");
       }
       input.onblur = () => {
         if (input.value != "") {
@@ -684,22 +699,22 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 2;
       input.pattern = "\\d{1,2}";
-      input.value = value;
+      input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 2);
       };
-    } else if (key.endsWith("Integer")) {
+    } else if (key.endsWith("Integer") || fieldValue.type === "Integer" || isExceptionalIntegerField(key)) {
       input.type = "text";
       input.maxLength = MAX_INTEGER_LENGTH;
       input.pattern = "\\d+";
-      input.value = Math.round(parseFloat(value)).toString();
+      input.value = Math.round(parseFloat(fieldValue.value)).toString();
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, MAX_INTEGER_LENGTH);
       };
     } else if (key.endsWith("Boolean")) {
       input.type = "checkbox";
-      input.value = value;
-      input.checked = value === true || value === "true";
+      input.value = fieldValue.value;
+      input.checked = fieldValue.value === true || fieldValue.value === "true";
       input.onchange = () => {
         if (input.checked) {
           input.value = "true";
@@ -709,17 +724,17 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       };
     } else if (key.endsWith("Options")) {
       // Deal with this later
-    } else if (key.endsWith("field867Type")) {
+    } else if (key.endsWith("field867Type") || key.endsWith("field106Type")) {
       // Deal with this later
     } else if (key.endsWith("documentType")) {
       input.type = "text";
-      input.value = value;
+      input.value = fieldValue.value;
       // Deal with this later
     } else {
       // 🟢 **Default: Currency Field (if no other condition matched)**
       input.type = "text";
 
-      let numericValue = parseFloat(value);
+      let numericValue = parseFloat(fieldValue.value);
       if (isNaN(numericValue)) {
         numericValue = 0.0;
       }
@@ -754,11 +769,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     accordianBody.innerHTML = "";
 
     if (fieldsToggleLink) {
-      //debug("Adding the toggle link to the body");
       accordianBody.appendChild(fieldsToggleLink);
     }
 
-    function createFieldRow(container: HTMLElement, key: string, value: any, isMainField = false) {
+    function createFieldRow(container: HTMLElement, key: string, fieldValue: Value) {
       // Skip fields already displayed in the header
       if (excludedHeaderFields.includes(key)) return;
 
@@ -776,7 +790,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       // For readOnlyFields, just create a label with the value
       if (readOnlyFields.includes(key)) {
         const valueLabel = document.createElement("label") as HTMLLabelElement;
-        valueLabel.textContent = value || "";
+        valueLabel.textContent = fieldValue.value || "";
         valueLabel.className = "read-only-field-value";
         valueLabel.setAttribute("data-field-name", key);
         valueLabel.id = fieldId;
@@ -799,38 +813,34 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           const name = getFriendlyOptionName(key);
           radioButton.name = name;
           //radioButton.id = name + option;
-          radioButton.checked = value === option;
+          radioButton.checked = fieldValue.value === option;
           label.appendChild(radioButton);
           label.appendChild(document.createTextNode(option));
           radioGroup.appendChild(label);
         });
         addChangeHandler(radioGroup, accordianBody);
         fieldRow.appendChild(radioGroup);
-      } else if (key.endsWith("field867Type")) {
+      } else if (key.endsWith("field867Type") || key.endsWith("field106Type")) {
         // Create a dropdown with the options
         const dropdown = document.createElement("select") as HTMLSelectElement;
         dropdown.className = "editor-select";
         dropdown.id = fieldId;
         dropdown.name = key;
-		dropdown.textContent = key;
+        dropdown.textContent = key;
         dropdown.setAttribute("data-field-name", key);
-        dropdown.appendChild(document.createTextNode(value));
+        dropdown.appendChild(document.createTextNode(fieldValue.value));
         // Add options to the dropdown from the configuration data
         const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
 
         formDetails.fieldTypes?.forEach((option: string) => {
           const optionElement = document.createElement("option") as HTMLOptionElement;
           optionElement.value = option;
-          let optionText = getFriendlyName(option);
-          if (option.includes("_")) {
-            // Field code from friendlyNames[key]. It is the text after the underscore.
-            optionText += " (" + option.split("_")[1] + ")";
-          }
+          const optionText = getOptionTextWithTaxCode(option);
           optionElement.appendChild(document.createTextNode(optionText));
           dropdown.appendChild(optionElement);
         });
         // Select the option that is currently selected
-        dropdown.value = value;
+        dropdown.value = fieldValue.value;
         addChangeHandler(dropdown, accordianBody);
         fieldRow.appendChild(dropdown);
       } else {
@@ -841,14 +851,14 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         input.id = fieldId;
 
         // 🟢 **Apply Field Formatting Rules**
-        formatInput(key, input, value);
+        formatInput(key, input, fieldValue);
         addChangeHandler(input, accordianBody);
         fieldRow.appendChild(input);
       }
 
       if (key.includes("_")) {
         // Field code from friendlyNames[key]. It is the text after the underscore.
-        const fieldCode = key.split("_")[1];
+        const fieldCode = getTaxCodeFromFieldName(key);
         const codeLabel = document.createElement("label");
         codeLabel.textContent = fieldCode;
         codeLabel.className = "codeLabel";
@@ -858,11 +868,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       container.appendChild(fieldRow);
     }
 
-    function populateField(container: HTMLElement, key: string, value: any) {
+    function populateField(container: HTMLElement, key: string, fieldValue: Value) {
       // Find the field in the container
       const field = container.querySelector(`input[data-field-name="${key}"]`) as HTMLInputElement;
       if (field) {
-        formatInput(key, field, value);
+        formatInput(key, field, fieldValue);
         addChangeHandler(field, accordianBody);
       }
     }
@@ -870,7 +880,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
       if (key !== "fields" && key !== "genericFields" && key !== "children") {
-        createFieldRow(accordianBody, key, value, true);
+        const fieldValue: Value = {
+          type: "any",
+          value: value,
+        };
+        createFieldRow(accordianBody, key, fieldValue);
       }
     });
     // If it is an 867 form and we are not on mobile we render according to the template
@@ -881,14 +895,22 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       clone.id = "";
       // Populate the clone with the fileData
       Object.entries(fileData.fields || {}).forEach(([key, value]) => {
-        populateField(clone, key, value);
+        const fieldValue: Value = {
+          type: "any",
+          value: value,
+        };
+        populateField(clone, key, fieldValue);
       });
       clone.removeAttribute("hidden");
       accordianBody.appendChild(clone);
     } else {
       // Process nested fields inside `fileData.fields` (thinner border)
       Object.entries(fileData.fields || {}).forEach(([key, value]) => {
-        createFieldRow(accordianBody, key, value, false);
+        const fieldValue: Value = {
+          type: "any",
+          value: value,
+        };
+        createFieldRow(accordianBody, key, fieldValue);
       });
     }
 
@@ -962,7 +984,14 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
           accordianBody.appendChild(itemContainer);
           Object.entries(item).forEach(([key, value]) => {
-            createFieldRow(itemContainer, key, value, false);
+            let fieldValue: Value = {
+              type: "any",
+              value: value,
+            };
+            if (key === "value" && ((item.field867Type && isExceptionalIntegerField(item.field867Type)) || (item.field106Type && isExceptionalIntegerField(item.field106Type)))) {
+              fieldValue.type = "Integer";
+            }
+            createFieldRow(itemContainer, key, fieldValue);
           });
         });
       }
@@ -971,8 +1000,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Call the function for children
     renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
 
+    const template = fileData.documentType === "טופס 106" ? Generic106Item : Generic867Item;
     // Call the function for generic fields
-    renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה כללי", Generic867Item, withAllFields);
+    renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה כללי", template, withAllFields);
 
     // Re-add the action buttons
     buttonsArray.forEach((button) => {
@@ -980,14 +1010,75 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     });
   }
 
+  function getTaxCodeFromFieldName(fieldName: string) {
+    if (fieldName.includes("_")) {
+      const parts = fieldName.split("_");
+      if (parts.length > 2) {
+        return " (" + parts[1] + "/" + parts[2] + ")";
+      } else if (parts.length > 1) {
+        return " (" + parts[1] + ")";
+      }
+    }
+    return "";
+  }
+
+  function getOptionTextWithTaxCode(option: string) {
+    let optionText = getFriendlyName(option);
+    if (option.includes("_")) {
+      // Field code from friendlyNames[key]. It is the text after the underscore. can be 1 or two codes.
+      const parts = option.split("_");
+      if (parts.length > 2) {
+        optionText += " (" + parts[1] + "/" + parts[2] + ")";
+      } else if (parts.length > 1) {
+        optionText += " (" + parts[1] + ")";
+      }
+    }
+    return optionText;
+  }
+
   // Called when a form field is changed
   function addChangeHandler(field: HTMLElement, accordianBody: HTMLDivElement) {
+    const savedValue = (field as HTMLInputElement).value;
     field.addEventListener("change", () => {
       // make the background green by adjusting the css class
       setFieldChanged(field);
       // enable save and cancel buttons
       enableFormActionButtons(accordianBody);
+
+      // Handle the special case of switching between a number and integer option in the select control of an item.
+      formatValueFieldBySelectOption(field);
     });
+    field.addEventListener("input", () => {
+      // enable save and cancel buttons
+      enableFormActionButtons(accordianBody);
+    });
+    // Lose focus. remove changed if the value is the same as the saved value
+    field.addEventListener("blur", () => {
+      if ((field as HTMLInputElement).value === savedValue) {
+        setFieldNotChanged(field);
+      }
+    });
+    // Check if it is a select and within an item
+  }
+
+  // Handle the special case of switching between a number and integer option in the select control of an item.
+  function formatValueFieldBySelectOption(field: HTMLElement) {
+    // check if field has an ancestor with the class "item-container" and if it is a select
+    const itemContainer = field.closest(".item-container");
+    if (itemContainer && field.tagName === "SELECT") {
+      // Get the selected option
+      const selectedOption = (field as HTMLSelectElement).value;
+      // If it is an exceptional field type, we need to update the field with the option text
+      const valueField = itemContainer.querySelector("input[data-field-name='value']") as HTMLInputElement;
+      if (valueField) {
+        if (isExceptionalIntegerField(selectedOption)) {
+          // Format it as an integer
+          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "Integer", value: "0" });
+        } else {
+          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "any", value: "0" });
+        }
+      }
+    }
   }
 
   // Called to clear the effect of the change handler
@@ -1000,7 +1091,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     ];
     // Clear changed class from all inputs and controls
     allElements.forEach((element) => {
-      element.classList.remove("changed");
+		element.classList.remove("changed");
+		element.classList.remove("error");
     });
     // Disable save and cancel buttons
     accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
@@ -1112,7 +1204,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.id = fieldId;
       headerFieldlabel.setAttribute("for", fieldId);
 
-      formatInput(fieldName, input, value);
+      const fieldValue: Value = {
+        type: "any",
+        value: value,
+      };
+      formatInput(fieldName, input, fieldValue);
       addChangeHandler(input, accordianBody);
       // Append label and input (label appears only in mobile)
       fieldContainer.appendChild(headerFieldlabel);
@@ -1183,7 +1279,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
     // Cancel button behavior: Restore original file info
     cancelButton.onclick = async () => {
-      debug("🔄 Cancel button clicked, restoring original data");
       // Restore only this form from the backupAllFilesData
       const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
       if (backupFormIndex !== -1) {
@@ -1197,7 +1292,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     saveButton.onclick = async () => {
       const formData = getDataFromControls(accordianBody, fileData);
 
-      //debug("🔄 Updating Form Data:", updatedData);
       const updatedData = await updateForm(fileData.fileId, formData);
       if (updatedData) {
         // Display success modal
@@ -1217,6 +1311,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         }
         clearChanged(accordianBody);
         fileModifiedActions(editableFileListHasEntries());
+		clearMessages();
         addMessage("נתונים נשמרו בהצלחה", "success");
       }
     };

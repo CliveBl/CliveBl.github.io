@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
 
-const uiVersion = "0.50";
+const uiVersion = "0.51";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -142,8 +142,6 @@ async function signInAnonymous() {
       },
       credentials: "include",
     });
-
-    debug("Sign in response:", response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -487,7 +485,6 @@ processButton.addEventListener("click", async () => {
     }
 
     const result = await response.json();
-    debug("Processing response:", result);
 
     // Handle fatal error if present
     if (result.fatalProcessingError) {
@@ -676,6 +673,12 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       }
       // Make the messageDiv a clickable link to the fileItem
       messageDiv.addEventListener("click", () => {
+		if(!editableFileList)
+		{
+			// switch to the editable file list view
+			editableFileList = true;
+			updateFileListView();
+		}
         openFileListEntryP(fileName, property);
       });
     }
@@ -897,7 +900,7 @@ async function loadResults(scrollToMessageSection = true) {
   }
 }
 
-function clearMessages() {
+export function clearMessages() {
   messageContainer.innerHTML = "";
 }
 
@@ -1380,7 +1383,19 @@ function addFileToList(fileInfo: any) {
         return;
       }
 
-      fileList.removeChild(li);
+      // Find the year accordion container that contains this file
+      const yearContainer = li.closest('.date-accordion-container');
+      if (yearContainer) {
+        // Remove the file item
+        li.remove();
+        
+        // If this was the last file in the year container, remove the year container too
+        const yearBody = yearContainer.querySelector('.date-accordion-body');
+        if (yearBody && yearBody.children.length === 0) {
+          yearContainer.remove();
+        }
+      }
+      
       fileModifiedActions(fileList.children.length > 0);
     } catch (error: unknown) {
       console.error("Delete failed:", error);
@@ -2125,7 +2140,6 @@ function restoreSelectedDocTypes() {
     }
 
     const fileInfoList = await response.json();
-    debug("createForm response:", fileInfoList);
     updateFileListP(fileInfoList);
     clearResultsControls();
     clearMessages();
