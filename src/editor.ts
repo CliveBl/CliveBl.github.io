@@ -1002,7 +1002,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
     const template = fileData.documentType === "טופס 106" ? Generic106Item : Generic867Item;
     // Call the function for generic fields
-    renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה כללי", template, withAllFields);
+    renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה", template, withAllFields);
 
     // Re-add the action buttons
     buttonsArray.forEach((button) => {

@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
-const uiVersion = "0.51";
+const uiVersion = "0.52";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -56,6 +56,13 @@ export function updateButtons(hasEntries) {
     }
 }
 function updateFileListP(fileInfoList) {
+    // // Deep copy the fileInfoList
+    // const fileInfoListCopy = structuredClone(fileInfoList);
+    // // Filter so that only document type "טופס 867" are included
+    // const fileInfoCGT = fileInfoListCopy.filter((file) => file.documentType === "טופס 867");
+    // // Sort the array by fileName from after the /
+    // fileInfoCGT.sort((a, b) => a.fileName.split("/").pop()!.localeCompare(b.fileName.split("/").pop()!));
+    // debug("CGT forms",fileInfoCGT);
     if (editableFileList) {
         displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false);
         updateButtons(editableFileListHasEntries());
@@ -587,7 +594,7 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
                 }
             }
             // Make the messageDiv a clickable link to the fileItem
-            messageDiv.addEventListener("click", () => {
+            messageText.addEventListener("click", () => {
                 if (!editableFileList) {
                     // switch to the editable file list view
                     editableFileList = true;
