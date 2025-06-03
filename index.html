@@ -8,16 +8,10 @@
 	<!-- CSS Styles -->
 	<link rel="stylesheet" href="css/index.css" />
 
-    <style>
-		
+<style>
+
 body {	
-        width: 100%;
-        overflow-x: hidden; /* Prevent horizontal scrolling */
-        box-sizing: border-box;
-        min-height: 100vh;
          display: flex; 
-        flex-direction: column;
-        align-items: center;
       }
 	  
         .landing-container {
@@ -41,26 +35,6 @@ body {
             gap: 10px;
         }
 
-        .start-button {
-            background-color: var(--tax-blue);
-            color: white;
-            border: none;
-            padding: 12px 40px;
-            font-size: 1.2em;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .start-button:hover {
-            background-color: var(--tax-blue-hover);
-        }
-
-        .start-button:disabled {
-            background-color: var(--border-color);
-            cursor: not-allowed;
-        }
-
         .cookie-banner {
             position: fixed;
             bottom: 0;
@@ -72,7 +46,6 @@ body {
             border-top: 1px solid var(--border-color);
             display: none;
         }
-
     </style>
 </head>
 <body>
@@ -160,5 +133,11 @@ body {
     </script>
 	<script>nl_pos = "br";nl_compact = "1";</script>
 	<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+    <footer class="footer">
+        <div class="footer-content">
+            <a href="terms.html">תנאי שימוש</a>
+            <a href="privacy_policy.html">מדיניות פרטיות</a>
+        </div>
+    </footer>
 </body>
 </html> 
