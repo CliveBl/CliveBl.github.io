@@ -1175,7 +1175,10 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 if (formIndex !== -1) {
                     const backupFormIndex = backupAllFilesData.findIndex((form) => form.fileId === fileData.fileId);
                     if (backupFormIndex !== -1) {
+                        // Replace the form in the allFilesData array with the form in the backupAllFilesData array
                         backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
+                        // Update the display
+                        renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
                     }
                 }
                 clearChanged(accordianBody);

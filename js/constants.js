@@ -39,6 +39,7 @@ const friendlyNames = {
     PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
     SettlementDiscount_327_287: "הנחה ישוב",
     ShiftAllowance_069_068: "תוספת משמרות",
+    SoldiersSalary_198_197: "שכר חייל",
     DepositToNewPensionFund_180_135: "הפקדה לקרן פנסיה חדשה",
     DepositCurrentAccountIncomeTaxedAtPercent10_076: "הכנסה מחשבון עובר ושב ממוסה ב-10%",
     DepositCurrentAccountIncomeTaxedAtPercent15_078: "הכנסה מחשבון עובר ושב ממוסה ב-15%",

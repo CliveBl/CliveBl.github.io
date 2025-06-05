@@ -1291,7 +1291,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Save button behavior: Process and save the data
     saveButton.onclick = async () => {
       const formData = getDataFromControls(accordianBody, fileData);
-
       const updatedData = await updateForm(fileData.fileId, formData);
       if (updatedData) {
         // Display success modal
@@ -1306,7 +1305,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         if (formIndex !== -1) {
           const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
           if (backupFormIndex !== -1) {
+			// Replace the form in the allFilesData array with the form in the backupAllFilesData array
             backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
+			// Update the display
+			renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
           }
         }
         clearChanged(accordianBody);
