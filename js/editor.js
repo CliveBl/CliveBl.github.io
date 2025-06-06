@@ -723,7 +723,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     radioButton.type = "radio";
                     radioButton.value = option;
                     const name = getFriendlyOptionName(key);
-                    radioButton.name = name;
+                    // Must have a unique name so that it doesnt get mixed up with other forms.
+                    radioButton.name = `${fileData.fileId}_${name}`;
                     //radioButton.id = name + option;
                     radioButton.checked = fieldValue.value === option;
                     label.appendChild(radioButton);
