@@ -2,6 +2,11 @@ import { configurationData, debug, addMessage, handleResponse, updateButtons, fi
 import { API_BASE_URL } from "./env.js";
 import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
+
+function makeUniqueId() {
+	return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
 function customerMessageModal({
   title,
   message,
@@ -784,7 +789,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       fieldLabel.className = "field-labelx";
       fieldRow.appendChild(fieldLabel);
 
-      const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+      const fieldId = makeUniqueId();
       fieldLabel.setAttribute("for", fieldId);
 
       // For readOnlyFields, just create a label with the value
@@ -1187,7 +1192,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     const fieldsWrapper = document.createElement("div");
     fieldsWrapper.className = "header-fields-wrapper"; // Used for layout styling
 
-    const createHeaderInput = (value: any, fieldName: string, labelText: string, isEditable = true) => {
+    function createHeaderInput(value: any, fieldName: string, labelText: string, isEditable = true) {
       const fieldContainer = document.createElement("div") as HTMLDivElement;
       fieldContainer.className = "field-container"; // Used for mobile layout
 
@@ -1200,8 +1205,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       const input = document.createElement("input") as HTMLInputElement;
       input.setAttribute("data-field-name", fieldName);
       input.className = "header-input";
-      input.readOnly = !isEditable;
-      const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+	  if(!isEditable) {
+		input.readOnly = true;
+		input.tabIndex = -1;
+		input.onfocus = () => {
+			input.blur();
+		};
+		input.classList.add("read-only");
+	  }
+      const fieldId = makeUniqueId();
       input.id = fieldId;
       headerFieldlabel.setAttribute("for", fieldId);
 
@@ -1216,7 +1228,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       fieldContainer.appendChild(input);
 
       return fieldContainer;
-    };
+    }
 
     // Append fields to the wrapper
     fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false));

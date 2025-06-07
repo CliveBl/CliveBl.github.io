@@ -2,6 +2,9 @@ import { configurationData, addMessage, handleResponse, updateButtons, fileModif
 import { API_BASE_URL } from "./env.js";
 import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
+function makeUniqueId() {
+    return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
 function customerMessageModal({ title, message, button1Text, button2Text = null, displayTimeInSeconds = 1, }) {
     return new Promise((resolve) => {
         // Remove any existing modal
@@ -699,7 +702,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             fieldLabel.textContent = getFriendlyName(key);
             fieldLabel.className = "field-labelx";
             fieldRow.appendChild(fieldLabel);
-            const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+            const fieldId = makeUniqueId();
             fieldLabel.setAttribute("for", fieldId);
             // For readOnlyFields, just create a label with the value
             if (readOnlyFields.includes(key)) {
@@ -1068,7 +1071,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         // Create a wrapper for the header fields
         const fieldsWrapper = document.createElement("div");
         fieldsWrapper.className = "header-fields-wrapper"; // Used for layout styling
-        const createHeaderInput = (value, fieldName, labelText, isEditable = true) => {
+        function createHeaderInput(value, fieldName, labelText, isEditable = true) {
             const fieldContainer = document.createElement("div");
             fieldContainer.className = "field-container"; // Used for mobile layout
             // Create label (only visible on mobile)
@@ -1079,8 +1082,15 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             const input = document.createElement("input");
             input.setAttribute("data-field-name", fieldName);
             input.className = "header-input";
-            input.readOnly = !isEditable;
-            const fieldId = `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+            if (!isEditable) {
+                input.readOnly = true;
+                input.tabIndex = -1;
+                input.onfocus = () => {
+                    input.blur();
+                };
+                input.classList.add("read-only");
+            }
+            const fieldId = makeUniqueId();
             input.id = fieldId;
             headerFieldlabel.setAttribute("for", fieldId);
             const fieldValue = {
@@ -1093,7 +1103,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             fieldContainer.appendChild(headerFieldlabel);
             fieldContainer.appendChild(input);
             return fieldContainer;
-        };
+        }
         // Append fields to the wrapper
         fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false));
         fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגונים", true));
