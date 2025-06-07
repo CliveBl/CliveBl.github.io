@@ -41,7 +41,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: #1a1a1a;
+    --bg-color: #000000;
     --text-color: #ffffff;
     --border-color: #404040;
     --item-bg: #2d2d2d;
