@@ -83,7 +83,17 @@
 
 /* Update existing styles to use variables */
 body {
-  font-family: Arial, sans-serif;
+	font-family: "Open Sans Hebrew", sans-serif;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: subpixel-antialiased;
+	font-weight: 400;
+	-webkit-print-color-adjust: exact;
+	-moz-print-color-adjust: exact;
+	print-color-adjust: exact;
+	font-size: 15px;
+	line-height: 1.7;
+
+
 	margin: 0;
   padding: 0px;
   direction: rtl;
