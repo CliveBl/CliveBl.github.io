@@ -258,6 +258,11 @@ function setFieldError(field) {
     if (field) {
         field.classList.remove("changed");
         field.classList.add("error");
+        // set focus to the field and select the text if it is an input	
+        if (field instanceof HTMLInputElement) {
+            field.focus();
+            field.select();
+        }
     }
 }
 function setFieldChanged(field) {
