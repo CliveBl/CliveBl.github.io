@@ -24,6 +24,7 @@ const friendlyNames = {
     releaseDate: "תאריך שחרור",
     numberOfServiceMonths: "חודשי שרות",
     NONE: "בוחר",
+    monthsOfEmploymentInteger: "חודשי עבודה",
     ReceivedFromNI_196_194: "התקבל מהמוסד לביטוח לאומי",
     Salary_172_158: "שכר עבודה",
     LeavingBonus_272_258: "מענק פרישה",
