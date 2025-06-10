@@ -1933,6 +1933,7 @@ a:not(.submit-instructions-button):visited {
 .field-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 5px;
   width: 100%;
   margin-bottom: 5px;
@@ -1995,6 +1996,7 @@ a:not(.submit-instructions-button):visited {
   border: 1px solid var(--gray);
   background-color: var(--bg-color);
   color: var(--text-color);
+  height: 20px;
   max-width: 100px;
 }
 .field-input.changed {
