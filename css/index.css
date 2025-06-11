@@ -2419,3 +2419,42 @@ margin-top: 15px;
 	background-color: var(--border-color);
 	cursor: not-allowed;
 }
+
+.google-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #fff;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.google-login:hover {
+    background-color: #f8f9fa;
+}
+
+.google-login img {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+}
+
+.google-login span {
+    color: #3c4043;
+    font-family: 'Google Sans', 'Open Sans Hebrew', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 20px;
+}

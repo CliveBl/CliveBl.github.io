@@ -138,39 +138,35 @@ async function signInAnonymous() {
         throw error;
     }
 }
-// Update signIn function
+async function handleLoginResponse(response) {
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+    }
+    const data = await response.json();
+    // Store the JWT token from the cookie
+    // The token is automatically stored in cookies by the backend
+    // Update UI
+    updateSignInUI();
+    // Load user data
+    await loadExistingFiles();
+    return data;
+}
 async function signIn(email, password) {
     try {
-        const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
-            method: "POST",
+        const response = await fetch('/auth/signIn', {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
-            credentials: "include",
-            body: JSON.stringify({
-                email: email,
-                password: password,
-            }),
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
         });
-        if (!response.ok) {
-            const errorData = await response.json();
-            debug("Sign in error response:", errorData);
-            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-        }
-        const text = await response.text();
-        debug("Raw response:", text);
-        if (!text) {
-            throw new Error("Empty response from server");
-        }
-        const result = JSON.parse(text);
-        userEmailValue = result.email;
-        signedIn = result.expirationTime;
-        updateSignInUI();
-        return;
+        return await handleLoginResponse(response);
     }
     catch (error) {
-        console.error("Sign in failed:", error);
-        debug("Sign in error details:", error);
+        console.error('Error signing in:', error);
+        addMessage('שגיאה בהתחברות', 'error');
         throw error;
     }
 }
@@ -1802,6 +1798,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     // Initialize the file list view
     updateFileListView();
+    // Check for Google OAuth2 callback
+    checkForGoogleCallback();
 });
 // Function to validate email format
 function isValidEmail(email) {
@@ -2126,5 +2124,61 @@ function toggleFileListView() {
     localStorage.setItem("editableFileList", editableFileList.toString());
     updateFileListView();
     loadExistingFiles();
+}
+async function signInWithGoogle() {
+    try {
+        // Get the Google login URL from the backend
+        const response = await fetch(`${AUTH_BASE_URL}/google/login`);
+        if (!response.ok) {
+            throw new Error('Failed to get Google login URL');
+        }
+        const loginUrl = await response.text();
+        // Redirect to Google login page
+        window.location.href = loginUrl;
+    }
+    catch (error) {
+        console.error('Error initiating Google login:', error);
+        addMessage('שגיאה בהתחברות עם Google', 'error');
+    }
+}
+// ... existing code ...
+// Add event listener for Google login button
+document.addEventListener('DOMContentLoaded', () => {
+    const googleLoginButton = document.querySelector('.google-login');
+    if (googleLoginButton) {
+        googleLoginButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            signInWithGoogle();
+        });
+    }
+});
+// ... existing code ...
+// Add function to check for Google OAuth2 callback
+function checkForGoogleCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    if (code && state) {
+        // We're in the OAuth2 callback
+        handleGoogleCallback();
+    }
+}
+async function handleGoogleCallback() {
+    try {
+        // The backend will handle the OAuth2 callback and set the JWT cookie
+        // We just need to update the UI
+        updateSignInUI();
+        await loadExistingFiles();
+        // Remove the OAuth2 parameters from the URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('code');
+        url.searchParams.delete('state');
+        window.history.replaceState({}, '', url);
+        addMessage('התחברת בהצלחה עם Google', 'success');
+    }
+    catch (error) {
+        console.error('Error handling Google callback:', error);
+        addMessage('שגיאה בהתחברות עם Google', 'error');
+    }
 }
 //# sourceMappingURL=index.js.map
