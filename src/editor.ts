@@ -185,17 +185,23 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
 
   const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
 
+  // Update regular fields
   accordionBody.querySelectorAll("input[data-field-name],select[data-field-name],div[data-field-name]:not(.item-container input)").forEach((htmlElement: Element) => {
-    const fieldName = htmlElement.getAttribute("data-field-name") as string;
-    const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
-    const fieldValue = getControlValue(htmlElement as HTMLElement, fieldName);
-    if (isField) {
-      updatedData.fields[fieldName] = fieldValue;
-    } else if (fieldName in fileData) {
-      updatedData[fieldName] = fieldValue;
-    }
+	// Check the ancestors of the htmlElement are not item containers. We update those later.
+	const isInItemContainer = htmlElement.closest(".item-container") !== null;
+	if (!isInItemContainer) {
+		const fieldName = htmlElement.getAttribute("data-field-name") as string;
+		const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
+		const fieldValue = getControlValue(htmlElement as HTMLElement, fieldName);
+		if (isField) {
+		updatedData.fields[fieldName] = fieldValue;
+		} else if (fieldName in fileData) {
+		updatedData[fieldName] = fieldValue;
+		}
+	}
   });
 
+  // Update header fields
   const headerContainer = accordionBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
   if (headerContainer) {
     headerContainer.querySelectorAll("input[data-field-name]").forEach((htmlElement: Element) => {
@@ -205,7 +211,7 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
     });
   }
 
-  // Iterate over all item container titles and get the item array name.
+  // Update item containers
   const itemTitles: HTMLDivElement[] = Array.from(accordionBody.querySelectorAll(".item-title"));
   for (const itemTitle of itemTitles) {
     const itemArrayName: string = itemTitle.getAttribute("name") || "";
