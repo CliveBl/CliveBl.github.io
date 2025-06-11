@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
 
-const uiVersion = "0.54";
+const uiVersion = "0.55";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -2429,7 +2429,7 @@ function checkForGoogleCallback() {
 async function handleGoogleCallback() {
     try {
         // Get the response from the callback endpoint
-        const response = await fetch(`${AUTH_BASE_URL}/auth/google/callback`, {
+        const response = await fetch(`${AUTH_BASE_URL}/google/callback`, {
             credentials: 'include'  // Important for receiving the cookie
         });
 
