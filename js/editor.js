@@ -264,7 +264,7 @@ function setFieldError(field) {
     if (field) {
         field.classList.remove("changed");
         field.classList.add("error");
-        // set focus to the field and select the text if it is an input	
+        // set focus to the field and select the text if it is an input
         if (field instanceof HTMLInputElement) {
             field.focus();
             field.select();
@@ -537,6 +537,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             return responseData;
         }
         catch (error) {
+            clearMessages();
             addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
         }
     }

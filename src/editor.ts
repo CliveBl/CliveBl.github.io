@@ -4,7 +4,7 @@ import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyF
 /* ********************************************************** Generic modal ******************************************************************** */
 
 function makeUniqueId() {
-	return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+  return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 function customerMessageModal({
@@ -187,18 +187,18 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
 
   // Update regular fields
   accordionBody.querySelectorAll("input[data-field-name],select[data-field-name],div[data-field-name]:not(.item-container input)").forEach((htmlElement: Element) => {
-	// Check the ancestors of the htmlElement are not item containers. We update those later.
-	const isInItemContainer = htmlElement.closest(".item-container") !== null;
-	if (!isInItemContainer) {
-		const fieldName = htmlElement.getAttribute("data-field-name") as string;
-		const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
-		const fieldValue = getControlValue(htmlElement as HTMLElement, fieldName);
-		if (isField) {
-		updatedData.fields[fieldName] = fieldValue;
-		} else if (fieldName in fileData) {
-		updatedData[fieldName] = fieldValue;
-		}
-	}
+    // Check the ancestors of the htmlElement are not item containers. We update those later.
+    const isInItemContainer = htmlElement.closest(".item-container") !== null;
+    if (!isInItemContainer) {
+      const fieldName = htmlElement.getAttribute("data-field-name") as string;
+      const isField = formDetails.fieldTypes?.find((field) => field === fieldName) !== undefined;
+      const fieldValue = getControlValue(htmlElement as HTMLElement, fieldName);
+      if (isField) {
+        updatedData.fields[fieldName] = fieldValue;
+      } else if (fieldName in fileData) {
+        updatedData[fieldName] = fieldValue;
+      }
+    }
   });
 
   // Update header fields
@@ -306,11 +306,11 @@ function setFieldError(field: HTMLElement) {
   if (field) {
     field.classList.remove("changed");
     field.classList.add("error");
-	// set focus to the field and select the text if it is an input	
-	if (field instanceof HTMLInputElement) {
-		field.focus();
-		field.select();
-	}
+    // set focus to the field and select the text if it is an input
+    if (field instanceof HTMLInputElement) {
+      field.focus();
+      field.select();
+    }
   }
 }
 
@@ -326,7 +326,7 @@ function setFieldChanged(field: HTMLElement) {
 function setFieldNotChanged(field: HTMLElement) {
   if (field) {
     field.classList.remove("changed");
-	field.classList.remove("error");
+    field.classList.remove("error");
   }
 }
 
@@ -618,8 +618,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       // Parse and handle the response
       const responseData = await response.json();
-       return responseData;
+      return responseData;
     } catch (error: any) {
+      clearMessages();
       addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
     }
   }
@@ -827,7 +828,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           radioButton.type = "radio";
           radioButton.value = option;
           const name = getFriendlyOptionName(key);
-		  // Must have a unique name so that it doesnt get mixed up with other forms.
+          // Must have a unique name so that it doesnt get mixed up with other forms.
           radioButton.name = `${fileData.fileId}_${name}`;
           //radioButton.id = name + option;
           radioButton.checked = fieldValue.value === option;
@@ -1108,8 +1109,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     ];
     // Clear changed class from all inputs and controls
     allElements.forEach((element) => {
-		element.classList.remove("changed");
-		element.classList.remove("error");
+      element.classList.remove("changed");
+      element.classList.remove("error");
     });
     // Disable save and cancel buttons
     accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
@@ -1216,14 +1217,14 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       const input = document.createElement("input") as HTMLInputElement;
       input.setAttribute("data-field-name", fieldName);
       input.className = "header-input";
-	  if(!isEditable) {
-		input.readOnly = true;
-		input.tabIndex = -1;
-		input.onfocus = () => {
-			input.blur();
-		};
-		input.classList.add("read-only");
-	  }
+      if (!isEditable) {
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.onfocus = () => {
+          input.blur();
+        };
+        input.classList.add("read-only");
+      }
       const fieldId = makeUniqueId();
       input.id = fieldId;
       headerFieldlabel.setAttribute("for", fieldId);
@@ -1329,15 +1330,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         if (formIndex !== -1) {
           const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
           if (backupFormIndex !== -1) {
-			// Replace the form in the allFilesData array with the form in the backupAllFilesData array
+            // Replace the form in the allFilesData array with the form in the backupAllFilesData array
             backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
-			// Update the display
-			renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
+            // Update the display
+            renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
           }
         }
         clearChanged(accordianBody);
         fileModifiedActions(editableFileListHasEntries());
-		clearMessages();
+        clearMessages();
         addMessage("נתונים נשמרו בהצלחה", "success");
       }
     };
