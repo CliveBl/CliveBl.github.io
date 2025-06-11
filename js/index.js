@@ -2157,7 +2157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkForGoogleCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    const state = urlParams.get('state');
+    const state = true; /*urlParams.get('state');*/
     if (code && state) {
         // We're in the OAuth2 callback
         handleGoogleCallback();
@@ -2165,7 +2165,14 @@ function checkForGoogleCallback() {
 }
 async function handleGoogleCallback() {
     try {
-        // The backend will handle the OAuth2 callback and set the JWT cookie
+        // Get the response from the callback endpoint
+        const response = await fetch(`${AUTH_BASE_URL}/auth/google/callback`, {
+            credentials: 'include' // Important for receiving the cookie
+        });
+        if (!response.ok) {
+            throw new Error('Failed to complete Google login');
+        }
+        const data = await response.json(); // The backend will handle the OAuth2 callback and set the JWT cookie
         // We just need to update the UI
         updateSignInUI();
         await loadExistingFiles();
