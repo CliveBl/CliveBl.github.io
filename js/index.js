@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
-const uiVersion = "0.55";
+const uiVersion = "0.56";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -154,19 +154,36 @@ async function handleLoginResponse(response) {
 }
 async function signIn(email, password) {
     try {
-        const response = await fetch('/auth/signIn', {
-            method: 'POST',
+        const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include'
+            credentials: "include",
+            body: JSON.stringify({
+                email: email,
+                password: password,
+            }),
         });
-        return await handleLoginResponse(response);
+        if (!response.ok) {
+            const errorData = await response.json();
+            debug("Sign in error response:", errorData);
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
+        }
+        const text = await response.text();
+        debug("Raw response:", text);
+        if (!text) {
+            throw new Error("Empty response from server");
+        }
+        const result = JSON.parse(text);
+        userEmailValue = result.email;
+        signedIn = result.expirationTime;
+        updateSignInUI();
+        return;
     }
     catch (error) {
-        console.error('Error signing in:', error);
-        addMessage('שגיאה בהתחברות', 'error');
+        console.error("Sign in failed:", error);
+        debug("Sign in error details:", error);
         throw error;
     }
 }
@@ -1737,7 +1754,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     // Update form creation select elements according to the form types
     const createFormSelect = document.getElementById("createFormSelect");
-    createFormSelect.innerHTML = `<option value="">צור טופס חדש</option>`;
+    createFormSelect.innerHTML = `<option value="">צור מסמך חדש</option>`;
     // Add the form types that the user can add only if the userCanAdd is true
     if (configurationData != null) {
         createFormSelect.innerHTML += configurationData.formTypes
@@ -2130,23 +2147,23 @@ async function signInWithGoogle() {
         // Get the Google login URL from the backend
         const response = await fetch(`${AUTH_BASE_URL}/google/login`);
         if (!response.ok) {
-            throw new Error('Failed to get Google login URL');
+            throw new Error("Failed to get Google login URL");
         }
         const loginUrl = await response.text();
         // Redirect to Google login page
         window.location.href = loginUrl;
     }
     catch (error) {
-        console.error('Error initiating Google login:', error);
-        addMessage('שגיאה בהתחברות עם Google', 'error');
+        console.error("Error initiating Google login:", error);
+        addMessage("שגיאה בהתחברות עם Google", "error");
     }
 }
 // ... existing code ...
 // Add event listener for Google login button
-document.addEventListener('DOMContentLoaded', () => {
-    const googleLoginButton = document.querySelector('.google-login');
+document.addEventListener("DOMContentLoaded", () => {
+    const googleLoginButton = document.querySelector(".google-login");
     if (googleLoginButton) {
-        googleLoginButton.addEventListener('click', (e) => {
+        googleLoginButton.addEventListener("click", (e) => {
             e.preventDefault();
             signInWithGoogle();
         });
@@ -2156,7 +2173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Add function to check for Google OAuth2 callback
 function checkForGoogleCallback() {
     const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
+    const code = urlParams.get("code");
     const state = true; /*urlParams.get('state');*/
     if (code && state) {
         // We're in the OAuth2 callback
@@ -2165,27 +2182,33 @@ function checkForGoogleCallback() {
 }
 async function handleGoogleCallback() {
     try {
-        // Get the response from the callback endpoint
-        const response = await fetch(`${AUTH_BASE_URL}/google/callback`, {
-            credentials: 'include' // Important for receiving the cookie
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
+        const state = url.searchParams.get("state");
+        if (!code || !state) {
+            throw new Error("Missing code or state parameter");
+        }
+        // Send the code and state to the backend
+        const response = await fetch(`${AUTH_BASE_URL}/auth/google/callback?code=${code}&state=${state}`, {
+            method: "GET",
+            credentials: "include", // Important for receiving the cookie
         });
         if (!response.ok) {
-            throw new Error('Failed to complete Google login');
+            throw new Error("Failed to complete Google login");
         }
-        const data = await response.json(); // The backend will handle the OAuth2 callback and set the JWT cookie
-        // We just need to update the UI
+        const data = await response.json();
+        // Update UI with user info
         updateSignInUI();
         await loadExistingFiles();
         // Remove the OAuth2 parameters from the URL
-        const url = new URL(window.location.href);
-        url.searchParams.delete('code');
-        url.searchParams.delete('state');
-        window.history.replaceState({}, '', url);
-        addMessage('התחברת בהצלחה עם Google', 'success');
+        url.searchParams.delete("code");
+        url.searchParams.delete("state");
+        window.history.replaceState({}, "", url);
+        addMessage("התחברת בהצלחה עם Google", "success");
     }
     catch (error) {
-        console.error('Error handling Google callback:', error);
-        addMessage('שגיאה בהתחברות עם Google', 'error');
+        console.error("Error handling Google callback:", error);
+        addMessage("שגיאה בהתחברות עם Google", "error");
     }
 }
 //# sourceMappingURL=index.js.map

@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
 
-const uiVersion = "0.55";
+const uiVersion = "0.56";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -82,13 +82,13 @@ export function updateButtons(hasEntries: boolean) {
 }
 
 function updateFileListP(fileInfoList: FileInfo[]) {
-	// // Deep copy the fileInfoList
-	// const fileInfoListCopy = structuredClone(fileInfoList);
-	// // Filter so that only document type "טופס 867" are included
-	// const fileInfoCGT = fileInfoListCopy.filter((file) => file.documentType === "טופס 867");
-	// // Sort the array by fileName from after the /
-	// fileInfoCGT.sort((a, b) => a.fileName.split("/").pop()!.localeCompare(b.fileName.split("/").pop()!));
-	// debug("CGT forms",fileInfoCGT);
+  // // Deep copy the fileInfoList
+  // const fileInfoListCopy = structuredClone(fileInfoList);
+  // // Filter so that only document type "טופס 867" are included
+  // const fileInfoCGT = fileInfoListCopy.filter((file) => file.documentType === "טופס 867");
+  // // Sort the array by fileName from after the /
+  // fileInfoCGT.sort((a, b) => a.fileName.split("/").pop()!.localeCompare(b.fileName.split("/").pop()!));
+  // debug("CGT forms",fileInfoCGT);
   if (editableFileList) {
     displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false);
     updateButtons(editableFileListHasEntries());
@@ -168,42 +168,61 @@ async function signInAnonymous() {
 }
 
 async function handleLoginResponse(response: Response) {
-    if (!response.ok) {
-        const errorData = await response.json();
+  if (!response.ok) {
+    const errorData = await response.json();
         throw new Error(errorData.message || 'Login failed');
-    }
+  }
 
-    const data = await response.json();
-    
-    // Store the JWT token from the cookie
-    // The token is automatically stored in cookies by the backend
-    
-    // Update UI
-    updateSignInUI();
-    
-    // Load user data
-    await loadExistingFiles();
-    
-    return data;
+  const data = await response.json();
+
+  // Store the JWT token from the cookie
+  // The token is automatically stored in cookies by the backend
+
+  // Update UI
+  updateSignInUI();
+
+  // Load user data
+  await loadExistingFiles();
+
+  return data;
 }
 
 async function signIn(email: string, password: string) {
-    try {
-        const response = await fetch('/auth/signIn', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include'
-        });
+  try {
+    const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    });
 
-        return await handleLoginResponse(response);
-    } catch (error) {
-        console.error('Error signing in:', error);
-        addMessage('שגיאה בהתחברות', 'error');
-        throw error;
+    if (!response.ok) {
+      const errorData = await response.json();
+      debug("Sign in error response:", errorData);
+      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
     }
+
+    const text = await response.text();
+    debug("Raw response:", text);
+    if (!text) {
+      throw new Error("Empty response from server");
+    }
+
+    const result = JSON.parse(text);
+    userEmailValue = result.email;
+    signedIn = result.expirationTime;
+    updateSignInUI();
+    return;
+  } catch (error) {
+    console.error("Sign in failed:", error);
+    debug("Sign in error details:", error);
+    throw error;
+  }
 }
 
 function updateSignInUI() {
@@ -642,8 +661,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   if (messageCode) {
     // Eliminate the message code from the text
     messageText.textContent = text.replace(`^${messageCode} `, "");
-  }
-  else{
+  } else {
     messageText.textContent = text;
   }
 
@@ -680,17 +698,15 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       }
       // Make the messageDiv a clickable link to the fileItem
       messageText.addEventListener("click", () => {
-		if(!editableFileList)
-		{
-			// switch to the editable file list view
-			editableFileList = true;
-			updateFileListView();
-		}
+        if (!editableFileList) {
+          // switch to the editable file list view
+          editableFileList = true;
+          updateFileListView();
+        }
         openFileListEntryP(fileName, property);
       });
     }
   }
-
 
   // Scroll to the bottom of the page if type is not "success" or "info"
   if (type !== "success" && type !== "info" && scrollToMessageSection) {
@@ -1401,14 +1417,14 @@ function addFileToList(fileInfo: any) {
       if (yearContainer) {
         // Remove the file item
         li.remove();
-        
+
         // If this was the last file in the year container, remove the year container too
         const yearBody = yearContainer.querySelector('.date-accordion-body');
         if (yearBody && yearBody.children.length === 0) {
           yearContainer.remove();
         }
       }
-      
+
       fileModifiedActions(fileList.children.length > 0);
     } catch (error: unknown) {
       console.error("Delete failed:", error);
@@ -1951,7 +1967,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Update form creation select elements according to the form types
   const createFormSelect = document.getElementById("createFormSelect") as HTMLSelectElement;
-  createFormSelect.innerHTML = `<option value="">צור טופס חדש</option>`;
+  createFormSelect.innerHTML = `<option value="">צור מסמך חדש</option>`;
   // Add the form types that the user can add only if the userCanAdd is true
   if (configurationData != null) {
     createFormSelect.innerHTML += configurationData.formTypes
@@ -2383,74 +2399,83 @@ function toggleFileListView() {
 }
 
 async function signInWithGoogle() {
-    try {
-        // Get the Google login URL from the backend
-        const response = await fetch(`${AUTH_BASE_URL}/google/login`);
-        if (!response.ok) {
-            throw new Error('Failed to get Google login URL');
-        }
-        const loginUrl = await response.text();
-        
-        // Redirect to Google login page
-        window.location.href = loginUrl;
-    } catch (error) {
-        console.error('Error initiating Google login:', error);
-        addMessage('שגיאה בהתחברות עם Google', 'error');
+  try {
+    // Get the Google login URL from the backend
+    const response = await fetch(`${AUTH_BASE_URL}/google/login`);
+    if (!response.ok) {
+      throw new Error("Failed to get Google login URL");
     }
+    const loginUrl = await response.text();
+
+    // Redirect to Google login page
+    window.location.href = loginUrl;
+  } catch (error) {
+    console.error("Error initiating Google login:", error);
+    addMessage("שגיאה בהתחברות עם Google", "error");
+  }
 }
 
 // ... existing code ...
 
 // Add event listener for Google login button
-document.addEventListener('DOMContentLoaded', () => {
-    const googleLoginButton = document.querySelector('.google-login');
-    if (googleLoginButton) {
-        googleLoginButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            signInWithGoogle();
-        });
-    }
+document.addEventListener("DOMContentLoaded", () => {
+  const googleLoginButton = document.querySelector(".google-login");
+  if (googleLoginButton) {
+    googleLoginButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      signInWithGoogle();
+    });
+  }
 });
 
 // ... existing code ...
 
 // Add function to check for Google OAuth2 callback
 function checkForGoogleCallback() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = true; /*urlParams.get('state');*/
-    
-    if (code && state) {
-        // We're in the OAuth2 callback
-        handleGoogleCallback();
-    }
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
+  const state = true; /*urlParams.get('state');*/
+
+  if (code && state) {
+    // We're in the OAuth2 callback
+    handleGoogleCallback();
+  }
 }
 
 async function handleGoogleCallback() {
-    try {
-        // Get the response from the callback endpoint
-        const response = await fetch(`${AUTH_BASE_URL}/google/callback`, {
-            credentials: 'include'  // Important for receiving the cookie
-        });
+  try {
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
 
-        if (!response.ok) {
-            throw new Error('Failed to complete Google login');
-        }
-
-        const data = await response.json();        // The backend will handle the OAuth2 callback and set the JWT cookie
-        // We just need to update the UI
-        updateSignInUI();
-        await loadExistingFiles();
-        
-        // Remove the OAuth2 parameters from the URL
-        const url = new URL(window.location.href);
-        url.searchParams.delete('code');
-        url.searchParams.delete('state');
-        window.history.replaceState({}, '', url);
-        
-        addMessage('התחברת בהצלחה עם Google', 'success');
-    } catch (error) {
-        console.error('Error handling Google callback:', error);
-        addMessage('שגיאה בהתחברות עם Google', 'error');
+    if (!code || !state) {
+      throw new Error("Missing code or state parameter");
     }
+
+    // Send the code and state to the backend
+    const response = await fetch(`${AUTH_BASE_URL}/auth/google/callback?code=${code}&state=${state}`, {
+      method: "GET",
+      credentials: "include", // Important for receiving the cookie
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to complete Google login");
+    }
+
+    const data = await response.json();
+
+    // Update UI with user info
+    updateSignInUI();
+    await loadExistingFiles();
+
+    // Remove the OAuth2 parameters from the URL
+    url.searchParams.delete("code");
+    url.searchParams.delete("state");
+    window.history.replaceState({}, "", url);
+
+    addMessage("התחברת בהצלחה עם Google", "success");
+  } catch (error) {
+    console.error("Error handling Google callback:", error);
+    addMessage("שגיאה בהתחברות עם Google", "error");
+  }
 }

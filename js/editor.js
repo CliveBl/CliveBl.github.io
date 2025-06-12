@@ -1,4 +1,4 @@
-import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
@@ -583,13 +583,29 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             input.maxLength = 50;
             input.value = fieldValue.value;
         }
-        else if (key.endsWith("Number")) {
+        else if (key.endsWith("IdentificationNumber")) {
             input.type = "text";
             input.maxLength = 9;
             input.pattern = "\\d{9}";
             input.value = fieldValue.value;
             input.oninput = () => {
                 input.value = input.value.replace(/\D/g, "").slice(0, 9);
+            };
+            input.onblur = () => {
+                input.value = input.value.padStart(9, "0");
+            };
+        }
+        else if (key.endsWith("Number")) {
+            debug("Number", key, fieldValue.value);
+            input.type = "text";
+            input.maxLength = 9;
+            input.pattern = "\\d{9}";
+            input.value = fieldValue.value;
+            input.oninput = () => {
+                input.value = input.value.replace(/\D/g, "").slice(0, 9);
+            };
+            input.onblur = () => {
+                input.value = input.value.padStart(9, "0");
             };
         }
         else if (key.endsWith("taxYear")) {

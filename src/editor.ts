@@ -671,13 +671,28 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 50;
       input.value = fieldValue.value;
-    } else if (key.endsWith("Number")) {
+    } else if (key.endsWith("IdentificationNumber")) {
       input.type = "text";
       input.maxLength = 9;
       input.pattern = "\\d{9}";
       input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 9);
+      };
+      input.onblur = () => {
+        input.value = input.value.padStart(9, "0");
+      };
+    } else if (key.endsWith("Number")) {
+      debug("Number", key, fieldValue.value);
+      input.type = "text";
+      input.maxLength = 9;
+      input.pattern = "\\d{9}";
+      input.value = fieldValue.value;
+      input.oninput = () => {
+        input.value = input.value.replace(/\D/g, "").slice(0, 9);
+      };
+      input.onblur = () => {
+        input.value = input.value.padStart(9, "0");
       };
     } else if (key.endsWith("taxYear")) {
       input.type = "text";
