@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField } from "./constants.js";
-const uiVersion = "0.56";
+const uiVersion = "0.57";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -1623,13 +1623,14 @@ function displayTaxCalculation(result, year, shouldScroll = false) {
     table.appendChild(thead);
     // Add table body
     const tbody = document.createElement("tbody");
-    result.forEach((row) => {
+    result.forEach((row, index) => {
         const tr = document.createElement("tr");
+        const isLastRow = index === result.length - 1;
         tr.innerHTML = `
           <td>${row.title}</td>
           <td>${row.spouse?.trim() || ""}</td>
           <td>${row.registered?.trim() || ""}</td>
-          <td>${row.total?.trim() || ""}</td>
+          <td class="${isLastRow ? 'highlighted-cell' : ''}">${row.total?.trim() || ""}</td>
         `;
         tbody.appendChild(tr);
     });

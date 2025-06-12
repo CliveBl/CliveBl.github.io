@@ -37,6 +37,9 @@
   --disabled-text: #95a5a6;
   --hover-overlay: rgba(52, 152, 219, 0.1);
   --white-overlay: rgba(255, 255, 255, 0.5);
+  --highlight-bg: #e6f3ff;
+  --highlight-text: #0066cc;
+  --highlight-border: #0066cc;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -78,6 +81,9 @@
     --disabled-text: #7f8c8d;
     --hover-overlay: rgba(52, 152, 219, 0.1);
     --white-overlay: rgba(255, 255, 255, 0.5);
+    --highlight-bg: #1a3d5c;
+    --highlight-text: #66b3ff;
+    --highlight-border: #66b3ff;
   }
 }
 
@@ -2457,4 +2463,13 @@ margin-top: 15px;
     gap: 10px;
     width: 100%;
     margin-top: 20px;
+}
+
+.highlighted-cell {
+  background-color: var(--highlight-bg);
+  font-weight: bold;
+  color: var(--highlight-text);
+  border: 2px solid var(--highlight-border);
+  padding: 8px;
+  border-radius: 4px;
 }
