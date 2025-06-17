@@ -39,6 +39,7 @@ const friendlyNames = {
   Donations_237_037: "תרומות",
   NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
   TemporarySalaryReductionRecuperationFund_012_011: "השתתפות זמנית הפחתת דמי הבראה",
+  TaxFreeSalary_309_109: "שכר פטור ממס לאנשים עם מגבלות של 100%",
   PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
   SettlementDiscount_327_287: "הנחה ישוב",
   ShiftAllowance_069_068: "תוספת משמרות",
@@ -157,4 +158,21 @@ const exceptionalIntegerFieldNames = [
 ];
 export function isExceptionalIntegerField(fieldName: string) {
   return exceptionalIntegerFieldNames.includes(fieldName);
+}
+
+export function isFieldValidForTaxYear(fieldName: string, taxYear: number) {
+  if (fieldName === "TemporarySalaryReductionRecuperationFund_012_011" && taxYear < 2024) {
+    return false;
+  }
+  return true;
+}
+
+const hideIdentity = false;
+
+export function dummyName(name: string) {
+  return hideIdentity ? "משה בן דוד" : name;
+}
+
+export function dummyIdNumber(idNumber: string) {
+  return hideIdentity ? "123456789" : idNumber;
 }

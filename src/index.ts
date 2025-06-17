@@ -1,6 +1,6 @@
-import { getFriendlyName, isCurrencyField } from "./constants.js";
+import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
 
-const uiVersion = "0.57";
+const uiVersion = "0.58";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1582,7 +1582,13 @@ function addFileToList(fileInfo: any) {
         // Regular field
         const field = document.createElement("div") as HTMLDivElement;
         field.className = "fileitem-field-label";
-        field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value}`;
+        if (key.endsWith("Name")) {
+          field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${dummyName(String(value))}`;
+        } else if (key.endsWith("IdentificationNumber")) {
+          field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${dummyIdNumber(String(value))}`;
+        } else {
+          field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value}`;
+        }
         accordionContent.appendChild(field);
       }
     }
@@ -1813,7 +1819,7 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
         <tr>
           <th>פרטים</th>
           <th>בן/בת זוג</th>
-          <th>בן זוג רשום</th>
+          <th>בן/בת זוג רשום</th>
           <th>סה"כ</th>
         </tr>
       `;
@@ -2401,15 +2407,19 @@ function toggleFileListView() {
 
 async function signInWithGoogle() {
   try {
-    // Get the Google login URL from the backend
-    const response = await fetch(`${AUTH_BASE_URL}/google/login`);
-    if (!response.ok) {
-      throw new Error("Failed to get Google login URL");
-    }
-    const loginUrl = await response.text();
+    // Get the Google login URL from the backend. Call with the parameter $AUTH_BASE_URL
+    //const response = await fetch(`${AUTH_BASE_URL}/google/login?redirect_base_uri=${encodeURIComponent(window.location.origin)}`);
+    const url = AUTH_BASE_URL.replace("auth", "oauth2/authorization/google");
+    debug("url:", url);
+    window.location.href = url;
+    // const response = await fetch(url);
+    // if (!response.ok) {
+    //   throw new Error("Failed to get Google login URL");
+    // }
+    // const loginUrl = await response.text();
 
-    // Redirect to Google login page
-    window.location.href = loginUrl;
+    // // Redirect to Google login page
+    // window.location.href = loginUrl;
   } catch (error) {
     console.error("Error initiating Google login:", error);
     addMessage("שגיאה בהתחברות עם Google", "error");
@@ -2439,7 +2449,7 @@ function checkForGoogleCallback() {
 
   if (code && state) {
     // We're in the OAuth2 callback
-    handleGoogleCallback();
+    //handleGoogleCallback();
   }
 }
 

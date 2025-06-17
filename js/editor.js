@@ -1,6 +1,6 @@
 import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages } from "./index.js";
 import { API_BASE_URL } from "./env.js";
-import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField } from "./constants.js";
+import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 function makeUniqueId() {
     return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
@@ -575,7 +575,12 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 input.className = "field-text-input";
             input.type = "text";
             input.maxLength = 30;
-            input.value = fieldValue.value;
+            if (key.endsWith("clientName")) {
+                input.value = dummyName(fieldValue.value);
+            }
+            else {
+                input.value = fieldValue.value;
+            }
         }
         else if (key.endsWith("Text")) {
             input.className = "field-text-input";
@@ -587,7 +592,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             input.type = "text";
             input.maxLength = 9;
             input.pattern = "\\d{9}";
-            input.value = fieldValue.value;
+            input.value = dummyIdNumber(fieldValue.value);
             input.oninput = () => {
                 input.value = input.value.replace(/\D/g, "").slice(0, 9);
             };
@@ -848,6 +853,11 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         else {
             // Process nested fields inside `fileData.fields` (thinner border)
             Object.entries(fileData.fields || {}).forEach(([key, value]) => {
+                const v = value || "";
+                if (!isFieldValidForTaxYear(key, fileData.taxYear) && v === "0.00") {
+                    //debug("field " + key + " value " + v + " type " + (value as any).type + " is not valid for tax year " + fileData.taxYear);
+                    return;
+                }
                 const fieldValue = {
                     type: "any",
                     value: value,
