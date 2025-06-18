@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="tax-day.ico">
+    <title>מצגת - דו"ח שנתי</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .presentation-container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .presentation-frame {
+            width: 100%;
+            height: 569px;
+            margin: 0 auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .presentation-frame {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <h1>מצגת הדו"ח השנתי</h1>
+        
+        <iframe 
+            src="https://docs.google.com/presentation/d/e/2PACX-1vT23lbi9MnJz3c4MPTSTDe9NG4M7BeZ8NxlVuq5waj2guRf5LeKBiuqcHR5vOxMyLYOwEjqJeNhXW8J/pubembed?start=true&loop=true&delayms=3000" 
+            frameborder="0" 
+            class="presentation-frame"
+            allowfullscreen="true" 
+            mozallowfullscreen="true" 
+            webkitallowfullscreen="true">
+        </iframe>
+        
+        <a href="index.html" class="back-link">חזרה לדף הבית</a>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+        </div>
+    </footer>
+</body>
+</html> 
