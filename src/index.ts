@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
 
-const uiVersion = "0.58";
+const uiVersion = "0.59";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -2429,15 +2429,15 @@ async function signInWithGoogle() {
 // ... existing code ...
 
 // Add event listener for Google login button
-document.addEventListener("DOMContentLoaded", () => {
-  const googleLoginButton = document.querySelector(".google-login");
-  if (googleLoginButton) {
-    googleLoginButton.addEventListener("click", (e) => {
-      e.preventDefault();
-      signInWithGoogle();
-    });
-  }
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   const googleLoginButton = document.querySelector(".google-login");
+//   if (googleLoginButton) {
+//     googleLoginButton.addEventListener("click", (e) => {
+//       e.preventDefault();
+//       signInWithGoogle();
+//     });
+//   }
+// });
 
 // ... existing code ...
 
