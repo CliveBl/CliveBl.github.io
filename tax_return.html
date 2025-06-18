@@ -69,7 +69,7 @@
         <h1>דו"ח שנתי - עשה זאת עצמך</h1>
         <div class="controls">
           <span id="userEmail" class="user-email"></span>
-          <button id="loginButton" class="login-button">התחברות</button>
+          <button id="loginButton" class="login-button" title="מומלץ ליצור חשבון כדי שתוכל לחזור לנתונים שלך מכל מקום">התחברות</button>
           <button id="signOutButton" class="logout-button" disabled>התנתק</button>
         </div>
       </div>
@@ -282,7 +282,7 @@
               <input type="file" id="folderInput" accept=".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png" webkitdirectory directory multiple />
               <label for="folderInput">העלאת תיקיי...</label>
               <select aria-label="Create Form" id="createFormSelect" class="form-select"></select>
-              <button id="deleteAllButton" class="delete-all-button" disabled>מחק הכל</button>
+              <button id="deleteAllButton" class="delete-all-button" disabled title="מוחק את כל הנתונים שהועלו - פעולה זו בלתי הפיכה">מחק הכל</button>
             </div>
             <div class="action-buttons"></div>
           </div>
@@ -291,7 +291,7 @@
         <!-- Add new message container -->
         <div id="messageContainer" class="message-container"></div>
         <div class="process-button-container">
-          <button id="processButton" class="process-button" disabled>עיבוד מסמכים</button>
+          <button id="processButton" class="process-button" disabled title="מעבד את כל המסמכים שהועלו ומייצר תוצאות">עיבוד מסמכים</button>
         </div>
         <!-- Update the results container structure -->
         <div id="resultsContainer" class="results-container">
