@@ -170,7 +170,7 @@ async function signInAnonymous() {
 async function handleLoginResponse(response: Response) {
   if (!response.ok) {
     const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+    throw new Error(errorData.message || "Login failed");
   }
 
   const data = await response.json();
@@ -589,6 +589,83 @@ async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInp
   return success;
 }
 
+// General password prompt modal function that returns a promise
+function showPasswordModal(fileName: string) {
+  return new Promise<string>((resolve) => {
+    const passwordMessage = document.getElementById("passwordMessage") as HTMLDivElement;
+    passwordMessage.textContent = `הקובץ ${fileName} מוגן בסיסמה. אנא הכנס את הסיסמה:`;
+
+    const modal = document.getElementById("passwordModal") as HTMLDivElement;
+    const passwordInput = document.getElementById("passwordInput") as HTMLInputElement;
+
+    // Create password toggle button if it doesn't exist
+    let toggleButton = modal.querySelector(".password-toggle") as HTMLButtonElement;
+    if (!toggleButton) {
+      toggleButton = document.createElement("button");
+      toggleButton.type = "button";
+      toggleButton.className = "password-toggle";
+      toggleButton.innerHTML = "👁️"; // Eye icon
+      toggleButton.title = "הצג/הסתר סיסמה";
+
+      // Insert the toggle button after the password input
+      const passwordContainer = passwordInput.parentElement;
+      if (passwordContainer) {
+        passwordContainer.style.position = "relative";
+        passwordContainer.appendChild(toggleButton);
+      }
+    }
+
+    // Add toggle functionality
+    let isPasswordVisible = false;
+    toggleButton.onclick = () => {
+      isPasswordVisible = !isPasswordVisible;
+      passwordInput.type = isPasswordVisible ? "text" : "password";
+      //toggleButton.innerHTML = isPasswordVisible ? "👁️" : "👁️"; // Change icon based on state
+    };
+
+    modal.style.display = "block";
+    passwordInput.value = ""; // Clear any previous value
+    passwordInput.type = "password"; // Ensure it starts as password type
+    passwordInput.focus();
+
+    // Handle confirm button
+    (modal.querySelector(".confirm-button") as HTMLButtonElement).onclick = () => {
+      const password = passwordInput.value.trim();
+      if (password) {
+        modal.style.display = "none";
+        resolve(password);
+      } else {
+        // Show error if password is empty
+        passwordInput.classList.add("error");
+        setTimeout(() => passwordInput.classList.remove("error"), 1000);
+      }
+    };
+
+    // Handle cancel button
+    (modal.querySelector(".cancel-button") as HTMLButtonElement).onclick = () => {
+      modal.style.display = "none";
+      resolve(""); // Return empty string to indicate cancellation
+    };
+
+    // Handle enter key
+    passwordInput.onkeydown = (e) => {
+      if (e.key === "Enter") {
+        (modal.querySelector(".confirm-button") as HTMLButtonElement).click();
+      } else if (e.key === "Escape") {
+        (modal.querySelector(".cancel-button") as HTMLButtonElement).click();
+      }
+    };
+
+    // Close if clicking outside
+    window.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+        resolve(""); // Return empty string to indicate cancellation
+      }
+    };
+  });
+}
+
 async function uploadFiles(validFiles: File[]) {
   let fileInfoList = null;
   for (const file of validFiles) {
@@ -602,33 +679,67 @@ async function uploadFiles(validFiles: File[]) {
           continue;
         }
       }
-      const formData = new FormData();
-      formData.append("file", newFile);
 
-      const metadata = {
-        customerDataEntryName: "Default",
-      };
-      formData.append(
-        "metadata",
-        new Blob([JSON.stringify(metadata)], {
-          type: "application/json",
-        })
-      );
+      // Try to upload the file, with password retry logic
+      let uploadSuccess = false;
+      let password = "";
 
-      const response = await fetch(`${API_BASE_URL}/uploadFile`, {
-        method: "POST",
-        headers: {},
-        credentials: "include",
-        body: formData,
-        ...fetchConfig,
-      });
+      while (!uploadSuccess) {
+        const formData = new FormData();
+        formData.append("file", newFile);
 
-      if (!(await handleResponse(response, "Upload file failed"))) {
-        return false;
+        const metadata = {
+          customerDataEntryName: "Default",
+          password: password, // Include password if provided
+        };
+        formData.append(
+          "metadata",
+          new Blob([JSON.stringify(metadata)], {
+            type: "application/json",
+          })
+        );
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/uploadFile`, {
+            method: "POST",
+            headers: {},
+            credentials: "include",
+            body: formData,
+            ...fetchConfig,
+          });
+
+          if (!(await handleResponse(response, "Upload file failed"))) {
+            return false;
+          }
+
+          fileInfoList = await response.json();
+          updateFileListP(fileInfoList);
+          uploadSuccess = true;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+
+          // Check if the error is about invalid password
+          if (errorMessage.includes("can not open an encrypted document") && errorMessage.includes("password is invalid")) {
+            // Prompt user for password
+            password = await showPasswordModal(file.name);
+
+            if (!password) {
+              // User cancelled password prompt
+              addMessage(`העלאת הקובץ ${file.name} בוטלה על ידי המשתמש`, "warning");
+              break; // Skip this file and continue with next
+            }
+
+            // Try again with the new password
+            continue;
+          } else {
+            // Other error, don't retry
+            console.error("Upload failed:", error);
+            clearMessages();
+            addMessage("שגיאה בהעלאת הקובץ: " + errorMessage, "error");
+            return false;
+          }
+        }
       }
-
-      fileInfoList = await response.json();
-      updateFileListP(fileInfoList);
     } catch (error) {
       console.error("Upload failed:", error);
       clearMessages();
@@ -636,12 +747,15 @@ async function uploadFiles(validFiles: File[]) {
       return false;
     }
   }
+
   // Count the error types in the fileInfoList
-  const errorTypes = fileInfoList.filter((fileInfo: { type: string }) => fileInfo.type === "FormError").length;
-  if (errorTypes > 0) {
-    addMessage(`הועלו ${validFiles.length} קבצים בהצלחה, מתוך ${fileInfoList.length} קבצים יש שגיאות ${errorTypes}`, "warning");
-  } else {
-    addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+  if (fileInfoList) {
+    const errorTypes = fileInfoList.filter((fileInfo: { type: string }) => fileInfo.type === "FormError").length;
+    if (errorTypes > 0) {
+      addMessage(`הועלו ${validFiles.length} קבצים בהצלחה, מתוך ${fileInfoList.length} קבצים יש שגיאות ${errorTypes}`, "warning");
+    } else {
+      addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+    }
   }
   return true;
 }
@@ -1114,7 +1228,8 @@ const docDetails = {
       },
       {
         title: "מתי מקבלים את הטופס?",
-        content: "המעסיק חייב להנפיק את הטופס עד סוף חודש מרץ בשנה העוקבת לשנת המס. אם אינך יכול לקבל אותו מהמעסיק שלך, תוכל למצוא אותו באיזור האישי שלך באתר המס האישי <a href='https://secapp.taxes.gov.il/logon/LogonPoint/tmindex.html'>כאן</a>.",
+        content:
+          "המעסיק חייב להנפיק את הטופס עד סוף חודש מרץ בשנה העוקבת לשנת המס. אם אינך יכול לקבל אותו מהמעסיק שלך, תוכל למצוא אותו באיזור האישי שלך באתר המס האישי <a href='https://secapp.taxes.gov.il/logon/LogonPoint/tmindex.html'>כאן</a>.",
       },
       {
         title: "מה כולל הטופס?",
@@ -1438,13 +1553,13 @@ function addFileToList(fileInfo: any) {
       }
 
       // Find the year accordion container that contains this file
-      const yearContainer = li.closest('.date-accordion-container');
+      const yearContainer = li.closest(".date-accordion-container");
       if (yearContainer) {
         // Remove the file item
         li.remove();
 
         // If this was the last file in the year container, remove the year container too
-        const yearBody = yearContainer.querySelector('.date-accordion-body');
+        const yearBody = yearContainer.querySelector(".date-accordion-body");
         if (yearBody && yearBody.children.length === 0) {
           yearContainer.remove();
         }
@@ -1859,7 +1974,7 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
           <td>${row.title}</td>
           <td>${row.spouse?.trim() || ""}</td>
           <td>${row.registered?.trim() || ""}</td>
-          <td class="${isLastRow ? 'highlighted-cell' : ''}">${row.total?.trim() || ""}</td>
+          <td class="${isLastRow ? "highlighted-cell" : ""}">${row.total?.trim() || ""}</td>
         `;
     tbody.appendChild(tr);
   });

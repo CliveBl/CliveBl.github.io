@@ -1,7 +1,6 @@
 import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages } from "./index.js";
 import { API_BASE_URL } from "./env.js";
-import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, 
-	isFieldValidForTaxYear, dummyName, dummyIdNumber } from "./constants.js";
+import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 
 function makeUniqueId() {
@@ -674,8 +673,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     } else if (key.endsWith("Text")) {
       input.className = "field-text-input";
       input.type = "text";
-      input.maxLength = 50;
-      input.value = fieldValue.value;
+      input.maxLength = 100;
+      if (fieldValue.value) {
+        input.value = fieldValue.value;
+        input.classList.add("value");
+      }
     } else if (key.endsWith("IdentificationNumber")) {
       input.type = "text";
       input.maxLength = 9;

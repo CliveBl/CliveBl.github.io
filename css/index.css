@@ -2018,8 +2018,13 @@ a:not(.submit-instructions-button):visited {
 	border: 1px solid var(--gray);
 	background-color: var(--bg-color);
 	color: var(--text-color);
-	width:300px;
+	width:360px;
 }
+
+.field-text-input.value {
+	background-color: var(--warning-bg);
+}
+
 .field-date-input {
 	flex: 0 0 120px;
 	padding: 0px;
@@ -2433,15 +2438,15 @@ margin-top: 15px;
     width: 100%;
     padding: 10px;
     margin: 10px 0;
-    background-color: #fff;
-    border: 1px solid #dadce0;
+    background-color: var(--button-text);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 .google-login:hover {
-    background-color: #f8f9fa;
+    background-color: var(--button-text-hover);
 }
 
 .google-login img {
@@ -2451,7 +2456,7 @@ margin-top: 15px;
 }
 
 .google-login span {
-    color: #3c4043;
+    color: var(--button-text);
     font-family: 'Google Sans', 'Open Sans Hebrew', sans-serif;
     font-size: 14px;
     font-weight: 500;
@@ -2472,4 +2477,80 @@ margin-top: 15px;
   border: 2px solid var(--highlight-border);
   padding: 8px;
   border-radius: 4px;
+}
+
+/* Password modal specific styles */
+#passwordModal .modal-body {
+  text-align: center;
+}
+
+#passwordMessage {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+  color: var(--text-color);
+}
+
+#passwordInput {
+  /* padding-right: 40px; Make room for the toggle button */
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+#passwordInput:focus {
+  outline: none;
+  border-color: var(--tax-blue);
+  box-shadow: 0 2px 10px var(--modal-shadow);
+}
+
+#passwordInput.error {
+  border-color: var(--error-border);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+#passwordModal .modal-footer {
+  justify-content: space-between;
+}
+
+#passwordModal .cancel-button {
+  background-color: var(--button-gray);
+  color: var(--button-text);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#passwordModal .cancel-button:hover {
+  background-color: var(--button-gray-hover);
+}
+
+/* Password toggle button styles */
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+  z-index: 10;
+}
+
+.password-toggle:hover {
+  background-color: var(--hover-overlay);
 }

@@ -585,8 +585,11 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         else if (key.endsWith("Text")) {
             input.className = "field-text-input";
             input.type = "text";
-            input.maxLength = 50;
-            input.value = fieldValue.value;
+            input.maxLength = 100;
+            if (fieldValue.value) {
+                input.value = fieldValue.value;
+                input.classList.add("value");
+            }
         }
         else if (key.endsWith("IdentificationNumber")) {
             input.type = "text";
