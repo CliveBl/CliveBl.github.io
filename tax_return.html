@@ -66,7 +66,7 @@
 
     <div class="main-container">
       <div class="auth-container">
-        <h1>דו"ח שנתי - עשה זאת עצמך</h1>
+        <h1>דו"ח שנתי - עשה זאת בעצמך</h1>
         <div class="controls">
           <span id="userEmail" class="user-email"></span>
           <button id="loginButton" class="login-button" title="מומלץ ליצור חשבון כדי שתוכל לחזור לנתונים שלך מכל מקום">התחברות</button>
@@ -193,6 +193,8 @@
                   <option value="8">8</option>
                   <option value="9">9</option>
                   <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
                 </select></label>
                 <label for="donations-count" id="donations-missing" class="doc-status"></label>
               </div>
@@ -257,6 +259,26 @@
                   <option value="2">2</option>
                 </select></label>
                 <label for="service-release-count" id="service-release-missing" class="doc-status"></label>
+              </div>
+            </div>
+            <div class="doc-item" data-doc-type="disability-documents" data-doc-typename="מסמכי נכות רפואית">
+              <div class="doc-details">
+                <h3>מסמכי נכות רפואית</h3>
+                <span class="doc-icon">👨‍🦼</span>
+                <p>טופס 1516 - בקשה לעדכון נכות רפואית לפטור ממס הכנסה עפ"י סעיף 9(5) לפקודת מס הכנסה ופרוטוקול ועדה</p>
+                <button class="more-info-button">
+                  <span>ℹ️</span>
+                  <span>מידע נוסף</span>
+                </button>
+              </div>
+              <div class="doc-controls">
+                <label>כמות
+                <select name="disability-documents-count" id="disability-documents-count">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                </select></label>
+                <label for="disability-documents-count" id="disability-documents-missing" class="doc-status"></label>
               </div>
             </div>
           </div>
@@ -361,30 +383,6 @@
     </div>
 
     <script type="module" src="js/index.js"></script>
-
-    <!-- Add warning modal -->
-    <div id="duplicateAnswersWarningModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <span class="close-button">&times;</span>
-          <h2>אזהרה</h2>
-        </div>
-        <div class="modal-body">
-          <p>שים לב: חלק מהשדות עשויים להשתנות משנה לשנה ויש להתאים אותם בנפרד לכל שנה.</p>
-          <p>לדוגמה:</p>
-          <ul>
-            <li>מספר ילדים וגילם</li>
-            <li>מצב משפחתי</li>
-            <li>תושבות בישוב מזכה</li>
-          </ul>
-          <p>האם להמשיך בשכפול?</p>
-        </div>
-        <div class="modal-footer">
-          <button class="cancel-button">ביטול</button>
-          <button class="confirm-button">המשך</button>
-        </div>
-      </div>
-    </div>
 
     <div id="generalWarningModal" class="modal">
       <div class="modal-content">
@@ -984,8 +982,6 @@
         <div class="disabled-field">
           <label>סיבת הפטור :
           <input type="text" name="867d-exemption-reason" disabled value="" /></label>
-          <cite></cite>
-          <p>סיבת הפטור : פטור שניתן על ידי המנכה לפי אחד מצווי הפטור או תקנות מס הכנסה.</p>
         </div>
         <div>
           <label>סה"כ מס שנוכה במקור מפקדונות לפני החזר (שדה 043)

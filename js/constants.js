@@ -113,6 +113,8 @@ const friendlyNames = {
         options: ["רווק", "נשוי", "אלמן", "גרוש", "פרוד"],
     },
     genderOptions: { name: "מין", options: ["זכר", "נקבה"] },
+    blindOrDisabledBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה",
+    blindOrDisabledAndReceivingBenefitsBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה ומקבל גמלה ממשרד הבטחון/פעולות איבה"
 };
 export function getFriendlyName(key) {
     const friendly = friendlyNames[key];
