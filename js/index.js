@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
-const uiVersion = "0.59";
+const uiVersion = "0.60";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -257,7 +257,7 @@ async function loadExistingFiles() {
 }
 // Add this helper function at the start of your script
 function isValidFileType(file) {
-    const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/gif", "image/bmp", "image/png"];
+    const validTypes = ["application/json", "application/pdf", "image/jpeg", "image/jpg", "image/gif", "image/bmp", "image/png"];
     if (!validTypes.includes(file.type)) {
         return {
             valid: false,
@@ -1639,7 +1639,7 @@ function addFileToList(fileInfo) {
         const retryInput = document.createElement("input");
         retryInput.type = "file";
         retryInput.id = "xfileInput";
-        retryInput.accept = ".pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png";
+        retryInput.accept = ".json,.pdf,.jpg,.jpeg,.gif,.tiff,.bmp,.png";
         retryInput.className = "retry-input";
         retryInput.multiple = true;
         const retryButton = document.createElement("button");

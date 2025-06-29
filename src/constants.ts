@@ -6,6 +6,7 @@ const friendlyNames = {
   fields: "שדות",
   genericFields: "שדות נוספות",
   clientName: "שם הלקוח",
+  familyName: "שם משפחה",
   documentType: "סוג מסמך",
   organizationName: "שם הארגון",
   explanationText: "הסבר",
