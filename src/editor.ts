@@ -1398,27 +1398,32 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         const jsonString = JSON.stringify(exportData, null, 2);
         const blob = new Blob([jsonString], { type: 'application/json' });
         
-        // Create download link
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        
         // Use the original fileName with .json extension (replacing existing extension)
         const fileName = fileData.fileName ? 
           fileData.fileName.replace(/\.[^/.]+$/, '') + '.json' : 
           'form.json';
         
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Check if Web Share API is available (mobile browsers)
+        if (navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          try {
+            const file = new File([blob], fileName, { type: 'application/json' });
+            await navigator.share({
+              title: 'Form Data Export',
+              text: 'Exported form data as JSON',
+              files: [file]
+            });
+            addMessage("קובץ JSON נשלח בהצלחה", "success");
+          } catch (error) {
+            // Fallback to download method
+            downloadFile(blob, fileName);
+          }
+        } else {
+          // Desktop or fallback method
+          downloadFile(blob, fileName);
+        }
         
         // Reset button appearance
         saveButton.classList.remove('save-button-exporting');
-        
-        // Show success message
-        addMessage("קובץ JSON נשמר בהצלחה", "success");
         return;
       }
       
@@ -1450,5 +1455,19 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         addMessage("נתונים נשמרו בהצלחה", "success");
       }
     };
+  }
+
+  // Helper function for file download
+  function downloadFile(blob: Blob, fileName: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    addMessage("קובץ JSON נשמר בהצלחה", "success");
   }
 }
