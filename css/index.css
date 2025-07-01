@@ -2479,6 +2479,19 @@ margin-top: 15px;
   border-radius: 4px;
 }
 
+/* Tax calculation value highlighting for highlighted cell */
+.highlighted-cell.positive-value {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  border-color: var(--error-border);
+}
+
+.highlighted-cell.negative-value {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
+}
+
 /* Password modal specific styles */
 #passwordModal .modal-body {
   text-align: center;

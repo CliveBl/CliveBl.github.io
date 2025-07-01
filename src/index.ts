@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
 
-const uiVersion = "0.62";
+const uiVersion = "0.63";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1942,6 +1942,21 @@ function updateDeleteAllButton(hasEntries: boolean) {
   deleteAllButton.disabled = !hasEntries || isUploading;
 }
 
+// Helper function to get color class based on numeric value
+function getValueColorClass(value: string): string {
+  if (!value || value.trim() === "") return "";
+  
+  // Remove any non-numeric characters except minus sign and decimal point
+  const cleanValue = value.replace(/[^\d.-]/g, "");
+  const numValue = parseFloat(cleanValue);
+  
+  if (isNaN(numValue)) return "";
+  
+  if (numValue <= 0) return "negative-value";
+  if (numValue > 0) return "positive-value";
+  return "";
+}
+
 // Add this function to display tax results
 function displayTaxCalculation(result: any, year: string, shouldScroll = false) {
   debug("displayTaxCalculation");
@@ -1972,11 +1987,15 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
   result.forEach((row: any, index: number) => {
     const tr = document.createElement("tr");
     const isLastRow = index === result.length - 1;
+    
+    // Get color class only for the last row's total cell
+    const totalColorClass = isLastRow ? getValueColorClass(row.total?.trim() || "") : "";
+    
     tr.innerHTML = `
           <td>${row.title}</td>
           <td>${row.spouse?.trim() || ""}</td>
           <td>${row.registered?.trim() || ""}</td>
-          <td class="${isLastRow ? "highlighted-cell" : ""}">${row.total?.trim() || ""}</td>
+          <td class="${isLastRow ? "highlighted-cell" : ""} ${totalColorClass}">${row.total?.trim() || ""}</td>
         `;
     tbody.appendChild(tr);
   });
