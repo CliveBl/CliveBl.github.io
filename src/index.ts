@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
 
-const uiVersion = "0.61";
+const uiVersion = "0.62";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1063,6 +1063,8 @@ function descriptionFromFileName(fileName: string) {
     description = `${year}: קובץ גיליון אלקטרוני המכיל ניתוח מפורט של המצב המס`;
   } else if (name === "1322") {
     description = `${year}: טופס 1322 - רווח מהון מניירות ערך`;
+  } else if (name === "1344") {
+    description = `${year}: טופס 1344 - הפסדים מועברים`;
   } else if (name === "1301") {
     // Data file containing the annual data for uploading to the tax authority when filing the tax return
     description = `${year}: קובץ נתונים שנתיים להעלאה אתר מס הכנסה בזמן הגשת דו"ח שנתי`;
