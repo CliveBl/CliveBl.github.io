@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
-const uiVersion = "0.64";
+const uiVersion = "0.65";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -1495,6 +1495,7 @@ function addFileToList(fileInfo) {
     if (statusIcon) {
         fileNameElement.textContent = fileNameElement.textContent + " " + statusIcon;
     }
+    fileNameElement.dir = "ltr";
     // Add expand/collapse indicator
     const expandIcon = document.createElement("span");
     expandIcon.textContent = "▼";
