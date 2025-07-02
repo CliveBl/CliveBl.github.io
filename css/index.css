@@ -2485,13 +2485,11 @@ margin-top: 15px;
 .highlighted-cell.positive-value {
   background-color: var(--error-bg);
   color: var(--error-text);
-  border-color: var(--error-border);
 }
 
 .highlighted-cell.negative-value {
   background-color: var(--success-bg);
   color: var(--success-text);
-  border-color: var(--success-border);
 }
 
 /* Password modal specific styles */
@@ -2568,4 +2566,85 @@ margin-top: 15px;
 
 .password-toggle:hover {
   background-color: var(--hover-overlay);
+}
+
+/* Unsupported documents page styles */
+.options-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.option-card {
+  background-color: var(--item-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px var(--modal-shadow);
+}
+
+.option-card h4 {
+  color: var(--tax-blue);
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.option-card ul {
+  margin: 10px 0;
+  padding-right: 20px;
+}
+
+.option-card li {
+  margin-bottom: 8px;
+}
+
+.accountants-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.accountant-card {
+  background-color: var(--item-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px var(--modal-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.accountant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--modal-shadow-light);
+}
+
+.accountant-card h4 {
+  color: var(--tax-blue);
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.accountant-card p {
+  margin-bottom: 8px;
+}
+
+.accountant-card a {
+  color: var(--tax-blue);
+  text-decoration: none;
+}
+
+.accountant-card a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .options-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .accountants-list {
+    grid-template-columns: 1fr;
+  }
 }
