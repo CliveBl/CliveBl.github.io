@@ -340,11 +340,11 @@ ul {
   background-color: var(--button-blue);
   color: var(--button-text);
   border: none;
-  padding: 8px 8px;
+  padding: 4px 6px;
   border-radius: 3px;
   cursor: pointer;
   font-size: 12px;
-  margin-top: 10px;
+  margin-top: 4px;
 }
 
 .login-button:hover {
@@ -357,11 +357,11 @@ ul {
   background-color: var(--button-blue);
   color: var(--button-text);
   border: none;
-  padding: 8px 8px;
+  padding: 4px 6px;
   border-radius: 3px;
   cursor: pointer;
   font-size: 12px;
-  margin-top: 10px;
+  margin-top: 4px;
 }
 
 .logout-button:hover {
@@ -1230,6 +1230,7 @@ button:disabled {
   justify-content: center;
   align-items: center;
   gap: 10px;
+  height: 20px;
   width: 100%;
 }
 
