@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
 
-const uiVersion = "0.65";
+const uiVersion = "0.66";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1412,22 +1412,13 @@ const docDetails = {
         title: "סוגי מסמכים לא נתמכים",
         content: `
               - מסחר בקריפטו (Bitcoin, Ethereum, וכו')
-              - דוחות מברוקרים זרים (Interactive Brokers, eToro, וכו')
+              - דוחות מברוקרים זרים ( eToro, וכו')
               - נכסים בחו\"ל (דירות, קרקעות, עסקים)
-              - מסמכים בשפות זרות שלא ניתן לזהות
             `,
       },
       {
-        title: "מה לעשות עם מסמכים לא נתמכים?",
-        content: "אם יש לך מסמכים מסוג זה, מומלץ להתייעץ עם רואה חשבון או יועץ מס מקצועי. המערכת הנוכחית מתמקדת במסמכים הסטנדרטיים של מס הכנסה הישראלי.",
-      },
-      {
-        title: "תמיכה עתידית",
-        content: "אנו עובדים על הרחבת התמיכה במסמכים נוספים. אם יש לך מסמכים מסוג זה, אנא שלח לנו משוב כדי שנוכל לשפר את המערכת.",
-      },
-      {
         title: "מידע נוסף",
-        content: "למידע מפורט על מסמכים לא נתמכים והמלצות למומחים, <a href='unsupported_documents.html' target='_blank'>לחץ כאן</a>.",
+        content: "למידע וטיפים , <a href='unsupported_documents.html' target='_blank'>לחץ כאן</a>.",
       },
     ],
   },

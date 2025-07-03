@@ -373,6 +373,21 @@ ul {
   opacity: 0.6;
 }
 
+/* Desktop-only larger login buttons */
+@media (min-width: 769px) {
+  .login-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+  
+  .logout-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+}
+
 .file-item.warning {
   border-right-color: var(--warning-border);
   background-color: var(--warning-bg);

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="שאלות נפוצות - דו"ח שנתי עשה זאת בעצמך">
+    <link rel="icon" type="image/x-icon" href="tax-day.ico">
+    <title>שאלות נפוצות - דו"ח שנתי</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <style>
+        .faq-accordion-toggle {
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: right;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-color);
+            background-color: var(--item-bg);
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        
+        .faq-accordion-toggle:hover {
+            background-color: var(--border-color);
+        }
+        
+        .faq-accordion-toggle::after {
+            content: '▼';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s;
+            color: var(--button-blue);
+        }
+        
+        .faq-accordion-toggle.active::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+        
+        .faq-accordion-content {
+            background-color: var(--bg-color);
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-accordion-content.active {
+            padding: 20px;
+            max-height: 1000px;
+        }
+        
+        .faq-accordion-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px var(--modal-shadow);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+           <h1>שאלות נפוצות</h1>
+            <p>תשובות לשאלות נפוצות על המערכת להכנת דו"ח שנתי</p>
+        
+        <div class="faq-accordion-container">
+            <button class="faq-accordion-toggle">מה המערכת הזו עושה?</button>
+            <div class="faq-accordion-content">
+                <p>המערכת שלנו מסייעת לך בהכנת הדו"ח השנתי שלך לקראת הגשה לרשות המסים. היא מנתחת את המסמכים שאתה מעלה ומכינה את המידע בפורמט המתאים להגשה.</p>
+                <p>המערכת תומכת במגוון רחב של מסמכים כולל:</p>
+                <ul>
+                    <li>תלושי משכורת (טופס 106)</li>
+                    <li>אישורי רווחים מניירות ערך (טופס 867)</li>
+                    <li>תעודות זהות</li>
+                    <li>אישורי תרומות</li>
+                    <li>ומסמכים נוספים</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="faq-accordion-container">
+            <button class="faq-accordion-toggle">האם המערכת מחליפה ייעוץ מס מקצועי?</button>
+            <div class="faq-accordion-content">
+                <p><strong>לא</strong>. המערכת אינה מחליפה ייעוץ מס מקצועי. היא כלי עזר שמסייע בהכנת הדו"ח, אך האחריות הסופית על הדו"ח היא שלך.</p>
+                <p>מומלץ להתייעץ עם רואה חשבון או יועץ מס מקצועי במקרים הבאים:</p>
+                <ul>
+                    <li>יש לך מצב מס מורכב</li>
+                    <li>יש לך הכנסות ממקורות שונים</li>
+                    <li>אתה לא בטוח לגבי זכאות לזיכויים מסוימים</li>
+                    <li>יש לך שאלות לגבי חוקי המס</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="faq-accordion-container">
+            <button class="faq-accordion-toggle">איזה מסמכים אני צריך להכין?</button>
+            <div class="faq-accordion-content">
+                <p>המסמכים הנדרשים תלויים במצבך האישי. המערכת תציג לך רשימה מותאמת אישית של המסמכים הנדרשים בהתבסס על המידע שתזין.</p>
+                <p>המסמכים הנפוצים כוללים:</p>
+                <ul>
+                    <li><strong>תעודת זהות</strong> - של שני בני הזוג</li>
+                    <li><strong>תלושי משכורת</strong> - מכל מעסיק במהלך השנה</li>
+                    <li><strong>אישורי רווחים</strong> - מהבנקים על רווחים מניירות ערך</li>
+                    <li><strong>אישורי תרומות</strong> - למוסדות מוכרים</li>
+                    <li><strong>אישורי ביטוח לאומי</strong> - על תשלומים והחזרים</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="faq-accordion-container">
+            <button class="faq-accordion-toggle">האם המידע שלי בטוח?</button>
+            <div class="faq-accordion-content">
+                <p>כן, אנו לוקחים את אבטחת המידע שלך ברצינות רבה:</p>
+                <ul>
+                    <li>כל המידע מוצפן בעת העברה</li>
+                    <li>המסמכים נשמרים באופן מאובטח</li>
+                    <li>אין לנו גישה לתוכן המסמכים שלך</li>
+                    <li>אתה יכול למחוק את החשבון שלך בכל עת</li>
+                    <li>אנו לא משתפים את המידע שלך עם צדדים שלישיים</li>
+                </ul>
+                <p>לקריאה נוספת, עיין ב<a href="privacy_policy.html">מדיניות הפרטיות</a> שלנו.</p>
+            </div>
+        </div>
+        
+        <div class="faq-accordion-container">
+            <button class="faq-accordion-toggle">איך אני מגיש את הדו"ח לרשות המסים?</button>
+            <div class="faq-accordion-content">
+                <p>לאחר שהמערכת תכין את הדו"ח שלך, תוכל להוריד את הקבצים הנדרשים ולהעלות אותם לאתר רשות המסים.</p>
+                <p>לפירוט מלא של התהליך, עיין ב<a href="submit_instructions.html">הוראות להגשת הדו"ח</a>.</p>
+                <p>בנוסף, תוכל לצפות ב<a href="presentation.html">מצגת</a> שמסבירה את התהליך צעד אחר צעד.</p>
+            </div>
+        </div>
+        
+        <div class="faq-accordion-container">
+            <button class="faq-accordion-toggle">מה קורה אם אני טועה בהזנת המידע?</button>
+            <div class="faq-accordion-content">
+                <p>המערכת מאפשרת לך לערוך את המידע בכל עת לפני הגשת הדו"ח. אם כבר הגשת את הדו"ח וגילית טעות, תצטרך להגיש דו"ח מתוקן לרשות המסים.</p>
+                <p>טיפים למניעת טעויות:</p>
+                <ul>
+                    <li>בדוק את כל המידע לפני הגשה</li>
+                    <li>השווה את הסכומים עם המסמכים המקוריים</li>
+                    <li>שמור עותקים של כל המסמכים</li>
+                    <li>במקרה של ספק, התייעץ עם איש מקצוע</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="faq-accordion-container">
+            <button class="faq-accordion-toggle">האם המערכת תומכת במצבים מיוחדים?</button>
+            <div class="faq-accordion-content">
+                <p>המערכת תומכת במגוון רחב של מצבים, כולל:</p>
+                <ul>
+                    <li>זוגות נשואים</li>
+                    <li>רווקים/רווקות</li>
+                    <li>עובדים שכירים</li>
+                    <li>עצמאיים</li>
+                    <li>בעלי הכנסות מרווחי הון</li>
+                    <li>תורמים למוסדות מוכרים</li>
+                </ul>
+                <p>אם יש לך מצב מיוחד שלא מופיע ברשימה, מומלץ להתייעץ עם איש מקצוע או ליצור איתנו קשר דרך <a href="tax_return.html">דף המשוב</a>.</p>
+            </div>
+        </div>
+        
+        <div class="faq-accordion-container">
+            <button class="faq-accordion-toggle">איך אני יכול ליצור קשר אם יש לי בעיה?</button>
+            <div class="faq-accordion-content">
+                <p>אם יש לך שאלה או בעיה עם המערכת, תוכל:</p>
+                <ul>
+                    <li>לשלוח לנו משוב דרך <a href="tax_return.html">דף המשוב</a> במערכת</li>
+                    <li>לבדוק את <a href="unsupported_documents.html">המסמכים הלא נתמכים</a> אם המסמך שלך לא עובד</li>
+                    <li>להתייעץ עם רואה חשבון מקצועי במקרים מורכבים</li>
+                </ul>
+                <p>אנו נשתדל לעזור לך ככל האפשר!</p>
+            </div>
+        </div>
+		<div class="button-container">
+            <a href="index.html" class="back-link">חזרה לדף הבית</a>
+        </div>
+    </div>
+
+    <script>
+        // FAQ accordion functionality with cascade effect
+        document.querySelectorAll('.faq-accordion-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const content = toggle.nextElementSibling;
+                const isActive = toggle.classList.contains('active');
+                
+                // Close all other accordions first (cascade effect)
+                document.querySelectorAll('.faq-accordion-content').forEach(acc => {
+                    acc.classList.remove('active');
+                });
+                document.querySelectorAll('.faq-accordion-toggle').forEach(tog => {
+                    tog.classList.remove('active');
+                });
+                
+                // Toggle current accordion
+                if (!isActive) {
+                    // Add a small delay for cascade effect
+                    setTimeout(() => {
+                        content.classList.add('active');
+                        toggle.classList.add('active');
+                    }, 100);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
