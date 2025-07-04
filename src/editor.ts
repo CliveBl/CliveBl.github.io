@@ -682,6 +682,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 9;
       input.pattern = "\\d{9}";
+	  input.inputMode = "numeric";
       input.value = dummyIdNumber(fieldValue.value);
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 9);
@@ -694,6 +695,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 9;
       input.pattern = "\\d{9}";
+	  input.inputMode = "numeric";
       input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 9);
@@ -705,6 +707,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 4;
       input.pattern = "\\d{4}";
+	  input.inputMode = "numeric";
       input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 4);
@@ -713,6 +716,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 3;
       input.pattern = "\\d{3}";
+	  input.inputMode = "numeric";
       input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 3);
@@ -738,6 +742,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = 2;
       input.pattern = "\\d{1,2}";
+	  input.inputMode = "numeric";
       input.value = fieldValue.value;
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 2);
@@ -746,6 +751,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.type = "text";
       input.maxLength = MAX_INTEGER_LENGTH;
       input.pattern = "\\d+";
+	  input.inputMode = "numeric";
       input.value = Math.round(parseFloat(fieldValue.value)).toString();
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, MAX_INTEGER_LENGTH);
@@ -772,6 +778,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     } else {
       // 🟢 **Default: Currency Field (if no other condition matched)**
       input.type = "text";
+	  input.inputMode = "numeric";
 
       let numericValue = parseFloat(fieldValue.value);
       if (isNaN(numericValue)) {
