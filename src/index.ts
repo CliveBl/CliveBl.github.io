@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
 
-const uiVersion = "0.66";
+const uiVersion = "0.67";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1766,7 +1766,7 @@ function addFileToList(fileInfo: any) {
   editButton.className = "edit-button";
   editButton.title = "ערוך";
   editButton.style.display = "none"; // Initially hidden
-  editButton.addEventListener("click", (e) => {
+  editButton.addEventListener("click", async (e) => {
       // Handle edit action here
       debug("Edit clicked for file:", fileId);
       // Get the entry that from the latestFileInfoList with the same fileId
@@ -1776,7 +1776,7 @@ function addFileToList(fileInfo: any) {
       }
 
 	  // Switch to edit mode
-	  toggleFileListView();
+	  await toggleFileListView();
 
 	  openFileListEntryP(formJson.fileName, null);
   });
@@ -2536,7 +2536,7 @@ function showWarningModal(message: string) {
   });
 }
 
-function updateFileListView() {
+ function updateFileListView() {
   const toggleLink = document.getElementById("toggleFileListView") as HTMLAnchorElement;
   const fileList = document.getElementById("fileList") as HTMLElement;
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLElement;
@@ -2559,15 +2559,15 @@ function updateFileListView() {
   }
 }
 
-function toggleFileListView() {
+// If we are doing something after this we should await it.
+async function toggleFileListView() {
   editableFileList = !editableFileList;
   localStorage.setItem("editableFileList", editableFileList.toString());
   updateFileListView();
-  // Only load existing files if we're switching to the file list view, not when switching to edit mode
-  if (!editableFileList) {
-    loadExistingFiles();
-  }
+  await loadExistingFiles();
 }
+
+
 
 async function signInWithGoogle() {
   try {
