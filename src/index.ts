@@ -813,11 +813,11 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       // Make the messageDiv a clickable link to the fileItem
       messageText.addEventListener("click", () => {
         if (!editableFileList) {
-          // switch to the editable file list view
+         // switch to the editable file list view
           editableFileList = true;
           updateFileListView();
         }
-        openFileListEntryP(fileName, property);
+          openFileListEntryP(fileName, property);
       });
     }
   }
@@ -1766,8 +1766,7 @@ function addFileToList(fileInfo: any) {
   editButton.className = "edit-button";
   editButton.title = "ערוך";
   editButton.style.display = "none"; // Initially hidden
-  editButton.addEventListener("click", async () => {
-    try {
+  editButton.addEventListener("click", (e) => {
       // Handle edit action here
       debug("Edit clicked for file:", fileId);
       // Get the entry that from the latestFileInfoList with the same fileId
@@ -1776,31 +1775,10 @@ function addFileToList(fileInfo: any) {
         throw new Error("Form not found");
       }
 
-      const response = await fetch(`${API_BASE_URL}/updateForm`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: "Default",
-          formAsJSON: formJson,
-        }),
-        ...fetchConfig,
-      });
+	  // Switch to edit mode
+	  toggleFileListView();
 
-      if (!(await handleResponse(response, "Update form failed"))) {
-        return;
-      }
-
-      const fileInfoList = await response.json();
-      updateFileListP(fileInfoList);
-      clearMessages();
-      addMessage(`הטופס ${formJson.fileName} עודכן בהצלחה`, "success");
-    } catch (error: unknown) {
-      console.error("Edit failed:", error);
-      addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
-    }
+	  openFileListEntryP(formJson.fileName, null);
   });
 
   // Add click handler for accordion
@@ -2585,7 +2563,10 @@ function toggleFileListView() {
   editableFileList = !editableFileList;
   localStorage.setItem("editableFileList", editableFileList.toString());
   updateFileListView();
-  loadExistingFiles();
+  // Only load existing files if we're switching to the file list view, not when switching to edit mode
+  if (!editableFileList) {
+    loadExistingFiles();
+  }
 }
 
 async function signInWithGoogle() {

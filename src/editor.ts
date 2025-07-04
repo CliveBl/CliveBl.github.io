@@ -691,7 +691,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         input.value = input.value.padStart(9, "0");
       };
     } else if (key.endsWith("Number")) {
-      debug("Number", key, fieldValue.value);
       input.type = "text";
       input.maxLength = 9;
       input.pattern = "\\d{9}";

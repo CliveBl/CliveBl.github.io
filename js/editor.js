@@ -1,4 +1,4 @@
-import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages } from "./index.js";
+import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
@@ -605,7 +605,6 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             };
         }
         else if (key.endsWith("Number")) {
-            debug("Number", key, fieldValue.value);
             input.type = "text";
             input.maxLength = 9;
             input.pattern = "\\d{9}";
