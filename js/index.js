@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
-const uiVersion = "0.67";
+const uiVersion = "0.68";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -1503,6 +1503,32 @@ function addFileToList(fileInfo) {
     // Create accordion content
     const accordionContent = document.createElement("div");
     accordionContent.className = "accordion-content";
+    // Create button container at the top of accordion content
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = "accordion-button-container";
+    // Create edit button
+    const editButton = document.createElement("button");
+    editButton.textContent = "✏️";
+    editButton.className = "edit-button";
+    editButton.title = "ערוך";
+    editButton.style.display = "none"; // Initially hidden
+    editButton.addEventListener("click", async (e) => {
+        // Handle edit action here
+        debug("Edit clicked for file:", fileId);
+        // Get the entry that from the latestFileInfoList with the same fileId
+        const formJson = latestFileInfoList.find((file) => file.fileId === fileId);
+        if (!formJson || !formJson.fileName) {
+            throw new Error("Form not found");
+        }
+        // Switch to edit mode
+        await toggleFileListView();
+        openFileListEntryP(formJson.fileName, null);
+    });
+    // Add edit button to the button container.
+    buttonContainer.appendChild(editButton);
+    // Add button container to the top of accordion content
+    accordionContent.appendChild(buttonContainer);
+    fileInfoElement.appendChild(accordionContent);
     // Add all fileInfo fields that aren't already displayed
     const excludedFields = ["fileName", "type", "fileId", "matchTag", "noteText"];
     Object.entries(fileInfo).forEach(([key, value]) => {
@@ -1577,25 +1603,6 @@ function addFileToList(fileInfo) {
             }
         }
     });
-    fileInfoElement.appendChild(accordionContent);
-    // Create edit button
-    const editButton = document.createElement("button");
-    editButton.textContent = "✏️";
-    editButton.className = "edit-button";
-    editButton.title = "ערוך";
-    editButton.style.display = "none"; // Initially hidden
-    editButton.addEventListener("click", async (e) => {
-        // Handle edit action here
-        debug("Edit clicked for file:", fileId);
-        // Get the entry that from the latestFileInfoList with the same fileId
-        const formJson = latestFileInfoList.find((file) => file.fileId === fileId);
-        if (!formJson || !formJson.fileName) {
-            throw new Error("Form not found");
-        }
-        // Switch to edit mode
-        await toggleFileListView();
-        openFileListEntryP(formJson.fileName, null);
-    });
     // Add click handler for accordion
     fileHeader.addEventListener("click", (e) => {
         // Don't toggle if clicking delete button
@@ -1664,7 +1671,6 @@ function addFileToList(fileInfo) {
             }
         });
     }
-    li.appendChild(editButton);
     li.appendChild(deleteButton);
     fileList.appendChild(li);
     return li;

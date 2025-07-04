@@ -1327,6 +1327,16 @@ button:disabled {
   border-top: 1px solid var(--border-color);
 }
 
+.accordion-button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 15px;
+  /* flex-direction: row-reverse; */
+}
+
 .file-header:hover {
   background-color: var(--border-color);
 }
