@@ -69,7 +69,7 @@
            <h1>שאלות נפוצות</h1>
             <p>תשובות לשאלות נפוצות על המערכת להכנת דו"ח שנתי</p>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-difference">
             <button class="faq-accordion-toggle">איך המערכת הזו שונה ממערכות אחרות?</button>
             <div class="faq-accordion-content">
                 <p>יש מערכות רבות אחרות שמהוות חזית לחברות ראיית חשבון וליועצי מס שיגישו את הדו"ח השנתי שלך כמייצגים שלך. עבור זאת הם גובים עמלה שיכולה להיות 12-20% מכל כסף שאתה מקבל בחזרה מרשויות המס. אחרים גובים עמלה קבועה. לעתים קרובות יש עמלות נוספות לדוחות מורכבים.</p>
@@ -78,7 +78,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-calculations">
             <button class="faq-accordion-toggle">איזה חישובים אנשים בדרך כלל נתקעים בהם?</button>
             <div class="faq-accordion-content">
                 <p>חישוב מס רווחי הון יכול להיות מורכב מכמה סיבות:</p>
@@ -90,7 +90,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-what-does">
             <button class="faq-accordion-toggle">מה המערכת הזו עושה?</button>
             <div class="faq-accordion-content">
                 <p>המערכת שלנו מסייעת לך בהכנת הדו"ח השנתי שלך לקראת הגשה לרשות המסים. היא מנתחת את המסמכים שאתה מעלה ומכינה את המידע בפורמט המתאים להגשה.</p>
@@ -105,7 +105,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-professional-advice">
             <button class="faq-accordion-toggle">האם המערכת מחליפה ייעוץ מס מקצועי?</button>
             <div class="faq-accordion-content">
                 <p><strong>לא</strong>. המערכת אינה מחליפה ייעוץ מס מקצועי. היא כלי עזר שמסייע בהכנת הדו"ח, אך האחריות הסופית על הדו"ח היא שלך.</p>
@@ -119,7 +119,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-documents">
             <button class="faq-accordion-toggle">איזה מסמכים אני צריך להכין?</button>
             <div class="faq-accordion-content">
                 <p>המסמכים הנדרשים תלויים במצבך האישי. המערכת תציג לך רשימה מותאמת אישית של המסמכים הנדרשים בהתבסס על המידע שתזין.</p>
@@ -134,7 +134,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-security">
             <button class="faq-accordion-toggle">האם המידע שלי בטוח?</button>
             <div class="faq-accordion-content">
                 <p>כן, אנו לוקחים את אבטחת המידע שלך ברצינות רבה:</p>
@@ -149,7 +149,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-submit">
             <button class="faq-accordion-toggle">איך אני מגיש את הדו"ח לרשות המסים?</button>
             <div class="faq-accordion-content">
                 <p>לאחר שהמערכת תכין את הדו"ח שלך, תוכל להוריד את הקבצים הנדרשים ולהעלות אותם לאתר רשות המסים.</p>
@@ -158,7 +158,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-mistakes">
             <button class="faq-accordion-toggle">מה קורה אם אני טועה בהזנת המידע?</button>
             <div class="faq-accordion-content">
                 <p>המערכת מאפשרת לך לערוך את המידע בכל עת לפני הגשת הדו"ח. אם כבר הגשת את הדו"ח וגילית טעות, תצטרך להגיש דו"ח מתוקן לרשות המסים.</p>
@@ -172,7 +172,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-special-cases">
             <button class="faq-accordion-toggle">האם המערכת תומכת במצבים מיוחדים?</button>
             <div class="faq-accordion-content">
                 <p>המערכת תומכת במגוון רחב של מצבים, כולל:</p>
@@ -187,7 +187,7 @@
             </div>
         </div>
         
-        <div class="faq-accordion-container">
+        <div class="faq-accordion-container" id="faq-contact">
             <button class="faq-accordion-toggle">איך אני יכול ליצור קשר אם יש לי בעיה?</button>
             <div class="faq-accordion-content">
                 <p>אם יש לך שאלה או בעיה עם המערכת, תוכל:</p>
@@ -205,7 +205,7 @@
     </div>
 
     <script>
-        // FAQ accordion functionality with cascade effect
+        // FAQ accordion functionality with cascade effect and URL hash support
         document.querySelectorAll('.faq-accordion-toggle').forEach(toggle => {
             toggle.addEventListener('click', () => {
                 const content = toggle.nextElementSibling;
@@ -228,6 +228,47 @@
                     }, 100);
                 }
             });
+        });
+
+        // Function to open specific FAQ item by ID
+        function openFaqItem(faqId) {
+            const container = document.getElementById(faqId);
+            if (container) {
+                const toggle = container.querySelector('.faq-accordion-toggle');
+                const content = container.querySelector('.faq-accordion-content');
+                
+                // Close all other accordions first
+                document.querySelectorAll('.faq-accordion-content').forEach(acc => {
+                    acc.classList.remove('active');
+                });
+                document.querySelectorAll('.faq-accordion-toggle').forEach(tog => {
+                    tog.classList.remove('active');
+                });
+                
+                // Open the specified FAQ item
+                setTimeout(() => {
+                    content.classList.add('active');
+                    toggle.classList.add('active');
+                    // Scroll to the FAQ item
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+
+        // Check for URL hash on page load and open corresponding FAQ item
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.substring(1); // Remove the # symbol
+            if (hash && hash.startsWith('faq-')) {
+                openFaqItem(hash);
+            }
+        });
+
+        // Listen for hash changes (in case user navigates with browser back/forward)
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash && hash.startsWith('faq-')) {
+                openFaqItem(hash);
+            }
         });
     </script>
 </body>
