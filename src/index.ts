@@ -762,6 +762,10 @@ async function uploadFiles(validFiles: File[]) {
 
 // Update addMessage function to handle message types
 export function addMessage(text: string, type = "info", scrollToMessageSection = true) {
+	// Map of error codes to faq ids
+	const errorCodeToFaqId = {
+		"^NoIdentity": "faq-personal-details"
+	}
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
   if (type) {
@@ -818,6 +822,17 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
           updateFileListView();
         }
           openFileListEntryP(fileName, property);
+      });
+    }
+  } else if (messageCode) {
+    // If the message contains a message code, make it clickable to navigate to FAQ
+    const faqId = errorCodeToFaqId[`^${messageCode}` as keyof typeof errorCodeToFaqId];
+    if (faqId) {
+      // Add clickable class to show it's interactive
+      messageDiv.classList.add("clickable");
+      // Make the messageDiv a clickable link to the FAQ
+      messageText.addEventListener("click", () => {
+        window.location.href = `faq.html#${faqId}`;
       });
     }
   }
