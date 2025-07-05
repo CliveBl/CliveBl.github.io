@@ -53,14 +53,13 @@
             background-color: var(--bg-color);
             padding: 0;
             max-height: 0;
-            height:0;
             overflow: hidden;
             transition: all 0.3s ease;
         }
         
         .faq-accordion-content.active {
             padding: 20px;
-            height:auto;
+            max-height: 600px;
         }
         
         .faq-accordion-container {
@@ -271,7 +270,7 @@
                     content.classList.add('active');
                     toggle.classList.add('active');
                     // Scroll to the FAQ item
-                    content.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    content.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             }
         }
