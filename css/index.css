@@ -2024,7 +2024,7 @@ a:not(.submit-instructions-button):visited {
 }
 .field-input {
   flex: 0 0 120px;
-  padding: 0px;
+  padding: 2px;
   text-align: right;
   border: 1px solid var(--gray);
   background-color: var(--bg-color);
@@ -2040,12 +2040,12 @@ a:not(.submit-instructions-button):visited {
 }
 
 .field-text-input {
-	padding: 0px;
+	padding: 2px;
 	text-align: right;
 	border: 1px solid var(--gray);
 	background-color: var(--bg-color);
 	color: var(--text-color);
-	width:360px;
+	width:460px;
 }
 
 .field-text-input.value {
@@ -2054,7 +2054,7 @@ a:not(.submit-instructions-button):visited {
 
 .field-date-input {
 	flex: 0 0 120px;
-	padding: 0px;
+	padding: 2px;
 	text-align: right;
 	border: 1px solid var(--gray);
 	background-color: var(--bg-color);
@@ -2064,6 +2064,7 @@ a:not(.submit-instructions-button):visited {
 .field-labelx {
 	flex: 0 0 250px;
 	text-align: right;
+	margin-right: 6px;
   }
 
 .field-labelx.changed {
@@ -2095,6 +2096,14 @@ a:not(.submit-instructions-button):visited {
     visibility: hidden;
   }
 
+  .field-text-input {
+	padding: 2px;
+	text-align: right;
+	border: 1px solid var(--gray);
+	background-color: var(--bg-color);
+	color: var(--text-color);
+	width:310px;
+}
   /* 🟢 Mobile: 2-column layout with **narrow accordion items** */
   .header-fields-wrapper {
     display: grid;
@@ -2136,7 +2145,7 @@ a:not(.submit-instructions-button):visited {
 
   .field-input {
     flex: 0 0 120px;
-    padding: 0px;
+    padding: 2px;
     text-align: right;
     border: 1px solid var(--gray);
     background-color: var(--bg-color);
@@ -2216,6 +2225,7 @@ a:not(.submit-instructions-button):visited {
 .item-title {
   font-weight: bold;
   margin-bottom: 5px;
+  margin-right: 6px;
 }
 
 .item-container {
