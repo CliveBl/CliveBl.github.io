@@ -1338,40 +1338,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Create the cancel button
     cancelButton.textContent = "ביטול שינויים";
 
-    // Add long press functionality for mobile JSON export
-    let longPressTimer: number | null = null;
-    let isLongPress = false;
-
-    const startLongPress = () => {
-      isLongPress = false;
-      longPressTimer = window.setTimeout(() => {
-        isLongPress = true;
-        // Show visual feedback using CSS classes
-        saveButton.classList.add('save-button-long-press');
-        saveButton.textContent = "ייצוא JSON...";
-      }, 800); // 800ms for long press
-    };
-
-    const endLongPress = () => {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
-      // Reset button appearance
-      saveButton.classList.remove('save-button-long-press', 'save-button-exporting');
-      saveButton.textContent = "שמור שינויים";
-    };
-
-    // Add touch events for mobile
-    saveButton.addEventListener('touchstart', startLongPress);
-    saveButton.addEventListener('touchend', endLongPress);
-    saveButton.addEventListener('touchcancel', endLongPress);
-
-    // Add mouse events for desktop (fallback)
-    saveButton.addEventListener('mousedown', startLongPress);
-    saveButton.addEventListener('mouseup', endLongPress);
-    saveButton.addEventListener('mouseleave', endLongPress);
-
     // Cancel button behavior: Restore original file info
     cancelButton.onclick = async () => {
       // Restore only this form from the backupAllFilesData
@@ -1385,10 +1351,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
     // Save button behavior: Process and save the data
     saveButton.onclick = async (event: MouseEvent) => {
-      // Check if Ctrl key is pressed OR if it was a long press
-      if (event.ctrlKey || isLongPress) {
-        // Reset long press flag
-        isLongPress = false;
+      // Check if Ctrl key is pressed
+      if (event.ctrlKey) {
         
         // Show exporting state
         saveButton.classList.add('save-button-exporting');
