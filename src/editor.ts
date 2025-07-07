@@ -101,7 +101,7 @@ function customerMessageModal({
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
 const addFieldsText = "הצג כל השדות";
-const removeFieldsText = "הסר שדות קלט";
+const removeFieldsText = "הציג סדות שיש ערכים בלבד";
 const MAX_INTEGER_LENGTH = 10;
 // Template map years: template name
 const template867YearsMap = {
