@@ -729,6 +729,7 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
         if (faqId) {
             // Add clickable class to show it's interactive
             messageDiv.classList.add("clickable");
+            messageText.className = "message-text-help";
             // Make the messageDiv a clickable link to the FAQ
             messageText.addEventListener("click", () => {
                 window.location.href = `faq.html#${faqId}`;

@@ -21,7 +21,7 @@
   --tax-green: #2ecc71;
   --tax-green-hover: #4b8a65;
   --changed-bg: #657c65;
-  --link-visited: #bb86fc; 
+  --link-visited: #bb86fc;
   --gray: #808080;
   --button-blue: #3498db;
   --button-blue-hover: #2980b9;
@@ -89,18 +89,17 @@
 
 /* Update existing styles to use variables */
 body {
-	font-family: "Open Sans Hebrew", sans-serif;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: subpixel-antialiased;
-	font-weight: 400;
-	-webkit-print-color-adjust: exact;
-	-moz-print-color-adjust: exact;
-	print-color-adjust: exact;
-	font-size: 15px;
-	line-height: 1.7;
+  font-family: "Open Sans Hebrew", sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: subpixel-antialiased;
+  font-weight: 400;
+  -webkit-print-color-adjust: exact;
+  -moz-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-size: 15px;
+  line-height: 1.7;
 
-
-	margin: 0;
+  margin: 0;
   padding: 0px;
   direction: rtl;
   text-align: right;
@@ -321,6 +320,12 @@ ul {
   font-size: 0.9em;
   opacity: 0.7;
 }
+.message-item.clickable .message-text-help::after {
+  content: "❓";
+  margin-right: 8px;
+  font-size: 0.9em;
+  opacity: 0.7;
+}
 
 .dismiss-button {
   background-color: var(--button-gray);
@@ -380,7 +385,7 @@ ul {
     font-size: 14px;
     border-radius: 4px;
   }
-  
+
   .logout-button {
     padding: 8px 12px;
     font-size: 14px;
@@ -1523,23 +1528,23 @@ button:disabled {
 }
 
 .editor-select {
-	padding: 0px;
-	border: 1px solid var(--border-color);
-	border-radius: 2px;
-	background-color: var(--bg-color);
-	color: var(--text-color);
-	cursor: pointer;
-	margin-left: 10px;
-  }
-  
-  .editor-select.changed {
-	  background-color: var(--changed-bg);
-  }
-  
-  .editor-select:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
-  }
+  padding: 0px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.editor-select.changed {
+  background-color: var(--changed-bg);
+}
+
+.editor-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .form-select {
   padding: 8px;
@@ -1847,7 +1852,6 @@ button:disabled {
 }
 
 @media (max-width: 600px) {
-
 }
 
 .instructions-section {
@@ -1927,7 +1931,6 @@ a:not(.submit-instructions-button):visited {
   color: var(--link-visited);
 }
 
-
 /* For editor */
 /* Make all input fields have the same fixed width and narrow height */
 .header-input {
@@ -1943,17 +1946,17 @@ a:not(.submit-instructions-button):visited {
 }
 
 .header-input.read-only {
-	background-color: var(--bg-color);
-	border: none;
-	font-weight: bold;
+  background-color: var(--bg-color);
+  border: none;
+  font-weight: bold;
 }
 
 .header-input.changed {
-	background-color: var(--changed-bg);
+  background-color: var(--changed-bg);
 }
 
 .header-input.error {
-	background-color: var(--error-bg);
+  background-color: var(--error-bg);
 }
 
 /* 🟢 Reduce accordion item width */
@@ -2033,57 +2036,57 @@ a:not(.submit-instructions-button):visited {
   max-width: 100px;
 }
 .field-input.changed {
-	background-color: var(--changed-bg);
+  background-color: var(--changed-bg);
 }
 .field-input.error {
-	background-color: var(--error-bg);
+  background-color: var(--error-bg);
 }
 
 .field-text-input {
-	padding: 2px;
-	text-align: right;
-	border: 1px solid var(--gray);
-	background-color: var(--bg-color);
-	color: var(--text-color);
-	width:460px;
+  padding: 2px;
+  text-align: right;
+  border: 1px solid var(--gray);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  width: 460px;
 }
 
 .field-text-input.value {
-	background-color: var(--warning-bg);
+  background-color: var(--warning-bg);
 }
 
 .field-date-input {
-	flex: 0 0 120px;
-	padding: 2px;
-	text-align: right;
-	border: 1px solid var(--gray);
-	background-color: var(--bg-color);
-	color: var(--text-color);
-	max-width: 120px;
-  }
+  flex: 0 0 120px;
+  padding: 2px;
+  text-align: right;
+  border: 1px solid var(--gray);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  max-width: 120px;
+}
 .field-labelx {
-	flex: 0 0 250px;
-	text-align: right;
-	margin-right: 6px;
-  }
+  flex: 0 0 250px;
+  text-align: right;
+  margin-right: 6px;
+}
 
 .field-labelx.changed {
-	background-color: var(--changed-bg);
+  background-color: var(--changed-bg);
 }
 .field-text-input.changed {
-	background-color: var(--changed-bg);
+  background-color: var(--changed-bg);
 }
 .field-date-input.changed {
-	background-color: var(--changed-bg);
+  background-color: var(--changed-bg);
 }
 .field-labelx.error {
-	background-color: var(--error-bg);
+  background-color: var(--error-bg);
 }
 .field-text-input.error {
-	background-color: var(--error-bg);
+  background-color: var(--error-bg);
 }
 .field-date-input.error {
-	background-color: var(--error-bg);
+  background-color: var(--error-bg);
 }
 
 /* 🟢 Ensure hidden caption does not take up space */
@@ -2097,13 +2100,13 @@ a:not(.submit-instructions-button):visited {
   }
 
   .field-text-input {
-	padding: 2px;
-	text-align: right;
-	border: 1px solid var(--gray);
-	background-color: var(--bg-color);
-	color: var(--text-color);
-	width:310px;
-}
+    padding: 2px;
+    text-align: right;
+    border: 1px solid var(--gray);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    width: 310px;
+  }
   /* 🟢 Mobile: 2-column layout with **narrow accordion items** */
   .header-fields-wrapper {
     display: grid;
@@ -2284,14 +2287,14 @@ a:not(.submit-instructions-button):visited {
   margin-bottom: 10px;
 }
 .accordion-container.error {
-	border-right-color: var(--error-border);
-	background-color: var(--error-bg);
-  }
+  border-right-color: var(--error-border);
+  background-color: var(--error-bg);
+}
 
-  .accordion-container.error:hover {
-	border-right-color: var(--error-border);
-	background-color: var(--error-bg-hover);
-  }
+.accordion-container.error:hover {
+  border-right-color: var(--error-border);
+  background-color: var(--error-bg-hover);
+}
 .accordion-header {
   padding: 2px;
   display: flex;
@@ -2299,7 +2302,7 @@ a:not(.submit-instructions-button):visited {
 }
 
 .delete-item-button {
-   border: none;
+  border: none;
   background: none;
   cursor: pointer;
   padding: 2px 6px;
@@ -2324,7 +2327,6 @@ a:not(.submit-instructions-button):visited {
   background-color: var(--item-bg);
 }
 
-
 .date-accordion-header {
   display: flex;
   align-items: center;
@@ -2336,15 +2338,15 @@ a:not(.submit-instructions-button):visited {
 
 /* Add hover effects */
 .date-accordion-header:hover {
-	background-color: var(--border-color);
+  background-color: var(--border-color);
 }
 
 .date-accordion-header.error {
-	background-color: var(--error-bg);
+  background-color: var(--error-bg);
 }
 
 .date-accordion-header.error:hover {
-	background-color: var(--error-bg-hover);
+  background-color: var(--error-bg-hover);
 }
 
 .date-accordion-toggle-button {
@@ -2372,17 +2374,14 @@ a:not(.submit-instructions-button):visited {
   margin: 0;
 }
 
-
-
-
 .date-accordion-toggle-button:hover {
   color: var(--tax-blue);
 }
 
 .date-title {
-	/* font-size: 1.1em; */
-	font-weight: 500;
-	color: var(--text-color);
+  /* font-size: 1.1em; */
+  font-weight: 500;
+  color: var(--text-color);
 }
 
 .accordion-body {
@@ -2415,21 +2414,21 @@ a:not(.submit-instructions-button):visited {
 }
 
 .fields-toggle-link {
-	color: var(--tax-blue);
-	text-decoration: none;
-	font-size: 14px;
-	cursor: pointer;
-	transition: color 0.3s ease;
-  }
-  
-  .fields-toggle-link:hover {
-	color: var(--tax-blue-dark);
-	text-decoration: underline;
-  }
-  
-  .fields-toggle-link.active {
-	color: var(--tax-blue-dark);
-  }
+  color: var(--tax-blue);
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.fields-toggle-link:hover {
+  color: var(--tax-blue-dark);
+  text-decoration: underline;
+}
+
+.fields-toggle-link.active {
+  color: var(--tax-blue-dark);
+}
 
 .read-only-field-value {
   color: var(--text-color);
@@ -2443,68 +2442,67 @@ a:not(.submit-instructions-button):visited {
 }
 
 .container_867_templates {
-margin-bottom: 15px;
-margin-top: 15px;
+  margin-bottom: 15px;
+  margin-top: 15px;
 }
 
-
 .start-button {
-	background-color: var(--button-blue);
-	color: var(--button-text);
-	border: none;
-	padding: 12px 40px;
-	font-size: 1.2em;
-	border-radius: 6px;
-	cursor: pointer;
-	transition: background-color 0.3s;
+  background-color: var(--button-blue);
+  color: var(--button-text);
+  border: none;
+  padding: 12px 40px;
+  font-size: 1.2em;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .start-button:hover {
-	background-color: var(--button-blue-hover);
+  background-color: var(--button-blue-hover);
 }
 
 .start-button:disabled {
-	background-color: var(--border-color);
-	cursor: not-allowed;
+  background-color: var(--border-color);
+  cursor: not-allowed;
 }
 
 .google-login {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    background-color: var(--button-text);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  background-color: var(--button-text);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .google-login:hover {
-    background-color: var(--button-text-hover);
+  background-color: var(--button-text-hover);
 }
 
 .google-login img {
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
 }
 
 .google-login span {
-    color: var(--button-text);
-    font-family: 'Google Sans', 'Open Sans Hebrew', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
+  color: var(--button-text);
+  font-family: "Google Sans", "Open Sans Hebrew", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .social-login {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 20px;
 }
 
 .highlighted-cell {
@@ -2561,9 +2559,16 @@ margin-top: 15px;
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 #passwordModal .modal-footer {
@@ -2678,7 +2683,7 @@ margin-top: 15px;
   .options-container {
     grid-template-columns: 1fr;
   }
-  
+
   .accountants-list {
     grid-template-columns: 1fr;
   }
