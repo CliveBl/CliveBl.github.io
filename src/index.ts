@@ -760,12 +760,16 @@ async function uploadFiles(validFiles: File[]) {
   return true;
 }
 
+function getMessageCode(text: string) {
+  return text.match(/\^([^ ]+)/)?.[1];
+}
+
 // Update addMessage function to handle message types
 export function addMessage(text: string, type = "info", scrollToMessageSection = true) {
-	// Map of error codes to faq ids
-	const errorCodeToFaqId = {
-		"^NoIdentity": "faq-personal-details"
-	}
+  // Map of error codes to faq ids
+  const errorCodeToFaqId = {
+    "^NoIdentity": "faq-personal-details",
+  };
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
   if (type) {
@@ -775,7 +779,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   const messageText = document.createElement("span");
   messageText.className = "message-text";
   // ^<message code> indicates a message code
-  const messageCode = text.match(/\^([^ ]+)/)?.[1];
+  const messageCode = getMessageCode(text);
   if (messageCode) {
     // Eliminate the message code from the text
     messageText.textContent = text.replace(`^${messageCode} `, "");
@@ -817,11 +821,11 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       // Make the messageDiv a clickable link to the fileItem
       messageText.addEventListener("click", () => {
         if (!editableFileList) {
-         // switch to the editable file list view
+          // switch to the editable file list view
           editableFileList = true;
           updateFileListView();
         }
-          openFileListEntryP(fileName, property);
+        openFileListEntryP(fileName, property);
       });
     }
   } else if (messageCode) {
@@ -830,8 +834,8 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     if (faqId) {
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
-	  messageText.className = "message-text-help";
-	  // Make the messageDiv a clickable link to the FAQ
+      messageText.className = "message-text-help";
+      // Make the messageDiv a clickable link to the FAQ
       messageText.addEventListener("click", () => {
         window.location.href = `faq.html#${faqId}`;
       });
@@ -1417,12 +1421,12 @@ const docDetails = {
       },
     ],
   },
-  "unsupported": {
+  unsupported: {
     title: "מסמכים לא נתמכים - פירוט מלא",
     sections: [
       {
         title: "מה הם מסמכים לא נתמכים?",
-        content: "מסמכים הקשורים לעסקאות שלא נתמכות כרגע במערכת זו, כולל מסחר בקריפטו, ברוקרים זרים, ונכסים בחו\"ל.",
+        content: 'מסמכים הקשורים לעסקאות שלא נתמכות כרגע במערכת זו, כולל מסחר בקריפטו, ברוקרים זרים, ונכסים בחו"ל.',
       },
       {
         title: "סוגי מסמכים לא נתמכים",
@@ -1702,27 +1706,26 @@ function addFileToList(fileInfo: any) {
   const buttonContainer = document.createElement("div");
   buttonContainer.className = "accordion-button-container";
 
-  
-    // Create edit button
-	const editButton = document.createElement("button") as HTMLButtonElement;
-	editButton.textContent = "✏️";
-	editButton.className = "edit-button";
-	editButton.title = "ערוך";
-	editButton.style.display = "none"; // Initially hidden
-	editButton.addEventListener("click", async (e) => {
-		// Handle edit action here
-		debug("Edit clicked for file:", fileId);
-		// Get the entry that from the latestFileInfoList with the same fileId
-		const formJson = latestFileInfoList.find((file) => file.fileId === fileId);
-		if (!formJson || !formJson.fileName) {
-		  throw new Error("Form not found");
-		}
-  
-		// Switch to edit mode
-		await toggleFileListView();
-  
-		openFileListEntryP(formJson.fileName, null);
-	});
+  // Create edit button
+  const editButton = document.createElement("button") as HTMLButtonElement;
+  editButton.textContent = "✏️";
+  editButton.className = "edit-button";
+  editButton.title = "ערוך";
+  editButton.style.display = "none"; // Initially hidden
+  editButton.addEventListener("click", async (e) => {
+    // Handle edit action here
+    debug("Edit clicked for file:", fileId);
+    // Get the entry that from the latestFileInfoList with the same fileId
+    const formJson = latestFileInfoList.find((file) => file.fileId === fileId);
+    if (!formJson || !formJson.fileName) {
+      throw new Error("Form not found");
+    }
+
+    // Switch to edit mode
+    await toggleFileListView();
+
+    openFileListEntryP(formJson.fileName, null);
+  });
 
   // Add edit button to the button container.
   buttonContainer.appendChild(editButton);
@@ -1808,10 +1811,6 @@ function addFileToList(fileInfo: any) {
     }
   });
 
-
-
-
-
   // Add click handler for accordion
   fileHeader.addEventListener("click", (e) => {
     // Don't toggle if clicking delete button
@@ -1888,7 +1887,7 @@ function addFileToList(fileInfo: any) {
     });
   }
 
-   li.appendChild(deleteButton);
+  li.appendChild(deleteButton);
   fileList.appendChild(li);
 
   return li;
@@ -1975,13 +1974,13 @@ function updateDeleteAllButton(hasEntries: boolean) {
 // Helper function to get color class based on numeric value
 function getValueColorClass(value: string): string {
   if (!value || value.trim() === "") return "";
-  
+
   // Remove any non-numeric characters except minus sign and decimal point
   const cleanValue = value.replace(/[^\d.-]/g, "");
   const numValue = parseFloat(cleanValue);
-  
+
   if (isNaN(numValue)) return "";
-  
+
   if (numValue <= 0) return "negative-value";
   if (numValue > 0) return "positive-value";
   return "";
@@ -2017,10 +2016,10 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
   result.forEach((row: any, index: number) => {
     const tr = document.createElement("tr");
     const isLastRow = index === result.length - 1;
-    
+
     // Get color class only for the last row's total cell
     const totalColorClass = isLastRow ? getValueColorClass(row.total?.trim() || "") : "";
-    
+
     tr.innerHTML = `
           <td>${row.title}</td>
           <td>${row.spouse?.trim() || ""}</td>
@@ -2566,7 +2565,7 @@ function showWarningModal(message: string) {
   });
 }
 
- function updateFileListView() {
+function updateFileListView() {
   const toggleLink = document.getElementById("toggleFileListView") as HTMLAnchorElement;
   const fileList = document.getElementById("fileList") as HTMLElement;
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLElement;
@@ -2596,8 +2595,6 @@ async function toggleFileListView() {
   updateFileListView();
   await loadExistingFiles();
 }
-
-
 
 async function signInWithGoogle() {
   try {

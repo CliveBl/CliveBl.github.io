@@ -661,11 +661,14 @@ async function uploadFiles(validFiles) {
     }
     return true;
 }
+function getMessageCode(text) {
+    return text.match(/\^([^ ]+)/)?.[1];
+}
 // Update addMessage function to handle message types
 export function addMessage(text, type = "info", scrollToMessageSection = true) {
     // Map of error codes to faq ids
     const errorCodeToFaqId = {
-        "^NoIdentity": "faq-personal-details"
+        "^NoIdentity": "faq-personal-details",
     };
     const messageDiv = document.createElement("div");
     messageDiv.className = "message-item";
@@ -675,7 +678,7 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
     const messageText = document.createElement("span");
     messageText.className = "message-text";
     // ^<message code> indicates a message code
-    const messageCode = text.match(/\^([^ ]+)/)?.[1];
+    const messageCode = getMessageCode(text);
     if (messageCode) {
         // Eliminate the message code from the text
         messageText.textContent = text.replace(`^${messageCode} `, "");
@@ -1274,12 +1277,12 @@ const docDetails = {
             },
         ],
     },
-    "unsupported": {
+    unsupported: {
         title: "מסמכים לא נתמכים - פירוט מלא",
         sections: [
             {
                 title: "מה הם מסמכים לא נתמכים?",
-                content: "מסמכים הקשורים לעסקאות שלא נתמכות כרגע במערכת זו, כולל מסחר בקריפטו, ברוקרים זרים, ונכסים בחו\"ל.",
+                content: 'מסמכים הקשורים לעסקאות שלא נתמכות כרגע במערכת זו, כולל מסחר בקריפטו, ברוקרים זרים, ונכסים בחו"ל.',
             },
             {
                 title: "סוגי מסמכים לא נתמכים",
