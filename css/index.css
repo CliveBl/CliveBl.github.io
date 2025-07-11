@@ -117,6 +117,16 @@ body {
   flex-direction: column;
   align-items: center;
 }
+button {
+	font-family: "Open Sans Hebrew", sans-serif;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: subpixel-antialiased;
+	font-weight: 400;
+	-webkit-print-color-adjust: exact;
+	-moz-print-color-adjust: exact;
+	print-color-adjust: exact;
+	font-size: 15px;
+	line-height: 1.7;}
 
 h1 {
   color: var(--tax-blue);
@@ -354,6 +364,7 @@ ul {
   cursor: pointer;
   font-size: 12px;
   margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .login-button:hover {
@@ -371,6 +382,7 @@ ul {
   cursor: pointer;
   font-size: 12px;
   margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .logout-button:hover {
@@ -831,7 +843,7 @@ ul {
 }
 
 .doc-status {
-  color: var(--button-red);
+  color: var(--error-text);
   font-size: 1rem;
   padding-right: 10px;
 }
@@ -2653,6 +2665,13 @@ a:not(.submit-instructions-button):visited {
 }
 
 @media (max-width: 600px) {
+  .drag-drop-area {
+    display: none !important;
+  }
+}
+
+/* Hide drag and drop area on iPad */
+@media (min-width: 768px) and (max-width: 1024px) {
   .drag-drop-area {
     display: none !important;
   }
