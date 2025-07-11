@@ -2614,3 +2614,45 @@ a:not(.submit-instructions-button):visited {
     grid-template-columns: 1fr;
   }
 }
+
+/* Drag and Drop Area Styles */
+.drag-drop-area {
+  border: 2px dashed var(--button-blue);
+  border-radius: 8px;
+  background: var(--item-bg);
+  padding: 32px 0 24px 0;
+  margin: 20px 0 10px 0;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  position: relative;
+}
+.drag-drop-area.dragover {
+  background: var(--highlight-bg);
+  border-color: var(--tax-green);
+}
+.drag-drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.drag-drop-icon {
+  font-size: 2.5em;
+  margin-bottom: 8px;
+}
+.drag-drop-text {
+  font-size: 1.1em;
+  color: var(--text-color);
+  font-weight: bold;
+}
+.drag-drop-hint {
+  font-size: 0.95em;
+  color: var(--message-text);
+}
+
+@media (max-width: 600px) {
+  .drag-drop-area {
+    display: none !important;
+  }
+}

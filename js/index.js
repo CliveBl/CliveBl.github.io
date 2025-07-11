@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
-const uiVersion = "0.69";
+const uiVersion = "0.70";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -350,10 +350,17 @@ function updateFileList(fileInfoList) {
 function updateProcessButton(hasEntries) {
     processButton.disabled = !hasEntries;
 }
-async function uploadFilesListener(fileInput) {
+// Refactor uploadFilesListener to accept File[] or HTMLInputElement
+async function uploadFilesListener(inputOrFiles) {
     clearMessages();
+    let files;
+    if (Array.isArray(inputOrFiles)) {
+        files = inputOrFiles;
+    }
+    else {
+        files = Array.from(inputOrFiles.files || []);
+    }
     // Filter out invalid files first
-    const files = Array.from(fileInput.files || []);
     const validFiles = files.filter((file) => {
         const validation = isValidFileType(file);
         if (!validation.valid) {
@@ -1099,6 +1106,32 @@ deleteAllButton.addEventListener("click", async () => {
 // DOMContentLoaded event for other initialization
 document.addEventListener("DOMContentLoaded", () => {
     debug("DOMContentLoaded 1");
+    // Drag and Drop Area Logic
+    const dragDropArea = document.getElementById("dragDropArea");
+    if (dragDropArea) {
+        // Highlight on drag over
+        dragDropArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dragDropArea.classList.add("dragover");
+        });
+        dragDropArea.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            dragDropArea.classList.remove("dragover");
+        });
+        dragDropArea.addEventListener("drop", async (e) => {
+            e.preventDefault();
+            dragDropArea.classList.remove("dragover");
+            const files = Array.from(e.dataTransfer?.files || []);
+            if (files.length > 0) {
+                // Use the same logic as file input
+                await uploadFilesListener(files);
+            }
+        });
+        // Click to open file dialog
+        dragDropArea.addEventListener("click", () => {
+            fileInput.click();
+        });
+    }
 });
 function clearTaxResults() {
     const taxResultsContainer = document.getElementById("taxResultsContainer");
