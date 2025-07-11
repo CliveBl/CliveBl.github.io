@@ -397,6 +397,16 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     const yearTitle = document.createElement("span") as HTMLSpanElement;
     yearTitle.textContent = year;
     yearTitle.className = "date-title";
+    
+    // Add error icon if year is "ללא שנה"
+    if (year === "ללא שנה") {
+      const errorIcon = document.createElement("span") as HTMLSpanElement;
+      errorIcon.textContent = "❌";
+      errorIcon.className = "year-error-icon";
+      errorIcon.title = "שנה לא זוהתה - יש לבדוק את המסמך";
+      yearTitle.appendChild(errorIcon);
+    }
+    
     yearHeader.appendChild(yearTitle);
 
     // Create year body
@@ -757,6 +767,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       };
     } else if (key.endsWith("Boolean")) {
       input.type = "checkbox";
+      input.className = "custom-checkbox";
       input.value = fieldValue.value;
       input.checked = fieldValue.value === true || fieldValue.value === "true";
       input.onchange = () => {
@@ -858,6 +869,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           const label = document.createElement("label") as HTMLLabelElement;
           radioButton.type = "radio";
           radioButton.value = option;
+          radioButton.className = "custom-radio";
           const name = getFriendlyOptionName(key);
           // Must have a unique name so that it doesnt get mixed up with other forms.
           radioButton.name = `${fileData.fileId}_${name}`;

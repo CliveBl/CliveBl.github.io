@@ -1,11 +1,10 @@
 /* Add these color variables at the top of the style section */
 :root {
   --bg-color: #d0d0bd;
-  --text-color: #604133;
+  --text-color: #000000;
   --border-color: #403636;
   --item-bg: #aaa58a;
-  --item-bg-hover: #a69956;
-  --warning-bg: #dcc87f;
+  --warning-bg: #fef9e7;
   --success-bg: #e8f8f5;
   --error-bg: #fde9e7;
   --error-bg-hover: #cea4a1;
@@ -13,10 +12,10 @@
   --warning-border: #f1c40f;
   --success-border: #2ecc71;
   --error-border: #e74c3c;
-  --warning-text: var(--text-color);
+  --warning-text: #b7950b;
   --success-text: #27ae60;
   --error-text: #c0392b;
-  --button-text: var(--text-color);
+  --button-text: #000000;
   --message-text: #666;
   --tax-blue: #76503f;
   --tax-green: #d0bc52;
@@ -49,7 +48,6 @@
     --text-color: #ffffff;
     --border-color: #404040;
     --item-bg: #2d2d2d;
-    --item-bg-hover: #403636;
     --warning-bg: #3d3415;
     --success-bg: #1e3d32;
     --error-bg: #3d1f1d;
@@ -58,10 +56,10 @@
     --warning-border: #b7950b;
     --success-border: #27ae60;
     --error-border: #c0392b;
-    --warning-text: var(--text-color);
+    --warning-text: #f1c40f;
     --success-text: #2ecc71;
     --error-text: #e74c3c;
-	--button-text: var(--text-color);
+    --button-text: #ffffff;
     --message-text: #b0b0b0;
     --tax-blue: #3498db;
     --tax-green: #27ae60;
@@ -444,9 +442,6 @@ ul {
   align-items: center;
   font-size: 0.9em;
   cursor: pointer;
-}
-.file-header:hover {
-  background-color: var(--item-bg-hover);
 }
 
 .fileNameElement {
@@ -944,6 +939,8 @@ ul {
   opacity: 0.7;
 }
 
+
+
 .info-section {
   position: relative;
 }
@@ -1241,6 +1238,8 @@ button:disabled {
   align-items: center;
 }
 
+
+
 .file-item {
   transition: all 0.3s ease;
 }
@@ -1265,6 +1264,10 @@ button:disabled {
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 15px;
   /* flex-direction: row-reverse; */
+}
+
+.file-header:hover {
+  background-color: var(--border-color);
 }
 
 .accordion-content em {
@@ -1365,11 +1368,6 @@ button:disabled {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-size: 1em;
-}
-
-input#feedbackEmail {
-  color: var(--text-color);
-  background-color: var(--bg-color);
 }
 
 .feedback-input-group textarea {
@@ -1764,6 +1762,7 @@ input#feedbackEmail {
   left: 10px;
   background: none;
   border: none;
+  color: var(--button-blue);
   font-size: 0.9em;
   cursor: pointer;
   padding: 0;
@@ -1775,6 +1774,7 @@ input#feedbackEmail {
 
 .more-info-button:hover {
   text-decoration: underline;
+  color: var(--button-blue);
 }
 
 @media (max-width: 600px) {
@@ -2264,15 +2264,15 @@ a:not(.submit-instructions-button):visited {
 
 /* Add hover effects */
 .date-accordion-header:hover {
-  background-color: var(--item-bg-hover);
+  background-color: var(--border-color);
 }
 
 .date-accordion-header.error {
-  background-color: var(--item-bg);
+  background-color: var(--error-bg);
 }
 
 .date-accordion-header.error:hover {
-  background-color: var(--item-bg-hover);
+  background-color: var(--error-bg-hover);
 }
 
 .date-accordion-toggle-button {
@@ -2613,140 +2613,4 @@ a:not(.submit-instructions-button):visited {
   .accountants-list {
     grid-template-columns: 1fr;
   }
-}
-/* Drag and Drop Area Styles */
-.drag-drop-area {
-  border: 2px dashed var(--button-blue);
-  border-radius: 8px;
-  background: var(--item-bg);
-  padding: 32px 0 24px 0;
-  margin: 20px 0 10px 0;
-  text-align: center;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-  position: relative;
-}
-.drag-drop-area.dragover {
-  background: var(--highlight-bg);
-  border-color: var(--tax-green);
-}
-.drag-drop-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.drag-drop-icon {
-  font-size: 2.5em;
-  margin-bottom: 8px;
-}
-.drag-drop-text {
-  font-size: 1.1em;
-  color: var(--text-color);
-  font-weight: bold;
-}
-.drag-drop-hint {
-  font-size: 0.95em;
-  color: var(--message-text);
-}
-
-@media (max-width: 600px) {
-  .drag-drop-area {
-    display: none !important;
-  }
-}
-
-/* Year Error Icon */
-.year-error-icon {
-  margin-right: 8px;
-  font-size: 1.1em;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* Custom Checkbox and Radio Styling */
-.custom-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--border-color);
-  background: var(--bg-color);
-  border-radius: 4px;
-  cursor: pointer;
-  position: relative;
-  transition: border-color 0.2s, background 0.2s;
-  vertical-align: middle;
-  margin: 0 4px 0 0;
-}
-
-.custom-radio {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--border-color);
-  background: var(--bg-color);
-  border-radius: 50%;
-  cursor: pointer;
-  position: relative;
-  transition: border-color 0.2s, background 0.2s;
-  vertical-align: middle;
-  margin: 0 14px 0 4px;
-}
-
-.custom-checkbox:checked,
-.custom-radio:checked {
-  background: var(--tax-green);
-  border-color: var(--tax-green);
-}
-
-.custom-checkbox:checked::after {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 2px;
-  left: 4px;
-  width: 4px;
-  height: 9px;
-  border: solid var(--border-color);
-  border-width: 0 3px 3px 0;
-  transform: rotate(45deg);
-}
-
-.custom-radio:checked::after {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 6px;
-  height: 6px;
-  background: var(--border-color);
-  border-radius: 50%;
-}
-
-.custom-checkbox:hover,
-.custom-radio:hover {
-  border-color: var(--tax-green-hover);
-  background: var(--item-bg-hover);
-}
-
-.custom-checkbox:disabled,
-.custom-radio:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }

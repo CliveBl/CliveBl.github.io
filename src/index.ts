@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
 
-const uiVersion = "0.70";
+const uiVersion = "0.71";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -364,6 +364,16 @@ function updateFileList(fileInfoList: FileInfo[]) {
     const yearTitle = document.createElement("span") as HTMLSpanElement;
     yearTitle.textContent = year;
     yearTitle.className = "date-title";
+    
+    // Add error icon if year is "ללא שנה"
+    if (year === "ללא שנה") {
+      const errorIcon = document.createElement("span") as HTMLSpanElement;
+      errorIcon.textContent = "❌";
+      errorIcon.className = "year-error-icon";
+      errorIcon.title = "שנה לא זוהתה - יש לבדוק את המסמך";
+      yearTitle.appendChild(errorIcon);
+    }
+    
     yearHeader.appendChild(yearTitle);
 
     const yearBody = document.createElement("div") as HTMLDivElement;

@@ -314,6 +314,14 @@ function updateFileList(fileInfoList) {
         const yearTitle = document.createElement("span");
         yearTitle.textContent = year;
         yearTitle.className = "date-title";
+        // Add error icon if year is "ללא שנה"
+        if (year === "ללא שנה") {
+            const errorIcon = document.createElement("span");
+            errorIcon.textContent = "❌";
+            errorIcon.className = "year-error-icon";
+            errorIcon.title = "שנה לא זוהתה - יש לבדוק את המסמך";
+            yearTitle.appendChild(errorIcon);
+        }
         yearHeader.appendChild(yearTitle);
         const yearBody = document.createElement("div");
         yearBody.className = "date-accordion-body";
