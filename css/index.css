@@ -1,12 +1,13 @@
 /* Add these color variables at the top of the style section */
 :root {
   --bg-color: #d0d0bd;
+  --selected-bg: #ddd6b1;
   --text-color: #604133;
   --border-color: #403636;
   --item-bg: #aaa58a;
   --item-bg-hover: #a69956;
   --warning-bg: #dcc87f;
-  --success-bg: #e8f8f5;
+  --success-bg: #b3e8de;
   --error-bg: #fde9e7;
   --error-bg-hover: #cea4a1;
   --default-border: #95a5a6;
@@ -14,7 +15,7 @@
   --success-border: #2ecc71;
   --error-border: #e74c3c;
   --warning-text: var(--text-color);
-  --success-text: #27ae60;
+  --success-text: #3c7755;
   --error-text: #c0392b;
   --button-text: var(--text-color);
   --message-text: #666;
@@ -46,7 +47,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #000000;
-    --text-color: #ffffff;
+	--selected-bg: #403636;
+	--text-color: #ffffff;
     --border-color: #404040;
     --item-bg: #2d2d2d;
     --item-bg-hover: #403636;
@@ -795,7 +797,7 @@ ul {
 
 .doc-item.selected {
   border-color: var(--button-blue);
-  background-color: var(--hover-overlay);
+  background-color: var(--selected-bg);
 }
 
 .doc-item.selected::after {
