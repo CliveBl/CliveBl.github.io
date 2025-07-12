@@ -159,11 +159,12 @@ export function isFieldValidForTaxYear(fieldName, taxYear) {
     }
     return true;
 }
-const hideIdentity = false;
+const hideIdentity = true;
 export function dummyName(name) {
     return hideIdentity ? "משה בן דוד" : name;
 }
 export function dummyIdNumber(idNumber) {
     return hideIdentity ? "123456789" : idNumber;
 }
+export const NO_YEAR = "ללא שנה";
 //# sourceMappingURL=constants.js.map

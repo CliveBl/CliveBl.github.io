@@ -179,3 +179,5 @@ export function dummyName(name: string) {
 export function dummyIdNumber(idNumber: string) {
   return hideIdentity ? "123456789" : idNumber;
 }
+
+export const NO_YEAR = "ללא שנה";

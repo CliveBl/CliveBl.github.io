@@ -1,4 +1,4 @@
-import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber } from "./constants.js";
+import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
 const uiVersion = "0.71";
 const defaultId = "000000000";
@@ -81,7 +81,7 @@ export function updateButtons(hasEntries: boolean) {
   }
 }
 
-function updateFileListP(fileInfoList: FileInfo[]) {
+function updateFileListP(fileInfoList: FileInfo[], isNewUpload = false) {
   // // Deep copy the fileInfoList
   // const fileInfoListCopy = structuredClone(fileInfoList);
   // // Filter so that only document type "טופס 867" are included
@@ -90,11 +90,11 @@ function updateFileListP(fileInfoList: FileInfo[]) {
   // fileInfoCGT.sort((a, b) => a.fileName.split("/").pop()!.localeCompare(b.fileName.split("/").pop()!));
   // debug("CGT forms",fileInfoCGT);
   if (editableFileList) {
-    displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false);
+    displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false, isNewUpload);
     updateButtons(editableFileListHasEntries());
     updateMissingDocuments();
   } else {
-    updateFileList(fileInfoList);
+    updateFileList(fileInfoList, isNewUpload);
   }
 }
 
@@ -315,7 +315,7 @@ function isInGeneratedTaxFormsFolder(filePath: string) {
 }
 
 // Add this function to update the file list from server response
-function updateFileList(fileInfoList: FileInfo[]) {
+function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
   debug("updateFileList");
   // Store the latest fileInfoList for later reference
   latestFileInfoList = fileInfoList;
@@ -329,7 +329,7 @@ function updateFileList(fileInfoList: FileInfo[]) {
   // Group files by year
   const filesByYear = new Map<string, FileInfo[]>();
   fileInfoList.forEach((fileInfo) => {
-    const year = fileInfo.taxYear || "ללא שנה";
+    const year = fileInfo.taxYear || NO_YEAR;
     if (!filesByYear.has(year)) {
       filesByYear.set(year, []);
     }
@@ -338,8 +338,8 @@ function updateFileList(fileInfoList: FileInfo[]) {
 
   // Sort years in descending order
   const sortedYears = Array.from(filesByYear.keys()).sort((a, b) => {
-    if (a === "Other") return 1;
-    if (b === "Other") return -1;
+    if (a === NO_YEAR) return -1;
+    if (b === NO_YEAR) return 1;
     return parseInt(b) - parseInt(a);
   });
 
@@ -365,8 +365,8 @@ function updateFileList(fileInfoList: FileInfo[]) {
     yearTitle.textContent = year;
     yearTitle.className = "date-title";
     
-    // Add error icon if year is "ללא שנה"
-    if (year === "ללא שנה") {
+    // Add error icon if year is NO_YEAR
+    if (year === NO_YEAR) {
       const errorIcon = document.createElement("span") as HTMLSpanElement;
       errorIcon.textContent = "❌";
       errorIcon.className = "year-error-icon";
@@ -390,6 +390,7 @@ function updateFileList(fileInfoList: FileInfo[]) {
     // Add files for this year
     yearFiles.forEach((fileInfo: FileInfo) => {
       const fileElement = addFileToList(fileInfo);
+	  fileList.appendChild(fileElement);
       yearBody.appendChild(fileElement);
     });
 
@@ -397,12 +398,29 @@ function updateFileList(fileInfoList: FileInfo[]) {
     yearAccordion.appendChild(yearBody);
     fileList.appendChild(yearAccordion);
 
-    // If this is a newly added file (check if it's the last file in the data array)
-    const lastFile = fileInfoList[fileInfoList.length - 1];
-    if (lastFile && (lastFile.taxYear === year || lastFile.type === "FormError")) {
-      // Expand the year accordion
-      yearBody.style.display = "block";
-      yearToggle.textContent = "-";
+    // Only expand if this is a new upload and it's the year of the last uploaded file
+    if (isNewUpload) {
+      const lastFile = fileInfoList[fileInfoList.length - 1];
+      debug("Checking year expansion:", { year, lastFileType: lastFile?.type, lastFileTaxYear: lastFile?.taxYear, isFormError: lastFile?.type === "FormError" });
+      
+      let shouldExpand = false;
+      
+      if (lastFile) {
+        if (lastFile.type === "FormError") {
+          // For FormError files, only expand the NO_YEAR accordion
+          shouldExpand = (year === NO_YEAR);
+        } else {
+          // For normal files, expand the accordion matching the tax year
+          shouldExpand = (lastFile.taxYear === year);
+        }
+      }
+      
+      if (shouldExpand) {
+        debug("Expanding year accordion for:", year);
+        // Expand the year accordion for new uploads
+        yearBody.style.display = "block";
+        yearToggle.textContent = "-";
+      }
     }
   });
 
@@ -730,7 +748,7 @@ async function uploadFiles(validFiles: File[]) {
           }
 
           fileInfoList = await response.json();
-          updateFileListP(fileInfoList);
+          updateFileListP(fileInfoList, true); // true = new upload
           uploadSuccess = true;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
@@ -1339,7 +1357,7 @@ function formatNumber(key: string, value: any) {
   }
 }
 
-function addFileToList(fileInfo: any) {
+export function addFileToList(fileInfo: any) {
   async function deleteFile(fileId: string) {
     try {
       const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
@@ -1646,7 +1664,6 @@ function addFileToList(fileInfo: any) {
   }
 
   li.appendChild(deleteButton);
-  fileList.appendChild(li);
 
   return li;
 }
@@ -2097,7 +2114,7 @@ function restoreSelectedDocTypes() {
     }
 
     const fileInfoList = await response.json();
-    updateFileListP(fileInfoList);
+    updateFileListP(fileInfoList, true); // true = new form creation
     clearResultsControls();
     clearMessages();
     // Jump to the last file in the file list

@@ -1,6 +1,6 @@
-import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages } from "./index.js";
+import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList } from "./index.js";
 import { API_BASE_URL } from "./env.js";
-import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber } from "./constants.js";
+import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 function makeUniqueId() {
     return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
@@ -286,7 +286,7 @@ function setFieldNotChanged(field) {
         field.classList.remove("error");
     }
 }
-export async function displayFileInfoInExpandableArea(allFilesData, backupAllFilesData, withAllFields = false) {
+export async function displayFileInfoInExpandableArea(allFilesData, backupAllFilesData, withAllFields = false, isNewUpload = false) {
     const expandableArea = document.getElementById("expandableAreaUploadFiles");
     if (!expandableArea) {
         console.error('Element with id "expandableAreaUploadFiles" not found!');
@@ -298,7 +298,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
     const filesByYear = new Map();
     allFilesData.forEach((fileData) => {
         // Use taxYear for grouping
-        let year = "ללא שנה";
+        let year = NO_YEAR;
         if (fileData.taxYear && fileData.taxYear.trim() !== "") {
             year = fileData.taxYear;
         }
@@ -317,10 +317,10 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
     });
     // Sort years in descending order
     const sortedYears = Array.from(filesByYear.keys()).sort((a, b) => {
-        if (a === "No Year")
-            return 1;
-        if (b === "No Year")
+        if (a === NO_YEAR)
             return -1;
+        if (b === NO_YEAR)
+            return 1;
         return parseInt(b) - parseInt(a);
     });
     // Create year-level accordions
@@ -344,8 +344,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         const yearTitle = document.createElement("span");
         yearTitle.textContent = year;
         yearTitle.className = "date-title";
-        // Add error icon if year is "ללא שנה"
-        if (year === "ללא שנה") {
+        // Add error icon if year is NO_YEAR
+        if (year === NO_YEAR) {
             const errorIcon = document.createElement("span");
             errorIcon.textContent = "❌";
             errorIcon.className = "year-error-icon";
@@ -365,6 +365,13 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         displayFileInfoHeader(yearBody, allFilesData);
         // Add files to year body
         files.forEach((fileData) => {
+            if (fileData.type === "FormError") {
+                // displayFileInfoLineError(headerFieldsContainer, fileData, accordionToggleButton);
+                const fileElement = addFileToList(fileData);
+                yearBody.appendChild(fileElement);
+                // 	accordionContainer.classList.add("error");
+                return;
+            }
             const accordionContainer = document.createElement("div");
             accordionContainer.id = "accordionContainer";
             accordionContainer.className = "accordion-container";
@@ -384,13 +391,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             // Header Fields
             const headerFieldsContainer = document.createElement("div");
             headerFieldsContainer.style.display = "flex";
-            if (fileData.type === "FormError") {
-                displayFileInfoLineError(headerFieldsContainer, fileData);
-                accordionContainer.classList.add("error");
-            }
-            else {
-                displayFileInfoLine(accordianBody, headerFieldsContainer, fileData);
-            }
+            displayFileInfoLine(accordianBody, headerFieldsContainer, fileData);
             accordianheader.appendChild(headerFieldsContainer);
             // Delete Button
             const editorDeleteButton = document.createElement("button");
@@ -454,12 +455,24 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         yearContainer.appendChild(yearHeader);
         yearContainer.appendChild(yearBody);
         expandableArea.appendChild(yearContainer);
-        // If this is a newly added file (check if it's the last file in the data array)
-        const lastFile = allFilesData[allFilesData.length - 1];
-        if (lastFile && (lastFile.taxYear === year || lastFile.type === "FormError")) {
-            // Expand the year accordion
-            yearBody.style.display = "block";
-            yearToggleButton.textContent = "-";
+        // Only expand if this is a new upload and it's the year of the last uploaded file
+        if (isNewUpload) {
+            const lastFile = allFilesData[allFilesData.length - 1];
+            debug("Editor: Checking year expansion:", { year, lastFileType: lastFile?.type, lastFileTaxYear: lastFile?.taxYear, isFormError: lastFile?.type === "FormError" });
+            if (lastFile) {
+                // For FormError files, only expand the NO_YEAR accordion
+                if (lastFile.type === "FormError" && year === NO_YEAR) {
+                    debug("Editor: Expanding NO_YEAR accordion for FormError file");
+                    yearBody.style.display = "block";
+                    yearToggleButton.textContent = "-";
+                }
+                // For normal files, expand the matching year accordion
+                else if (lastFile.type !== "FormError" && lastFile.taxYear === year) {
+                    debug("Editor: Expanding year accordion for normal file:", year);
+                    yearBody.style.display = "block";
+                    yearToggleButton.textContent = "-";
+                }
+            }
         }
     });
     async function updateForm(fileId, payload) {
@@ -1106,27 +1119,6 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             accordionToggleButton.textContent = accordionToggleButton.textContent === "▼" ? "▲" : "▼";
         };
     }
-    /* ********************************** create header input (Responsive) ************************************** */
-    function displayFileInfoLineError(headerFieldsContainer, fileData) {
-        // If it is an error document type
-        const fileName = { name: fileData.fileName, size: 0, path: fileData.path };
-        const fileInfoElement = document.createElement("div");
-        fileInfoElement.className = "file-info";
-        const fileHeader = document.createElement("div");
-        fileHeader.className = "file-header";
-        const fileNameElement = document.createElement("span");
-        fileNameElement.className = "fileNameElement";
-        fileNameElement.textContent = fileName.path || fileName.name;
-        fileNameElement.textContent = fileNameElement.textContent + " " + "❌";
-        fileHeader.appendChild(fileNameElement);
-        fileInfoElement.appendChild(fileHeader);
-        const statusMessageSpan = document.createElement("span");
-        statusMessageSpan.className = "status-message";
-        statusMessageSpan.textContent = fileData.reasonText;
-        fileInfoElement.appendChild(statusMessageSpan);
-        // Append the wrapper to the container
-        headerFieldsContainer.appendChild(fileInfoElement);
-    }
     function displayFileInfoLine(accordianBody, headerFieldsContainer, fileData) {
         // Create a wrapper for the header fields
         const fieldsWrapper = document.createElement("div");
@@ -1234,7 +1226,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             // Check if Ctrl key is pressed
             if (event.ctrlKey) {
                 // Show exporting state
-                saveButton.classList.add('save-button-exporting');
+                saveButton.classList.add("save-button-exporting");
                 // Save as JSON file
                 const formData = getDataFromControls(accordianBody, fileData);
                 // Create a clean version of the data for export (remove internal fields)
@@ -1245,19 +1237,17 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 };
                 // Create the JSON blob
                 const jsonString = JSON.stringify(exportData, null, 2);
-                const blob = new Blob([jsonString], { type: 'application/json' });
+                const blob = new Blob([jsonString], { type: "application/json" });
                 // Use the original fileName with .json extension (replacing existing extension)
-                const fileName = fileData.fileName ?
-                    fileData.fileName.replace(/\.[^/.]+$/, '') + '.json' :
-                    'form.json';
+                const fileName = fileData.fileName ? fileData.fileName.replace(/\.[^/.]+$/, "") + ".json" : "form.json";
                 // Check if Web Share API is available (mobile browsers)
                 if (navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                     try {
-                        const file = new File([blob], fileName, { type: 'application/json' });
+                        const file = new File([blob], fileName, { type: "application/json" });
                         await navigator.share({
-                            title: 'Form Data Export',
-                            text: 'Exported form data as JSON',
-                            files: [file]
+                            title: "Form Data Export",
+                            text: "Exported form data as JSON",
+                            files: [file],
                         });
                         addMessage("קובץ JSON נשלח בהצלחה", "success");
                     }
@@ -1271,7 +1261,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                     downloadFile(blob, fileName);
                 }
                 // Reset button appearance
-                saveButton.classList.remove('save-button-exporting');
+                saveButton.classList.remove("save-button-exporting");
                 return;
             }
             // Normal save behavior (existing code)
@@ -1306,10 +1296,10 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
     // Helper function for file download
     function downloadFile(blob, fileName) {
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = fileName;
-        a.style.display = 'none';
+        a.style.display = "none";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
