@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.71";
+const uiVersion = "0.72";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1644,6 +1644,7 @@ export function addFileToList(fileInfo: any) {
 
     const retryButton = document.createElement("button") as HTMLButtonElement;
     retryButton.innerHTML = "ניסיון שנית";
+	retryButton.className = "form-action-button";
     //retryInputLabel.className = "custom-file-input-label";
     //retryButton.htmlFor =  "xfileInput";
     retryButton.addEventListener("click", () => {

@@ -2211,6 +2211,11 @@ a:not(.submit-instructions-button):visited {
   margin-bottom: 10px;
 }
 
+.form-add-item-button:hover,
+.form-action-button:hover {
+  background-color: var(--button-color-hover);
+}
+
 .accordion-toggle-button {
   width: 40px;
   text-align: center;

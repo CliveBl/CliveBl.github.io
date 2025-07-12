@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.71";
+const uiVersion = "0.72";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -1462,6 +1462,7 @@ export function addFileToList(fileInfo) {
         retryInput.multiple = true;
         const retryButton = document.createElement("button");
         retryButton.innerHTML = "ניסיון שנית";
+        retryButton.className = "form-action-button";
         //retryInputLabel.className = "custom-file-input-label";
         //retryButton.htmlFor =  "xfileInput";
         retryButton.addEventListener("click", () => {
