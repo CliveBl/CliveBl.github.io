@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.72";
+const uiVersion = "0.73";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1123,7 +1123,7 @@ function descriptionFromFileName(fileName: string) {
     description = `${year}: טופס 1344 - הפסדים מועברים`;
   } else if (name === "1301") {
     // Data file containing the annual data for uploading to the tax authority when filing the tax return
-    description = `${year}: קובץ נתונים שנתיים להעלאה אתר מס הכנסה בזמן הגשת דו"ח שנתי`;
+    description = `${year}: קובץ נתונים שנתיים להעלאה אתר מס הכנסה בזמן הגשת דו״ח שנתי`;
   } else {
     description = `${year}: מסמך נוסף - ` + fileName;
   }
