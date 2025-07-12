@@ -375,7 +375,7 @@ function updateProcessButton(hasEntries) {
     processButton.disabled = !hasEntries;
 }
 // Refactor uploadFilesListener to accept File[] or HTMLInputElement
-async function uploadFilesListener(inputOrFiles) {
+async function uploadFilesListener(inputOrFiles, replacedFileId = null) {
     clearMessages();
     let files;
     if (Array.isArray(inputOrFiles)) {
@@ -396,11 +396,11 @@ async function uploadFilesListener(inputOrFiles) {
     if (validFiles.length === 0) {
         return;
     }
-    return uploadFilesWithButtonProgress(validFiles, fileInput);
+    return uploadFilesWithButtonProgress(validFiles, fileInput, replacedFileId);
 }
 // File upload handler
 fileInput.addEventListener("change", async () => {
-    await uploadFilesListener(fileInput);
+    await uploadFilesListener(fileInput, null);
 });
 // Folder upload handler. Always use individual uploads
 folderInput.addEventListener("change", async () => {
@@ -499,7 +499,7 @@ processButton.addEventListener("click", async () => {
         hideLoadingOverlay();
     }
 });
-async function uploadFilesWithButtonProgress(validFiles, button) {
+async function uploadFilesWithButtonProgress(validFiles, button, replacedFileId = null) {
     const buttonLabel = button.nextElementSibling;
     const originalText = buttonLabel.textContent;
     let success = false;
@@ -515,7 +515,7 @@ async function uploadFilesWithButtonProgress(validFiles, button) {
             await signInAnonymous();
         }
         // Upload files one by one
-        success = await uploadFiles(validFiles);
+        success = await uploadFiles(validFiles, replacedFileId);
     }
     catch (error) {
         console.error("UploadFile failed:", error);
@@ -607,7 +607,7 @@ function showPasswordModal(fileName) {
         };
     });
 }
-async function uploadFiles(validFiles) {
+async function uploadFiles(validFiles, replacedFileId = null) {
     let fileInfoList = null;
     for (const file of validFiles) {
         try {
@@ -630,6 +630,7 @@ async function uploadFiles(validFiles) {
                 const metadata = {
                     customerDataEntryName: "Default",
                     password: password, // Include password if provided
+                    replacedFileId: replacedFileId
                 };
                 formData.append("metadata", new Blob([JSON.stringify(metadata)], {
                     type: "application/json",
@@ -1148,7 +1149,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const files = Array.from(e.dataTransfer?.files || []);
             if (files.length > 0) {
                 // Use the same logic as file input
-                await uploadFilesListener(files);
+                await uploadFilesListener(files, null);
             }
         });
         // Click to open file dialog
@@ -1472,8 +1473,8 @@ export function addFileToList(fileInfo) {
         fileInfoElement.appendChild(retryInputContainer);
         retryInput.addEventListener("change", async (event) => {
             // Open the select document dialog
-            deleteFileQuietly(fileId);
-            const success = await uploadFilesListener(retryInput);
+            //   deleteFileQuietly(fileId);
+            const success = await uploadFilesListener(retryInput, fileId);
             if (success) {
             }
         });
@@ -1700,7 +1701,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (configurationData != null) {
         createFormSelect.innerHTML += configurationData.formTypes
             .filter((formType) => formType.userCanAdd)
-            .map((formType) => `<option value="${formType.formType}">${formType.formName}</option>`)
+            .map((formType) => {
+            const icon = documentIcons[formType.formName] || "📋";
+            return `<option value="${formType.formType}">${icon} ${formType.formName}</option>`;
+        })
             .join("");
     }
     // Add this new code

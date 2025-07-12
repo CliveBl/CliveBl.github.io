@@ -912,7 +912,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 // Add a button to add a new item on the same line as the title
                 const addItemButton = document.createElement("button");
                 addItemButton.textContent = addButtonLabel;
-                addItemButton.className = "add-item-button";
+                addItemButton.className = "form-add-item-button";
                 titleElement.appendChild(addItemButton);
                 addItemButton.onclick = () => {
                     // Update the form from the controls

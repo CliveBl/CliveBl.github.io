@@ -20,13 +20,13 @@
   --button-text: var(--text-color);
   --message-text: #666;
   --tax-blue: #76503f;
-  --tax-green: #d0bc52;
-  --tax-green-hover: #a69956;
-  --changed-bg: #657c65;
+  --tax-green: var(--button-color);
+  --tax-green-hover: var(--button-color-hover);
+  --changed-bg: #a6e8a6;
   --link-visited: #6129a6;
   --gray: #808080;
-  --button-blue: #d0bc52;
-  --button-blue-hover: #a69956;
+  --button-color: #d0bc52;
+  --button-color-hover: #a69956;
   --button-red: #d0bc52;
   --button-red-hover: #a69956;
   --button-gray: #95a5a6;
@@ -47,8 +47,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #000000;
-	--selected-bg: #403636;
-	--text-color: #ffffff;
+    --selected-bg: #403636;
+    --text-color: #ffffff;
     --border-color: #404040;
     --item-bg: #2d2d2d;
     --item-bg-hover: #403636;
@@ -63,16 +63,16 @@
     --warning-text: var(--text-color);
     --success-text: #2ecc71;
     --error-text: #e74c3c;
-	--button-text: var(--text-color);
+    --button-text: var(--text-color);
     --message-text: #b0b0b0;
     --tax-blue: #3498db;
-    --tax-green: #27ae60;
-    --tax-green-hover: #4b8a65;
+    --tax-green: var(--button-color);
+    --tax-green-hover: var(--button-color-hover);
     --changed-bg: #2d462d;
     --link-visited: #bb86fc;
     --gray: #a0a0a0;
-    --button-blue: #3498db;
-    --button-blue-hover: #2980b9;
+    --button-color: #3498db;
+    --button-color-hover: #2980b9;
     --button-red: #e74c3c;
     --button-red-hover: #c0392b;
     --button-gray: #95a5a6;
@@ -118,15 +118,16 @@ body {
   align-items: center;
 }
 button {
-	font-family: "Open Sans Hebrew", sans-serif;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: subpixel-antialiased;
-	font-weight: 400;
-	-webkit-print-color-adjust: exact;
-	-moz-print-color-adjust: exact;
-	print-color-adjust: exact;
-	font-size: 15px;
-	line-height: 1.7;}
+  font-family: "Open Sans Hebrew", sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: subpixel-antialiased;
+  font-weight: 400;
+  -webkit-print-color-adjust: exact;
+  -moz-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-size: 15px;
+  line-height: 1.7;
+}
 
 h1 {
   color: var(--tax-blue);
@@ -269,7 +270,7 @@ ul {
 }
 
 .custom-file-input label {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
   padding: 8px 10px;
   border-radius: 3px;
@@ -281,16 +282,16 @@ ul {
 }
 
 .custom-file-input label:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 /* Style for the second button */
 .custom-file-input label:nth-of-type(2) {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
 }
 
 .custom-file-input label:nth-of-type(2):hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 /* Add these new styles */
@@ -356,7 +357,7 @@ ul {
 }
 
 .login-button {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 4px 6px;
@@ -368,13 +369,13 @@ ul {
 }
 
 .login-button:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 .login-button.logged-in {
   background-color: var(--button-red);
 }
 .logout-button {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 4px 6px;
@@ -386,7 +387,7 @@ ul {
 }
 
 .logout-button:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 .logout-button:disabled {
   background-color: var(--button-gray);
@@ -537,7 +538,7 @@ ul {
 }
 
 .login-submit {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 10px;
@@ -546,7 +547,7 @@ ul {
 }
 
 .login-submit:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 .login-divider {
@@ -626,9 +627,9 @@ ul {
 }
 
 .toggle-button.active {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
-  border-color: var(--button-blue);
+  border-color: var(--button-color);
 }
 
 .signup-field {
@@ -741,7 +742,7 @@ ul {
   margin-left: 8px;
   border: 3px solid var(--border-color);
   border-radius: 50%;
-  border-top-color: var(--button-blue);
+  border-top-color: var(--button-color);
   animation: spin 1s linear infinite;
 }
 
@@ -808,7 +809,7 @@ ul {
 }
 
 .doc-item.selected {
-  border-color: var(--button-blue);
+  border-color: var(--button-color);
   background-color: var(--selected-bg);
 }
 
@@ -817,7 +818,7 @@ ul {
   position: absolute;
   top: 10px;
   left: 10px;
-  color: var(--button-blue);
+  color: var(--button-color);
   font-weight: bold;
 }
 
@@ -949,7 +950,7 @@ ul {
 
 .taxpayer-input-container input:focus {
   outline: none;
-  border-color: var(--button-blue);
+  border-color: var(--button-color);
   box-shadow: 0 0 0 2px var(--modal-shadow-light);
 }
 
@@ -1045,7 +1046,7 @@ ul {
 }
 
 .tax-results-table th {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: white;
   font-weight: bold;
 }
@@ -1089,7 +1090,7 @@ ul {
   width: 50px;
   height: 50px;
   border: 5px solid var(--border-color);
-  border-top: 5px solid var(--button-blue);
+  border-top: 5px solid var(--button-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 10px;
@@ -1163,7 +1164,7 @@ ul {
 }
 
 .cookie-button {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -1174,7 +1175,7 @@ ul {
 }
 
 .cookie-button:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 .header-container,
@@ -1407,7 +1408,7 @@ input#feedbackEmail {
 }
 
 .send-feedback-button {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 10px 20px;
@@ -1418,7 +1419,7 @@ input#feedbackEmail {
 }
 
 .send-feedback-button:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 .send-feedback-button:disabled {
@@ -1607,7 +1608,7 @@ input#feedbackEmail {
 }
 
 .edit-button:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 .modal {
@@ -1663,7 +1664,7 @@ input#feedbackEmail {
 }
 
 .action-button {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 6px 12px;
@@ -1694,7 +1695,7 @@ input#feedbackEmail {
 }
 
 .action-button:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 .tax-calculate-button {
@@ -1713,7 +1714,7 @@ input#feedbackEmail {
 }
 
 .confirm-button {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 8px 16px;
@@ -1722,7 +1723,7 @@ input#feedbackEmail {
 }
 
 .confirm-button:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 .modal ul {
@@ -1824,7 +1825,7 @@ input#feedbackEmail {
 }
 
 .instructions-section a {
-  color: var(--button-blue);
+  color: var(--button-color);
   text-decoration: none;
 }
 
@@ -2185,11 +2186,6 @@ a:not(.submit-instructions-button):visited {
   margin-bottom: 5px;
 }
 
-.add-item-button {
-  margin-right: 10px;
-}
-
-/* Caption styles */
 .caption-row {
   display: flex;
   padding: 10px;
@@ -2202,10 +2198,17 @@ a:not(.submit-instructions-button):visited {
   padding: 5px;
 }
 
-/* Form action buttons */
+.form-add-item-button,
 .form-action-button {
+  background-color: var(--button-color);
+  color: var(--button-text);
+  border: 1px solid var(--button-color);
+  border-radius: 8px;
+  cursor: pointer;
   margin-top: 10px;
   margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 
 .accordion-toggle-button {
@@ -2387,7 +2390,7 @@ a:not(.submit-instructions-button):visited {
 }
 
 .start-button {
-  background-color: var(--button-blue);
+  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 12px 40px;
@@ -2398,7 +2401,7 @@ a:not(.submit-instructions-button):visited {
 }
 
 .start-button:hover {
-  background-color: var(--button-blue-hover);
+  background-color: var(--button-color-hover);
 }
 
 .start-button:disabled {
@@ -2630,7 +2633,7 @@ a:not(.submit-instructions-button):visited {
 }
 /* Drag and Drop Area Styles */
 .drag-drop-area {
-  border: 2px dashed var(--button-blue);
+  border: 2px dashed var(--button-color);
   border-radius: 8px;
   background: var(--item-bg);
   padding: 32px 0 24px 0;

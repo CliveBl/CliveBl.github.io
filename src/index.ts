@@ -437,7 +437,7 @@ function updateProcessButton(hasEntries: boolean) {
 }
 
 // Refactor uploadFilesListener to accept File[] or HTMLInputElement
-async function uploadFilesListener(inputOrFiles: HTMLInputElement | File[]) {
+async function uploadFilesListener(inputOrFiles: HTMLInputElement | File[], replacedFileId: string | null = null) {
   clearMessages();
 
   let files: File[];
@@ -461,12 +461,12 @@ async function uploadFilesListener(inputOrFiles: HTMLInputElement | File[]) {
     return;
   }
 
-  return uploadFilesWithButtonProgress(validFiles, fileInput);
+  return uploadFilesWithButtonProgress(validFiles, fileInput, replacedFileId);
 }
 
 // File upload handler
 fileInput.addEventListener("change", async () => {
-  await uploadFilesListener(fileInput);
+  await uploadFilesListener(fileInput, null);
 });
 
 // Folder upload handler. Always use individual uploads
@@ -581,7 +581,7 @@ processButton.addEventListener("click", async () => {
   }
 });
 
-async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInputElement) {
+async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInputElement, replacedFileId: string | null = null) {
   const buttonLabel = button.nextElementSibling as HTMLSpanElement;
   const originalText = buttonLabel.textContent;
   let success = false;
@@ -601,7 +601,7 @@ async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInp
     }
 
     // Upload files one by one
-    success = await uploadFiles(validFiles);
+    success = await uploadFiles(validFiles, replacedFileId);
   } catch (error) {
     console.error("UploadFile failed:", error);
     addMessage("שגיאה באימות: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -701,7 +701,7 @@ function showPasswordModal(fileName: string) {
   });
 }
 
-async function uploadFiles(validFiles: File[]) {
+async function uploadFiles(validFiles: File[], replacedFileId: string | null = null) {
   let fileInfoList = null;
   for (const file of validFiles) {
     try {
@@ -726,6 +726,7 @@ async function uploadFiles(validFiles: File[]) {
         const metadata = {
           customerDataEntryName: "Default",
           password: password, // Include password if provided
+		  replacedFileId: replacedFileId
         };
         formData.append(
           "metadata",
@@ -1296,7 +1297,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const files = Array.from(e.dataTransfer?.files || []);
       if (files.length > 0) {
         // Use the same logic as file input
-        await uploadFilesListener(files);
+        await uploadFilesListener(files, null);
       }
     });
     // Click to open file dialog
@@ -1655,9 +1656,9 @@ export function addFileToList(fileInfo: any) {
 
     retryInput.addEventListener("change", async (event) => {
       // Open the select document dialog
-      deleteFileQuietly(fileId);
+    //   deleteFileQuietly(fileId);
 
-      const success = await uploadFilesListener(retryInput);
+      const success = await uploadFilesListener(retryInput, fileId);
       if (success) {
       }
     });
@@ -1914,7 +1915,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (configurationData != null) {
     createFormSelect.innerHTML += configurationData.formTypes
       .filter((formType) => formType.userCanAdd)
-      .map((formType) => `<option value="${formType.formType}">${formType.formName}</option>`)
+      .map((formType) => {
+        const icon = documentIcons[formType.formName] || "📋";
+        return `<option value="${formType.formType}">${icon} ${formType.formName}</option>`;
+      })
       .join("");
   }
 
