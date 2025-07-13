@@ -267,7 +267,7 @@ export function editableOpenFileListEntry(fileName: string, property: string | n
 
   for (const container of accordionContainers) {
     // Look for either an input or label with data-field-name="fileName"
-    const fileNameElement = container.querySelector('input[data-field-name="fileName"], label[data-field-name="fileName"]') as HTMLInputElement | HTMLLabelElement;
+    const fileNameElement = container.querySelector('input[data-field-name="fileName"], span[data-field-name="fileName"]') as HTMLInputElement | HTMLSpanElement;
     if (fileNameElement && fileNameElement.textContent === fileName) {
       // Find the toggle button (first child of the header)
       const header = container.querySelector("div") as HTMLDivElement; // First div is the header

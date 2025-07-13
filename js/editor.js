@@ -226,7 +226,7 @@ export function editableOpenFileListEntry(fileName, property, shouldScrollTo = t
     const accordionContainers = document.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
     for (const container of accordionContainers) {
         // Look for either an input or label with data-field-name="fileName"
-        const fileNameElement = container.querySelector('input[data-field-name="fileName"], label[data-field-name="fileName"]');
+        const fileNameElement = container.querySelector('input[data-field-name="fileName"], span[data-field-name="fileName"]');
         if (fileNameElement && fileNameElement.textContent === fileName) {
             // Find the toggle button (first child of the header)
             const header = container.querySelector("div"); // First div is the header
