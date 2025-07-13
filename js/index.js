@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.73";
+const uiVersion = "0.74";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -351,11 +351,11 @@ function updateFileList(fileInfoList, isNewUpload = false) {
             if (lastFile) {
                 if (lastFile.type === "FormError") {
                     // For FormError files, only expand the NO_YEAR accordion
-                    shouldExpand = (year === NO_YEAR);
+                    shouldExpand = year === NO_YEAR;
                 }
                 else {
                     // For normal files, expand the accordion matching the tax year
-                    shouldExpand = (lastFile.taxYear === year);
+                    shouldExpand = lastFile.taxYear === year;
                 }
             }
             if (shouldExpand) {
@@ -632,7 +632,7 @@ async function uploadFiles(validFiles, replacedFileId = null) {
                 const metadata = {
                     customerDataEntryName: "Default",
                     password: password, // Include password if provided
-                    replacedFileId: replacedFileId
+                    replacedFileId: replacedFileId,
                 };
                 formData.append("metadata", new Blob([JSON.stringify(metadata)], {
                     type: "application/json",
@@ -735,11 +735,11 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
         if (fileNameMatches && fileNameMatches.length > 0) {
             // Clean up the display text by removing all fileName= and property= patterns
             let cleanText = text;
-            fileNameMatches.forEach(match => {
+            fileNameMatches.forEach((match) => {
                 cleanText = cleanText.replace(match + ",", "").replace(match, "");
             });
             if (propertyMatches) {
-                propertyMatches.forEach(match => {
+                propertyMatches.forEach((match) => {
                     cleanText = cleanText.replace(match + ",", "").replace(match, "");
                 });
             }
@@ -754,8 +754,8 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
                     updateFileListView();
                 }
                 // Extract file names and properties
-                const fileNames = fileNameMatches.map(match => match.replace("fileName=", ""));
-                const properties = propertyMatches ? propertyMatches.map(match => match.replace("property=", "")) : [];
+                const fileNames = fileNameMatches.map((match) => match.replace("fileName=", ""));
+                const properties = propertyMatches ? propertyMatches.map((match) => match.replace("property=", "")) : [];
                 // Open all files with their respective properties
                 fileNames.forEach((fileName, index) => {
                     const property = properties[index] || null;
@@ -1747,8 +1747,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const toggleLink = document.getElementById("toggleFileListView");
     if (toggleLink) {
         toggleLink.addEventListener("click", (e) => {
-            e.preventDefault();
-            toggleFileListView();
+            if (signedIn) {
+                e.preventDefault();
+                toggleFileListView();
+            }
         });
     }
     // Check if user has already accepted cookies

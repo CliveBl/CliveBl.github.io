@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.73";
+const uiVersion = "0.74";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -366,7 +366,7 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
     const yearTitle = document.createElement("span") as HTMLSpanElement;
     yearTitle.textContent = year;
     yearTitle.className = "date-title";
-    
+
     // Add error icon if year is NO_YEAR
     if (year === NO_YEAR) {
       const errorIcon = document.createElement("span") as HTMLSpanElement;
@@ -375,7 +375,7 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
       errorIcon.title = "שנה לא זוהתה - יש לבדוק את המסמך";
       yearTitle.appendChild(errorIcon);
     }
-    
+
     yearHeader.appendChild(yearTitle);
 
     const yearBody = document.createElement("div") as HTMLDivElement;
@@ -392,7 +392,7 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
     // Add files for this year
     yearFiles.forEach((fileInfo: FileInfo) => {
       const fileElement = addFileToList(fileInfo);
-	  fileList.appendChild(fileElement);
+      fileList.appendChild(fileElement);
       yearBody.appendChild(fileElement);
     });
 
@@ -404,19 +404,19 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
     if (isNewUpload) {
       const lastFile = fileInfoList[fileInfoList.length - 1];
       debug("Checking year expansion:", { year, lastFileType: lastFile?.type, lastFileTaxYear: lastFile?.taxYear, isFormError: lastFile?.type === "FormError" });
-      
+
       let shouldExpand = false;
-      
+
       if (lastFile) {
         if (lastFile.type === "FormError") {
           // For FormError files, only expand the NO_YEAR accordion
-          shouldExpand = (year === NO_YEAR);
+          shouldExpand = year === NO_YEAR;
         } else {
           // For normal files, expand the accordion matching the tax year
-          shouldExpand = (lastFile.taxYear === year);
+          shouldExpand = lastFile.taxYear === year;
         }
       }
-      
+
       if (shouldExpand) {
         debug("Expanding year accordion for:", year);
         // Expand the year accordion for new uploads
@@ -728,7 +728,7 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
         const metadata = {
           customerDataEntryName: "Default",
           password: password, // Include password if provided
-		  replacedFileId: replacedFileId
+          replacedFileId: replacedFileId,
         };
         formData.append(
           "metadata",
@@ -821,7 +821,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   if (messageCode) {
     // Eliminate the message code from the text
     text = text.replace(`^${messageCode} `, "");
-  } 
+  }
   messageText.textContent = text;
 
   const dismissButton = document.createElement("button");
@@ -840,23 +840,23 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     // Extract all fileName= and property= pairs from the message
     const fileNameMatches = text.match(/fileName=([^,\s]+)/g);
     const propertyMatches = text.match(/property=([^,\s]+)/g);
-    
+
     if (fileNameMatches && fileNameMatches.length > 0) {
       // Clean up the display text by removing all fileName= and property= patterns
       let cleanText = text;
-      fileNameMatches.forEach(match => {
+      fileNameMatches.forEach((match) => {
         cleanText = cleanText.replace(match + ",", "").replace(match, "");
       });
       if (propertyMatches) {
-        propertyMatches.forEach(match => {
+        propertyMatches.forEach((match) => {
           cleanText = cleanText.replace(match + ",", "").replace(match, "");
         });
       }
       messageText.textContent = cleanText;
-      
+
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
-      
+
       // Make the messageDiv a clickable link to open all files
       messageText.addEventListener("click", () => {
         if (!editableFileList) {
@@ -864,11 +864,11 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
           editableFileList = true;
           updateFileListView();
         }
-        
+
         // Extract file names and properties
-        const fileNames = fileNameMatches.map(match => match.replace("fileName=", ""));
-        const properties = propertyMatches ? propertyMatches.map(match => match.replace("property=", "")) : [];
-        
+        const fileNames = fileNameMatches.map((match) => match.replace("fileName=", ""));
+        const properties = propertyMatches ? propertyMatches.map((match) => match.replace("property=", "")) : [];
+
         // Open all files with their respective properties
         fileNames.forEach((fileName, index) => {
           const property = properties[index] || null;
@@ -1657,7 +1657,7 @@ export function addFileToList(fileInfo: any) {
 
     const retryButton = document.createElement("button") as HTMLButtonElement;
     retryButton.innerHTML = "ניסיון שנית";
-	retryButton.className = "form-action-button";
+    retryButton.className = "form-action-button";
     //retryInputLabel.className = "custom-file-input-label";
     //retryButton.htmlFor =  "xfileInput";
     retryButton.addEventListener("click", () => {
@@ -1670,7 +1670,7 @@ export function addFileToList(fileInfo: any) {
 
     retryInput.addEventListener("change", async (event) => {
       // Open the select document dialog
-    //   deleteFileQuietly(fileId);
+      //   deleteFileQuietly(fileId);
 
       const success = await uploadFilesListener(retryInput, fileId);
       if (success) {
@@ -1839,8 +1839,6 @@ acceptCookies.addEventListener("click", () => {
   cookieConsent.classList.remove("active");
 });
 
-
-
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", async () => {
   debug("DOMContentLoaded 2");
@@ -1971,8 +1969,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const toggleLink = document.getElementById("toggleFileListView");
   if (toggleLink) {
     toggleLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      toggleFileListView();
+      if (signedIn) {
+        e.preventDefault();
+        toggleFileListView();
+      }
     });
   }
 
@@ -2137,7 +2137,7 @@ function restoreSelectedDocTypes() {
     clearMessages();
     // Jump to the last file in the file list
     openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName, null, true);
- 
+
     addMessage("הטופס נוצר בהצלחה", "success");
     // Reset select to default option
     (e.target as HTMLSelectElement).value = "";
@@ -2240,7 +2240,7 @@ function initializeDocumentIcons() {
 }
 
 async function convertAnonymousAccount(email: string, password: string, fullName: string) {
- const response = await fetch(`${API_BASE_URL}/convertAnonymousAccount`, {
+  const response = await fetch(`${API_BASE_URL}/convertAnonymousAccount`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

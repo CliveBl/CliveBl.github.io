@@ -2658,9 +2658,9 @@ a:not(.submit-instructions-button):visited {
 
 /* Custom Checkbox and Radio Styling */
 .custom-checkbox {
-  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 18px;
   height: 18px;
   border: 2px solid var(--border-color);
@@ -2674,9 +2674,9 @@ a:not(.submit-instructions-button):visited {
 }
 
 .custom-radio {
-  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 14px;
   height: 14px;
   border: 2px solid var(--border-color);

@@ -772,7 +772,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             fieldLabel.setAttribute("for", fieldId);
             // For readOnlyFields, just create a label with the value
             if (readOnlyFields.includes(key)) {
-                const valueLabel = document.createElement("label");
+                const valueLabel = document.createElement("span");
                 valueLabel.textContent = fieldValue.value || "";
                 if (key === "fileName") {
                     valueLabel.dir = "ltr";
