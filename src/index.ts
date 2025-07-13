@@ -106,15 +106,15 @@ function removeFileList() {
   }
 }
 
-function openFileListEntryP(fileName: string, property: string | null) {
+function openFileListEntryP(fileName: string, property: string | null, shouldScroll = true) {
   if (editableFileList) {
-    editableOpenFileListEntry(fileName, property);
+    editableOpenFileListEntry(fileName, property, shouldScroll);
   } else {
-    openFileListEntry(fileName, property);
+    openFileListEntry(fileName, property, shouldScroll);
   }
 }
 
-function openFileListEntry(fileName: string, property: string | null) {
+function openFileListEntry(fileName: string, property: string | null, shouldScroll = true) {
   // Find the file item by looking for the span with class 'fileNameElement' that contains the fileName
   const fileNameElements = document.querySelectorAll(".fileNameElement");
   for (const element of fileNameElements) {
@@ -122,8 +122,10 @@ function openFileListEntry(fileName: string, property: string | null) {
       // Click the parent file-header to open the accordion
       const fileHeader = element.closest(".file-header") as HTMLDivElement;
       if (fileHeader) {
-        // scroll the fileHeader into view
-        fileHeader.scrollIntoView({ behavior: "smooth" });
+        // scroll the fileHeader into view only if shouldScroll is true
+        if (shouldScroll) {
+          fileHeader.scrollIntoView({ behavior: "smooth" });
+        }
         fileHeader.click();
         break;
       }
@@ -818,10 +820,9 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   const messageCode = getMessageCode(text);
   if (messageCode) {
     // Eliminate the message code from the text
-    messageText.textContent = text.replace(`^${messageCode} `, "");
-  } else {
-    messageText.textContent = text;
-  }
+    text = text.replace(`^${messageCode} `, "");
+  } 
+  messageText.textContent = text;
 
   const dismissButton = document.createElement("button");
   dismissButton.className = "dismiss-button";
@@ -836,32 +837,44 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
 
   // If the message contains fileName= then make messageDiv a clickable link to the entry for that file in the filelist
   if (text.includes("fileName=")) {
-    // Match the pattern fileName=.*,
-    const fileName = text.match(/fileName=([^,]+)/)?.[1];
-    if (fileName) {
-      // Eliminate fileName= from the text
-      messageText.textContent = messageText.textContent.replace("fileName=", "");
+    // Extract all fileName= and property= pairs from the message
+    const fileNameMatches = text.match(/fileName=([^,\s]+)/g);
+    const propertyMatches = text.match(/property=([^,\s]+)/g);
+    
+    if (fileNameMatches && fileNameMatches.length > 0) {
+      // Clean up the display text by removing all fileName= and property= patterns
+      let cleanText = text;
+      fileNameMatches.forEach(match => {
+        cleanText = cleanText.replace(match + ",", "").replace(match, "");
+      });
+      if (propertyMatches) {
+        propertyMatches.forEach(match => {
+          cleanText = cleanText.replace(match + ",", "").replace(match, "");
+        });
+      }
+      messageText.textContent = cleanText;
+      
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
-      // If the message contains property= then make messageDiv a clickable link to the entry for that file in the filelist
-      let property = null;
-      if (text.includes("property=")) {
-        // Match the pattern property=.*,
-        const result = text.match(/property=([^,]+)/)?.[1];
-        // Eliminate property=<property> from the text
-        messageText.textContent = messageText.textContent.replace(`property=${result},`, "");
-        if (result) {
-          property = result;
-        }
-      }
-      // Make the messageDiv a clickable link to the fileItem
+      
+      // Make the messageDiv a clickable link to open all files
       messageText.addEventListener("click", () => {
         if (!editableFileList) {
           // switch to the editable file list view
           editableFileList = true;
           updateFileListView();
         }
-        openFileListEntryP(fileName, property);
+        
+        // Extract file names and properties
+        const fileNames = fileNameMatches.map(match => match.replace("fileName=", ""));
+        const properties = propertyMatches ? propertyMatches.map(match => match.replace("property=", "")) : [];
+        
+        // Open all files with their respective properties
+        fileNames.forEach((fileName, index) => {
+          const property = properties[index] || null;
+          const shouldScrollTo = index === 0; // Only scroll to the first one
+          openFileListEntryP(fileName, property, shouldScrollTo);
+        });
       });
     }
   } else if (messageCode) {
@@ -1501,7 +1514,7 @@ export function addFileToList(fileInfo: any) {
     // Switch to edit mode
     await toggleFileListView();
 
-    openFileListEntryP(formJson.fileName, null);
+    openFileListEntryP(formJson.fileName, null, true);
   });
 
   // Add edit button to the button container.
@@ -2123,8 +2136,8 @@ function restoreSelectedDocTypes() {
     clearResultsControls();
     clearMessages();
     // Jump to the last file in the file list
-    openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName, null);
-
+    openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName, null, true);
+ 
     addMessage("הטופס נוצר בהצלחה", "success");
     // Reset select to default option
     (e.target as HTMLSelectElement).value = "";
@@ -2227,7 +2240,7 @@ function initializeDocumentIcons() {
 }
 
 async function convertAnonymousAccount(email: string, password: string, fullName: string) {
-  const response = await fetch(`${API_BASE_URL}/convertAnonymousAccount`, {
+ const response = await fetch(`${API_BASE_URL}/convertAnonymousAccount`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

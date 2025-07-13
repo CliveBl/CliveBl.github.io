@@ -261,7 +261,7 @@ export function editableRemoveFileList() {
   expandableArea.innerHTML = "";
 }
 
-export function editableOpenFileListEntry(fileName: string, property: string | null) {
+export function editableOpenFileListEntry(fileName: string, property: string | null, shouldScrollTo = true) {
   // Find the accordion container that contains the file name in its header fields
   const accordionContainers = document.querySelectorAll("#expandableAreaUploadFiles #accordionContainer");
 
@@ -292,23 +292,25 @@ export function editableOpenFileListEntry(fileName: string, property: string | n
         if (property) {
           // Mark the field with the property as error. Search for the field by data
           const field = container.querySelector(`input[data-field-name="${property}"]`) as HTMLInputElement;
-          setFieldError(field);
+          setFieldError(field, !shouldScrollTo);
         }
 
-        // Scroll the container into view with smooth behavior
-        container.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Scroll the container into view with smooth behavior only if shouldScroll is true
+        if (shouldScrollTo) {
+          container.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
         break;
       }
     }
   }
 }
 
-function setFieldError(field: HTMLElement) {
+function setFieldError(field: HTMLElement, shouldSelect = false) {
   if (field) {
     field.classList.remove("changed");
     field.classList.add("error");
     // set focus to the field and select the text if it is an input
-    if (field instanceof HTMLInputElement) {
+    if (field instanceof HTMLInputElement && !shouldSelect) {
       field.focus();
       field.select();
     }
