@@ -27,8 +27,8 @@
   --gray: #808080;
   --button-color: #d0bc52;
   --button-color-hover: #a69956;
-  --button-red: #d0bc52;
-  --button-red-hover: #a69956;
+  --button-red: var(--button-color);
+  --button-red-hover: var(--button-color-hover);
   --button-gray: #95a5a6;
   --button-gray-hover: #7f8c8d;
   --modal-overlay: rgba(0, 0, 0, 0.5);
@@ -63,18 +63,18 @@
     --warning-text: var(--text-color);
     --success-text: #2ecc71;
     --error-text: #e74c3c;
-    --button-text: var(--text-color);
+    --button-text: #000000;
     --message-text: #b0b0b0;
-    --tax-blue: #3498db;
+    --tax-blue: #dbc134;;
     --tax-green: var(--button-color);
     --tax-green-hover: var(--button-color-hover);
     --changed-bg: #2d462d;
     --link-visited: #bb86fc;
     --gray: #a0a0a0;
-    --button-color: #3498db;
-    --button-color-hover: #2980b9;
-    --button-red: #e74c3c;
-    --button-red-hover: #c0392b;
+    --button-color: #b39756;
+    --button-color-hover: #c1be92;
+    --button-red: var(--button-color);
+    --button-red-hover: var(--button-color-hover);
     --button-gray: #95a5a6;
     --button-gray-hover: #7f8c8d;
     --modal-overlay: rgba(0, 0, 0, 0.5);
@@ -2158,7 +2158,7 @@ a:not(.submit-instructions-button):visited {
 .form-action-button {
 	background-color: var(--button-color);
 	/* Make them smaller than regular buttons */
-	padding: 2px 2px 2px 2px;
+	padding: 0px 1px 0px 1px;
   margin-top: 10px;
   margin-left: 10px;
   margin-right: 10px;
@@ -2722,8 +2722,8 @@ a:not(.submit-instructions-button):visited {
 
 .custom-checkbox:hover,
 .custom-radio:hover {
-  border-color: var(--tax-green-hover);
-  background: var(--item-bg-hover);
+  border-color: var(--border-color-hover);
+  background: var(--button-color-hover);
 }
 
 .custom-checkbox:disabled,
