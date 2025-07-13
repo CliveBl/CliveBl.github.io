@@ -65,7 +65,7 @@
     --error-text: #e74c3c;
     --button-text: #000000;
     --message-text: #b0b0b0;
-    --tax-blue: #dbc134;;
+    --tax-blue: #dbc134;
     --tax-green: var(--button-color);
     --tax-green-hover: var(--button-color-hover);
     --changed-bg: #2d462d;
@@ -134,11 +134,11 @@ button {
 }
 
 button:hover {
-	background-color: var(--button-color-hover);
+  background-color: var(--button-color-hover);
 }
-  .loginout-button.logged-in {
-	background-color: var(--button-red);
-  }
+.loginout-button.logged-in {
+  background-color: var(--button-red);
+}
 
 h1 {
   color: var(--tax-blue);
@@ -356,7 +356,7 @@ ul {
 .dismiss-button {
   background-color: var(--button-gray);
   color: var(--button-text);
-   font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 .dismiss-button:hover {
@@ -366,18 +366,10 @@ ul {
 .loginout-button {
   background-color: var(--button-color);
   color: var(--button-text);
-   font-size: 12px;
+  font-size: 12px;
   margin-top: 4px;
   margin-bottom: 4px;
 }
-
-/* .login-button:hover {
-  background-color: var(--button-color-hover);
-}
-.login-button.logged-in {
-  background-color: var(--button-red);
-} */
-
 
 .loginout-button:hover {
   background-color: var(--button-color-hover);
@@ -393,7 +385,6 @@ ul {
   .loginout-button {
     padding: 6px 6px;
     font-size: 14px;
-    /* border-radius: 4px; */
   }
 }
 
@@ -505,7 +496,7 @@ ul {
   background: none;
   border: none;
   font-size: 20px;
-   color: var(--text-color);
+  color: var(--text-color);
   padding: 5px;
 }
 
@@ -835,7 +826,7 @@ ul {
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
-   font-size: 1em;
+  font-size: 1em;
 }
 
 .save-button:hover {
@@ -1384,7 +1375,7 @@ input#feedbackEmail {
 .send-feedback-button {
   background-color: var(--button-color);
   color: var(--button-text);
-   font-size: 1em;
+  font-size: 1em;
   align-self: flex-end;
 }
 
@@ -1669,20 +1660,20 @@ input#feedbackEmail {
 .confirm-button {
   background-color: var(--button-color);
   color: var(--button-text);
- }
+}
 
 .confirm-button:hover {
   background-color: var(--button-color-hover);
 }
 
 .cancel-button {
-	background-color: var(--button-red);
-	color: var(--button-text);
-  }
-  
-  .cancel-button:hover {
-	background-color: var(--button-red-hover);
-  }
+  background-color: var(--button-red);
+  color: var(--button-text);
+}
+
+.cancel-button:hover {
+  background-color: var(--button-red-hover);
+}
 
 .modal ul {
   margin: 10px 20px;
@@ -2156,9 +2147,9 @@ a:not(.submit-instructions-button):visited {
 
 .form-add-item-button,
 .form-action-button {
-	background-color: var(--button-color);
-	/* Make them smaller than regular buttons */
-	padding: 0px 1px 0px 1px;
+  background-color: var(--button-color);
+  /* Make them smaller than regular buttons */
+  padding: 0px 1px 0px 1px;
   margin-top: 10px;
   margin-left: 10px;
   margin-right: 10px;
@@ -2181,7 +2172,11 @@ a:not(.submit-instructions-button):visited {
 }
 
 .accordion-toggle-button:hover {
-  background-color: var(--border-color);
+  background-color: transparent;
+}
+
+.date-accordion-toggle-button:hover {
+  background-color: transparent;
 }
 
 .accordion-container {
@@ -2255,7 +2250,6 @@ a:not(.submit-instructions-button):visited {
   border: none;
   font-size: 1.2em;
   margin-left: 20px;
-  cursor: pointer;
   color: var(--text-color);
 }
 
@@ -2273,10 +2267,6 @@ a:not(.submit-instructions-button):visited {
 /* Ensure proper spacing between nested accordions */
 .date-accordion-body .accordion-header {
   margin: 0;
-}
-
-.date-accordion-toggle-button:hover {
-  color: var(--tax-blue);
 }
 
 .date-title {
