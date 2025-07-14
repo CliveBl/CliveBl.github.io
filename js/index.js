@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.77";
+const uiVersion = "0.78";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -781,8 +781,9 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
     // If the message contains fileName= then make messageDiv a clickable link to the entry for that file in the filelist
     if (text.includes("fileName=")) {
         // Extract all fileName= and property= pairs from the message
-        const fileNameMatches = text.match(/fileName=([^,\s]+)/g);
-        const propertyMatches = text.match(/property=([^,\s]+)/g);
+        // Updated regex to handle file names with spaces - matches until comma or end of string
+        const fileNameMatches = text.match(/fileName=([^,]+?)(?=,|$)/g);
+        const propertyMatches = text.match(/property=([^,]+?)(?=,|$)/g);
         if (fileNameMatches && fileNameMatches.length > 0) {
             // Clean up the display text by removing all fileName= and property= patterns
             let cleanText = text;
