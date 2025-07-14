@@ -1065,6 +1065,12 @@ ul {
   margin-bottom: 10px;
 }
 
+.cancel-loading-button {
+  background-color: var(--button-color);
+  transition: background-color 0.3s ease;
+  display: none; /* Hidden by default */
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.75";
+const uiVersion = "0.76";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -24,9 +24,9 @@ interface ConfigurationData {
 export let configurationData: ConfigurationData;
 let latestFileInfoList: FileInfo[] = [];
 let documentIcons: Record<string, string | null> = {};
-let isUploading = false;
 let userEmailValue = "";
 let signedIn = false;
+let isCancelled = false;
 const fetchConfig = {
   mode: "cors" as RequestMode,
 };
@@ -75,10 +75,8 @@ const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElem
 const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
 
 export function updateButtons(hasEntries: boolean) {
-  if (!isUploading) {
-    processButton.disabled = !hasEntries;
-    deleteAllButton.disabled = !hasEntries;
-  }
+  processButton.disabled = !hasEntries;
+  deleteAllButton.disabled = !hasEntries;
 }
 
 function updateFileListP(fileInfoList: FileInfo[], isNewUpload = false) {
@@ -316,6 +314,69 @@ function isInGeneratedTaxFormsFolder(filePath: string) {
   return filePath.includes("GeneratedTaxForms");
 }
 
+// Recursively walks the file system and processes file system entries (for folder drops)
+// Updates the files array with the files in the entry
+async function getFileList(entry: any, files: File[]): Promise<void> {
+  if (entry.isFile) {
+    return new Promise((resolve) => {
+      entry.file((file: File) => {
+        files.push(file);
+        resolve();
+      });
+    });
+  } else if (entry.isDirectory) {
+    const reader = entry.createReader();
+    return new Promise((resolve) => {
+      const readEntries = () => {
+        reader.readEntries(async (entries: any[]) => {
+          if (entries.length === 0) {
+            resolve();
+            return;
+          }
+
+          for (const childEntry of entries) {
+            await getFileList(childEntry, files);
+          }
+          readEntries(); // Continue reading if there are more entries
+        });
+      };
+      readEntries();
+    });
+  }
+}
+
+// Shared function to process folder files (used by both folder input and drag & drop)
+async function processFolderFiles(files: File[], button: HTMLInputElement) {
+  clearMessages();
+
+  // Sort and filter files
+  const validFiles = files
+    .sort((a, b) => {
+      const pathA = a.webkitRelativePath || a.name;
+      const pathB = b.webkitRelativePath || b.name;
+      return pathA.localeCompare(pathB);
+    })
+    .filter((file) => {
+      if (isInGeneratedTaxFormsFolder(file.webkitRelativePath || file.name) || file.name.match(/TaxAnalysis_\d{4}\.xlsx/)) {
+        return false;
+      }
+
+      const validation = isValidFileType(file);
+      if (!validation.valid) {
+        addMessage(validation.message || "", "error");
+        return false;
+      }
+
+      return true;
+    });
+
+  if (validFiles.length === 0) {
+    return;
+  }
+
+  await uploadFilesWithProgress(validFiles);
+}
+
 // Add this function to update the file list from server response
 function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
   debug("updateFileList");
@@ -370,7 +431,7 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
     // Add error icon if year is NO_YEAR
     if (year === NO_YEAR) {
       const errorIcon = document.createElement("span") as HTMLSpanElement;
-      errorIcon.textContent = "❌   " + "חשוב לבדוק ולתקן אם יש צורך!"
+      errorIcon.textContent = "❌   " + "חשוב לבדוק ולתקן אם יש צורך!";
       errorIcon.className = "year-error-icon";
       errorIcon.title = "שנה לא זוהתה - יש לבדוק את המסמך";
       yearTitle.appendChild(errorIcon);
@@ -463,7 +524,7 @@ async function uploadFilesListener(inputOrFiles: HTMLInputElement | File[], repl
     return;
   }
 
-  return uploadFilesWithButtonProgress(validFiles, fileInput, replacedFileId);
+  return uploadFilesWithProgress(validFiles, replacedFileId);
 }
 
 // File upload handler
@@ -473,43 +534,29 @@ fileInput.addEventListener("change", async () => {
 
 // Folder upload handler. Always use individual uploads
 folderInput.addEventListener("change", async () => {
-  clearMessages();
-
   const files = Array.from(folderInput.files || []);
-
-  // Sort and filter files
-  const validFiles = files
-    .sort((a, b) => {
-      const pathA = a.webkitRelativePath || a.name;
-      const pathB = b.webkitRelativePath || b.name;
-      return pathA.localeCompare(pathB);
-    })
-    .filter((file) => {
-      if (isInGeneratedTaxFormsFolder(file.webkitRelativePath || file.name) || file.name.match(/TaxAnalysis_\d{4}\.xlsx/)) {
-        return false;
-      }
-
-      const validation = isValidFileType(file);
-      if (!validation.valid) {
-        addMessage(validation.message || "", "error");
-        return false;
-      }
-
-      return true;
-    });
-
-  if (validFiles.length === 0) {
-    return;
-  }
-
-  await uploadFilesWithButtonProgress(validFiles, folderInput);
+  await processFolderFiles(files, folderInput);
 });
 
-function showLoadingOverlay(message: string) {
+function showLoadingOverlay(message: string, showCancelButton: boolean = false) {
   const loadingMessage = document.getElementById("loadingMessage") as HTMLDivElement;
-  loadingMessage.textContent = message;
   const loadingOverlay = document.getElementById("loadingOverlay") as HTMLDivElement;
+  const cancelButton = document.getElementById("cancelLoadingButton") as HTMLButtonElement;
+  
+  loadingMessage.textContent = message;
   loadingOverlay.classList.add("active");
+  isCancelled = false;
+  
+  // Show/hide cancel button based on parameter
+  cancelButton.style.display = showCancelButton ? "block" : "none";
+  
+  // Add cancel button event listener only if button is shown
+  if (showCancelButton) {
+    cancelButton.onclick = () => {
+      isCancelled = true;
+      hideLoadingOverlay();
+    };
+  }
 }
 
 function hideLoadingOverlay() {
@@ -523,7 +570,7 @@ processButton.addEventListener("click", async () => {
     if (!signedIn) {
       await signInAnonymous();
     }
-    showLoadingOverlay("מעבדת מסמכחם...");
+    showLoadingOverlay("מעבדת מסמכחם...", false);
     // Clear previous messages
     clearMessages();
     // Tax results may now be invalid
@@ -580,22 +627,20 @@ processButton.addEventListener("click", async () => {
     addMessage("שגיאה בעיבוד הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
   } finally {
     hideLoadingOverlay();
+    
+    // Check if operation was cancelled
+    if (isCancelled) {
+      addMessage("הפעולה בוטלה על ידי המשתמש", "warning");
+      return;
+    }
   }
 });
 
-async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInputElement, replacedFileId: string | null = null) {
-  const buttonLabel = button.nextElementSibling as HTMLSpanElement;
-  const originalText = buttonLabel.textContent;
+async function uploadFilesWithProgress(validFiles: File[], replacedFileId: string | null = null) {
   let success = false;
-  isUploading = true;
 
-  // Disable the upload buttons
-  fileInput.disabled = true;
-  folderInput.disabled = true;
-  createFormSelect.disabled = true;
-
-  buttonLabel.innerHTML = "⏳ מעלה...";
-  buttonLabel.classList.add("uploading");
+  // Show modal progress overlay with cancel button for file uploads
+  showLoadingOverlay("מעלה קבצים...", true);
 
   try {
     if (!signedIn) {
@@ -608,17 +653,15 @@ async function uploadFilesWithButtonProgress(validFiles: File[], button: HTMLInp
     console.error("UploadFile failed:", error);
     addMessage("שגיאה באימות: " + (error instanceof Error ? error.message : String(error)), "error");
   } finally {
-    // Restore button text
-    buttonLabel.innerHTML = originalText || "";
-    buttonLabel.classList.remove("uploading");
-    button.value = "";
+    // Hide modal progress overlay
+    hideLoadingOverlay();
 
-    // Re-enable the upload buttons
-    fileInput.disabled = false;
-    folderInput.disabled = false;
-    createFormSelect.disabled = false;
-    isUploading = false;
-    //updateDeleteAllButton(fileList.children.length > 0);
+    // Check if operation was cancelled
+    if (isCancelled) {
+      addMessage("הפעולה בוטלה על ידי המשתמש", "warning");
+      return false;
+    }
+
     updateButtons(editableFileListHasEntries() || fileList.children.length > 0);
     // Clear all containers
     clearResultsControls();
@@ -706,6 +749,11 @@ function showPasswordModal(fileName: string) {
 async function uploadFiles(validFiles: File[], replacedFileId: string | null = null) {
   let fileInfoList = null;
   for (const file of validFiles) {
+    // Check for cancellation before processing each file
+    if (isCancelled) {
+      return false;
+    }
+    
     try {
       let newFile = file;
       if (file.type.startsWith("image/")) {
@@ -1307,10 +1355,44 @@ document.addEventListener("DOMContentLoaded", () => {
     dragDropArea.addEventListener("drop", async (e) => {
       e.preventDefault();
       dragDropArea.classList.remove("dragover");
-      const files = Array.from(e.dataTransfer?.files || []);
+
+      const items = Array.from(e.dataTransfer?.items || []);
+      const files: File[] = [];
+
+      // Process each dropped item
+      for (const item of items) {
+        if (item.kind === "file") {
+          // Use type assertion to access webkitGetAsEntry
+          const webkitItem = item as any;
+          const entry = webkitItem.webkitGetAsEntry?.() || webkitItem.getAsEntry?.();
+          if (entry) {
+            await getFileList(entry, files);
+          } else {
+            // Fallback for browsers that don't support FileSystem API
+            const file = item.getAsFile();
+            if (file) {
+              files.push(file);
+            }
+          }
+        }
+      }
+
       if (files.length > 0) {
-        // Use the same logic as file input
-        await uploadFilesListener(files, null);
+        // Check if we need to reconstruct paths for Microsoft Edge
+        const needsPathReconstruction = files.some(file => !file.webkitRelativePath);
+        
+        if (needsPathReconstruction && items.length === 1) {
+          // This is likely a folder drop on Microsoft Edge
+          // We need to reconstruct the paths manually
+          debug("Detected folder drop on Microsoft Edge, reconstructing paths");
+          
+          // For now, we'll use the folder input approach as a workaround
+          addMessage("עבור Microsoft Edge, אנא השתמש בכפתור 'העלאת תיקיות' במקום גרירה", "warning");
+          return;
+        }
+        
+        // Use the same logic as folder input for processing
+        await processFolderFiles(files, folderInput);
       }
     });
     // Click to open file dialog
@@ -1718,7 +1800,7 @@ async function calculateTax(fileName: string) {
 
     clearMessages();
 
-    showLoadingOverlay("מחשב מס...");
+    showLoadingOverlay("מחשב מס...", false);
 
     const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
       method: "POST",
@@ -1753,12 +1835,18 @@ async function calculateTax(fileName: string) {
     addMessage("שגיאה בחישוב המס: " + (error instanceof Error ? error.message : String(error)), "error");
   } finally {
     hideLoadingOverlay();
+    
+    // Check if operation was cancelled
+    if (isCancelled) {
+      addMessage("הפעולה בוטלה על ידי המשתמש", "warning");
+      return;
+    }
   }
 }
 
 function updateDeleteAllButton(hasEntries: boolean) {
   const deleteAllButton = document.getElementById("deleteAllButton") as HTMLButtonElement;
-  deleteAllButton.disabled = !hasEntries || isUploading;
+  deleteAllButton.disabled = !hasEntries;
 }
 
 // Helper function to get color class based on numeric value
