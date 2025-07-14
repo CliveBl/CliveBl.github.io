@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.74";
+const uiVersion = "0.75";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -370,7 +370,7 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
     // Add error icon if year is NO_YEAR
     if (year === NO_YEAR) {
       const errorIcon = document.createElement("span") as HTMLSpanElement;
-      errorIcon.textContent = "❌";
+      errorIcon.textContent = "❌   " + "חשוב לבדוק ולתקן אם יש צורך!"
       errorIcon.className = "year-error-icon";
       errorIcon.title = "שנה לא זוהתה - יש לבדוק את המסמך";
       yearTitle.appendChild(errorIcon);

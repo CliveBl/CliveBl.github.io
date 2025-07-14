@@ -2630,6 +2630,7 @@ a:not(.submit-instructions-button):visited {
 
 /* Year Error Icon */
 .year-error-icon {
+	color: var(--error-text);
   margin-right: 8px;
   font-size: 1.1em;
   animation: pulse 2s infinite;
