@@ -2148,6 +2148,7 @@ a:not(.submit-instructions-button):visited {
 .form-add-item-button,
 .form-action-button {
   background-color: var(--button-color);
+  color: var(--button-text);
   /* Make them smaller than regular buttons */
   padding: 0px 1px 0px 1px;
   margin-top: 10px;
