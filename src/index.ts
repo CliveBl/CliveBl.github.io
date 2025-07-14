@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.76";
+const uiVersion = "0.77";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -33,6 +33,17 @@ const fetchConfig = {
 
 // Add this near the top of your script
 const DEBUG = true;
+
+// Patterns for which to suppress retry button on FormError files
+const SUPPRESS_RETRY_PATTERNS = [
+  /שנת המס-\d{4} אינה נתמכת/, // Tax year not supported
+  // Add more patterns here as needed
+];
+
+// Helper function to check if retry button should be suppressed
+function shouldSuppressRetryButton(reasonText: string): boolean {
+  return SUPPRESS_RETRY_PATTERNS.some(pattern => pattern.test(reasonText));
+}
 
 export function debug(...args: unknown[]): void {
   if (DEBUG) {
@@ -1728,8 +1739,8 @@ export function addFileToList(fileInfo: any) {
 
   li.appendChild(fileInfoElement);
 
-  // In the case of an error form we add a retry button
-  if (fileInfo.type === "FormError") {
+  // In the case of an error form we add a retry button (unless suppressed by pattern)
+  if (fileInfo.type === "FormError" && !shouldSuppressRetryButton(fileInfo.reasonText || "")) {
     const retryInput = document.createElement("input");
     retryInput.type = "file";
     retryInput.id = "xfileInput";
