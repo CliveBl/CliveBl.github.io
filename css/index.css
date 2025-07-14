@@ -1016,8 +1016,8 @@ ul {
 
 .tax-results-table th {
   background-color: var(--button-color);
-  color: white;
-  font-weight: bold;
+  color: var(--button-text);
+   font-weight: bold;
 }
 
 .tax-results-table tr:nth-child(even) {
