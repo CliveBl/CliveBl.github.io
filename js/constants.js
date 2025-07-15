@@ -165,12 +165,15 @@ export function dummyName(name) {
         if (name.includes("שרה")) {
             return "שרה בן דוד";
         }
-        return "דוד בן שרה";
+        return "משה בן דוד";
     }
     return name;
 }
 export function dummyIdNumber(idNumber) {
     if (hideIdentity) {
+        if (idNumber === "000000000") {
+            return "000000000";
+        }
         if (idNumber.includes("05239")) {
             return "123456789";
         }

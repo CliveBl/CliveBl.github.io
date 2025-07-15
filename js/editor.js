@@ -1,4 +1,4 @@
-import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList } from "./index.js";
+import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
@@ -460,17 +460,14 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         // Only expand if this is a new upload and it's the year of the last uploaded file
         if (isNewUpload) {
             const lastFile = allFilesData[allFilesData.length - 1];
-            debug("Editor: Checking year expansion:", { year, lastFileType: lastFile?.type, lastFileTaxYear: lastFile?.taxYear, isFormError: lastFile?.type === "FormError" });
             if (lastFile) {
                 // For FormError files, only expand the NO_YEAR accordion
                 if (lastFile.type === "FormError" && year === NO_YEAR) {
-                    debug("Editor: Expanding NO_YEAR accordion for FormError file");
                     yearBody.style.display = "block";
                     yearToggleButton.textContent = "-";
                 }
                 // For normal files, expand the matching year accordion
                 else if (lastFile.type !== "FormError" && lastFile.taxYear === year) {
-                    debug("Editor: Expanding year accordion for normal file:", year);
                     yearBody.style.display = "block";
                     yearToggleButton.textContent = "-";
                 }

@@ -538,18 +538,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Only expand if this is a new upload and it's the year of the last uploaded file
     if (isNewUpload) {
       const lastFile = allFilesData[allFilesData.length - 1];
-      debug("Editor: Checking year expansion:", { year, lastFileType: lastFile?.type, lastFileTaxYear: lastFile?.taxYear, isFormError: lastFile?.type === "FormError" });
       
       if (lastFile) {
         // For FormError files, only expand the NO_YEAR accordion
         if (lastFile.type === "FormError" && year === NO_YEAR) {
-          debug("Editor: Expanding NO_YEAR accordion for FormError file");
           yearBody.style.display = "block";
           yearToggleButton.textContent = "-";
         }
         // For normal files, expand the matching year accordion
         else if (lastFile.type !== "FormError" && lastFile.taxYear === year) {
-          debug("Editor: Expanding year accordion for normal file:", year);
           yearBody.style.display = "block";
           yearToggleButton.textContent = "-";
         }

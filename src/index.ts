@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.78";
+const uiVersion = "0.79";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -475,7 +475,6 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
     // Only expand if this is a new upload and it's the year of the last uploaded file
     if (isNewUpload) {
       const lastFile = fileInfoList[fileInfoList.length - 1];
-      debug("Checking year expansion:", { year, lastFileType: lastFile?.type, lastFileTaxYear: lastFile?.taxYear, isFormError: lastFile?.type === "FormError" });
 
       let shouldExpand = false;
 
@@ -490,7 +489,6 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
       }
 
       if (shouldExpand) {
-        debug("Expanding year accordion for:", year);
         // Expand the year accordion for new uploads
         yearBody.style.display = "block";
         yearToggle.textContent = "-";
@@ -1393,7 +1391,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // Check if we need to reconstruct paths for Microsoft Edge
         const needsPathReconstruction = files.some(file => !file.webkitRelativePath);
         
-        if (needsPathReconstruction && items.length === 1) {
+        // Only treat as folder drop if we have multiple files or if it's actually a folder
+        const isLikelyFolderDrop = needsPathReconstruction && items.length === 1 && files.length > 1;
+        
+        if (isLikelyFolderDrop) {
           // This is likely a folder drop on Microsoft Edge
           // We need to reconstruct the paths manually
           debug("Detected folder drop on Microsoft Edge, reconstructing paths");
@@ -1946,7 +1947,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Get and display version number
   try {
-    signedIn = false;
+
+	await loadConfiguration();
+	signedIn = false;
     userEmailValue = "";
     versionNumber.textContent = `גרסה ${uiVersion}`;
 
@@ -1965,7 +1968,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       signedIn = true;
 
       initializeDocumentIcons();
-      await loadConfiguration();
       await loadExistingFiles();
       await loadResults(false); // Dont scroll
       debug("Successfully loaded files and results with existing token");
