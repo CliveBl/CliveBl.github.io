@@ -170,7 +170,8 @@ export function isFieldValidForTaxYear(fieldName: string, taxYear: number) {
   return true;
 }
 
-const hideIdentity = false;
+const urlParams = new URLSearchParams(window.location.search);
+const hideIdentity = urlParams.get("hideIdentity") === "true";
 
 export function dummyName(name: string) {
   if (hideIdentity) {

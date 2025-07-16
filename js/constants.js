@@ -159,7 +159,8 @@ export function isFieldValidForTaxYear(fieldName, taxYear) {
     }
     return true;
 }
-const hideIdentity = false;
+const urlParams = new URLSearchParams(window.location.search);
+const hideIdentity = urlParams.get("hideIdentity") === "true";
 export function dummyName(name) {
     if (hideIdentity) {
         if (name.includes("שרה")) {
