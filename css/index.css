@@ -1071,6 +1071,13 @@ ul {
   display: none; /* Hidden by default */
 }
 
+.loading-progress {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text-color);
+  text-align: center;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

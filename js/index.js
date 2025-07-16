@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.80";
+const uiVersion = "0.81";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -470,15 +470,27 @@ folderInput.addEventListener("change", async () => {
     const files = Array.from(folderInput.files || []);
     await processFolderFiles(files, folderInput);
 });
-function showLoadingOverlay(message, showCancelButton = false) {
+function showLoadingOverlay(message, showCancelButton = false, totalFiles) {
     const loadingMessage = document.getElementById("loadingMessage");
     const loadingOverlay = document.getElementById("loadingOverlay");
     const cancelButton = document.getElementById("cancelLoadingButton");
+    const loadingProgress = document.getElementById("loadingProgress");
+    const currentFileNumber = document.getElementById("currentFileNumber");
+    const totalFilesSpan = document.getElementById("totalFiles");
     loadingMessage.textContent = message;
     loadingOverlay.classList.add("active");
     isCancelled = false;
     // Show/hide cancel button based on parameter
     cancelButton.style.display = showCancelButton ? "block" : "none";
+    // Show/hide progress counter based on totalFiles parameter
+    if (totalFiles && totalFiles > 0) {
+        loadingProgress.style.display = "block";
+        currentFileNumber.textContent = "0";
+        totalFilesSpan.textContent = totalFiles.toString();
+    }
+    else {
+        loadingProgress.style.display = "none";
+    }
     // Add cancel button event listener only if button is shown
     if (showCancelButton) {
         cancelButton.onclick = () => {
@@ -490,6 +502,12 @@ function showLoadingOverlay(message, showCancelButton = false) {
 function hideLoadingOverlay() {
     const loadingOverlay = document.getElementById("loadingOverlay");
     loadingOverlay.classList.remove("active");
+}
+function updateLoadingProgress(currentFile) {
+    const currentFileNumber = document.getElementById("currentFileNumber");
+    if (currentFileNumber) {
+        currentFileNumber.textContent = currentFile.toString();
+    }
 }
 // Update the process button handler
 processButton.addEventListener("click", async () => {
@@ -559,7 +577,7 @@ processButton.addEventListener("click", async () => {
 async function uploadFilesWithProgress(validFiles, replacedFileId = null) {
     let success = false;
     // Show modal progress overlay with cancel button for file uploads
-    showLoadingOverlay("מעלה קבצים...", true);
+    showLoadingOverlay("מעלה קבצים...", true, validFiles.length);
     try {
         if (!signedIn) {
             await signInAnonymous();
@@ -661,11 +679,14 @@ async function calculateMD5(file) {
 }
 async function uploadFiles(validFiles, replacedFileId = null) {
     let fileInfoList = null;
-    for (const file of validFiles) {
+    for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
         // Check for cancellation before processing each file
         if (isCancelled) {
             return false;
         }
+        // Update progress counter
+        updateLoadingProgress(i + 1);
         try {
             let newFile = file;
             let hash = null;

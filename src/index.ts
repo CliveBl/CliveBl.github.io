@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.80";
+const uiVersion = "0.81";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -547,10 +547,13 @@ folderInput.addEventListener("change", async () => {
   await processFolderFiles(files, folderInput);
 });
 
-function showLoadingOverlay(message: string, showCancelButton: boolean = false) {
+function showLoadingOverlay(message: string, showCancelButton: boolean = false, totalFiles?: number) {
   const loadingMessage = document.getElementById("loadingMessage") as HTMLDivElement;
   const loadingOverlay = document.getElementById("loadingOverlay") as HTMLDivElement;
   const cancelButton = document.getElementById("cancelLoadingButton") as HTMLButtonElement;
+  const loadingProgress = document.getElementById("loadingProgress") as HTMLDivElement;
+  const currentFileNumber = document.getElementById("currentFileNumber") as HTMLSpanElement;
+  const totalFilesSpan = document.getElementById("totalFiles") as HTMLSpanElement;
   
   loadingMessage.textContent = message;
   loadingOverlay.classList.add("active");
@@ -558,6 +561,15 @@ function showLoadingOverlay(message: string, showCancelButton: boolean = false) 
   
   // Show/hide cancel button based on parameter
   cancelButton.style.display = showCancelButton ? "block" : "none";
+  
+  // Show/hide progress counter based on totalFiles parameter
+  if (totalFiles && totalFiles > 0) {
+    loadingProgress.style.display = "block";
+    currentFileNumber.textContent = "0";
+    totalFilesSpan.textContent = totalFiles.toString();
+  } else {
+    loadingProgress.style.display = "none";
+  }
   
   // Add cancel button event listener only if button is shown
   if (showCancelButton) {
@@ -571,6 +583,13 @@ function showLoadingOverlay(message: string, showCancelButton: boolean = false) 
 function hideLoadingOverlay() {
   const loadingOverlay = document.getElementById("loadingOverlay") as HTMLDivElement;
   loadingOverlay.classList.remove("active");
+}
+
+function updateLoadingProgress(currentFile: number) {
+  const currentFileNumber = document.getElementById("currentFileNumber") as HTMLSpanElement;
+  if (currentFileNumber) {
+    currentFileNumber.textContent = currentFile.toString();
+  }
 }
 
 // Update the process button handler
@@ -649,7 +668,7 @@ async function uploadFilesWithProgress(validFiles: File[], replacedFileId: strin
   let success = false;
 
   // Show modal progress overlay with cancel button for file uploads
-  showLoadingOverlay("מעלה קבצים...", true);
+  showLoadingOverlay("מעלה קבצים...", true, validFiles.length);
 
   try {
     if (!signedIn) {
@@ -763,11 +782,15 @@ async function calculateMD5(file: File): Promise<string> {
 
 async function uploadFiles(validFiles: File[], replacedFileId: string | null = null) {
   let fileInfoList = null;
-  for (const file of validFiles) {
+  for (let i = 0; i < validFiles.length; i++) {
+    const file = validFiles[i];
     // Check for cancellation before processing each file
     if (isCancelled) {
       return false;
     }
+    
+    // Update progress counter
+    updateLoadingProgress(i + 1);
     
     try {
       let newFile = file;
