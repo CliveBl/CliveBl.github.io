@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.79";
+const uiVersion = "0.80";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -907,9 +907,8 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   // If the message contains fileName= then make messageDiv a clickable link to the entry for that file in the filelist
   if (text.includes("fileName=")) {
     // Extract all fileName= and property= pairs from the message
-    // Updated regex to handle file names with spaces - matches until comma or end of string
-    const fileNameMatches = text.match(/fileName=([^,]+?)(?=,|$)/g);
-    const propertyMatches = text.match(/property=([^,]+?)(?=,|$)/g);
+    const fileNameMatches = text.match(/fileName=[^,]+/g);
+    const propertyMatches = text.match(/property=[^,]+/g);
 
     if (fileNameMatches && fileNameMatches.length > 0) {
       // Clean up the display text by removing all fileName= and property= patterns
@@ -917,11 +916,9 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       fileNameMatches.forEach((match) => {
         cleanText = cleanText.replace(match + ",", "").replace(match, "");
       });
-      if (propertyMatches) {
-        propertyMatches.forEach((match) => {
-          cleanText = cleanText.replace(match + ",", "").replace(match, "");
-        });
-      }
+      propertyMatches?.forEach((match) => {
+        cleanText = cleanText.replace(match + ",", "").replace(match, "");
+      });
       messageText.textContent = cleanText;
 
       // Add clickable class to show it's interactive
@@ -1922,13 +1919,23 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
 
     // Get color class only for the last row's total cell
     const totalColorClass = isLastRow ? getValueColorClass(row.total?.trim() || "") : "";
+    
+    // Create the total cell with title for negative values
+    const totalCell = document.createElement("td");
+    totalCell.className = `${isLastRow ? "highlighted-cell" : ""} ${totalColorClass}`;
+    totalCell.textContent = row.total?.trim() || "";
+    
+    // Add title for the highlighted cell explaining tax values
+    if (isLastRow) {
+      totalCell.title = "ערך חיובי = מס שעליך לשלם, ערך שלילי = מס שתקבל בחזרה";
+    }
 
     tr.innerHTML = `
           <td>${row.title}</td>
           <td>${row.spouse?.trim() || ""}</td>
           <td>${row.registered?.trim() || ""}</td>
-          <td class="${isLastRow ? "highlighted-cell" : ""} ${totalColorClass}">${row.total?.trim() || ""}</td>
         `;
+    tr.appendChild(totalCell);
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
