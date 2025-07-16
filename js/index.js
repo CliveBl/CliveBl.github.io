@@ -654,6 +654,11 @@ function showPasswordModal(fileName) {
         };
     });
 }
+async function calculateMD5(file) {
+    const buffer = await file.arrayBuffer();
+    // @ts-ignore
+    return SparkMD5.ArrayBuffer.hash(buffer); // Always 32 hex chars
+}
 async function uploadFiles(validFiles, replacedFileId = null) {
     let fileInfoList = null;
     for (const file of validFiles) {
@@ -663,7 +668,10 @@ async function uploadFiles(validFiles, replacedFileId = null) {
         }
         try {
             let newFile = file;
+            let hash = null;
             if (file.type.startsWith("image/")) {
+                // Calculate hash of original image file before processing
+                hash = await calculateMD5(file);
                 try {
                     newFile = (await convertImageToBWAndResize(file));
                 }
@@ -682,6 +690,7 @@ async function uploadFiles(validFiles, replacedFileId = null) {
                     customerDataEntryName: "Default",
                     password: password, // Include password if provided
                     replacedFileId: replacedFileId,
+                    imageHash: hash
                 };
                 formData.append("metadata", new Blob([JSON.stringify(metadata)], {
                     type: "application/json",
