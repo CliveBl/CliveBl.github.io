@@ -1154,7 +1154,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     helpLink.textContent = "עזרה למסמך זה";
     helpLink.className = "help-link";
     helpLink.title = "פתח עזרה למסמך זה";
-    helpLink.target = "_blank"; // Open in new tab
 
     container.appendChild(helpLink);
   }
