@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.81";
+const uiVersion = "0.82";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -547,26 +547,100 @@ folderInput.addEventListener("change", async () => {
   await processFolderFiles(files, folderInput);
 });
 
-function showLoadingOverlay(message: string, showCancelButton: boolean = false, totalFiles?: number) {
+/**
+ * Options for configuring loading progress display
+ * @example
+ * // Show progress for files
+ * showLoadingOverlay("Uploading files...", { 
+ *   total: 10, 
+ *   unit: "קבצים", 
+ *   showCancelButton: true 
+ * });
+ * 
+ * // Show progress for seconds (auto-countdown)
+ * // When unit is "שניות" or "seconds", the progress automatically
+ * // counts up every second from 0 to the total value
+ * showLoadingOverlay("Processing...", { 
+ *   total: 60, 
+ *   unit: "שניות", 
+ *   showCancelButton: false 
+ * });
+ * 
+ * // Show progress for steps
+ * showLoadingOverlay("Analyzing documents...", { 
+ *   total: 5, 
+ *   unit: "שלבים", 
+ *   showCancelButton: true 
+ * });
+ */
+interface LoadingProgressOptions {
+  total?: number;
+  unit?: string;
+  showCancelButton?: boolean;
+}
+
+// Global variable to track the countdown timer
+let countdownTimer: number | null = null;
+
+function showLoadingOverlay(message: string, options: LoadingProgressOptions | boolean = false) {
   const loadingMessage = document.getElementById("loadingMessage") as HTMLDivElement;
   const loadingOverlay = document.getElementById("loadingOverlay") as HTMLDivElement;
   const cancelButton = document.getElementById("cancelLoadingButton") as HTMLButtonElement;
   const loadingProgress = document.getElementById("loadingProgress") as HTMLDivElement;
-  const currentFileNumber = document.getElementById("currentFileNumber") as HTMLSpanElement;
-  const totalFilesSpan = document.getElementById("totalFiles") as HTMLSpanElement;
+  const currentProgress = document.getElementById("currentProgress") as HTMLSpanElement;
+  const totalProgress = document.getElementById("totalProgress") as HTMLSpanElement;
+  const progressUnit = document.getElementById("progressUnit") as HTMLSpanElement;
+  
+  // Clear any existing countdown timer
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
   
   loadingMessage.textContent = message;
   loadingOverlay.classList.add("active");
   isCancelled = false;
   
+  // Handle options parameter
+  let showCancelButton = false;
+  let total = 0;
+  let unit = "קבצים"; // Default unit
+  
+  if (typeof options === "boolean") {
+    // Backward compatibility: if options is boolean, it's showCancelButton
+    showCancelButton = options;
+  } else {
+    showCancelButton = options.showCancelButton || false;
+    total = options.total || 0;
+    unit = options.unit || "קבצים";
+  }
+  
   // Show/hide cancel button based on parameter
   cancelButton.style.display = showCancelButton ? "block" : "none";
   
-  // Show/hide progress counter based on totalFiles parameter
-  if (totalFiles && totalFiles > 0) {
+  // Show/hide progress counter based on total parameter
+  if (total && total > 0) {
     loadingProgress.style.display = "block";
-    currentFileNumber.textContent = "0";
-    totalFilesSpan.textContent = totalFiles.toString();
+    currentProgress.textContent = "0";
+    totalProgress.textContent = total.toString();
+    progressUnit.textContent = unit;
+    
+    // Start automatic countdown for seconds
+    if (unit === "שניות" || unit === "seconds") {
+      let currentSecond = 0;
+      countdownTimer = window.setInterval(() => {
+        currentSecond++;
+        if (currentSecond <= total) {
+          updateLoadingProgress(currentSecond);
+        } else {
+          // Stop the timer when we reach the total
+          if (countdownTimer) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+          }
+        }
+      }, 1000); // Update every second
+    }
   } else {
     loadingProgress.style.display = "none";
   }
@@ -583,12 +657,31 @@ function showLoadingOverlay(message: string, showCancelButton: boolean = false, 
 function hideLoadingOverlay() {
   const loadingOverlay = document.getElementById("loadingOverlay") as HTMLDivElement;
   loadingOverlay.classList.remove("active");
+  
+  // Clear any existing countdown timer
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
 }
 
-function updateLoadingProgress(currentFile: number) {
-  const currentFileNumber = document.getElementById("currentFileNumber") as HTMLSpanElement;
-  if (currentFileNumber) {
-    currentFileNumber.textContent = currentFile.toString();
+/**
+ * Updates the current progress value in the loading overlay
+ * @param current - The current progress value to display
+ * @example
+ * // Update progress for file upload (1-based indexing)
+ * updateLoadingProgress(i + 1);
+ * 
+ * // Update progress for time-based operations
+ * updateLoadingProgress(secondsElapsed);
+ * 
+ * // Update progress for step-based operations
+ * updateLoadingProgress(currentStep);
+ */
+function updateLoadingProgress(current: number) {
+  const currentProgress = document.getElementById("currentProgress") as HTMLSpanElement;
+  if (currentProgress) {
+    currentProgress.textContent = current.toString();
   }
 }
 
@@ -598,7 +691,11 @@ processButton.addEventListener("click", async () => {
     if (!signedIn) {
       await signInAnonymous();
     }
-    showLoadingOverlay("מעבדת מסמכחם...", false);
+    showLoadingOverlay("מעבדת מסמכים...", { 
+      total: 30, 
+      unit: "שניות", 
+      showCancelButton: false 
+    });
     // Clear previous messages
     clearMessages();
     // Tax results may now be invalid
@@ -668,7 +765,11 @@ async function uploadFilesWithProgress(validFiles: File[], replacedFileId: strin
   let success = false;
 
   // Show modal progress overlay with cancel button for file uploads
-  showLoadingOverlay("מעלה קבצים...", true, validFiles.length);
+  showLoadingOverlay("מעלה קבצים...", { 
+    showCancelButton: true, 
+    total: validFiles.length, 
+    unit: "קבצים" 
+  });
 
   try {
     if (!signedIn) {
@@ -1845,7 +1946,11 @@ async function calculateTax(fileName: string) {
 
     clearMessages();
 
-    showLoadingOverlay("מחשב מס...", false);
+    showLoadingOverlay("מחשב מס...", { 
+      total: 30, 
+      unit: "שניות", 
+      showCancelButton: false 
+    });
 
     const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
       method: "POST",

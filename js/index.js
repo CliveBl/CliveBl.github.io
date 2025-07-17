@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.81";
+const uiVersion = "0.82";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -470,23 +470,62 @@ folderInput.addEventListener("change", async () => {
     const files = Array.from(folderInput.files || []);
     await processFolderFiles(files, folderInput);
 });
-function showLoadingOverlay(message, showCancelButton = false, totalFiles) {
+// Global variable to track the countdown timer
+let countdownTimer = null;
+function showLoadingOverlay(message, options = false) {
     const loadingMessage = document.getElementById("loadingMessage");
     const loadingOverlay = document.getElementById("loadingOverlay");
     const cancelButton = document.getElementById("cancelLoadingButton");
     const loadingProgress = document.getElementById("loadingProgress");
-    const currentFileNumber = document.getElementById("currentFileNumber");
-    const totalFilesSpan = document.getElementById("totalFiles");
+    const currentProgress = document.getElementById("currentProgress");
+    const totalProgress = document.getElementById("totalProgress");
+    const progressUnit = document.getElementById("progressUnit");
+    // Clear any existing countdown timer
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+    }
     loadingMessage.textContent = message;
     loadingOverlay.classList.add("active");
     isCancelled = false;
+    // Handle options parameter
+    let showCancelButton = false;
+    let total = 0;
+    let unit = "קבצים"; // Default unit
+    if (typeof options === "boolean") {
+        // Backward compatibility: if options is boolean, it's showCancelButton
+        showCancelButton = options;
+    }
+    else {
+        showCancelButton = options.showCancelButton || false;
+        total = options.total || 0;
+        unit = options.unit || "קבצים";
+    }
     // Show/hide cancel button based on parameter
     cancelButton.style.display = showCancelButton ? "block" : "none";
-    // Show/hide progress counter based on totalFiles parameter
-    if (totalFiles && totalFiles > 0) {
+    // Show/hide progress counter based on total parameter
+    if (total && total > 0) {
         loadingProgress.style.display = "block";
-        currentFileNumber.textContent = "0";
-        totalFilesSpan.textContent = totalFiles.toString();
+        currentProgress.textContent = "0";
+        totalProgress.textContent = total.toString();
+        progressUnit.textContent = unit;
+        // Start automatic countdown for seconds
+        if (unit === "שניות" || unit === "seconds") {
+            let currentSecond = 0;
+            countdownTimer = window.setInterval(() => {
+                currentSecond++;
+                if (currentSecond <= total) {
+                    updateLoadingProgress(currentSecond);
+                }
+                else {
+                    // Stop the timer when we reach the total
+                    if (countdownTimer) {
+                        clearInterval(countdownTimer);
+                        countdownTimer = null;
+                    }
+                }
+            }, 1000); // Update every second
+        }
     }
     else {
         loadingProgress.style.display = "none";
@@ -502,11 +541,29 @@ function showLoadingOverlay(message, showCancelButton = false, totalFiles) {
 function hideLoadingOverlay() {
     const loadingOverlay = document.getElementById("loadingOverlay");
     loadingOverlay.classList.remove("active");
+    // Clear any existing countdown timer
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+    }
 }
-function updateLoadingProgress(currentFile) {
-    const currentFileNumber = document.getElementById("currentFileNumber");
-    if (currentFileNumber) {
-        currentFileNumber.textContent = currentFile.toString();
+/**
+ * Updates the current progress value in the loading overlay
+ * @param current - The current progress value to display
+ * @example
+ * // Update progress for file upload (1-based indexing)
+ * updateLoadingProgress(i + 1);
+ *
+ * // Update progress for time-based operations
+ * updateLoadingProgress(secondsElapsed);
+ *
+ * // Update progress for step-based operations
+ * updateLoadingProgress(currentStep);
+ */
+function updateLoadingProgress(current) {
+    const currentProgress = document.getElementById("currentProgress");
+    if (currentProgress) {
+        currentProgress.textContent = current.toString();
     }
 }
 // Update the process button handler
@@ -515,7 +572,11 @@ processButton.addEventListener("click", async () => {
         if (!signedIn) {
             await signInAnonymous();
         }
-        showLoadingOverlay("מעבדת מסמכחם...", false);
+        showLoadingOverlay("מעבדת מסמכים...", {
+            total: 30,
+            unit: "שניות",
+            showCancelButton: false
+        });
         // Clear previous messages
         clearMessages();
         // Tax results may now be invalid
@@ -577,7 +638,11 @@ processButton.addEventListener("click", async () => {
 async function uploadFilesWithProgress(validFiles, replacedFileId = null) {
     let success = false;
     // Show modal progress overlay with cancel button for file uploads
-    showLoadingOverlay("מעלה קבצים...", true, validFiles.length);
+    showLoadingOverlay("מעלה קבצים...", {
+        showCancelButton: true,
+        total: validFiles.length,
+        unit: "קבצים"
+    });
     try {
         if (!signedIn) {
             await signInAnonymous();
@@ -1628,7 +1693,11 @@ async function calculateTax(fileName) {
         // Extract <name>_<year>.dat
         const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
         clearMessages();
-        showLoadingOverlay("מחשב מס...", false);
+        showLoadingOverlay("מחשב מס...", {
+            total: 30,
+            unit: "שניות",
+            showCancelButton: false
+        });
         const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
             method: "POST",
             headers: {
