@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.85";
+const uiVersion = "0.86";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -1564,6 +1564,9 @@ export function addFileToList(fileInfo) {
                                 if (itemKey.endsWith("Type")) {
                                     itemField.innerHTML = formatNumber(itemKey, getFriendlyName(String(itemValue)));
                                 }
+                                else if (itemKey.endsWith("Boolean")) {
+                                    itemField.innerHTML = `<strong>${getFriendlyName(itemKey)}:</strong> ${itemValue ? "כן" : "לא"}`;
+                                }
                                 else {
                                     itemField.innerHTML = formatNumber(itemKey, itemValue);
                                 }
@@ -1598,6 +1601,9 @@ export function addFileToList(fileInfo) {
                 }
                 else if (key.endsWith("IdentificationNumber")) {
                     field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${dummyIdNumber(String(value))}`;
+                }
+                else if (key.endsWith("Boolean")) {
+                    field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value ? "כן" : "לא"}`;
                 }
                 else {
                     field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value}`;
