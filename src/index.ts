@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.82";
+const uiVersion = "0.83";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1000,6 +1000,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   // Map of error codes to faq ids
   const errorCodeToFaqId = {
     "^NoIdentity": "faq-personal-details",
+	"^LossesTransferred": "faq-calculations",
   };
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
