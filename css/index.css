@@ -2737,3 +2737,24 @@ a:not(.submit-instructions-button):visited {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Form actions container styles */
+.form-actions-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Help link styles for editor forms */
+.help-link {
+  color: var(--tax-blue);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+  margin-right: auto;
+  margin-left: 10px;
+}
+
+.help-link:hover {
+  color: var(--tax-blue-dark);
+  text-decoration: underline;
+}

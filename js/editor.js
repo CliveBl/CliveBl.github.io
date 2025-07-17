@@ -439,18 +439,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 toggleLinkContainer.appendChild(fieldsToggleLink);
                 accordianBody.appendChild(toggleLinkContainer);
             }
-            // Form Action Buttons
-            const saveButton = document.createElement("button");
-            saveButton.className = "form-action-button";
-            saveButton.disabled = true;
-            const cancelButton = document.createElement("button");
-            cancelButton.className = "form-action-button";
-            cancelButton.disabled = true;
-            // First, display additional fields in the body (excluding header fields)
+            // First, display additional fields in the body (including action buttons and help link)
             renderFields(fileData, accordianBody, withAllFields);
-            displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, allFilesData);
-            accordianBody.appendChild(saveButton);
-            accordianBody.appendChild(cancelButton);
             accordionContainer.appendChild(accordianBody);
             yearBody.appendChild(accordionContainer);
         });
@@ -750,6 +740,8 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         const fieldsToggleLink = accordianBody.querySelector(".fields-toggle-link");
         const actionButtons = accordianBody.querySelectorAll(".form-action-button");
         const buttonsArray = Array.from(actionButtons);
+        // Store any existing action buttons container
+        const existingActionContainer = accordianBody.querySelector(".form-actions-container");
         // Clear the body
         accordianBody.innerHTML = "";
         if (fieldsToggleLink) {
@@ -980,10 +972,22 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         const template = fileData.documentType === "טופס 106" ? Generic106Item : Generic867Item;
         // Call the function for generic fields
         renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה", template, withAllFields);
-        // Re-add the action buttons
-        buttonsArray.forEach((button) => {
-            accordianBody.appendChild(button);
-        });
+        // Create a container for action buttons and help link
+        const actionButtonsContainer = document.createElement("div");
+        actionButtonsContainer.className = "form-actions-container";
+        // Re-add the action buttons (or create new ones if this is the first render)
+        if (buttonsArray.length > 0) {
+            buttonsArray.forEach((button) => {
+                actionButtonsContainer.appendChild(button);
+            });
+        }
+        else {
+            // This is the first render, create new buttons.
+            displayFileInfoButtons(actionButtonsContainer, fileData, accordianBody, allFilesData);
+        }
+        // Add help link to the same container
+        addHelpLink(actionButtonsContainer, fileData.documentType);
+        accordianBody.appendChild(actionButtonsContainer);
     }
     function getTaxCodeFromFieldName(fieldName) {
         if (fieldName.includes("_")) {
@@ -1010,6 +1014,39 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             }
         }
         return optionText;
+    }
+    /**
+     * Get the appropriate help section ID based on document type
+     * @param documentType - The type of document
+     * @returns The help section ID to link to
+     */
+    function getHelpSectionId(documentType) {
+        // Find the doc-item element that matches the document type
+        const docItem = document.querySelector(`[data-doc-typename="${documentType}"]`);
+        if (docItem) {
+            // Get the data-doc-type attribute which contains the help section ID
+            return docItem.getAttribute("data-doc-type") || "unsupported";
+        }
+        // Fallback for error cases
+        if (documentType === "FormError" || documentType === "Error") {
+            return "unsupported";
+        }
+        // Default fallback
+        return "unsupported";
+    }
+    /**
+     * Create and add a help link to the container
+     * @param container - The container element (accordion body or action buttons container)
+     * @param documentType - The type of document
+     */
+    function addHelpLink(container, documentType) {
+        const helpLink = document.createElement("a");
+        helpLink.href = `help.html#${getHelpSectionId(documentType)}`;
+        helpLink.textContent = "עזרה למסמך זה";
+        helpLink.className = "help-link";
+        helpLink.title = "פתח עזרה למסמך זה";
+        helpLink.target = "_blank"; // Open in new tab
+        container.appendChild(helpLink);
     }
     // Called when a form field is changed
     function addChangeHandler(field, accordianBody) {
@@ -1205,11 +1242,20 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
             });
         };
     }
-    async function displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, allFilesData) {
-        // Set up the save button
+    async function displayFileInfoButtons(actionButtonsContainer, fileData, accordianBody, allFilesData) {
+        // Create the save button
+        const saveButton = document.createElement("button");
+        saveButton.className = "form-action-button";
+        saveButton.disabled = true;
         saveButton.textContent = "שמור שינויים";
         // Create the cancel button
+        const cancelButton = document.createElement("button");
+        cancelButton.className = "form-action-button";
+        cancelButton.disabled = true;
         cancelButton.textContent = "ביטול שינויים";
+        // Add buttons to the container
+        actionButtonsContainer.appendChild(saveButton);
+        actionButtonsContainer.appendChild(cancelButton);
         // Cancel button behavior: Restore original file info
         cancelButton.onclick = async () => {
             // Restore only this form from the backupAllFilesData

@@ -512,21 +512,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         toggleLinkContainer.appendChild(fieldsToggleLink);
         accordianBody.appendChild(toggleLinkContainer);
       }
-      // Form Action Buttons
-      const saveButton = document.createElement("button") as HTMLButtonElement;
-      saveButton.className = "form-action-button";
-      saveButton.disabled = true;
-      const cancelButton = document.createElement("button") as HTMLButtonElement;
-      cancelButton.className = "form-action-button";
-      cancelButton.disabled = true;
-
-      // First, display additional fields in the body (excluding header fields)
+      // First, display additional fields in the body (including action buttons and help link)
       renderFields(fileData, accordianBody, withAllFields);
-
-      displayFileInfoButtons(saveButton, cancelButton, fileData, accordianBody, allFilesData);
-
-      accordianBody.appendChild(saveButton);
-      accordianBody.appendChild(cancelButton);
       accordionContainer.appendChild(accordianBody);
       yearBody.appendChild(accordionContainer);
     });
@@ -834,6 +821,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     const fieldsToggleLink = accordianBody.querySelector(".fields-toggle-link") as HTMLAnchorElement;
     const actionButtons = accordianBody.querySelectorAll(".form-action-button");
     const buttonsArray: HTMLButtonElement[] = Array.from(actionButtons) as HTMLButtonElement[];
+    
+    // Store any existing action buttons container
+    const existingActionContainer = accordianBody.querySelector(".form-actions-container");
 
     // Clear the body
     accordianBody.innerHTML = "";
@@ -1084,10 +1074,24 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Call the function for generic fields
     renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה", template, withAllFields);
 
-    // Re-add the action buttons
-    buttonsArray.forEach((button) => {
-      accordianBody.appendChild(button);
-    });
+    // Create a container for action buttons and help link
+    const actionButtonsContainer = document.createElement("div") as HTMLDivElement;
+    actionButtonsContainer.className = "form-actions-container";
+    
+    // Re-add the action buttons (or create new ones if this is the first render)
+    if (buttonsArray.length > 0) {
+      buttonsArray.forEach((button) => {
+        actionButtonsContainer.appendChild(button);
+      });
+    } else {
+      // This is the first render, create new buttons.
+      displayFileInfoButtons(actionButtonsContainer, fileData, accordianBody, allFilesData);
+    }
+
+    // Add help link to the same container
+    addHelpLink(actionButtonsContainer, fileData.documentType);
+    
+    accordianBody.appendChild(actionButtonsContainer);
   }
 
   function getTaxCodeFromFieldName(fieldName: string) {
@@ -1114,6 +1118,45 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
     }
     return optionText;
+  }
+
+  /**
+   * Get the appropriate help section ID based on document type
+   * @param documentType - The type of document
+   * @returns The help section ID to link to
+   */
+  function getHelpSectionId(documentType: string): string {
+    // Find the doc-item element that matches the document type
+    const docItem = document.querySelector(`[data-doc-typename="${documentType}"]`) as HTMLElement;
+    
+    if (docItem) {
+      // Get the data-doc-type attribute which contains the help section ID
+      return docItem.getAttribute("data-doc-type") || "unsupported";
+    }
+    
+    // Fallback for error cases
+    if (documentType === "FormError" || documentType === "Error") {
+      return "unsupported";
+    }
+    
+    // Default fallback
+    return "unsupported";
+  }
+
+  /**
+   * Create and add a help link to the container
+   * @param container - The container element (accordion body or action buttons container)
+   * @param documentType - The type of document
+   */
+  function addHelpLink(container: HTMLDivElement, documentType: string) {
+    const helpLink = document.createElement("a") as HTMLAnchorElement;
+    helpLink.href = `help.html#${getHelpSectionId(documentType)}`;
+    helpLink.textContent = "עזרה למסמך זה";
+    helpLink.className = "help-link";
+    helpLink.title = "פתח עזרה למסמך זה";
+    helpLink.target = "_blank"; // Open in new tab
+
+    container.appendChild(helpLink);
   }
 
   // Called when a form field is changed
@@ -1328,12 +1371,22 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     };
   }
 
-  async function displayFileInfoButtons(saveButton: HTMLButtonElement, cancelButton: HTMLButtonElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any) {
-    // Set up the save button
+  async function displayFileInfoButtons(actionButtonsContainer: HTMLDivElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any) {
+    // Create the save button
+    const saveButton = document.createElement("button") as HTMLButtonElement;
+    saveButton.className = "form-action-button";
+    saveButton.disabled = true;
     saveButton.textContent = "שמור שינויים";
 
     // Create the cancel button
+    const cancelButton = document.createElement("button") as HTMLButtonElement;
+    cancelButton.className = "form-action-button";
+    cancelButton.disabled = true;
     cancelButton.textContent = "ביטול שינויים";
+
+    // Add buttons to the container
+    actionButtonsContainer.appendChild(saveButton);
+    actionButtonsContainer.appendChild(cancelButton);
 
     // Cancel button behavior: Restore original file info
     cancelButton.onclick = async () => {
