@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.83";
+const uiVersion = "0.84";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -1000,7 +1000,10 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   // Map of error codes to faq ids
   const errorCodeToFaqId = {
     "^NoIdentity": "faq-personal-details",
-	"^LossesTransferred": "faq-calculations",
+	"^LossesTransferred": "faq-calculations"
+  };
+  const errorCodeToHelpId = {
+    "^No106": "form106"
   };
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
@@ -1070,8 +1073,10 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       });
     }
   } else if (messageCode) {
-    // If the message contains a message code, make it clickable to navigate to FAQ
+    // If the message contains a message code, make it clickable to navigate to FAQ or help
     const faqId = errorCodeToFaqId[`^${messageCode}` as keyof typeof errorCodeToFaqId];
+    const helpId = errorCodeToHelpId[`^${messageCode}` as keyof typeof errorCodeToHelpId];
+    
     if (faqId) {
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
@@ -1079,6 +1084,14 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       // Make the messageDiv a clickable link to the FAQ
       messageText.addEventListener("click", () => {
         window.location.href = `faq.html#${faqId}`;
+      });
+    } else if (helpId) {
+      // Add clickable class to show it's interactive
+      messageDiv.classList.add("clickable");
+      messageText.className = "message-text-help";
+      // Make the messageDiv a clickable link to the help page
+      messageText.addEventListener("click", () => {
+        window.location.href = `help.html#${helpId}`;
       });
     }
   }
