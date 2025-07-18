@@ -172,11 +172,11 @@ ul {
 }
 
 .main-container {
-	max-width: 800px;
-	margin: 20px auto 0; /* Increased top margin to account for auth container */
-	padding: 0 10px;
-	position: relative;
-	z-index: 1;
+  max-width: 800px;
+  margin: 20px auto 0; /* Increased top margin to account for auth container */
+  padding: 0 10px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Add main container */
@@ -1025,7 +1025,7 @@ ul {
 .tax-results-table th {
   background-color: var(--button-color);
   color: var(--button-text);
-   font-weight: bold;
+  font-weight: bold;
 }
 
 .tax-results-table tr:nth-child(even) {
@@ -1077,6 +1077,7 @@ ul {
   background-color: var(--button-color);
   transition: background-color 0.3s ease;
   display: none; /* Hidden by default */
+  color: var(--button-text);
 }
 
 .loading-progress {
@@ -1156,7 +1157,7 @@ ul {
 
 .cookie-button {
   background-color: var(--button-color);
-  color: white;
+  color: var(--button-text);
   white-space: nowrap;
   margin-left: auto;
 }
@@ -2652,7 +2653,7 @@ a:not(.submit-instructions-button):visited {
 
 /* Year Error Icon */
 .year-error-icon {
-	color: var(--error-text);
+  color: var(--error-text);
   margin-right: 8px;
   font-size: 1.1em;
   animation: pulse 2s infinite;
