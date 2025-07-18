@@ -171,8 +171,16 @@ ul {
   margin: 0 auto;
 }
 
-/* Add main container */
 .main-container {
+	max-width: 800px;
+	margin: 20px auto 0; /* Increased top margin to account for auth container */
+	padding: 0 10px;
+	position: relative;
+	z-index: 1;
+}
+
+/* Add main container */
+.tax-return-main-container {
   max-width: 800px;
   margin: 80px auto 0; /* Increased top margin to account for auth container */
   padding: 0 10px;
