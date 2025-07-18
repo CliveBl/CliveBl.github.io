@@ -1,8 +1,10 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.88";
+const uiVersion = "0.89";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
 interface FormType {
   formType: string;
   formName: string;
@@ -314,9 +316,18 @@ function isValidFileType(file: File) {
   if (!validTypes.includes(file.type)) {
     return {
       valid: false,
-      message: `סוג קובץ לא נתמך - רק קבצי PDF ,JPG ,GIF ,BMP ,PNG מותרים. שם הקובץ: ${file.name} (${file.webkitRelativePath})`,
+      message: `סוג קובץ לא נתמך - רק קבצי PDF ,JPG ,GIF ,BMP ,PNG מותרים. שם הקובץ: ${file.name}`,
     };
   }
+  
+  // Check file size (5MB = 5 * 1024 * 1024 bytes)
+  if (file.size > MAX_FILE_SIZE) {
+    return {
+      valid: false,
+      message: `גודל הקובץ גדול מדי - הקובץ חייב להיות קטן מ-5MB. שם הקובץ: ${file.name}`,
+    };
+  }
+  
   return { valid: true };
 }
 
