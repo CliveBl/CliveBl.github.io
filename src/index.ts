@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.87";
+const uiVersion = "0.88";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 interface FormType {
@@ -42,7 +42,7 @@ const SUPPRESS_RETRY_PATTERNS = [
 
 // Helper function to check if retry button should be suppressed
 function shouldSuppressRetryButton(reasonText: string): boolean {
-  return SUPPRESS_RETRY_PATTERNS.some(pattern => pattern.test(reasonText));
+  return SUPPRESS_RETRY_PATTERNS.some((pattern) => pattern.test(reasonText));
 }
 
 export function debug(...args: unknown[]): void {
@@ -551,26 +551,26 @@ folderInput.addEventListener("change", async () => {
  * Options for configuring loading progress display
  * @example
  * // Show progress for files
- * showLoadingOverlay("Uploading files...", { 
- *   total: 10, 
- *   unit: "קבצים", 
- *   showCancelButton: true 
+ * showLoadingOverlay("Uploading files...", {
+ *   total: 10,
+ *   unit: "קבצים",
+ *   showCancelButton: true
  * });
- * 
+ *
  * // Show progress for seconds (auto-countdown)
  * // When unit is "שניות" or "seconds", the progress automatically
  * // counts up every second from 0 to the total value
- * showLoadingOverlay("Processing...", { 
- *   total: 60, 
- *   unit: "שניות", 
- *   showCancelButton: false 
+ * showLoadingOverlay("Processing...", {
+ *   total: 60,
+ *   unit: "שניות",
+ *   showCancelButton: false
  * });
- * 
+ *
  * // Show progress for steps
- * showLoadingOverlay("Analyzing documents...", { 
- *   total: 5, 
- *   unit: "שלבים", 
- *   showCancelButton: true 
+ * showLoadingOverlay("Analyzing documents...", {
+ *   total: 5,
+ *   unit: "שלבים",
+ *   showCancelButton: true
  * });
  */
 interface LoadingProgressOptions {
@@ -590,22 +590,22 @@ function showLoadingOverlay(message: string, options: LoadingProgressOptions | b
   const currentProgress = document.getElementById("currentProgress") as HTMLSpanElement;
   const totalProgress = document.getElementById("totalProgress") as HTMLSpanElement;
   const progressUnit = document.getElementById("progressUnit") as HTMLSpanElement;
-  
+
   // Clear any existing countdown timer
   if (countdownTimer) {
     clearInterval(countdownTimer);
     countdownTimer = null;
   }
-  
+
   loadingMessage.textContent = message;
   loadingOverlay.classList.add("active");
   isCancelled = false;
-  
+
   // Handle options parameter
   let showCancelButton = false;
   let total = 0;
   let unit = "קבצים"; // Default unit
-  
+
   if (typeof options === "boolean") {
     // Backward compatibility: if options is boolean, it's showCancelButton
     showCancelButton = options;
@@ -614,17 +614,17 @@ function showLoadingOverlay(message: string, options: LoadingProgressOptions | b
     total = options.total || 0;
     unit = options.unit || "קבצים";
   }
-  
+
   // Show/hide cancel button based on parameter
   cancelButton.style.display = showCancelButton ? "block" : "none";
-  
+
   // Show/hide progress counter based on total parameter
   if (total && total > 0) {
     loadingProgress.style.display = "block";
     currentProgress.textContent = "0";
     totalProgress.textContent = total.toString();
     progressUnit.textContent = unit;
-    
+
     // Start automatic countdown for seconds
     if (unit === "שניות" || unit === "seconds") {
       let currentSecond = 0;
@@ -644,7 +644,7 @@ function showLoadingOverlay(message: string, options: LoadingProgressOptions | b
   } else {
     loadingProgress.style.display = "none";
   }
-  
+
   // Add cancel button event listener only if button is shown
   if (showCancelButton) {
     cancelButton.onclick = () => {
@@ -657,7 +657,7 @@ function showLoadingOverlay(message: string, options: LoadingProgressOptions | b
 function hideLoadingOverlay() {
   const loadingOverlay = document.getElementById("loadingOverlay") as HTMLDivElement;
   loadingOverlay.classList.remove("active");
-  
+
   // Clear any existing countdown timer
   if (countdownTimer) {
     clearInterval(countdownTimer);
@@ -671,10 +671,10 @@ function hideLoadingOverlay() {
  * @example
  * // Update progress for file upload (1-based indexing)
  * updateLoadingProgress(i + 1);
- * 
+ *
  * // Update progress for time-based operations
  * updateLoadingProgress(secondsElapsed);
- * 
+ *
  * // Update progress for step-based operations
  * updateLoadingProgress(currentStep);
  */
@@ -691,10 +691,10 @@ processButton.addEventListener("click", async () => {
     if (!signedIn) {
       await signInAnonymous();
     }
-    showLoadingOverlay("מעבדת מסמכים...", { 
-      total: 30, 
-      unit: "שניות", 
-      showCancelButton: false 
+    showLoadingOverlay("מעבדת מסמכים...", {
+      total: 30,
+      unit: "שניות",
+      showCancelButton: false,
     });
     // Clear previous messages
     clearMessages();
@@ -752,7 +752,7 @@ processButton.addEventListener("click", async () => {
     addMessage("שגיאה בעיבוד הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
   } finally {
     hideLoadingOverlay();
-    
+
     // Check if operation was cancelled
     if (isCancelled) {
       addMessage("הפעולה בוטלה על ידי המשתמש", "warning");
@@ -765,10 +765,10 @@ async function uploadFilesWithProgress(validFiles: File[], replacedFileId: strin
   let success = false;
 
   // Show modal progress overlay with cancel button for file uploads
-  showLoadingOverlay("מעלה קבצים...", { 
-    showCancelButton: true, 
-    total: validFiles.length, 
-    unit: "קבצים" 
+  showLoadingOverlay("מעלה קבצים...", {
+    showCancelButton: true,
+    total: validFiles.length,
+    unit: "קבצים",
   });
 
   try {
@@ -883,24 +883,18 @@ async function calculateMD5(file: File): Promise<string> {
 
 async function uploadFiles(validFiles: File[], replacedFileId: string | null = null) {
   let fileInfoList = null;
-  for (let i = 0; i < validFiles.length; i++) {
-    const file = validFiles[i];
+  let uploadedFileCount = 0;
+  for (uploadedFileCount = 0; uploadedFileCount < validFiles.length && !isCancelled; uploadedFileCount++) {
+    const file = validFiles[uploadedFileCount];
     // Check for cancellation before processing each file
-    if (isCancelled) {
-      return false;
-    }
-    
-    // Update progress counter
-    updateLoadingProgress(i + 1);
-    
     try {
       let newFile = file;
       let hash = null;
-      
+
       if (file.type.startsWith("image/")) {
         // Calculate hash of original image file before processing
         hash = await calculateMD5(file);
-        
+
         try {
           newFile = (await convertImageToBWAndResize(file)) as File;
         } catch (error: unknown) {
@@ -921,7 +915,7 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
           customerDataEntryName: "Default",
           password: password, // Include password if provided
           replacedFileId: replacedFileId,
-          imageHash: hash
+          imageHash: hash,
         };
         formData.append(
           "metadata",
@@ -977,16 +971,20 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
       addMessage("שגיאה בהעלאת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
       return false;
     }
+    // Update progress counter
+    updateLoadingProgress(uploadedFileCount + 1);
   }
-
   // Count the error types in the fileInfoList
   if (fileInfoList) {
     const errorTypes = fileInfoList.filter((fileInfo: { type: string }) => fileInfo.type === "FormError").length;
     if (errorTypes > 0) {
-      addMessage(`הועלו ${validFiles.length} קבצים בהצלחה, מתוך ${fileInfoList.length} קבצים יש שגיאות ${errorTypes}`, "warning");
+      addMessage(`הועלו ${uploadedFileCount} קבצים מתוך ${validFiles.length}. יש ${errorTypes} שגיאות.`, "error");
     } else {
-      addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+      addMessage(`הועלו ${uploadedFileCount} קבצים מתוך ${validFiles.length} `, "info");
     }
+  }
+  if (isCancelled) {
+    return false;
   }
   return true;
 }
@@ -1000,11 +998,11 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   // Map of error codes to faq ids
   const errorCodeToFaqId = {
     "^NoIdentity": "faq-personal-details",
-	"^LossesTransferred": "faq-calculations",
-	"^TotalChildren": "faq-common-mistakes"
+    "^LossesTransferred": "faq-calculations",
+    "^TotalChildren": "faq-common-mistakes",
   };
   const errorCodeToHelpId = {
-    "^No106": "form106"
+    "^No106": "form106",
   };
   const messageDiv = document.createElement("div");
   messageDiv.className = "message-item";
@@ -1077,7 +1075,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     // If the message contains a message code, make it clickable to navigate to FAQ or help
     const faqId = errorCodeToFaqId[`^${messageCode}` as keyof typeof errorCodeToFaqId];
     const helpId = errorCodeToHelpId[`^${messageCode}` as keyof typeof errorCodeToHelpId];
-    
+
     if (faqId) {
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
@@ -1537,21 +1535,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (files.length > 0) {
         // Check if we need to reconstruct paths for Microsoft Edge
-        const needsPathReconstruction = files.some(file => !file.webkitRelativePath);
-        
+        const needsPathReconstruction = files.some((file) => !file.webkitRelativePath);
+
         // Only treat as folder drop if we have multiple files or if it's actually a folder
         const isLikelyFolderDrop = needsPathReconstruction && items.length === 1 && files.length > 1;
-        
+
         if (isLikelyFolderDrop) {
           // This is likely a folder drop on Microsoft Edge
           // We need to reconstruct the paths manually
           debug("Detected folder drop on Microsoft Edge, reconstructing paths");
-          
+
           // For now, we'll use the folder input approach as a workaround
           addMessage("עבור Microsoft Edge, אנא השתמש בכפתור 'העלאת תיקיות' במקום גרירה", "warning");
           return;
         }
-        
+
         // Use the same logic as folder input for processing
         await processFolderFiles(files, folderInput);
       }
@@ -1803,8 +1801,8 @@ export function addFileToList(fileInfo: any) {
                 itemField.className = "nestedListItemField";
                 if (itemKey.endsWith("Type")) {
                   itemField.innerHTML = formatNumber(itemKey, getFriendlyName(String(itemValue)));
-				} else if (itemKey.endsWith("Boolean")) {
-					itemField.innerHTML = `<strong>${getFriendlyName(itemKey)}:</strong> ${itemValue ? "כן" : "לא"}`;
+                } else if (itemKey.endsWith("Boolean")) {
+                  itemField.innerHTML = `<strong>${getFriendlyName(itemKey)}:</strong> ${itemValue ? "כן" : "לא"}`;
                 } else {
                   itemField.innerHTML = formatNumber(itemKey, itemValue);
                 }
@@ -1838,8 +1836,8 @@ export function addFileToList(fileInfo: any) {
           field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${dummyName(String(value))}`;
         } else if (key.endsWith("IdentificationNumber")) {
           field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${dummyIdNumber(String(value))}`;
-		} else if (key.endsWith("Boolean")) {
-			field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value ? "כן" : "לא"}`;
+        } else if (key.endsWith("Boolean")) {
+          field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value ? "כן" : "לא"}`;
         } else {
           field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value}`;
         }
@@ -1965,10 +1963,10 @@ async function calculateTax(fileName: string) {
 
     clearMessages();
 
-    showLoadingOverlay("מחשב מס...", { 
-      total: 30, 
-      unit: "שניות", 
-      showCancelButton: false 
+    showLoadingOverlay("מחשב מס...", {
+      total: 30,
+      unit: "שניות",
+      showCancelButton: false,
     });
 
     const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
@@ -2004,7 +2002,7 @@ async function calculateTax(fileName: string) {
     addMessage("שגיאה בחישוב המס: " + (error instanceof Error ? error.message : String(error)), "error");
   } finally {
     hideLoadingOverlay();
-    
+
     // Check if operation was cancelled
     if (isCancelled) {
       addMessage("הפעולה בוטלה על ידי המשתמש", "warning");
@@ -2066,12 +2064,12 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
 
     // Get color class only for the last row's total cell
     const totalColorClass = isLastRow ? getValueColorClass(row.total?.trim() || "") : "";
-    
+
     // Create the total cell with title for negative values
     const totalCell = document.createElement("td");
     totalCell.className = `${isLastRow ? "highlighted-cell" : ""} ${totalColorClass}`;
     totalCell.textContent = row.total?.trim() || "";
-    
+
     // Add title for the highlighted cell explaining tax values
     if (isLastRow) {
       totalCell.title = "ערך חיובי = מס שעליך לשלם, ערך שלילי = מס שתקבל בחזרה";
@@ -2113,9 +2111,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Get and display version number
   try {
-
-	await loadConfiguration();
-	signedIn = false;
+    await loadConfiguration();
+    signedIn = false;
     userEmailValue = "";
     versionNumber.textContent = `גרסה ${uiVersion}`;
 

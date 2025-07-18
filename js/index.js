@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.87";
+const uiVersion = "0.88";
 const defaultId = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 export let configurationData;
@@ -20,7 +20,7 @@ const SUPPRESS_RETRY_PATTERNS = [
 ];
 // Helper function to check if retry button should be suppressed
 function shouldSuppressRetryButton(reasonText) {
-    return SUPPRESS_RETRY_PATTERNS.some(pattern => pattern.test(reasonText));
+    return SUPPRESS_RETRY_PATTERNS.some((pattern) => pattern.test(reasonText));
 }
 export function debug(...args) {
     if (DEBUG) {
@@ -575,7 +575,7 @@ processButton.addEventListener("click", async () => {
         showLoadingOverlay("מעבדת מסמכים...", {
             total: 30,
             unit: "שניות",
-            showCancelButton: false
+            showCancelButton: false,
         });
         // Clear previous messages
         clearMessages();
@@ -641,7 +641,7 @@ async function uploadFilesWithProgress(validFiles, replacedFileId = null) {
     showLoadingOverlay("מעלה קבצים...", {
         showCancelButton: true,
         total: validFiles.length,
-        unit: "קבצים"
+        unit: "קבצים",
     });
     try {
         if (!signedIn) {
@@ -744,14 +744,10 @@ async function calculateMD5(file) {
 }
 async function uploadFiles(validFiles, replacedFileId = null) {
     let fileInfoList = null;
-    for (let i = 0; i < validFiles.length; i++) {
-        const file = validFiles[i];
+    let uploadedFileCount = 0;
+    for (uploadedFileCount = 0; uploadedFileCount < validFiles.length && !isCancelled; uploadedFileCount++) {
+        const file = validFiles[uploadedFileCount];
         // Check for cancellation before processing each file
-        if (isCancelled) {
-            return false;
-        }
-        // Update progress counter
-        updateLoadingProgress(i + 1);
         try {
             let newFile = file;
             let hash = null;
@@ -776,7 +772,7 @@ async function uploadFiles(validFiles, replacedFileId = null) {
                     customerDataEntryName: "Default",
                     password: password, // Include password if provided
                     replacedFileId: replacedFileId,
-                    imageHash: hash
+                    imageHash: hash,
                 };
                 formData.append("metadata", new Blob([JSON.stringify(metadata)], {
                     type: "application/json",
@@ -826,16 +822,21 @@ async function uploadFiles(validFiles, replacedFileId = null) {
             addMessage("שגיאה בהעלאת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
             return false;
         }
+        // Update progress counter
+        updateLoadingProgress(uploadedFileCount + 1);
     }
     // Count the error types in the fileInfoList
     if (fileInfoList) {
         const errorTypes = fileInfoList.filter((fileInfo) => fileInfo.type === "FormError").length;
         if (errorTypes > 0) {
-            addMessage(`הועלו ${validFiles.length} קבצים בהצלחה, מתוך ${fileInfoList.length} קבצים יש שגיאות ${errorTypes}`, "warning");
+            addMessage(`הועלו ${uploadedFileCount} קבצים מתוך ${validFiles.length}. יש ${errorTypes} שגיאות.`, "error");
         }
         else {
-            addMessage(`הועלו ${validFiles.length} קבצים בהצלחה`, "info");
+            addMessage(`הועלו ${uploadedFileCount} קבצים מתוך ${validFiles.length} `, "info");
         }
+    }
+    if (isCancelled) {
+        return false;
     }
     return true;
 }
@@ -848,10 +849,10 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
     const errorCodeToFaqId = {
         "^NoIdentity": "faq-personal-details",
         "^LossesTransferred": "faq-calculations",
-        "^TotalChildren": "faq-common-mistakes"
+        "^TotalChildren": "faq-common-mistakes",
     };
     const errorCodeToHelpId = {
-        "^No106": "form106"
+        "^No106": "form106",
     };
     const messageDiv = document.createElement("div");
     messageDiv.className = "message-item";
@@ -1332,7 +1333,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (files.length > 0) {
                 // Check if we need to reconstruct paths for Microsoft Edge
-                const needsPathReconstruction = files.some(file => !file.webkitRelativePath);
+                const needsPathReconstruction = files.some((file) => !file.webkitRelativePath);
                 // Only treat as folder drop if we have multiple files or if it's actually a folder
                 const isLikelyFolderDrop = needsPathReconstruction && items.length === 1 && files.length > 1;
                 if (isLikelyFolderDrop) {
@@ -1717,7 +1718,7 @@ async function calculateTax(fileName) {
         showLoadingOverlay("מחשב מס...", {
             total: 30,
             unit: "שניות",
-            showCancelButton: false
+            showCancelButton: false,
         });
         const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
             method: "POST",
