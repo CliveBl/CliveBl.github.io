@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.91";
+const uiVersion = "0.92";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -1337,23 +1337,22 @@ function populateCustomerSelect(customerData: { name: string; modified: number; 
   customerSelect.appendChild(newCustomerOption);
   
   // Set current selection
-  customerSelect.value = selectedCustomerDataEntryName;
-  customerNameInput.value = selectedCustomerDataEntryName;
+  customerSelect.value = translateCustomerDataEntryName(selectedCustomerDataEntryName);
+  customerNameInput.value = translateCustomerDataEntryName(selectedCustomerDataEntryName);
   
-  // Enable update button if name is different
-  updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
-}
-
-function generateUniqueCustomerName(baseName: string, existingNames: string[]): string {
-  let newName = baseName;
-  let counter = 1;
+  // Enable update button if name is different and not duplicate
+  const inputValue = customerNameInput.value.trim();
+  const isEmpty = inputValue === "";
+  const isSameAsCurrent = inputValue === selectedCustomerDataEntryName;
   
-  while (existingNames.includes(newName)) {
-    newName = `${baseName} ${counter}`;
-    counter++;
+  // Check if name already exists
+  let isDuplicate = false;
+  if (customerListCache && inputValue) {
+    const existingNames = customerListCache.map((customer: { name: string }) => customer.name);
+    isDuplicate = existingNames.includes(inputValue);
   }
   
-  return newName;
+  updateCustomerButton.disabled = isEmpty || isSameAsCurrent || isDuplicate;
 }
 
 async function updateCustomerName() {
@@ -1374,30 +1373,14 @@ async function updateCustomerName() {
     
     // If creating new customer, only update local variable - no API call
     if (customerSelect.value === "new") {
-      // Generate unique name by checking existing names
-      const response = await fetch(`${API_BASE_URL}/getCustomerDataEntryNames`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-        credentials: "include",
-        ...fetchConfig,
-      });
+      // Only update the local variable - no API call for new customer
+      updateSelectedCustomer(newName);
+      addMessage(`לקוח חדש נבחר: ${newName} (ייווצר בעת העלאה)`, "info");
       
-      if (response.ok) {
-        const existingCustomerData = await response.json();
-        const existingNames = existingCustomerData.map((customer: { name: string }) => customer.name);
-        const uniqueName = generateUniqueCustomerName(newName, existingNames);
-        customerNameInput.value = uniqueName;
-        
-        // Only update the local variable - no API call for new customer
-        updateSelectedCustomer(uniqueName);
-        addMessage(`לקוח חדש נבחר: ${uniqueName} (ייווצר בעת העלאה)`, "info");
-        
-        // Dismiss the customer modal
-        customerOverlay.classList.remove("active");
-      }
+      // Dismiss the customer modal
+      customerOverlay.classList.remove("active");
     } else {
+      
       // Update existing customer name - make API call
       const changeResponse = await fetch(`${API_BASE_URL}/changeCustomerDataEntryName`, {
         method: "POST",
@@ -3016,7 +2999,18 @@ if (customerSelect) {
 
 if (customerNameInput) {
   customerNameInput.addEventListener("input", () => {
-    updateCustomerButton.disabled = customerNameInput.value.trim() === selectedCustomerDataEntryName || customerNameInput.value.trim() === "";
+    const inputValue = customerNameInput.value.trim();
+    const isEmpty = inputValue === "";
+    const isSameAsCurrent = inputValue === selectedCustomerDataEntryName;
+    
+    // Check if name already exists (for both new and existing customers)
+    let isDuplicate = false;
+    if (customerListCache && inputValue) {
+      const existingNames = customerListCache.map((customer: { name: string }) => customer.name);
+      isDuplicate = existingNames.includes(inputValue);
+    }
+    
+    updateCustomerButton.disabled = isEmpty || isSameAsCurrent || isDuplicate;
   });
 }
 
