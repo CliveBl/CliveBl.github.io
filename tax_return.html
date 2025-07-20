@@ -24,6 +24,7 @@
         <div class="controls">
           <span id="userEmail" class="user-email"></span>
            <button id="loginButton" class="loginout-button" title="מומלץ ליצור חשבון כדי שתוכל לחזור לנתונים שלך מכל מקום">התחברות</button>
+           <button id="customerButton" class="customer-button" style="display: none;" title="בחר לקוח">לקוח</button>
 		   <button id="signOutButton" class="loginout-button" disabled>התנתק</button>
         </div>
       </div>
@@ -398,6 +399,30 @@
 			</div>
 		</div>
 		</div>
+
+	<!-- Customer selection modal -->
+	<div id="customerOverlay" class="customer-overlay">
+		<div class="customer-modal">
+			<div class="customer-header">
+				<h2>בחירת לקוח</h2>
+				<button class="close-button">✕</button>
+			</div>
+			<div class="customer-content">
+				<div class="customer-selection-group">
+					<label for="customerSelect">בחר לקוח:</label>
+					<select id="customerSelect" class="customer-select">
+						<option value="">טוען...</option>
+					</select>
+				</div>
+				<div class="customer-selection-group">
+					<label for="customerNameInput">שם לקוח:</label>
+					<input type="text" id="customerNameInput" class="customer-name-input" placeholder="הכנס שם לקוח" />
+				</div>
+				<button type="button" id="updateCustomerButton" class="update-customer-button" disabled>עדכן שם לקוח</button>
+			</div>
+		</div>
+	</div>
+
     <!-- Loading overlay and cookie consent stay outside main container -->
     <div id="loadingOverlay" class="loading-overlay">
       <div class="loading-spinner">

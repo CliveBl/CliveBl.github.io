@@ -1,9 +1,57 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.89";
-const defaultId = "000000000";
+const uiVersion = "0.90";
+const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+const DEFAULT_CUSTOMER_DATA_ENTRY_NAME = "Default";
+const SELECTED_CUSTOMER_STORAGE_KEY = "selectedCustomerDataEntryName";
+
+// Customer list cache
+let customerListCache: { name: string; modified: number; dbver: number }[] | null = null;
+let customerListCacheTimestamp: number = 0;
+const CUSTOMER_LIST_CACHE_DURATION = 60 * 60 * 1000; // 5 minutes in milliseconds
+
+// Helper functions for localStorage
+function saveSelectedCustomerToStorage(customerName: string): void {
+  try {
+    localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
+  } catch (error) {
+    debug("Failed to save selected customer to localStorage:", error);
+  }
+}
+
+function loadSelectedCustomerFromStorage(): string {
+  try {
+    const stored = localStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY);
+    return stored || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
+  } catch (error) {
+    debug("Failed to load selected customer from localStorage:", error);
+    return DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
+  }
+}
+
+// Helper function to update selected customer and save to localStorage
+function updateSelectedCustomer(newCustomerName: string): void {
+  selectedCustomerDataEntryName = newCustomerName;
+  saveSelectedCustomerToStorage(newCustomerName);
+}
+
+// Helper functions for customer list cache
+function isCustomerListCacheValid(): boolean {
+  return customerListCache !== null && 
+         (Date.now() - customerListCacheTimestamp) < CUSTOMER_LIST_CACHE_DURATION;
+}
+
+function clearCustomerListCache(): void {
+  customerListCache = null;
+  customerListCacheTimestamp = 0;
+}
+
+function setCustomerListCache(customerData: { name: string; modified: number; dbver: number }[]): void {
+  customerListCache = customerData;
+  customerListCacheTimestamp = Date.now();
+}
 
 interface FormType {
   formType: string;
@@ -22,6 +70,8 @@ interface FileInfo {
 interface ConfigurationData {
   formTypes: FormType[];
 }
+
+export let selectedCustomerDataEntryName = loadSelectedCustomerFromStorage();
 
 export let configurationData: ConfigurationData;
 let latestFileInfoList: FileInfo[] = [];
@@ -83,9 +133,15 @@ const submitButton = document.getElementById("submitButton") as HTMLButtonElemen
 const googleButtonText = document.getElementById("googleButtonText") as HTMLSpanElement;
 const githubButtonText = document.getElementById("githubButtonText") as HTMLSpanElement;
 const userEmail = document.getElementById("userEmail") as HTMLSpanElement;
+const customerButton = document.getElementById("customerButton") as HTMLButtonElement;
+const customerOverlay = document.getElementById("customerOverlay") as HTMLDivElement;
 const createFormSelect = document.getElementById("createFormSelect") as HTMLSelectElement;
 const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElement;
 const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
+// Customer selection event handlers
+const customerSelect = document.getElementById("customerSelect") as HTMLSelectElement;
+const customerNameInput = document.getElementById("customerNameInput") as HTMLInputElement;
+const updateCustomerButton = document.getElementById("updateCustomerButton") as HTMLButtonElement;
 
 export function updateButtons(hasEntries: boolean) {
   processButton.disabled = !hasEntries;
@@ -171,7 +227,7 @@ async function signInAnonymous() {
 
     const result = await response.json();
     userEmailValue = result.email;
-    signedIn = result.expirationTime;
+    signedIn = true; // Set to true since we have a valid response
     updateSignInUI();
     return;
   } catch (error) {
@@ -228,7 +284,7 @@ async function signIn(email: string, password: string) {
 
     const result = JSON.parse(text);
     userEmailValue = result.email;
-    signedIn = result.expirationTime;
+    signedIn = true; // Set to true since we have a valid response
     updateSignInUI();
     return;
   } catch (error) {
@@ -239,17 +295,36 @@ async function signIn(email: string, password: string) {
 }
 
 function updateSignInUI() {
-  if (signedIn) {
+  // Check if user is signed in by checking if userEmailValue is not empty and not anonymous
+  const isUserSignedIn = userEmailValue && userEmailValue !== ANONYMOUS_EMAIL;
+  
+  debug("updateSignInUI - userEmailValue:", userEmailValue, "isUserSignedIn:", isUserSignedIn);
+  
+  if (isUserSignedIn) {
     userEmail.textContent = userEmailValue;
-    if (userEmailValue == ANONYMOUS_EMAIL) {
-      signOutButton.disabled = true;
-      loginButton.disabled = false;
-    } else {
-      signOutButton.disabled = false;
+    signOutButton.disabled = false;
+    // Show customer button for logged in users
+    if (customerButton) {
+      customerButton.style.display = "inline-block";
+      customerButton.textContent = selectedCustomerDataEntryName;
+    }
+  } else if (userEmailValue === ANONYMOUS_EMAIL) {
+    // Anonymous user
+    userEmail.textContent = userEmailValue;
+    signOutButton.disabled = true;
+    loginButton.disabled = false;
+    // Hide customer button for anonymous users
+    if (customerButton) {
+      customerButton.style.display = "none";
     }
   } else {
+    // Not signed in
     userEmail.textContent = "";
     signOutButton.disabled = true;
+    // Hide customer button for logged out users
+    if (customerButton) {
+      customerButton.style.display = "none";
+    }
   }
 }
 // Update the sign out function
@@ -268,6 +343,18 @@ function signOut() {
   removeFileList();
   fileModifiedActions(false);
   clearMessages();
+  
+  // Reset customer selection to default
+  updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
+  
+  // Clear customer list cache
+  clearCustomerListCache();
+  
+  // Hide customer button
+  if (customerButton) {
+    customerButton.style.display = "none";
+  }
+  
   //addMessage("התנתקת בהצלחה");
 }
 
@@ -275,7 +362,7 @@ function signOut() {
 async function loadExistingFiles() {
   try {
     debug("loadExistingFiles");
-    const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=Default`, {
+    const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=${selectedCustomerDataEntryName}`, {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -301,7 +388,6 @@ async function loadExistingFiles() {
       label.classList.remove("disabled");
     });
   } catch (error: unknown) {
-    debug("Failed to load files:", error);
     // Only show message if it's not an auth error
     if (error instanceof Error && !error.message.includes("Invalid token")) {
       addMessage("שגיאה בטעינת רשימת הקבצים: " + error.message);
@@ -722,7 +808,7 @@ processButton.addEventListener("click", async () => {
       },
       credentials: "include",
       body: JSON.stringify({
-        customerDataEntryName: "Default",
+        customerDataEntryName: selectedCustomerDataEntryName,
       }),
     });
 
@@ -923,7 +1009,7 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
         formData.append("file", newFile);
 
         const metadata = {
-          customerDataEntryName: "Default",
+          customerDataEntryName: selectedCustomerDataEntryName,
           password: password, // Include password if provided
           replacedFileId: replacedFileId,
           imageHash: hash,
@@ -1178,6 +1264,176 @@ function switchMode(mode: string) {
   });
 }
 
+// Customer selection functions
+async function loadCustomerList(forceRefresh = false) {
+  // Check cache first (unless forced refresh)
+  if (!forceRefresh && isCustomerListCacheValid()) {
+    const customerData = customerListCache!;
+    populateCustomerSelect(customerData);
+    return;
+  }
+  
+  try {      
+    const response = await fetch(`${API_BASE_URL}/getCustomerDataEntryNames`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      credentials: "include",
+      ...fetchConfig,
+    });
+
+    if (!(await handleResponse(response, "Load customer list failed"))) {
+      return;
+    }
+
+    const customerData = await response.json();
+    
+    // Cache the customer data
+    setCustomerListCache(customerData);
+    
+    // Populate the select dropdown
+    populateCustomerSelect(customerData);
+    
+  } catch (error: unknown) {
+    console.error("Failed to load customer list:", error);
+    addMessage("שגיאה בטעינת רשימת הלקוחות: " + (error instanceof Error ? error.message : String(error)), "error");
+  }
+}
+
+// Helper function to populate the customer select dropdown
+function populateCustomerSelect(customerData: { name: string; modified: number; dbver: number }[]) {
+
+  // Clear loading option
+  customerSelect.innerHTML = '';
+  
+  // Extract customer names
+  const customerNames = customerData.map((customer: { name: string; modified: number; dbver: number }) => customer.name);
+  
+      // Validate that the stored customer still exists
+    if (!customerNames.includes(selectedCustomerDataEntryName)) {
+      updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
+    }
+  
+  // Add existing customers - extract names from the objects
+  customerData.forEach((customer: { name: string; modified: number; dbver: number }) => {
+    const option = document.createElement("option");
+    option.value = customer.name;
+    option.textContent = customer.name;
+    customerSelect.appendChild(option);
+  });
+  
+  // Add "Create new customer" option
+  const newCustomerOption = document.createElement("option");
+  newCustomerOption.value = "new";
+  newCustomerOption.textContent = "צור לקוח חדש";
+  customerSelect.appendChild(newCustomerOption);
+  
+  // Set current selection
+  customerSelect.value = selectedCustomerDataEntryName;
+  customerNameInput.value = selectedCustomerDataEntryName;
+  
+  // Enable update button if name is different
+  updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
+}
+
+function generateUniqueCustomerName(baseName: string, existingNames: string[]): string {
+  let newName = baseName;
+  let counter = 1;
+  
+  while (existingNames.includes(newName)) {
+    newName = `${baseName} ${counter}`;
+    counter++;
+  }
+  
+  return newName;
+}
+
+async function updateCustomerName() {
+  try {
+    debug("updateCustomerName");
+    const newName = customerNameInput.value.trim();
+    const oldName = selectedCustomerDataEntryName;
+    
+    if (!newName) {
+      addMessage("שם לקוח לא יכול להיות ריק", "error");
+      return;
+    }
+    
+    if (newName === oldName) {
+      addMessage("שם הלקוח לא השתנה", "info");
+      return;
+    }
+    
+    // If creating new customer, only update local variable - no API call
+    if (customerSelect.value === "new") {
+      // Generate unique name by checking existing names
+      const response = await fetch(`${API_BASE_URL}/getCustomerDataEntryNames`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        credentials: "include",
+        ...fetchConfig,
+      });
+      
+      if (response.ok) {
+        const existingCustomerData = await response.json();
+        const existingNames = existingCustomerData.map((customer: { name: string }) => customer.name);
+        const uniqueName = generateUniqueCustomerName(newName, existingNames);
+        customerNameInput.value = uniqueName;
+        
+        // Only update the local variable - no API call for new customer
+        updateSelectedCustomer(uniqueName);
+        addMessage(`לקוח חדש נבחר: ${uniqueName} (ייווצר בעת העלאה)`, "info");
+        
+        // Dismiss the customer modal
+        customerOverlay.classList.remove("active");
+      }
+    } else {
+      // Update existing customer name - make API call
+      const changeResponse = await fetch(`${API_BASE_URL}/changeCustomerDataEntryName`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fromCustomerDataEntryName: oldName,
+          toCustomerDataEntryName: newName,
+        }),
+        credentials: "include",
+        ...fetchConfig,
+      });
+      
+      if (!(await handleResponse(changeResponse, "Update customer name failed"))) {
+        return;
+      }
+      
+      updateSelectedCustomer(newName);
+      addMessage(`שם הלקוח עודכן ל: ${newName}`, "info");
+      
+      // Reload customer list to reflect changes (force refresh to get updated data)
+      await loadCustomerList(true);
+      
+      // Dismiss the customer modal
+      customerOverlay.classList.remove("active");
+    }
+    
+    // Update customer button text
+    if (customerButton) {
+      customerButton.textContent = selectedCustomerDataEntryName;
+    }
+    
+    // Reload files and results with new customer
+    await loadExistingFiles();
+    await loadResults(false);
+    
+  } catch (error: unknown) {
+    console.error("Failed to update customer name:", error);
+    addMessage("שגיאה בעדכון שם הלקוח: " + (error instanceof Error ? error.message : String(error)), "error");
+  }
+}
+
 // Handlers for mode toggle buttons
 toggleButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -1243,6 +1499,15 @@ loginForm.addEventListener("submit", async (e) => {
       await loadExistingFiles(); // Load files with new token
       // Dont scroll
       await loadResults(false);
+      
+      // Initialize customer selection if user is logged in
+      if (signedIn && userEmailValue !== ANONYMOUS_EMAIL) {
+        await loadCustomerList();
+        // Update customer button text
+        if (customerButton) {
+          customerButton.textContent = selectedCustomerDataEntryName;
+        }
+      }
     }
     //addMessage("התחברת בהצלחה!");
     loginOverlay.classList.remove("active");
@@ -1257,18 +1522,11 @@ loginForm.addEventListener("submit", async (e) => {
 });
 
 const googleLogin = document.querySelector(".google-login") as HTMLButtonElement;
-googleLogin.addEventListener("click", () => {
-  debug("Google login clicked");
-});
-
 const githubLogin = document.querySelector(".github-login") as HTMLButtonElement;
-githubLogin.addEventListener("click", () => {
-  debug("GitHub login clicked");
-});
 
 async function loadResults(scrollToMessageSection = true) {
   try {
-    const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=Default`, {
+    const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=${selectedCustomerDataEntryName}`, {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -1443,7 +1701,7 @@ function displayResults(results: { file: { fileName: string } }[]) {
 
 async function downloadResult(fileName: string) {
   try {
-    const response = await fetch(`${API_BASE_URL}/downloadResultsFile?fileName=${encodeURIComponent(fileName)}&customerDataEntryName=Default`, {
+    const response = await fetch(`${API_BASE_URL}/downloadResultsFile?fileName=${encodeURIComponent(fileName)}&customerDataEntryName=${selectedCustomerDataEntryName}`, {
       method: "GET",
       credentials: "include",
       ...fetchConfig,
@@ -1483,7 +1741,7 @@ deleteAllButton.addEventListener("click", async () => {
     const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את כל המסמכים שהוזנו?");
     if (!confirmed) return;
 
-    const response = await fetch(`${API_BASE_URL}/deleteAllFiles?customerDataEntryName=Default`, {
+    const response = await fetch(`${API_BASE_URL}/deleteAllFiles?customerDataEntryName=${selectedCustomerDataEntryName}`, {
       method: "DELETE",
       credentials: "include",
       ...fetchConfig,
@@ -1626,7 +1884,7 @@ function formatNumber(key: string, value: any) {
 export function addFileToList(fileInfo: any) {
   async function deleteFile(fileId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=${selectedCustomerDataEntryName}`, {
         method: "DELETE",
         headers: {},
         credentials: "include",
@@ -1659,7 +1917,7 @@ export function addFileToList(fileInfo: any) {
 
   async function deleteFileQuietly(fileId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=Default`, {
+      const response = await fetch(`${API_BASE_URL}/deleteFile?fileId=${fileId}&customerDataEntryName=${selectedCustomerDataEntryName}`, {
         method: "DELETE",
         headers: {},
         credentials: "include",
@@ -1980,7 +2238,7 @@ async function calculateTax(fileName: string) {
       showCancelButton: false,
     });
 
-    const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=Default`, {
+    const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=${selectedCustomerDataEntryName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1988,7 +2246,7 @@ async function calculateTax(fileName: string) {
       },
       credentials: "include",
       body: JSON.stringify({
-        customerDataEntryName: "Default",
+        customerDataEntryName: selectedCustomerDataEntryName,
         taxYear: taxCalcTaxYear,
       }),
       ...fetchConfig,
@@ -2386,7 +2644,7 @@ function restoreSelectedDocTypes() {
   const formType = (e.target as HTMLSelectElement).value as string;
   if (!formType) return;
 
-  const identificationNumber = defaultId;
+  const identificationNumber = defaultClientIdentificationNumber;
 
   try {
     const response = await fetch(`${API_BASE_URL}/createForm`, {
@@ -2396,7 +2654,7 @@ function restoreSelectedDocTypes() {
       },
       credentials: "include",
       body: JSON.stringify({
-        customerDataEntryName: "Default",
+        customerDataEntryName: selectedCustomerDataEntryName,
         formType: formType,
         identificationNumber: identificationNumber,
       }),
@@ -2720,3 +2978,67 @@ async function handleGoogleCallback() {
     addMessage("שגיאה בהתחברות עם Google", "error");
   }
 }
+
+if (customerSelect) {
+  customerSelect.addEventListener("change", () => {
+    if (customerSelect.value === "new") {
+      customerNameInput.value = "לקוח חדש";
+      updateCustomerButton.disabled = false;
+    } else {
+      customerNameInput.value = customerSelect.value;
+      updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
+      
+      // If selecting an existing customer, switch to it immediately
+      if (customerSelect.value !== selectedCustomerDataEntryName) {
+        updateSelectedCustomer(customerSelect.value);
+        // Update customer button text
+        if (customerButton) {
+          customerButton.textContent = selectedCustomerDataEntryName;
+        }
+        // Reload files and results with the new customer
+        loadExistingFiles();
+        loadResults(false);
+        addMessage(`עברת ללקוח: ${customerSelect.value}`, "info");
+        
+        // Dismiss the customer modal
+        customerOverlay.classList.remove("active");
+      }
+    }
+  });
+}
+
+if (customerNameInput) {
+  customerNameInput.addEventListener("input", () => {
+    updateCustomerButton.disabled = customerNameInput.value.trim() === selectedCustomerDataEntryName;
+  });
+}
+
+if (updateCustomerButton) {
+  updateCustomerButton.addEventListener("click", updateCustomerName);
+}
+
+// Customer modal event handlers
+if (customerButton) {
+  customerButton.addEventListener("click", () => {
+    customerOverlay.classList.add("active");
+    loadCustomerList();
+  });
+}
+
+if (customerOverlay) {
+  // Close modal when clicking on overlay
+  customerOverlay.addEventListener("click", (e) => {
+    if (e.target === customerOverlay) {
+      customerOverlay.classList.remove("active");
+    }
+  });
+  
+  // Close modal when clicking close button
+  const customerCloseButton = customerOverlay.querySelector(".close-button") as HTMLButtonElement;
+  if (customerCloseButton) {
+    customerCloseButton.addEventListener("click", () => {
+      customerOverlay.classList.remove("active");
+    });
+  }
+}
+

@@ -131,6 +131,7 @@ button {
   border-radius: 8px;
   padding: 6px 8px 6px 8px;
   cursor: pointer;
+  background-color: var(--button-color);
 }
 
 button:hover {
@@ -372,7 +373,6 @@ ul {
 }
 
 .loginout-button {
-  background-color: var(--button-color);
   color: var(--button-text);
   font-size: 12px;
   margin-top: 4px;
@@ -523,7 +523,6 @@ ul {
 }
 
 .login-submit {
-  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 10px;
@@ -1074,7 +1073,6 @@ ul {
 }
 
 .cancel-loading-button {
-  background-color: var(--button-color);
   transition: background-color 0.3s ease;
   display: none; /* Hidden by default */
   color: var(--button-text);
@@ -1156,7 +1154,6 @@ ul {
 }
 
 .cookie-button {
-  background-color: var(--button-color);
   color: var(--button-text);
   white-space: nowrap;
   margin-left: auto;
@@ -1396,7 +1393,6 @@ input#feedbackEmail {
 }
 
 .send-feedback-button {
-  background-color: var(--button-color);
   color: var(--button-text);
   font-size: 1em;
   align-self: flex-end;
@@ -1632,7 +1628,6 @@ input#feedbackEmail {
 }
 
 .action-button {
-  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 6px 12px;
@@ -1681,7 +1676,6 @@ input#feedbackEmail {
 }
 
 .confirm-button {
-  background-color: var(--button-color);
   color: var(--button-text);
 }
 
@@ -2170,7 +2164,6 @@ a:not(.submit-instructions-button):visited {
 
 .form-add-item-button,
 .form-action-button {
-  background-color: var(--button-color);
   color: var(--button-text);
   /* Make them smaller than regular buttons */
   padding: 0px 1px 0px 1px;
@@ -2362,7 +2355,6 @@ a:not(.submit-instructions-button):visited {
 }
 
 .start-button {
-  background-color: var(--button-color);
   color: var(--button-text);
   border: none;
   padding: 12px 40px;
@@ -2440,6 +2432,10 @@ a:not(.submit-instructions-button):visited {
 }
 
 /* Password modal specific styles */
+#passwordModal {
+  z-index: 3000; /* Higher than loading overlay (2000) */
+}
+
 #passwordModal .modal-body {
   text-align: center;
 }
@@ -2766,4 +2762,140 @@ a:not(.submit-instructions-button):visited {
 .help-link:hover {
   color: var(--tax-blue-dark);
   text-decoration: underline;
+}
+
+/* Customer selection styles */
+.customer-selection-form {
+  margin-top: 20px;
+}
+
+.customer-selection-group {
+  margin-bottom: 15px;
+}
+
+.customer-selection-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.customer-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.customer-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.customer-name-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.customer-name-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.update-customer-button {
+
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.update-customer-button:hover:not(:disabled) {
+  background-color: var(--button-color-hover);
+}
+
+.update-customer-button:disabled {
+  background-color: var(--disabled-color);
+  cursor: not-allowed;
+}
+
+/* Customer button styles */
+.customer-button {
+
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+}
+
+.customer-button:hover {
+  background-color: var(--button-color-hover);
+}
+
+/* Hide customer button on mobile devices */
+@media (max-width: 768px) {
+  .customer-button {
+    display: none !important;
+  }
+}
+
+/* Customer modal styles */
+.customer-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--modal-overlay);
+  z-index: 1000;
+}
+
+.customer-overlay.active {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 50px;
+}
+
+.customer-modal {
+  background-color: var(--bg-color);
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  margin: 0 auto;
+  box-shadow: 0 4px 6px var(--modal-shadow);
+}
+
+.customer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 0 20px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.customer-header h2 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.5em;
+}
+
+.customer-content {
+  padding: 0 20px 20px 20px;
+}
+
+#customerTabButton {
+  display: none;
+}
+
+#customerTabButton.visible {
+  display: inline-block;
 }

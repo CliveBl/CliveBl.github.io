@@ -1,4 +1,4 @@
-import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList } from "./index.js";
+import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList, selectedCustomerDataEntryName } from "./index.js";
 import { API_BASE_URL } from "./env.js";
 import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
@@ -535,7 +535,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
                 },
                 credentials: "include",
                 body: JSON.stringify({
-                    customerDataEntryName: "Default",
+                    customerDataEntryName: selectedCustomerDataEntryName,
                     formAsJSON: payload,
                 }),
             });
@@ -1204,7 +1204,7 @@ export async function displayFileInfoInExpandableArea(allFilesData, backupAllFil
         editorDeleteButton.textContent = "🗑️";
         editorDeleteButton.className = "delete-button";
         editorDeleteButton.onclick = () => {
-            const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=Default`;
+            const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=${selectedCustomerDataEntryName}`;
             fetch(deleteUrl, {
                 method: "DELETE",
                 headers: {
