@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.93";
+const uiVersion = "0.94";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -9,43 +9,6 @@ const SELECTED_CUSTOMER_STORAGE_KEY = "selectedCustomerDataEntryName";
 let customerListCache = null;
 let customerListCacheTimestamp = 0;
 const CUSTOMER_LIST_CACHE_DURATION = 60 * 60 * 1000; // 5 minutes in milliseconds
-// Helper functions for localStorage
-function saveSelectedCustomerToStorage(customerName) {
-    try {
-        localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
-    }
-    catch (error) {
-        debug("Failed to save selected customer to localStorage:", error);
-    }
-}
-function loadSelectedCustomerFromStorage() {
-    try {
-        const stored = localStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY);
-        return stored || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
-    }
-    catch (error) {
-        debug("Failed to load selected customer from localStorage:", error);
-        return DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
-    }
-}
-// Helper function to update selected customer and save to localStorage
-function updateSelectedCustomer(newCustomerName) {
-    selectedCustomerDataEntryName = newCustomerName;
-    saveSelectedCustomerToStorage(newCustomerName);
-}
-// Helper functions for customer list cache
-function isCustomerListCacheValid() {
-    return customerListCache !== null &&
-        (Date.now() - customerListCacheTimestamp) < CUSTOMER_LIST_CACHE_DURATION;
-}
-function clearCustomerListCache() {
-    customerListCache = null;
-    customerListCacheTimestamp = 0;
-}
-function setCustomerListCache(customerData) {
-    customerListCache = customerData;
-    customerListCacheTimestamp = Date.now();
-}
 export let selectedCustomerDataEntryName = loadSelectedCustomerFromStorage();
 export let configurationData;
 let latestFileInfoList = [];
@@ -109,6 +72,42 @@ const cookieConsent = document.getElementById("cookieConsent");
 const customerSelect = document.getElementById("customerSelect");
 const customerNameInput = document.getElementById("customerNameInput");
 const updateCustomerButton = document.getElementById("updateCustomerButton");
+// Helper functions for localStorage
+function saveSelectedCustomerToStorage(customerName) {
+    try {
+        localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
+    }
+    catch (error) {
+        debug("Failed to save selected customer to localStorage:", error);
+    }
+}
+function loadSelectedCustomerFromStorage() {
+    try {
+        const stored = localStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY);
+        return stored || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
+    }
+    catch (error) {
+        debug("Failed to load selected customer from localStorage:", error);
+        return DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
+    }
+}
+// Helper function to update selected customer and save to localStorage
+function updateSelectedCustomer(newCustomerName) {
+    selectedCustomerDataEntryName = newCustomerName;
+    saveSelectedCustomerToStorage(newCustomerName);
+}
+// Helper functions for customer list cache
+function isCustomerListCacheValid() {
+    return customerListCache !== null && Date.now() - customerListCacheTimestamp < CUSTOMER_LIST_CACHE_DURATION;
+}
+function clearCustomerListCache() {
+    customerListCache = null;
+    customerListCacheTimestamp = 0;
+}
+function setCustomerListCache(customerData) {
+    customerListCache = customerData;
+    customerListCacheTimestamp = Date.now();
+}
 export function updateButtons(hasEntries) {
     processButton.disabled = !hasEntries;
     deleteAllButton.disabled = !hasEntries;
@@ -1123,7 +1122,7 @@ async function loadCustomerList(forceRefresh = false) {
 // Helper function to populate the customer select dropdown
 function populateCustomerSelect(customerData) {
     // Clear loading option
-    customerSelect.innerHTML = '';
+    customerSelect.innerHTML = "";
     // Extract customer names
     const customerNames = customerData.map((customer) => customer.name);
     // Validate that the stored customer still exists

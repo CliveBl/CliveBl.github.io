@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.93";
+const uiVersion = "0.94";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -11,47 +11,6 @@ const SELECTED_CUSTOMER_STORAGE_KEY = "selectedCustomerDataEntryName";
 let customerListCache: { name: string; modified: number; dbver: number }[] | null = null;
 let customerListCacheTimestamp: number = 0;
 const CUSTOMER_LIST_CACHE_DURATION = 60 * 60 * 1000; // 5 minutes in milliseconds
-
-// Helper functions for localStorage
-function saveSelectedCustomerToStorage(customerName: string): void {
-  try {
-    localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
-  } catch (error) {
-    debug("Failed to save selected customer to localStorage:", error);
-  }
-}
-
-function loadSelectedCustomerFromStorage(): string {
-  try {
-    const stored = localStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY);
-    return stored || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
-  } catch (error) {
-    debug("Failed to load selected customer from localStorage:", error);
-    return DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
-  }
-}
-
-// Helper function to update selected customer and save to localStorage
-function updateSelectedCustomer(newCustomerName: string): void {
-  selectedCustomerDataEntryName = newCustomerName;
-  saveSelectedCustomerToStorage(newCustomerName);
-}
-
-// Helper functions for customer list cache
-function isCustomerListCacheValid(): boolean {
-  return customerListCache !== null && 
-         (Date.now() - customerListCacheTimestamp) < CUSTOMER_LIST_CACHE_DURATION;
-}
-
-function clearCustomerListCache(): void {
-  customerListCache = null;
-  customerListCacheTimestamp = 0;
-}
-
-function setCustomerListCache(customerData: { name: string; modified: number; dbver: number }[]): void {
-  customerListCache = customerData;
-  customerListCacheTimestamp = Date.now();
-}
 
 interface FormType {
   formType: string;
@@ -142,6 +101,46 @@ const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement
 const customerSelect = document.getElementById("customerSelect") as HTMLSelectElement;
 const customerNameInput = document.getElementById("customerNameInput") as HTMLInputElement;
 const updateCustomerButton = document.getElementById("updateCustomerButton") as HTMLButtonElement;
+
+// Helper functions for localStorage
+function saveSelectedCustomerToStorage(customerName: string): void {
+  try {
+    localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
+  } catch (error) {
+    debug("Failed to save selected customer to localStorage:", error);
+  }
+}
+
+function loadSelectedCustomerFromStorage(): string {
+  try {
+    const stored = localStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY);
+    return stored || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
+  } catch (error) {
+    debug("Failed to load selected customer from localStorage:", error);
+    return DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
+  }
+}
+
+// Helper function to update selected customer and save to localStorage
+function updateSelectedCustomer(newCustomerName: string): void {
+  selectedCustomerDataEntryName = newCustomerName;
+  saveSelectedCustomerToStorage(newCustomerName);
+}
+
+// Helper functions for customer list cache
+function isCustomerListCacheValid(): boolean {
+  return customerListCache !== null && Date.now() - customerListCacheTimestamp < CUSTOMER_LIST_CACHE_DURATION;
+}
+
+function clearCustomerListCache(): void {
+  customerListCache = null;
+  customerListCacheTimestamp = 0;
+}
+
+function setCustomerListCache(customerData: { name: string; modified: number; dbver: number }[]): void {
+  customerListCache = customerData;
+  customerListCacheTimestamp = Date.now();
+}
 
 export function updateButtons(hasEntries: boolean) {
   processButton.disabled = !hasEntries;
@@ -295,18 +294,18 @@ async function signIn(email: string, password: string) {
 }
 
 function translateCustomerDataEntryName(customerDataEntryName: string) {
-	if (customerDataEntryName === "Default") {
-		return "צור לקוח חדש";
-	}
-	return customerDataEntryName;
+  if (customerDataEntryName === "Default") {
+    return "צור לקוח חדש";
+  }
+  return customerDataEntryName;
 }
 
 function updateSignInUI() {
   // Check if user is signed in by checking if userEmailValue is not empty and not anonymous
   const isUserSignedIn = userEmailValue && userEmailValue !== ANONYMOUS_EMAIL;
-  
+
   debug("updateSignInUI - userEmailValue:", userEmailValue, "isUserSignedIn:", isUserSignedIn);
-  
+
   if (isUserSignedIn) {
     userEmail.textContent = userEmailValue;
     signOutButton.disabled = false;
@@ -350,18 +349,18 @@ function signOut() {
   removeFileList();
   fileModifiedActions(false);
   clearMessages();
-  
+
   // Reset customer selection to default
   updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
-  
+
   // Clear customer list cache
   clearCustomerListCache();
-  
+
   // Hide customer button
   if (customerButton) {
     customerButton.style.display = "none";
   }
-  
+
   //addMessage("התנתקת בהצלחה");
 }
 
@@ -412,7 +411,7 @@ function isValidFileType(file: File) {
       message: `סוג קובץ לא נתמך - רק קבצי PDF ,JPG ,GIF ,BMP ,PNG מותרים. שם הקובץ: ${file.name}`,
     };
   }
-  
+
   // Check file size (5MB = 5 * 1024 * 1024 bytes)
   if (file.size > MAX_FILE_SIZE) {
     return {
@@ -420,7 +419,7 @@ function isValidFileType(file: File) {
       message: `גודל הקובץ גדול מדי - הקובץ חייב להיות קטן מ-5MB. שם הקובץ: ${file.name}`,
     };
   }
-  
+
   return { valid: true };
 }
 
@@ -1279,8 +1278,8 @@ async function loadCustomerList(forceRefresh = false) {
     populateCustomerSelect(customerData);
     return;
   }
-  
-  try {      
+
+  try {
     const response = await fetch(`${API_BASE_URL}/getCustomerDataEntryNames`, {
       method: "GET",
       headers: {
@@ -1295,13 +1294,12 @@ async function loadCustomerList(forceRefresh = false) {
     }
 
     const customerData = await response.json();
-    
+
     // Cache the customer data
     setCustomerListCache(customerData);
-    
+
     // Populate the select dropdown
     populateCustomerSelect(customerData);
-    
   } catch (error: unknown) {
     console.error("Failed to load customer list:", error);
     addMessage("שגיאה בטעינת רשימת הלקוחות: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -1310,18 +1308,17 @@ async function loadCustomerList(forceRefresh = false) {
 
 // Helper function to populate the customer select dropdown
 function populateCustomerSelect(customerData: { name: string; modified: number; dbver: number }[]) {
-
   // Clear loading option
-  customerSelect.innerHTML = '';
-  
+  customerSelect.innerHTML = "";
+
   // Extract customer names
   const customerNames = customerData.map((customer: { name: string; modified: number; dbver: number }) => customer.name);
-  
-      // Validate that the stored customer still exists
-    if (!customerNames.includes(selectedCustomerDataEntryName)) {
-      updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
-    }
-  
+
+  // Validate that the stored customer still exists
+  if (!customerNames.includes(selectedCustomerDataEntryName)) {
+    updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
+  }
+
   // Add existing customers - extract names from the objects
   customerData.forEach((customer: { name: string; modified: number; dbver: number }) => {
     const option = document.createElement("option");
@@ -1329,29 +1326,29 @@ function populateCustomerSelect(customerData: { name: string; modified: number; 
     option.textContent = customer.name;
     customerSelect.appendChild(option);
   });
-  
+
   // Add "Create new customer" option
   const newCustomerOption = document.createElement("option");
   newCustomerOption.value = "new";
   newCustomerOption.textContent = "צור לקוח חדש";
   customerSelect.appendChild(newCustomerOption);
-  
+
   // Set current selection
   customerSelect.value = translateCustomerDataEntryName(selectedCustomerDataEntryName);
   customerNameInput.value = "";
-  
+
   // Enable update button if name is different and not duplicate
   const inputValue = customerNameInput.value.trim();
   const isEmpty = inputValue === "";
   const isSameAsCurrent = inputValue === selectedCustomerDataEntryName;
-  
+
   // Check if name already exists
   let isDuplicate = false;
   if (customerListCache && inputValue) {
     const existingNames = customerListCache.map((customer: { name: string }) => customer.name);
     isDuplicate = existingNames.includes(inputValue);
   }
-  
+
   updateCustomerButton.disabled = isEmpty || isSameAsCurrent || isDuplicate;
 }
 
@@ -1360,27 +1357,26 @@ async function updateCustomerName() {
     debug("updateCustomerName");
     const newName = customerNameInput.value.trim();
     const oldName = selectedCustomerDataEntryName;
-    
+
     if (!newName) {
       addMessage("שם לקוח לא יכול להיות ריק", "error");
       return;
     }
-    
+
     if (newName === oldName) {
       addMessage("שם הלקוח לא השתנה", "info");
       return;
     }
-    
+
     // If creating new customer, only update local variable - no API call
     if (customerSelect.value === "new") {
       // Only update the local variable - no API call for new customer
       updateSelectedCustomer(newName);
       addMessage(`לקוח חדש נבחר: ${newName} (ייווצר בעת העלאה)`, "info");
-      
+
       // Dismiss the customer modal
       customerOverlay.classList.remove("active");
     } else {
-      
       // Update existing customer name - make API call
       const changeResponse = await fetch(`${API_BASE_URL}/changeCustomerDataEntryName`, {
         method: "POST",
@@ -1394,30 +1390,29 @@ async function updateCustomerName() {
         credentials: "include",
         ...fetchConfig,
       });
-      
+
       if (!(await handleResponse(changeResponse, "Update customer name failed"))) {
         return;
       }
-      
+
       updateSelectedCustomer(newName);
       addMessage(`שם הלקוח עודכן ל: ${newName}`, "info");
-      
+
       // Reload customer list to reflect changes (force refresh to get updated data)
       await loadCustomerList(true);
-      
+
       // Dismiss the customer modal
       customerOverlay.classList.remove("active");
     }
-    
+
     // Update customer button text
     if (customerButton) {
       customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
     }
-    
+
     // Reload files and results with new customer
     await loadExistingFiles();
     await loadResults(false);
-    
   } catch (error: unknown) {
     console.error("Failed to update customer name:", error);
     addMessage("שגיאה בעדכון שם הלקוח: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -1489,7 +1484,7 @@ loginForm.addEventListener("submit", async (e) => {
       await loadExistingFiles(); // Load files with new token
       // Dont scroll
       await loadResults(false);
-      
+
       // Initialize customer selection if user is logged in
       if (signedIn && userEmailValue !== ANONYMOUS_EMAIL) {
         await loadCustomerList();
@@ -2972,12 +2967,12 @@ async function handleGoogleCallback() {
 if (customerSelect) {
   customerSelect.addEventListener("change", () => {
     if (customerSelect.value === "new") {
-      customerNameInput.value = ""
-	  customerNameInput.focus();
+      customerNameInput.value = "";
+      customerNameInput.focus();
     } else {
       customerNameInput.value = customerSelect.value;
       updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
-      
+
       // If selecting an existing customer, switch to it immediately
       if (customerSelect.value !== selectedCustomerDataEntryName) {
         updateSelectedCustomer(customerSelect.value);
@@ -2989,7 +2984,7 @@ if (customerSelect) {
         loadExistingFiles();
         loadResults(false);
         addMessage(`עברת ללקוח: ${customerSelect.value}`, "info");
-        
+
         // Dismiss the customer modal
         customerOverlay.classList.remove("active");
       }
@@ -3002,14 +2997,14 @@ if (customerNameInput) {
     const inputValue = customerNameInput.value.trim();
     const isEmpty = inputValue === "";
     const isSameAsCurrent = inputValue === selectedCustomerDataEntryName;
-    
+
     // Check if name already exists (for both new and existing customers)
     let isDuplicate = false;
     if (customerListCache && inputValue) {
       const existingNames = customerListCache.map((customer: { name: string }) => customer.name);
       isDuplicate = existingNames.includes(inputValue);
     }
-    
+
     updateCustomerButton.disabled = isEmpty || isSameAsCurrent || isDuplicate;
   });
 }
@@ -3033,7 +3028,7 @@ if (customerOverlay) {
       customerOverlay.classList.remove("active");
     }
   });
-  
+
   // Close modal when clicking close button
   const customerCloseButton = customerOverlay.querySelector(".close-button") as HTMLButtonElement;
   if (customerCloseButton) {
@@ -3042,4 +3037,3 @@ if (customerOverlay) {
     });
   }
 }
-
