@@ -2829,7 +2829,7 @@ a:not(.submit-instructions-button):visited {
 
 /* Customer button styles */
 .customer-button {
-
+  color: var(--button-text);
   transition: background-color 0.3s ease;
   margin-left: 10px;
 }
