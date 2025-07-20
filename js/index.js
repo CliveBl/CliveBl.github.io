@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.92";
+const uiVersion = "0.93";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -1144,7 +1144,7 @@ function populateCustomerSelect(customerData) {
     customerSelect.appendChild(newCustomerOption);
     // Set current selection
     customerSelect.value = translateCustomerDataEntryName(selectedCustomerDataEntryName);
-    customerNameInput.value = translateCustomerDataEntryName(selectedCustomerDataEntryName);
+    customerNameInput.value = "";
     // Enable update button if name is different and not duplicate
     const inputValue = customerNameInput.value.trim();
     const isEmpty = inputValue === "";
