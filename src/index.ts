@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.90";
+const uiVersion = "0.91";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -294,6 +294,13 @@ async function signIn(email: string, password: string) {
   }
 }
 
+function translateCustomerDataEntryName(customerDataEntryName: string) {
+	if (customerDataEntryName === "Default") {
+		return "צור לקוח חדש";
+	}
+	return customerDataEntryName;
+}
+
 function updateSignInUI() {
   // Check if user is signed in by checking if userEmailValue is not empty and not anonymous
   const isUserSignedIn = userEmailValue && userEmailValue !== ANONYMOUS_EMAIL;
@@ -306,7 +313,7 @@ function updateSignInUI() {
     // Show customer button for logged in users
     if (customerButton) {
       customerButton.style.display = "inline-block";
-      customerButton.textContent = selectedCustomerDataEntryName;
+      customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
     }
   } else if (userEmailValue === ANONYMOUS_EMAIL) {
     // Anonymous user
@@ -1421,7 +1428,7 @@ async function updateCustomerName() {
     
     // Update customer button text
     if (customerButton) {
-      customerButton.textContent = selectedCustomerDataEntryName;
+      customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
     }
     
     // Reload files and results with new customer
@@ -1505,7 +1512,7 @@ loginForm.addEventListener("submit", async (e) => {
         await loadCustomerList();
         // Update customer button text
         if (customerButton) {
-          customerButton.textContent = selectedCustomerDataEntryName;
+          customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
         }
       }
     }
@@ -2982,8 +2989,8 @@ async function handleGoogleCallback() {
 if (customerSelect) {
   customerSelect.addEventListener("change", () => {
     if (customerSelect.value === "new") {
-      customerNameInput.value = "לקוח חדש";
-      updateCustomerButton.disabled = false;
+      customerNameInput.value = ""
+	  customerNameInput.focus();
     } else {
       customerNameInput.value = customerSelect.value;
       updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
@@ -2993,7 +3000,7 @@ if (customerSelect) {
         updateSelectedCustomer(customerSelect.value);
         // Update customer button text
         if (customerButton) {
-          customerButton.textContent = selectedCustomerDataEntryName;
+          customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
         }
         // Reload files and results with the new customer
         loadExistingFiles();
@@ -3009,7 +3016,7 @@ if (customerSelect) {
 
 if (customerNameInput) {
   customerNameInput.addEventListener("input", () => {
-    updateCustomerButton.disabled = customerNameInput.value.trim() === selectedCustomerDataEntryName;
+    updateCustomerButton.disabled = customerNameInput.value.trim() === selectedCustomerDataEntryName || customerNameInput.value.trim() === "";
   });
 }
 
