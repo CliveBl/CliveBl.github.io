@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.94";
+const uiVersion = "0.95";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -72,6 +72,10 @@ const cookieConsent = document.getElementById("cookieConsent");
 const customerSelect = document.getElementById("customerSelect");
 const customerNameInput = document.getElementById("customerNameInput");
 const updateCustomerButton = document.getElementById("updateCustomerButton");
+const feedbackEmail = document.getElementById("feedbackEmail");
+const privacyCheckbox = document.getElementById("privacyAgreement");
+const sendFeedbackButton = document.getElementById("sendFeedbackButton");
+const feedbackMessage = document.getElementById("feedbackMessage");
 // Helper functions for localStorage
 function saveSelectedCustomerToStorage(customerName) {
     try {
@@ -308,6 +312,8 @@ function signOut() {
     if (customerButton) {
         customerButton.style.display = "none";
     }
+    // Clear feedback form on sign out
+    clearFeedbackForm();
     //addMessage("התנתקת בהצלחה");
 }
 // Add this function to load files with existing token
@@ -946,6 +952,7 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
     if (type) {
         messageDiv.classList.add(type);
     }
+    text = translateError(text);
     const messageText = document.createElement("span");
     messageText.className = "message-text";
     // ^<message code> indicates a message code
@@ -1032,7 +1039,6 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
     }
     // If the message type is "error", append it to the feedbackMessage in the feedback section
     if (type === "error") {
-        const feedbackMessage = document.getElementById("feedbackMessage");
         const timestamp = new Date().toLocaleTimeString();
         feedbackMessage.textContent = `${timestamp}: ${text}`;
     }
@@ -1290,7 +1296,7 @@ loginForm.addEventListener("submit", async (e) => {
         console.error("Login failed:", error);
         // Clear previous messages
         clearMessages();
-        addMessage("שגיאה בהתחברות: " + (error instanceof Error ? error.message : String(error)), "error");
+        addMessage("לא מצאנו את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נזמנית. תנסה שוב יותר מאוחר:" + (error instanceof Error ? error.message : String(error)), "error");
         // Dismiss the login overlay
         loginOverlay.classList.remove("active");
     }
@@ -2093,7 +2099,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateSignInUI();
     // Pre-fill feedback email if user is logged in
     if (signedIn) {
-        document.getElementById("feedbackEmail").value = userEmailValue;
+        feedbackEmail.value = userEmailValue;
         updateFeedbackButtonState();
     }
     // Add event listeners for document count selects
@@ -2206,19 +2212,16 @@ function isValidEmail(email) {
 }
 // Function to update feedback button state
 function updateFeedbackButtonState() {
-    const emailInput = document.getElementById("feedbackEmail");
-    const privacyCheckbox = document.getElementById("privacyAgreement");
-    const sendButton = document.getElementById("sendFeedbackButton");
-    sendButton.disabled = !isValidEmail(emailInput.value) || !privacyCheckbox.checked;
+    sendFeedbackButton.disabled = !isValidEmail(feedbackEmail.value) || !privacyCheckbox.checked;
 }
 // Add event listeners for both email input and privacy checkbox
-document.getElementById("feedbackEmail").addEventListener("input", updateFeedbackButtonState);
-document.getElementById("privacyAgreement").addEventListener("change", updateFeedbackButtonState);
+feedbackEmail.addEventListener("input", updateFeedbackButtonState);
+privacyCheckbox.addEventListener("change", updateFeedbackButtonState);
 // Add feedback submission handler
-document.getElementById("sendFeedbackButton").addEventListener("click", async () => {
+sendFeedbackButton.addEventListener("click", async () => {
     try {
-        const email = document.getElementById("feedbackEmail").value;
-        const message = document.getElementById("feedbackMessage").value;
+        const email = feedbackEmail.value;
+        const message = feedbackMessage.value;
         const response = await fetch(`${API_BASE_URL}/feedback`, {
             method: "POST",
             headers: {
@@ -2236,10 +2239,7 @@ document.getElementById("sendFeedbackButton").addEventListener("click", async ()
         }
         addMessage("תודה על המשוב שלך!", "success");
         // Clear the form
-        document.getElementById("feedbackEmail").value = "";
-        document.getElementById("feedbackMessage").value = "";
-        document.getElementById("privacyAgreement").checked = false;
-        updateFeedbackButtonState();
+        clearFeedbackForm();
     }
     catch (error) {
         console.error("Failed to submit feedback:", error);
@@ -2260,6 +2260,12 @@ document.querySelectorAll(".doc-controls select").forEach((select) => {
         updateMissingDocuments();
     });
 });
+function clearFeedbackForm() {
+    feedbackEmail.value = "";
+    feedbackMessage.value = "";
+    privacyCheckbox.checked = false;
+    updateFeedbackButtonState();
+}
 // Function to save selected doc types to localStorage
 function saveSelectedDocTypes() {
     const docSelections = {};
@@ -2662,5 +2668,12 @@ if (customerOverlay) {
             customerOverlay.classList.remove("active");
         });
     }
+}
+function translateError(error) {
+    const tranlationTable = {
+    // "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
+    };
+    debug("translateError:", error);
+    return tranlationTable[error] || error;
 }
 //# sourceMappingURL=index.js.map

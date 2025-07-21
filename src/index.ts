@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.94";
+const uiVersion = "0.95";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -101,6 +101,10 @@ const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement
 const customerSelect = document.getElementById("customerSelect") as HTMLSelectElement;
 const customerNameInput = document.getElementById("customerNameInput") as HTMLInputElement;
 const updateCustomerButton = document.getElementById("updateCustomerButton") as HTMLButtonElement;
+const feedbackEmail = document.getElementById("feedbackEmail") as HTMLInputElement;
+const privacyCheckbox = document.getElementById("privacyAgreement") as HTMLInputElement;
+const sendFeedbackButton = document.getElementById("sendFeedbackButton") as HTMLButtonElement;
+const feedbackMessage = document.getElementById("feedbackMessage") as HTMLTextAreaElement;
 
 // Helper functions for localStorage
 function saveSelectedCustomerToStorage(customerName: string): void {
@@ -361,6 +365,8 @@ function signOut() {
     customerButton.style.display = "none";
   }
 
+  // Clear feedback form on sign out
+  clearFeedbackForm();
   //addMessage("התנתקת בהצלחה");
 }
 
@@ -1113,6 +1119,8 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     messageDiv.classList.add(type);
   }
 
+  text = translateError(text);
+
   const messageText = document.createElement("span");
   messageText.className = "message-text";
   // ^<message code> indicates a message code
@@ -1208,7 +1216,6 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
 
   // If the message type is "error", append it to the feedbackMessage in the feedback section
   if (type === "error") {
-    const feedbackMessage = document.getElementById("feedbackMessage") as HTMLTextAreaElement;
     const timestamp = new Date().toLocaleTimeString();
     feedbackMessage.textContent = `${timestamp}: ${text}`;
   }
@@ -1500,7 +1507,7 @@ loginForm.addEventListener("submit", async (e) => {
     console.error("Login failed:", error);
     // Clear previous messages
     clearMessages();
-    addMessage("שגיאה בהתחברות: " + (error instanceof Error ? error.message : String(error)), "error");
+    addMessage("לא מצאנו את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נזמנית. תנסה שוב יותר מאוחר:" + (error instanceof Error ? error.message : String(error)), "error");
     // Dismiss the login overlay
     loginOverlay.classList.remove("active");
   }
@@ -2401,7 +2408,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Pre-fill feedback email if user is logged in
   if (signedIn) {
-    (document.getElementById("feedbackEmail") as HTMLInputElement).value = userEmailValue;
+    feedbackEmail.value = userEmailValue;
     updateFeedbackButtonState();
   }
 
@@ -2528,22 +2535,18 @@ function isValidEmail(email: string) {
 
 // Function to update feedback button state
 function updateFeedbackButtonState() {
-  const emailInput = document.getElementById("feedbackEmail") as HTMLInputElement;
-  const privacyCheckbox = document.getElementById("privacyAgreement") as HTMLInputElement;
-  const sendButton = document.getElementById("sendFeedbackButton") as HTMLButtonElement;
-
-  sendButton.disabled = !isValidEmail(emailInput.value) || !privacyCheckbox.checked;
+  sendFeedbackButton.disabled = !isValidEmail(feedbackEmail.value) || !privacyCheckbox.checked;
 }
 
 // Add event listeners for both email input and privacy checkbox
-(document.getElementById("feedbackEmail") as HTMLInputElement).addEventListener("input", updateFeedbackButtonState);
-(document.getElementById("privacyAgreement") as HTMLInputElement).addEventListener("change", updateFeedbackButtonState);
+feedbackEmail.addEventListener("input", updateFeedbackButtonState);
+privacyCheckbox.addEventListener("change", updateFeedbackButtonState);
 
 // Add feedback submission handler
-(document.getElementById("sendFeedbackButton") as HTMLButtonElement).addEventListener("click", async () => {
+sendFeedbackButton.addEventListener("click", async () => {
   try {
-    const email = (document.getElementById("feedbackEmail") as HTMLInputElement).value;
-    const message = (document.getElementById("feedbackMessage") as HTMLInputElement).value;
+    const email = feedbackEmail.value;
+    const message = feedbackMessage.value;
 
     const response = await fetch(`${API_BASE_URL}/feedback`, {
       method: "POST",
@@ -2564,10 +2567,7 @@ function updateFeedbackButtonState() {
 
     addMessage("תודה על המשוב שלך!", "success");
     // Clear the form
-    (document.getElementById("feedbackEmail") as HTMLInputElement).value = "";
-    (document.getElementById("feedbackMessage") as HTMLInputElement).value = "";
-    (document.getElementById("privacyAgreement") as HTMLInputElement).checked = false;
-    updateFeedbackButtonState();
+    clearFeedbackForm();
   } catch (error: unknown) {
     console.error("Failed to submit feedback:", error);
     addMessage("שגיאה בשליחת המשוב: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -2587,6 +2587,13 @@ document.querySelectorAll(".doc-controls select").forEach((select) => {
     updateMissingDocuments();
   });
 });
+
+function clearFeedbackForm() {
+  feedbackEmail.value = "";
+  feedbackMessage.value = "";
+  privacyCheckbox.checked = false;
+  updateFeedbackButtonState();
+}
 
 // Function to save selected doc types to localStorage
 function saveSelectedDocTypes() {
@@ -3036,4 +3043,12 @@ if (customerOverlay) {
       customerOverlay.classList.remove("active");
     });
   }
+}
+
+function translateError(error: string): string {
+  const tranlationTable: Record<string, string> = {
+    // "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
+  };
+  debug("translateError:", error);
+  return tranlationTable[error] || error;
 }

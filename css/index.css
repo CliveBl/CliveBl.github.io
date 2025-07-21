@@ -335,7 +335,7 @@ ul {
   flex-grow: 1;
   margin-right: 0;
   margin-left: 10px;
-  word-break: break-all;
+  word-break: keep-all;
 }
 
 /* Styles for clickable messages */
