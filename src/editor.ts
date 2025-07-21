@@ -253,7 +253,7 @@ export function editableGetDocTypes() {
   // Get all accordionContainers and map to their document types
   return Array.from(document.querySelectorAll("#expandableAreaUploadFiles #accordionContainer"))
     .map((div) => div.getAttribute("data-doc-typename"))
-    .filter(Boolean); // Remove any null/undefined values
+    .filter((type): type is string => Boolean(type)); // Remove any null/undefined values
 }
 
 export function editableRemoveFileList() {

@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.95";
+const uiVersion = "0.96";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -169,7 +169,10 @@ function openFileListEntry(fileName, property, shouldScroll = true) {
 }
 function getDocTypes() {
     if (editableFileList) {
-        return editableGetDocTypes();
+        const array = Array.from(document.querySelectorAll("#fileList li"))
+            .map((li) => li.getAttribute("data-doc-typename"))
+            .filter((type) => type === "שגיאה"); // Filter to only string 'שגיאה'
+        return array.concat(editableGetDocTypes());
     }
     else {
         return Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));

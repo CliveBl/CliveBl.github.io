@@ -2305,16 +2305,11 @@ a:not(.submit-instructions-button):visited {
 }
 
 .file-list-toggle-link {
-  color: var(--tax-blue);
+  /* color: var(--tax-blue); */
   text-decoration: none;
   font-size: 14px;
   cursor: pointer;
   transition: color 0.3s ease;
-}
-
-.file-list-toggle-link:hover {
-  color: var(--tax-blue-dark);
-  text-decoration: underline;
 }
 
 .file-list-toggle-link.active {
@@ -2750,17 +2745,16 @@ a:not(.submit-instructions-button):visited {
 }
 
 /* Help link styles for editor forms */
+.back-link,
 .help-link {
-  color: var(--tax-blue);
   text-decoration: none;
-  font-size: 14px;
   transition: color 0.3s ease;
   margin-right: auto;
   margin-left: 10px;
 }
 
+.back-link:hover,
 .help-link:hover {
-  color: var(--tax-blue-dark);
   text-decoration: underline;
 }
 

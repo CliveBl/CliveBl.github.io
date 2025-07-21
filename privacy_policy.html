@@ -12,12 +12,11 @@
         body {
             display: flex;
         }
-        .privacy-container {
-            max-width: 800px;
-            padding: 40px 20px;
-            text-align: right;
-            margin: 20px;
+		@media (min-width: 768px) {
+        .main-container {
+          max-width: 65%;
         }
+      }
 
 
         ul {
@@ -38,7 +37,7 @@
     </style>
 </head>
 <body>
-    <div class="privacy-container">
+    <div class="main-container">
 		<h1>דו״ח שנתי - עשה זאת בעצמך</h1>
         <h1>מדיניות פרטיות</h1>
 
@@ -74,8 +73,8 @@
         <p>בנסיבות מסוימות, אנו עשויים להשתמש בשירותי בינה מלאכותית של Google Gemini ו-Anthropic Claude לעיבוד המסמכים שלכם. שירותים אלה מסייעים בזיהוי ומיצוי המידע מהמסמכים הפיננסיים כאשר נדרש עיבוד מתקדם.</p>
         <p>כאשר אנו משתמשים בשירותי AI, המידע נשלח לשרתים של:</p>
         <ul>
-            <li><strong>Google Gemini:</strong> <a href="https://ai.google.dev/gemini-api/terms" target="_blank">תנאי שירות של Google Gemini API</a></li>
-            <li><strong>Anthropic Claude:</strong> <a href="https://privacy.anthropic.com/en/articles/10458704-how-does-anthropic-protect-the-personal-data-of-claude-ai-users" target="_blank">מדיניות פרטיות של Anthropic</a></li>
+            <li><strong>Google Gemini:</strong> <a class="help-link" href="https://ai.google.dev/gemini-api/terms" target="_blank">תנאי שירות של Google Gemini API</a></li>
+            <li><strong>Anthropic Claude:</strong> <a class="help-link" href="https://privacy.anthropic.com/en/articles/10458704-how-does-anthropic-protect-the-personal-data-of-claude-ai-users" target="_blank">מדיניות פרטיות של Anthropic</a></li>
         </ul>
         <p>אנו ממליצים לכם לקרוא את מדיניות הפרטיות של שירותים אלה כדי להבין כיצד הם מטפלים במידע שלכם.</p>
 
