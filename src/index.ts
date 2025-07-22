@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.97";
+const uiVersion = "0.98";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -440,10 +440,17 @@ function isInGeneratedTaxFormsFolder(filePath: string) {
 
 // Recursively walks the file system and processes file system entries (for folder drops)
 // Updates the files array with the files in the entry
-async function getFileList(entry: any, files: File[]): Promise<void> {
+// Modified: Accepts a relativePathMap to store reconstructed paths
+async function getFileList(entry: any, files: File[], relativePathMap?: Map<File, string>, currentPath = ""): Promise<void> {
   if (entry.isFile) {
     return new Promise((resolve) => {
       entry.file((file: File) => {
+        if (relativePathMap) {
+          // If webkitRelativePath is empty, set our reconstructed path
+          if (!file.webkitRelativePath) {
+            relativePathMap.set(file, currentPath + file.name);
+          }
+        }
         files.push(file);
         resolve();
       });
@@ -459,7 +466,7 @@ async function getFileList(entry: any, files: File[]): Promise<void> {
           }
 
           for (const childEntry of entries) {
-            await getFileList(childEntry, files);
+            await getFileList(childEntry, files, relativePathMap, currentPath + entry.name + "/");
           }
           readEntries(); // Continue reading if there are more entries
         });
@@ -470,18 +477,21 @@ async function getFileList(entry: any, files: File[]): Promise<void> {
 }
 
 // Shared function to process folder files (used by both folder input and drag & drop)
-async function processFolderFiles(files: File[], button: HTMLInputElement) {
+// Modified: Accepts a relativePathMap for reconstructed paths
+async function processFolderFiles(files: File[], button: HTMLInputElement, relativePathMap?: Map<File, string>) {
   clearMessages();
 
   // Sort and filter files
   const validFiles = files
     .sort((a, b) => {
-      const pathA = a.webkitRelativePath || a.name;
-      const pathB = b.webkitRelativePath || b.name;
+      // Use reconstructed path if webkitRelativePath is empty
+      const pathA = a.webkitRelativePath || (relativePathMap && relativePathMap.get(a)) || a.name;
+      const pathB = b.webkitRelativePath || (relativePathMap && relativePathMap.get(b)) || b.name;
       return pathA.localeCompare(pathB);
     })
     .filter((file) => {
-      if (isInGeneratedTaxFormsFolder(file.webkitRelativePath || file.name) || file.name.match(/TaxAnalysis_\d{4}\.xlsx/)) {
+      const relPath = file.webkitRelativePath || (relativePathMap && relativePathMap.get(file)) || file.name;
+      if (isInGeneratedTaxFormsFolder(relPath) || file.name.match(/TaxAnalysis_\d{4}\.xlsx/)) {
         return false;
       }
 
@@ -1779,6 +1789,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const items = Array.from(e.dataTransfer?.items || []);
       const files: File[] = [];
+      // New: Map to store reconstructed relative paths
+      const relativePathMap = new Map<File, string>();
 
       // Process each dropped item
       for (const item of items) {
@@ -1787,7 +1799,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const webkitItem = item as any;
           const entry = webkitItem.webkitGetAsEntry?.() || webkitItem.getAsEntry?.();
           if (entry) {
-            await getFileList(entry, files);
+            await getFileList(entry, files, relativePathMap, "");
           } else {
             // Fallback for browsers that don't support FileSystem API
             const file = item.getAsFile();
@@ -1799,24 +1811,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (files.length > 0) {
-        // Check if we need to reconstruct paths for browsers that don't support webkitRelativePath
-        const needsPathReconstruction = files.some((file) => !file.webkitRelativePath);
-
-        // Only treat as folder drop if we have multiple files or if it's actually a folder
-        const isLikelyFolderDrop = needsPathReconstruction && items.length === 1 && files.length > 1;
-
-        if (isLikelyFolderDrop) {
-          // This is likely a folder drop on a browser that doesn't support webkitRelativePath
-          // We need to reconstruct the paths manually
-          debug("Detected folder drop on browser without webkitRelativePath support, reconstructing paths");
-
-          // For now, we'll use the folder input approach as a workaround
-          addMessage("עבור דפדפנים שאינם תומכים בגרירת תיקיות, אנא השתמש בכפתור 'העלאת תיקיות' במקום גרירה", "warning");
-          return;
-        }
-
-        // Use the same logic as folder input for processing
-        await processFolderFiles(files, folderInput);
+        // Use the same logic as folder input for processing, pass relativePathMap
+        await processFolderFiles(files, folderInput, relativePathMap);
       }
     });
     // Click to open file dialog

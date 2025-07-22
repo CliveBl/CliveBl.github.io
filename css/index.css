@@ -42,6 +42,9 @@
   --highlight-bg: #e6f3ff;
   --highlight-text: #0066cc;
   --highlight-border: #0066cc;
+  /* Link colors: use browser default in light mode */
+  --link-color: #0000ff;
+  --link-color-visited: inherit;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -88,6 +91,9 @@
     --highlight-bg: #1a3d5c;
     --highlight-text: #66b3ff;
     --highlight-border: #66b3ff;
+    /* Link colors for dark mode */
+    --link-color: #66b3ff;
+    --link-color-visited: #bb86fc;
   }
 }
 
@@ -1739,7 +1745,8 @@ input#feedbackEmail {
   opacity: 0.7;
 }
 
-.more-info-button {
+.more-info-link {
+	color: var(--link-color);
   position: absolute;
   bottom: 10px;
   left: 10px;
@@ -1753,8 +1760,12 @@ input#feedbackEmail {
   text-decoration: none;
 }
 
-.more-info-button:hover {
+.more-info-link:hover {
   text-decoration: underline;
+}
+
+.more-info-link:visited {
+	color: var(--link-color-visited);
 }
 
 @media (max-width: 600px) {
@@ -2305,7 +2316,7 @@ a:not(.submit-instructions-button):visited {
 }
 
 .file-list-toggle-link {
-  /* color: var(--tax-blue); */
+  color: var(--link-color);
   text-decoration: none;
   font-size: 14px;
   cursor: pointer;
@@ -2316,11 +2327,20 @@ a:not(.submit-instructions-button):visited {
 	text-decoration: underline;
  }
 
+ .file-list-toggle-link:visited {
+  color: var(--link-color-visited);
+ }
+
 .fields-toggle-link {
+	color: var(--link-color);
   text-decoration: none;
   font-size: 14px;
   cursor: pointer;
   transition: color 0.3s ease;
+}
+
+.fields-toggle-link:visited {
+	color: var(--link-color-visited);
 }
 
 .fields-toggle-link:hover {
@@ -2739,17 +2759,23 @@ a:not(.submit-instructions-button):visited {
 }
 
 /* Help link styles for editor forms */
-.back-link,
+.stnd-link,
 .help-link {
+	color: var(--link-color);
   text-decoration: none;
   transition: color 0.3s ease;
   margin-right: auto;
   margin-left: 10px;
 }
 
-.back-link:hover,
+.stnd-link:hover,
 .help-link:hover {
   text-decoration: underline;
+}
+
+.stnd-link:visited,
+.help-link:visited {
+	color: var(--link-color-visited);
 }
 
 /* Customer selection styles */
