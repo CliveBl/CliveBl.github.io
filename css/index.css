@@ -2312,12 +2312,11 @@ a:not(.submit-instructions-button):visited {
   transition: color 0.3s ease;
 }
 
-.file-list-toggle-link.active {
-  color: var(--tax-blue-dark);
-}
+.file-list-toggle-link:hover {
+	text-decoration: underline;
+ }
 
 .fields-toggle-link {
-  color: var(--tax-blue);
   text-decoration: none;
   font-size: 14px;
   cursor: pointer;
@@ -2325,12 +2324,7 @@ a:not(.submit-instructions-button):visited {
 }
 
 .fields-toggle-link:hover {
-  color: var(--tax-blue-dark);
   text-decoration: underline;
-}
-
-.fields-toggle-link.active {
-  color: var(--tax-blue-dark);
 }
 
 .read-only-field-value {
