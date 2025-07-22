@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.96";
+const uiVersion = "0.97";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -1556,16 +1556,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             if (files.length > 0) {
-                // Check if we need to reconstruct paths for Microsoft Edge
+                // Check if we need to reconstruct paths for browsers that don't support webkitRelativePath
                 const needsPathReconstruction = files.some((file) => !file.webkitRelativePath);
                 // Only treat as folder drop if we have multiple files or if it's actually a folder
                 const isLikelyFolderDrop = needsPathReconstruction && items.length === 1 && files.length > 1;
                 if (isLikelyFolderDrop) {
-                    // This is likely a folder drop on Microsoft Edge
+                    // This is likely a folder drop on a browser that doesn't support webkitRelativePath
                     // We need to reconstruct the paths manually
-                    debug("Detected folder drop on Microsoft Edge, reconstructing paths");
+                    debug("Detected folder drop on browser without webkitRelativePath support, reconstructing paths");
                     // For now, we'll use the folder input approach as a workaround
-                    addMessage("עבור Microsoft Edge, אנא השתמש בכפתור 'העלאת תיקיות' במקום גרירה", "warning");
+                    addMessage("עבור דפדפנים שאינם תומכים בגרירת תיקיות, אנא השתמש בכפתור 'העלאת תיקיות' במקום גרירה", "warning");
                     return;
                 }
                 // Use the same logic as folder input for processing
