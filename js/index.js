@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "0.98";
+const uiVersion = "0.99";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -76,6 +76,7 @@ const feedbackEmail = document.getElementById("feedbackEmail");
 const privacyCheckbox = document.getElementById("privacyAgreement");
 const sendFeedbackButton = document.getElementById("sendFeedbackButton");
 const feedbackMessage = document.getElementById("feedbackMessage");
+const loginPassword = document.getElementById("loginPassword");
 // Helper functions for localStorage
 function saveSelectedCustomerToStorage(customerName) {
     try {
@@ -295,14 +296,18 @@ function updateSignInUI() {
 // Update the sign out function
 function signOut() {
     debug("signOut");
-    userEmailValue = "";
-    signedIn = false;
     // Delete the cookie by calling the signOut api
     fetch(`${API_BASE_URL}/signOut`, {
         method: "POST",
         credentials: "include",
     });
     // Update UI to show logged out state
+    clearUserSession();
+}
+// Update UI to show logged out state
+function clearUserSession() {
+    userEmailValue = "";
+    signedIn = false;
     updateSignInUI();
     removeFileList();
     fileModifiedActions(false);
@@ -317,7 +322,6 @@ function signOut() {
     }
     // Clear feedback form on sign out
     clearFeedbackForm();
-    //addMessage("התנתקת בהצלחה");
 }
 // Add this function to load files with existing token
 async function loadExistingFiles() {
@@ -834,13 +838,13 @@ function showPasswordModal(fileName) {
                 modal.querySelector(".cancel-button").click();
             }
         };
-        // Close if clicking outside
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                modal.style.display = "none";
-                resolve(""); // Return empty string to indicate cancellation
-            }
-        };
+        // // Close if clicking outside
+        // window.onclick = (event) => {
+        //   if (event.target === modal) {
+        //     modal.style.display = "none";
+        //     resolve(""); // Return empty string to indicate cancellation
+        //   }
+        // };
     });
 }
 async function calculateMD5(file) {
@@ -1067,6 +1071,7 @@ loginButton.addEventListener("click", () => {
     if (signedIn && userEmail.textContent == ANONYMOUS_EMAIL) {
         const signupButton = document.querySelector(".toggle-button[data-mode='signup']");
         if (signupButton) {
+            loginPassword.setAttribute("autocomplete", "new-password");
             signupButton.click();
         }
         isAnonymousConversion = true;
@@ -1074,6 +1079,7 @@ loginButton.addEventListener("click", () => {
     else {
         const signinButton = document.querySelector(".toggle-button[data-mode='signin']");
         if (signinButton) {
+            loginPassword.setAttribute("autocomplete", "current-password");
             signinButton.click();
         }
         isAnonymousConversion = false;
@@ -1082,11 +1088,11 @@ loginButton.addEventListener("click", () => {
 closeButton.addEventListener("click", () => {
     loginOverlay.classList.remove("active");
 });
-loginOverlay.addEventListener("click", (e) => {
-    if (e.target === loginOverlay) {
-        loginOverlay.classList.remove("active");
-    }
-});
+// loginOverlay.addEventListener("click", (e) => {
+//   if (e.target === loginOverlay) {
+//     loginOverlay.classList.remove("active");
+//   }
+// });
 // Function to switch between signin and signup modes
 function switchMode(mode) {
     const isSignup = mode === "signup";
@@ -1243,13 +1249,13 @@ toggleButtons.forEach((button) => {
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("email");
-    const password = document.getElementById("password");
+    const loginPassword = document.getElementById("loginPassword");
     const fullName = document.getElementById("fullName");
     const isSignup = document.querySelector(".toggle-button.active")?.dataset.mode === "signup";
     try {
         if (isSignup) {
             if (isAnonymousConversion) {
-                await convertAnonymousAccount(email.value, password.value, fullName.value);
+                await convertAnonymousAccount(email.value, loginPassword.value, fullName.value);
             }
             else {
                 // Call the registration API
@@ -1260,7 +1266,7 @@ loginForm.addEventListener("submit", async (e) => {
                     },
                     body: JSON.stringify({
                         email: email.value,
-                        password: password.value,
+                        password: loginPassword.value,
                         fullName: fullName.value,
                     }),
                     ...fetchConfig,
@@ -1275,12 +1281,12 @@ loginForm.addEventListener("submit", async (e) => {
             loginOverlay.classList.remove("active");
             // Clear the form
             email.value = "";
-            password.value = "";
+            loginPassword.value = "";
             fullName.value = "";
         }
         else {
             // Call the signIn API
-            await signIn(email.value, password.value);
+            await signIn(email.value, loginPassword.value);
             // Clear stored tax results
             localStorage.removeItem("taxResults");
             localStorage.removeItem("taxResultsYear");
@@ -1309,9 +1315,17 @@ loginForm.addEventListener("submit", async (e) => {
         console.error("Login failed:", error);
         // Clear previous messages
         clearMessages();
-        addMessage("לא מצאנו את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נזמנית. תנסה שוב יותר מאוחר:" + (error instanceof Error ? error.message : String(error)), "error");
-        // Dismiss the login overlay
-        loginOverlay.classList.remove("active");
+        if (error instanceof Error && error.message.includes("Bad credentials 401")) {
+            showInfoModal("שם משתמש או סיסמה שגויים");
+        }
+        else if (error instanceof Error && error.message.includes("האימייל כבר בשימוש")) {
+            showInfoModal("האימייל כבר בשימוש");
+        }
+        else {
+            addMessage("שגיאה בהתחברות: " + (error instanceof Error ? translateError(error.message) : String(error)), "error");
+            // Dismiss the login overlay
+            loginOverlay.classList.remove("active");
+        }
     }
 });
 const googleLogin = document.querySelector(".google-login");
@@ -1926,6 +1940,14 @@ export async function handleResponse(response, errorMessage) {
             addMessage("הסשן פג תוקף. אנא התחבר מחדש.", "error");
             return false;
         }
+        if (errorData.detail.includes("User not found")) {
+            // If we have an Anonymous account inform the user that his data has been deleted with a modal warning:
+            if (userEmail.textContent == ANONYMOUS_EMAIL) {
+                showInfoModal("חשבון אנונימי נמחק אוטומטית אחרי 30 יום, יחד עם כל הנתונים שלו. אתה יכול להשתמש בחשבון אנונימי חדש או ליצור משתמש קבוע על ידי הרישמה.");
+            }
+            clearUserSession();
+            return false;
+        }
         throw new Error(errorData.detail);
     }
     return true;
@@ -2175,9 +2197,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             loginToggle.click();
         }
         // Focus on the password field since we already have the email
-        const passwordInput = document.getElementById("password");
-        if (passwordInput) {
-            passwordInput.focus();
+        const loginPassword = document.getElementById("loginPassword");
+        if (loginPassword) {
+            loginPassword.focus();
         }
     }
     const toggleLink = document.getElementById("toggleFileListView");
@@ -2466,13 +2488,13 @@ function showInfoModal(message) {
             modal.style.display = "none";
             resolve(true);
         };
-        // Close if clicking outside
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                modal.style.display = "none";
-                resolve(false);
-            }
-        };
+        // // Close if clicking outside
+        // window.onclick = (event) => {
+        //   if (event.target === modal) {
+        //     modal.style.display = "none";
+        //     resolve(false);
+        //   }
+        // };
     });
 }
 // General warning modal function that returns a promise
@@ -2498,12 +2520,12 @@ function showWarningModal(message) {
             resolve(true);
         };
         // Close if clicking outside
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                modal.style.display = "none";
-                resolve(false);
-            }
-        };
+        // window.onclick = (event) => {
+        //   if (event.target === modal) {
+        //     modal.style.display = "none";
+        //     resolve(false);
+        //   }
+        // };
     });
 }
 function updateFileListView() {
@@ -2674,7 +2696,8 @@ if (customerOverlay) {
 }
 function translateError(error) {
     const tranlationTable = {
-    // "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
+        // "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
+        "HTTP error! status: Bad credentials 401": "שם משתמש או סיסמה שגויים",
     };
     debug("translateError:", error);
     return tranlationTable[error] || error;

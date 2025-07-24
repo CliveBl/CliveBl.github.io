@@ -25,7 +25,7 @@
           <span id="userEmail" class="user-email"></span>
            <button id="loginButton" class="loginout-button" title="מומלץ ליצור חשבון כדי שתוכל לחזור לנתונים שלך מכל מקום">התחברות</button>
            <button id="customerButton" class="customer-button" style="display: none;" title="בחר לקוח">לקוח</button>
-		   <button id="signOutButton" class="loginout-button" disabled>התנתק</button>
+		   <button id="signOutButton" class="loginout-button" disabled title="התנתקות מהמערכת">התנתק</button>
         </div>
       </div>
 
@@ -368,9 +368,9 @@
 			<form class="login-form" id="loginForm">
 				<input type="email" id="email" placeholder="דוא״ל" required autocomplete="email"/>
 				<div id="fullNameField" style="display: none">
-				<input type="text" id="fullName" placeholder="שם מלא" required />
+				<input type="text" id="fullName" autocomplete="name" placeholder="שם מלא" required />
 				</div>
-				<input type="password" id="password" placeholder="סיסמה" required />
+				<input type="password" id="loginPassword" autocomplete="current-password" placeholder="סיסמה" required />
 				<button type="submit" id="submitButton">התחבר</button>
 			</form>
 	
@@ -482,8 +482,10 @@
           <h2>סיסמה נדרשת</h2>
         </div>
         <div class="modal-body">
-          <div id="passwordMessage"></div>
-          <input type="password" id="passwordInput" placeholder="הכנס סיסמה" />
+			<form class="login-form" id="passwordForm">
+				<label for="passwordInput" id="passwordMessage"></label>
+				<input type="password" id="passwordInput" placeholder="הכנס סיסמה" />
+			</form>
         </div>
         <div class="modal-footer">
           <button class="cancel-button">ביטול</button>
