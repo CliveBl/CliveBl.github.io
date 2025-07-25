@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "0.99";
+const uiVersion = "1.00";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -3074,3 +3074,46 @@ function translateError(error: string): string {
   debug("translateError:", error);
   return tranlationTable[error] || error;
 }
+
+const accountOverlay = document.getElementById("accountOverlay") as HTMLDivElement;
+const closeAccountModal = document.getElementById("closeAccountModal") as HTMLSpanElement;
+const deleteAccountButton = document.getElementById("deleteAccountButton") as HTMLButtonElement;
+
+userEmail.addEventListener("click", () => {
+  if (signedIn && userEmail.textContent !== ANONYMOUS_EMAIL) {
+    accountOverlay.classList.add("active");
+  }
+});
+
+closeAccountModal.addEventListener("click", () => {
+  accountOverlay.classList.remove("active");
+});
+
+window.addEventListener("click", (event) => {
+  if (event.target === accountOverlay) {
+    accountOverlay.classList.remove("active");
+  }
+});
+
+deleteAccountButton.addEventListener("click", async () => {
+  if (confirm("האם אתה בטוח שברצונך למחוק את החשבון וכל הנתונים? פעולה זו אינה הפיכה.")) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/deleteAccount`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (response.ok) {
+        alert("החשבון נמחק. תנותק מהמערכת.");
+        accountOverlay.classList.remove("active");
+        // Sign out the user and refresh UI
+        clearUserSession();
+        //location.reload();
+      } else {
+        const errorText = await response.text();
+        alert("שגיאה במחיקת החשבון: " + errorText);
+      }
+    } catch (err) {
+      alert("שגיאה במחיקת החשבון: " + err);
+    }
+  }
+});

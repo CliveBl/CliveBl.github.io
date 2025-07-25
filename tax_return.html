@@ -4,28 +4,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="description" content="Yearly tax return preparation tool for Israeli taxpayers">
+    <meta name="description" content="Yearly tax return preparation tool for Israeli taxpayers" />
     <link rel="icon" type="image/x-icon" href="tax-day.ico" />
     <title>דו״ח שנתי - עשה זאת בעצמך</title>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js"></script>
     <!-- CSS Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
     <link rel="stylesheet" href="css/index.css" />
   </head>
+  <script type="module" src="js/index.js"></script>
 
   <body>
-
-
     <div class="tax-return-main-container">
       <div class="auth-container">
         <h1>דו״ח שנתי - עשה זאת בעצמך</h1>
         <div class="controls">
           <span id="userEmail" class="user-email"></span>
-           <button id="loginButton" class="loginout-button" title="מומלץ ליצור חשבון כדי שתוכל לחזור לנתונים שלך מכל מקום">התחברות</button>
-           <button id="customerButton" class="customer-button" style="display: none;" title="בחר לקוח">לקוח</button>
-		   <button id="signOutButton" class="loginout-button" disabled title="התנתקות מהמערכת">התנתק</button>
+          <button id="loginButton" class="loginout-button" title="מומלץ ליצור חשבון כדי שתוכל לחזור לנתונים שלך מכל מקום">התחברות</button>
+          <button id="customerButton" class="customer-button" style="display: none" title="בחר לקוח">לקוח</button>
+          <button id="signOutButton" class="loginout-button" disabled title="התנתקות מהמערכת">התנתק</button>
         </div>
       </div>
 
@@ -39,17 +38,18 @@
                 <span class="doc-icon">🪪</span>
                 <p>תעודת זהות של שני בני הזוג</p>
                 <a href="help.html#identity-document" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="identity-document-count" id="identity-document-count">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2" selected>2</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="identity-document-count" id="identity-document-count">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                  </select></label
+                >
                 <label for="identity-document-count" id="identity-document-missing" class="doc-status"></label>
               </div>
             </div>
@@ -59,20 +59,21 @@
                 <span class="doc-icon">📄</span>
                 <p>תלושי משכורת שנתיים מכל מעסיק</p>
                 <a href="help.html#form106" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="form106-count" id="form106-count">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2" selected>2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="form106-count" id="form106-count">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select></label
+                >
                 <label for="form106-count" id="form106-missing" class="doc-status"></label>
               </div>
             </div>
@@ -82,25 +83,26 @@
                 <span class="doc-icon">📊</span>
                 <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
                 <a href="help.html#capital-gains" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="capital-gains-count" id="capital-gains-count">
-                  <option value="0">0</option>
-                  <option value="1" selected>1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="capital-gains-count" id="capital-gains-count">
+                    <option value="0">0</option>
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select></label
+                >
                 <label for="capital-gains-count" id="capital-gains-missing" class="doc-status"></label>
               </div>
             </div>
@@ -110,17 +112,18 @@
                 <span class="doc-icon">🏠</span>
                 <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
                 <a href="help.html#residency" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="residency-count" id="residency-count">
-                  <option value="0" selected>0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="residency-count" id="residency-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                  </select></label
+                >
                 <label for="residency-count" id="residency-missing" class="doc-status"></label>
               </div>
             </div>
@@ -130,27 +133,28 @@
                 <span class="doc-icon">💝</span>
                 <p>קבלות על תרומות למוסדות מוכרים</p>
                 <a href="help.html#donations" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="donations-count" id="donations-count">
-                  <option value="0" selected>0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10</option>
-                  <option value="11">11</option>
-                  <option value="12">12</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="donations-count" id="donations-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                  </select></label
+                >
                 <label for="donations-count" id="donations-missing" class="doc-status"></label>
               </div>
             </div>
@@ -160,19 +164,20 @@
                 <span class="doc-icon">🏛️</span>
                 <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
                 <a href="help.html#national-insurance" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="national-insurance-count" id="national-insurance-count">
-                  <option value="0" selected>0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="national-insurance-count" id="national-insurance-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                  </select></label
+                >
                 <label for="national-insurance-count" id="national-insurance-missing" class="doc-status"></label>
               </div>
             </div>
@@ -182,17 +187,18 @@
                 <span class="doc-icon">🏫</span>
                 <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
                 <a href="help.html#education" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="education-count" id="education-count">
-                  <option value="0" selected>0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="education-count" id="education-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                  </select></label
+                >
                 <label for="education-count" id="education-missing" class="doc-status"></label>
               </div>
             </div>
@@ -202,17 +208,18 @@
                 <span class="doc-icon">🪖</span>
                 <p>תעודת שחרור משירות צבאי או לאומי</p>
                 <a href="help.html#service-release" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="service-release-count" id="service-release-count">
-                  <option value="0" selected>0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="service-release-count" id="service-release-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                  </select></label
+                >
                 <label for="service-release-count" id="service-release-missing" class="doc-status"></label>
               </div>
             </div>
@@ -222,17 +229,18 @@
                 <span class="doc-icon">👨‍🦼</span>
                 <p>טופס 1516 - בקשה לעדכון נכות רפואית לפטור ממס הכנסה עפ"י סעיף 9(5) לפקודת מס הכנסה ופרוטוקול ועדה</p>
                 <a href="help.html#disability-documents" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="disability-documents-count" id="disability-documents-count">
-                  <option value="0" selected>0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="disability-documents-count" id="disability-documents-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                  </select></label
+                >
                 <label for="disability-documents-count" id="disability-documents-missing" class="doc-status"></label>
               </div>
             </div>
@@ -242,26 +250,26 @@
                 <span class="doc-icon">⚠️</span>
                 <p>מסמכים שלא נתמכים כרגע במערכת: מס שבח, קריפטו, ברוקר זר, נכסים בחו"ל</p>
                 <a href="help.html#unsupported" class="more-info-link">
-                  
                   <span>מידע נוסף</span>
                 </a>
               </div>
               <div class="doc-controls">
-                <label>כמות
-                <select name="unsupported-count" id="unsupported-count">
-                  <option value="0" selected>0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select></label>
+                <label
+                  >כמות
+                  <select name="unsupported-count" id="unsupported-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select></label
+                >
                 <label for="unsupported-count" id="unsupported-missing" class="doc-status"></label>
               </div>
             </div>
           </div>
-          <div class="missing-docs-warning" id="missingDocsWarning">
-          </div>
+          <div class="missing-docs-warning" id="missingDocsWarning"></div>
         </div>
 
         <!-- Add toggle link for file list view -->
@@ -271,7 +279,7 @@
 
         <!-- Container for the list of uploaded files -->
         <ul class="file-list" id="fileList"></ul>
-        <div id="expandableAreaUploadFiles" > </div>
+        <div id="expandableAreaUploadFiles"> </div>
 
         <!-- Drag and drop area -->
         <div id="dragDropArea" class="drag-drop-area">
@@ -339,98 +347,113 @@
             </div>
             <button id="sendFeedbackButton" class="send-feedback-button" disabled>שלח משוב</button>
           </div>
-        </div> 
-		<div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
-			<a href="index.html" class="stnd-link">לדף הבית</a>
-			<a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
-			<a href="faq.html" class="stnd-link" style="margin-right: 10px;">שאלות נפוצות</a>
-		</div>
-      <!-- Add version footer -->
-      <footer class="version-footer">
-        <span id="versionNumber"></span>
-      </footer>
+        </div>
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
+          <a href="index.html" class="stnd-link">לדף הבית</a>
+          <a href="help.html" class="stnd-link" style="margin-right: 10px">עזרה</a>
+          <a href="faq.html" class="stnd-link" style="margin-right: 10px">שאלות נפוצות</a>
+        </div>
+        <!-- Add version footer -->
+        <footer class="version-footer">
+          <span id="versionNumber"></span>
+        </footer>
+      </div>
     </div>
 
-	<!-- Login and questionnaire overlays stay outside main container -->
-	<div id="loginOverlay" class="login-overlay">
-		<div class="login-modal">
-			<div class="login-header">
-			<h2 id="modalTitle">התחברות</h2>
-			<button class="close-button">✕</button>
-			</div>
-			<div class="login-options">
-			<!-- Add mode toggle buttons -->
-			<div class="mode-toggle">
-				<button class="toggle-button active" data-mode="signin">התחברות</button>
-				<button class="toggle-button" data-mode="signup">הרשמה</button>
-			</div>
-	
-			<form class="login-form" id="loginForm">
-				<input type="email" id="email" placeholder="דוא״ל" required autocomplete="email"/>
-				<div id="fullNameField" style="display: none">
-				<input type="text" id="fullName" autocomplete="name" placeholder="שם מלא" required />
-				</div>
-				<input type="password" id="loginPassword" autocomplete="current-password" placeholder="סיסמה" required />
-				<button type="submit" id="submitButton">התחבר</button>
-			</form>
-	
-			<div hidden>
-				<div class="login-divider">
-				<span>או</span>
-				</div>
-	
-				<div class="social-login">
-				<button class="google-login">
-					<img
-					src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNOSAxOGM0LjQgMCA4LjEtMS40IDEwLjItNC4yTDE1IDE0LjJjLTEuNCAxLTMuMiAxLjYtNiAxLjYtNC42IDAtOC41LTMuMS05LjktNy4zTDIgOS4ydjIuMkE5IDkgMCAwIDAgOSAxOHoiLz48cGF0aCBmaWxsPSIjRkJCQzA1IiBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDlsMy0zLjN6Ii8+PHBhdGggZmlsbD0iI0VBNDMzNSIgZD0iTTkgMy42YzEuMyAwIDIuNS40IDMuNC4xbDEuNi0xLjZDMTIuNS45IDEwLjkgMCA5IDAgNS40IDAgMi4yIDIuMiAxIDUuNGwzIDIuM2MxLjQtNC4yIDUuMy03LjMgOS45LTcuM3oiLz48L3N2Zz4="
-					alt="Google"
-					/>
-					<span id="googleButtonText">התחבר עם Google</span>
-				</button>
-				<button class="github-login">
-					<img
-					src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjMjQyOTJlIiBkPSJNMTIgLjI5N2MtNi42MyAwLTEyIDUuMzczLTEyIDEyIDAgNS4zMDMgMy40MzggOS44IDguMjA1IDExLjM4NS42LjExMy44Mi0uMjU4LjgyLS41NzcgMC0uMjg1LS4wMS0xLjA0LS4wMTUtMi4wNC0zLjMzOC43MjQtNC4wNDItMS42MS00LjA0Mi0xLjYxQzQuNDIyIDE4LjA3IDMuNjMzIDE3LjcgMy42MzMgMTcuN2MtMS4wODctLjc0NC4wODQtLjcyOS4wODQtLjcyOSAxLjIwNS4wODQgMS44MzggMS4yMzYgMS44MzggMS4yMzYgMS4wNyAxLjgzNSAyLjgwOSAxLjMwNSAzLjQ5NS45OTguMTA4LS43NzYuNDE3LTEuMzA1Ljc2LTEuNjA1LTIuNjY1LS4zLTUuNDY2LTEuMzMyLTUuNDY2LTUuOTMgMC0xLjMxLjQ2NS0yLjM4IDEuMjM1LTMuMjItLjEzNS0uMzAzLS41NC0xLjUyMy4xMDUtMy4xNzYgMCAwIDEuMDA1LS4zMjIgMy4zIDEuMjMuOTYtLjI2NyAxLjk4LS40IDMtLjQwNXMyLjA0LjEzOCAzIC40MDVjMi4yOC0xLjU1MiAzLjI4NS0xLjIzIDMuMjg1LTEuMjMuNjQ1IDEuNjUzLjI0IDIuODczLjEyIDMuMTc2Ljc2NS44NCAxLjIzIDEuOTEgMS4yMyAzLjIyIDAgNC42MS0yLjgwNSA1LjYyNS01LjQ3NSA1LjkyLjQyLjM2LjgxIDEuMDk2LjgxIDIuMjIgMCAxLjYwNi0uMDE1IDIuODk2LS4wMTUgMy4yODYgMCAuMzE1LjIxLjY5LjgyNS41N0MyMC41NjUgMjIuMDkyIDI0IDE3LjU5MiAyNCAxMi4yOTdjMC02LjYyNy01LjM3My0xMi0xMi0xMiIvPjwvc3ZnPg=="
-					alt="GitHub"
-					/>
-					<span id="githubButtonText">התחבר עם GitHub</span>
-				</button>
-				</div>
-			</div>
-			</div>
-		</div>
-		</div>
+    <!-- Login and questionnaire overlays stay outside main container -->
+    <div id="loginOverlay" class="login-overlay">
+      <div class="login-modal">
+        <div class="login-header">
+          <h2 id="modalTitle">התחברות</h2>
+          <button class="close-button">✕</button>
+        </div>
+        <div class="login-options">
+          <!-- Add mode toggle buttons -->
+          <div class="mode-toggle">
+            <button class="toggle-button active" data-mode="signin">התחברות</button>
+            <button class="toggle-button" data-mode="signup">הרשמה</button>
+          </div>
 
-	<!-- Customer selection modal -->
-	<div id="customerOverlay" class="customer-overlay">
-		<div class="customer-modal">
-			<div class="customer-header">
-				<h2>בחירת לקוח</h2>
-				<button class="close-button">✕</button>
-			</div>
-			<div class="customer-content">
-				<div class="customer-selection-group">
-					<label for="customerSelect">בחר לקוח:</label>
-					<select id="customerSelect" class="customer-select">
-						<option value="">טוען...</option>
-					</select>
-				</div>
-				<div class="customer-selection-group">
-					<label for="customerNameInput">שם לקוח:</label>
-					<input type="text" id="customerNameInput" class="customer-name-input" placeholder="הכנס שם לקוח" maxlength="50" />
-				</div>
-				<button type="button" id="updateCustomerButton" class="update-customer-button" disabled>עדכן שם לקוח</button>
-			</div>
-		</div>
-	</div>
+          <form class="login-form" id="loginForm">
+            <input type="email" id="email" placeholder="דוא״ל" required autocomplete="email" />
+            <div id="fullNameField" style="display: none">
+              <input type="text" id="fullName" autocomplete="name" placeholder="שם מלא" required />
+            </div>
+            <input type="password" id="loginPassword" autocomplete="current-password" placeholder="סיסמה" required />
+            <button type="submit" id="submitButton">התחבר</button>
+          </form>
+
+          <div hidden>
+            <div class="login-divider">
+              <span>או</span>
+            </div>
+
+            <div class="social-login">
+              <button class="google-login">
+                <img
+                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNOSAxOGM0LjQgMCA4LjEtMS40IDEwLjItNC4yTDE1IDE0LjJjLTEuNCAxLTMuMiAxLjYtNiAxLjYtNC42IDAtOC41LTMuMS05LjktNy4zTDIgOS4ydjIuMkE5IDkgMCAwIDAgOSAxOHoiLz48cGF0aCBmaWxsPSIjRkJCQzA1IiBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDlsMy0zLjN6Ii8+PHBhdGggZmlsbD0iI0VBNDMzNSIgZD0iTTkgMy42YzEuMyAwIDIuNS40IDMuNC4xbDEuNi0xLjZDMTIuNS45IDEwLjkgMCA5IDAgNS40IDAgMi4yIDIuMiAxIDUuNGwzIDIuM2MxLjQtNC4yIDUuMy03LjMgOS45LTcuM3oiLz48L3N2Zz4="
+                  alt="Google"
+                />
+                <span id="googleButtonText">התחבר עם Google</span>
+              </button>
+              <button class="github-login">
+                <img
+                  src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjMjQyOTJlIiBkPSJNMTIgLjI5N2MtNi42MyAwLTEyIDUuMzczLTEyIDEyIDAgNS4zMDMgMy40MzggOS44IDguMjA1IDExLjM4NS42LjExMy44Mi0uMjU4LjgyLS41NzcgMC0uMjg1LS4wMS0xLjA0LS4wMTUtMi4wNC0zLjMzOC43MjQtNC4wNDItMS42MS00LjA0Mi0xLjYxQzQuNDIyIDE4LjA3IDMuNjMzIDE3LjcgMy42MzMgMTcuN2MtMS4wODctLjc0NC4wODQtLjcyOS4wODQtLjcyOSAxLjIwNS4wODQgMS44MzggMS4yMzYgMS44MzggMS4yMzYgMS4wNyAxLjgzNSAyLjgwOSAxLjMwNSAzLjQ5NS45OTguMTA4LS43NzYuNDE3LTEuMzA1Ljc2LTEuNjA1LTIuNjY1LS4zLTUuNDY2LTEuMzMyLTUuNDY2LTUuOTMgMC0xLjMxLjQ2NS0yLjM4IDEuMjM1LTMuMjItLjEzNS0uMzAzLS41NC0xLjUyMy4xMDUtMy4xNzYgMCAwIDEuMDA1LS4zMjIgMy4zIDEuMjMuOTYtLjI2NyAxLjk4LS40IDMtLjQwNXMyLjA0LjEzOCAzIC40MDVjMi4yOC0xLjU1MiAzLjI4NS0xLjIzIDMuMjg1LTEuMjMuNjQ1IDEuNjUzLjI0IDIuODczLjEyIDMuMTc2Ljc2NS44NCAxLjIzIDEuOTEgMS4yMyAzLjIyIDAgNC42MS0yLjgwNSA1LjYyNS01LjQ3NSA1LjkyLjQyLjM2LjgxIDEuMDk2LjgxIDIuMjIgMCAxLjYwNi0uMDE1IDIuODk2LS4wMTUgMy4yODYgMCAuMzE1LjIxLjY5LjgyNS41N0MyMC41NjUgMjIuMDkyIDI0IDE3LjU5MiAyNCAxMi4yOTdjMC02LjYyNy01LjM3My0xMi0xMi0xMiIvPjwvc3ZnPg=="
+                  alt="GitHub"
+                />
+                <span id="githubButtonText">התחבר עם GitHub</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer selection modal -->
+    <div id="customerOverlay" class="customer-overlay">
+      <div class="customer-modal">
+        <div class="customer-header">
+          <h2>בחירת לקוח</h2>
+          <button class="close-button">✕</button>
+        </div>
+        <div class="customer-content">
+          <div class="customer-selection-group">
+            <label for="customerSelect">בחר לקוח:</label>
+            <select id="customerSelect" class="customer-select">
+              <option value="">טוען...</option>
+            </select>
+          </div>
+          <div class="customer-selection-group">
+            <label for="customerNameInput">שם לקוח:</label>
+            <input type="text" id="customerNameInput" class="customer-name-input" placeholder="הכנס שם לקוח" maxlength="50" />
+          </div>
+          <button type="button" id="updateCustomerButton" class="update-customer-button" disabled>עדכן שם לקוח</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Management Modal -->
+    <div id="accountOverlay" class="account-overlay">
+      <div class="account-modal">
+        <div class="login-header">
+          <h2>ניהול חשבון</h2>
+          <button class="close-button" id="closeAccountModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <p>כאן תוכל לנהל את החשבון שלך. פעולה זו תמחק את כל הנתונים שלך לצמיתות.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="delete-account-button" id="deleteAccountButton">מחק חשבון</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Loading overlay and cookie consent stay outside main container -->
     <div id="loadingOverlay" class="loading-overlay">
       <div class="loading-spinner">
         <div class="spinner"></div>
         <div id="loadingMessage"></div>
-        <div id="loadingProgress" class="loading-progress" style="display: none;">
-          <span id="currentProgress">0</span> / <span id="totalProgress">0</span> <span id="progressUnit">קבצים</span>
-        </div>
+        <div id="loadingProgress" class="loading-progress" style="display: none"><span id="currentProgress">0</span> / <span id="totalProgress">0</span> <span id="progressUnit">קבצים</span></div>
         <button id="cancelLoadingButton" class="cancel-loading-button">ביטול</button>
       </div>
     </div>
@@ -441,10 +464,6 @@
         <button id="acceptCookies" class="cookie-button">אישור</button>
       </div>
     </div>
-
-
-
-    <script type="module" src="js/index.js"></script>
 
     <div id="generalWarningModal" class="modal">
       <div class="modal-content">
@@ -482,10 +501,10 @@
           <h2>סיסמה נדרשת</h2>
         </div>
         <div class="modal-body">
-			<form class="login-form" id="passwordForm">
-				<label for="passwordInput" id="passwordMessage"></label>
-				<input type="password" id="passwordInput" placeholder="הכנס סיסמה" />
-			</form>
+          <form class="login-form" id="passwordForm">
+            <label for="passwordInput" id="passwordMessage"></label>
+            <input type="password" id="passwordInput" placeholder="הכנס סיסמה" />
+          </form>
         </div>
         <div class="modal-footer">
           <button class="cancel-button">ביטול</button>
@@ -502,14 +521,14 @@
           <thead>
             <tr>
               <th>שיעור מס</th>
-              <th>רווחים חייבים ללא הפסדים </th>
-              <th>רווחים משותפויות נפט </th>
-              <th>רווחים פטורים </th>
+              <th>רווחים חייבים ללא הפסדים</th>
+              <th>רווחים משותפויות נפט</th>
+              <th>רווחים פטורים</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>0 %</td>
+              <td>0%</td>
               <td>
                 <input type="text" class="field-input" name="867ab-gains-0" data-field-name="ProfitIncomeTaxedAtPercent0" value="0.00" />
               </td>
@@ -521,7 +540,7 @@
               </td>
             </tr>
             <tr>
-              <td>15 %</td>
+              <td>15%</td>
               <td>
                 <input type="text" class="field-input" name="867ab-gains-15" data-field-name="ProfitIncomeTaxedAtPercent15" value="0.00" />
               </td>
@@ -533,7 +552,7 @@
               </td>
             </tr>
             <tr>
-              <td>20 %</td>
+              <td>20%</td>
               <td>
                 <input type="text" class="field-input" name="867ab-gains-20" data-field-name="ProfitIncomeTaxedAtPercent20" value="0.00" />
               </td>
@@ -545,7 +564,7 @@
               </td>
             </tr>
             <tr>
-              <td>25 %</td>
+              <td>25%</td>
               <td>
                 <input type="text" class="field-input" name="867ab-gains-25" data-field-name="ProfitIncomeTaxedAtPercent25" value="0.00" />
               </td>
@@ -557,7 +576,7 @@
               </td>
             </tr>
             <tr>
-              <td>23 % (חברות)</td>
+              <td>23% (חברות)</td>
               <td>
                 <input type="text" class="field-input" name="867ab-gains-23c" data-field-name="ProfitIncomeTaxedAtPercent23" value="0.00" />
               </td>
@@ -569,7 +588,7 @@
               </td>
             </tr>
             <tr>
-              <td>35 %</td>
+              <td>35%</td>
               <td>
                 <input type="text" class="field-input" name="867ab-gains-35" data-field-name="ProfitIncomeTaxedAtPercent35" value="0.00" />
               </td>
@@ -585,41 +604,34 @@
         <cite></cite>
 
         <div>
-			<!--הפסדים ברי קיזוז-->
-          <label>הפסדים ברי קיזוז
-          <input type="text" class="field-input" name="867ab-offsetable-losses" data-field-name="OffsetableLosses" value="0.00" /></label>
+          <!--הפסדים ברי קיזוז-->
+          <label>הפסדים ברי קיזוז <input type="text" class="field-input" name="867ab-offsetable-losses" data-field-name="OffsetableLosses" value="0.00" /></label>
           <cite></cite>
         </div>
         <div class="disabled-field">
-          <label>הפסדים ממכירת יחידות קרן השקעות
-          <input type="text" class="field-input" name="867ab-reit-losses" data-field-name="867ab-reit-losses" disabled value="0.00" /></label>
+          <label>הפסדים ממכירת יחידות קרן השקעות <input type="text" class="field-input" name="867ab-reit-losses" data-field-name="867ab-reit-losses" disabled value="0.00" /></label>
           <cite></cite>
         </div>
         <div class="disabled-field">
-          <label>הפסדים לא כשירים לניכוי
-          <input type="text" class="field-input" name="867ab-nonsetoff-losses" data-field-name="867ab-nonsetoff-losses" disabled value="0.00" /></label>
+          <label>הפסדים לא כשירים לניכוי <input type="text" class="field-input" name="867ab-nonsetoff-losses" data-field-name="867ab-nonsetoff-losses" disabled value="0.00" /></label>
           <cite></cite>
         </div>
         <div>
-          <label>מחזור מכירות
-          <input type="text" class="field-input" name="867ab-total-sales" data-field-name="TotalSales_256" value="0.00" /></label>
+          <label>מחזור מכירות <input type="text" class="field-input" name="867ab-total-sales" data-field-name="TotalSales_256" value="0.00" /></label>
           <cite></cite>
         </div>
         <div>
-          <label>מספר עסקאות
-          <input type="text" class="field-input" name="867ab-number-of-deals" data-field-name="NumberOfDealsInteger" value="0" /></label>
+          <label>מספר עסקאות <input type="text" class="field-input" name="867ab-number-of-deals" data-field-name="NumberOfDealsInteger" value="0" /></label>
           <cite></cite>
         </div>
         <div class="disabled-field">
-          <label>סיבת הפטור
-          <input type="text" name="867ab-exemption-reason" disabled value="" /></label>
+          <label>סיבת הפטור <input type="text" name="867ab-exemption-reason" disabled value="" /></label>
           <cite></cite>
-          <p>סיבות אפשריות לפטור  תושב חוץ, תושב חוזר ותיק, תושב ישראל לראשונה.</p>
+          <p>סיבות אפשריות לפטור תושב חוץ, תושב חוזר ותיק, תושב ישראל לראשונה.</p>
           <cite></cite>
         </div>
         <div>
-          <label>מס שנוכה במקור
-          <input type="text" class="field-input" name="867ab-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceProfit_040" value="0.00" /></label>
+          <label>מס שנוכה במקור <input type="text" class="field-input" name="867ab-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceProfit_040" value="0.00" /></label>
           <cite></cite>
         </div>
       </fieldset>
@@ -633,15 +645,15 @@
             <thead>
               <tr>
                 <th>שיעור מס</th>
-                <th>הכנסה מדיבידנד לפני ניכוי הפסדים (ישראל ומחו"ל) </th>
-                <th>הכנסה מדיבידנד מחו"ל  (כלול בעמודה השמאלית)</th>
-                <th>רווחים פטורים </th>
-                <th>מס ששולם בחו"ל כשיר לניכוי/זיכוי </th>
+                <th>הכנסה מדיבידנד לפני ניכוי הפסדים (ישראל ומחו"ל)</th>
+                <th>הכנסה מדיבידנד מחו"ל (כלול בעמודה השמאלית)</th>
+                <th>רווחים פטורים</th>
+                <th>מס ששולם בחו"ל כשיר לניכוי/זיכוי</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>00 %</td>
+                <td>0%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-income-00" data-field-name="DividendIncomeTaxedAtPercent0" value="0.00" />
                 </td>
@@ -656,7 +668,7 @@
                 </td>
               </tr>
               <tr>
-                <td>04 %</td>
+                <td>4%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-income-04" data-field-name="DividendIncomeTaxedAtPercent4" value="0.00" />
                 </td>
@@ -671,7 +683,7 @@
                 </td>
               </tr>
               <tr>
-                <td>15 %</td>
+                <td>15%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-income-15" data-field-name="DividendIncomeTaxedAtPercent15" value="0.00" />
                 </td>
@@ -686,7 +698,7 @@
                 </td>
               </tr>
               <tr>
-                <td>20 %</td>
+                <td>20%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-income-20" data-field-name="DividendIncomeTaxedAtPercent20" value="0.00" />
                 </td>
@@ -701,7 +713,7 @@
                 </td>
               </tr>
               <tr>
-                <td>25 %</td>
+                <td>25%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-income-25" data-field-name="DividendIncomeTaxedAtPercent25" value="0.00" />
                 </td>
@@ -716,7 +728,7 @@
                 </td>
               </tr>
               <tr>
-                <td>23 % (חברות) </td>
+                <td>23% (חברות)</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-income-23" data-field-name="DividendIncomeTaxedAtPercent23" value="0.00" />
                 </td>
@@ -738,42 +750,42 @@
             <thead>
               <tr>
                 <th>שיעור מס</th>
-                <th>הכנסה מקרנות זרות הנסחרות בישראל, קרנות פטורות וקרנות סל </th>
+                <th>הכנסה מקרנות זרות הנסחרות בישראל, קרנות פטורות וקרנות סל</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>00 %</td>
+                <td>0%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-funds-00" disabled value="0.00" />
                 </td>
               </tr>
               <tr>
-                <td>04 %</td>
+                <td>4%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-funds-04" disabled value="0.00" />
                 </td>
               </tr>
               <tr>
-                <td>15 %</td>
+                <td>15%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-funds-15" disabled value="0.00" />
                 </td>
               </tr>
               <tr>
-                <td>20 %</td>
+                <td>20%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-funds-20" disabled value="0.00" />
                 </td>
               </tr>
               <tr>
-                <td>25 %</td>
+                <td>25%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-funds-25" disabled value="0.00" />
                 </td>
               </tr>
               <tr>
-                <td>23 % (חברות) </td>
+                <td>23% (חברות)</td>
                 <td>
                   <input type="text" class="field-input" name="867g-div-funds-23c" disabled value="0.00" />
                 </td>
@@ -783,8 +795,9 @@
           <cite></cite>
 
           <div>
-            <label>מס שנוכה במקור מדיבידנד/חלוקת רווחים
-            <input type="text" class="field-input" name="867g-div-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceDividend_040" value="0.00" /></label>
+            <label
+              >מס שנוכה במקור מדיבידנד/חלוקת רווחים <input type="text" class="field-input" name="867g-div-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceDividend_040" value="0.00"
+            /></label>
             <cite></cite>
           </div>
         </fieldset>
@@ -795,15 +808,15 @@
             <thead>
               <tr>
                 <th>שיעור מס</th>
-                <th>הכנסה מריבית/דמי הנחה לפני ניכוי הפסדים (ישראל ומחו"ל) </th>
-                <th>הכנסה מריבית מחו"ל  (כלול בעמודה השמאלית)</th>
+                <th>הכנסה מריבית/דמי הנחה לפני ניכוי הפסדים (ישראל ומחו"ל)</th>
+                <th>הכנסה מריבית מחו"ל (כלול בעמודה השמאלית)</th>
                 <th>רווחים פטורים</th>
-                <th>מס ששולם בחו"ל כשיר לניכוי/זיכוי </th>
+                <th>מס ששולם בחו"ל כשיר לניכוי/זיכוי</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>0 %</td>
+                <td>0%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-int-income-00" data-field-name="InterestIncomeTaxedAtPercent0" value="0.00" />
                 </td>
@@ -818,7 +831,7 @@
                 </td>
               </tr>
               <tr>
-                <td>10 %</td>
+                <td>10%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-int-income-10" data-field-name="InterestIncomeTaxedAtPercent10" value="0.00" />
                 </td>
@@ -833,7 +846,7 @@
                 </td>
               </tr>
               <tr>
-                <td>15 %</td>
+                <td>15%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-int-income-15" data-field-name="InterestIncomeTaxedAtPercent15" value="0.00" />
                 </td>
@@ -848,7 +861,7 @@
                 </td>
               </tr>
               <tr>
-                <td>20 %</td>
+                <td>20%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-int-income-20" data-field-name="InterestIncomeTaxedAtPercent20" value="0.00" />
                 </td>
@@ -863,7 +876,7 @@
                 </td>
               </tr>
               <tr>
-                <td>25 %</td>
+                <td>25%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-int-income-25" data-field-name="InterestIncomeTaxedAtPercent25" value="0.00" />
                 </td>
@@ -878,7 +891,7 @@
                 </td>
               </tr>
               <tr>
-                <td>23 % (חברות) </td>
+                <td>23% (חברות)</td>
                 <td>
                   <input type="text" class="field-input" name="867g-int-income-23" data-field-name="InterestIncomeTaxedAtPercent23" value="0.00" />
                 </td>
@@ -893,7 +906,7 @@
                 </td>
               </tr>
               <tr>
-                <td>35 %</td>
+                <td>35%</td>
                 <td>
                   <input type="text" class="field-input" name="867g-int-income-35" data-field-name="InterestIncomeTaxedAtPercent35" value="0.00" />
                 </td>
@@ -912,15 +925,15 @@
           <cite></cite>
 
           <div>
-            <label>מס שנוכה במקור מריבית / דמי הנחה
-            <input type="text" class="field-input" name="867g-int-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceInterest_040" value="0.00" /></label>
+            <label
+              >מס שנוכה במקור מריבית / דמי הנחה <input type="text" class="field-input" name="867g-int-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceInterest_040" value="0.00"
+            /></label>
             <cite></cite>
           </div>
         </fieldset>
 
         <div class="disabled-field">
-          <label>סיבת הפטור
-          <input type="text" name="867g-exemption-reason" disabled value="" /></label>
+          <label>סיבת הפטור <input type="text" name="867g-exemption-reason" disabled value="" /></label>
         </div>
       </fieldset>
 
@@ -944,7 +957,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-current-account-income-076" data-field-name="DepositCurrentAccountIncomeTaxedAtPercent10_076" value="0.00" />
               </td>
-              <td>10 %</td>
+              <td>10%</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית על יתרות עו"ש בזכות</td>
@@ -952,7 +965,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-current-account-income-078" data-field-name="DepositCurrentAccountIncomeTaxedAtPercent15_078" value="0.00" />
               </td>
-              <td>15 %</td>
+              <td>15%</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית על פקדונות</td>
@@ -960,7 +973,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-income-076" data-field-name="DepositIncomeTaxedAtPercent10_076" value="0.00" />
               </td>
-              <td>10 %</td>
+              <td>10%</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית על פקדונות</td>
@@ -968,7 +981,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-income-078" data-field-name="DepositIncomeTaxedAtPercent15_078" value="0.00" />
               </td>
-              <td>15 %</td>
+              <td>15%</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית על פקדונות</td>
@@ -976,7 +989,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-income-126" data-field-name="DepositIncomeTaxedAtPercent20_126" value="0.00" />
               </td>
-              <td>20 %</td>
+              <td>20%</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית על פקדונות</td>
@@ -984,7 +997,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-income-142" data-field-name="DepositIncomeTaxedAtPercent25_142" value="0.00" />
               </td>
-              <td>25 %</td>
+              <td>25%</td>
             </tr>
             <tr class="disabled-field">
               <td>הכנסה חייבת מריבית על פקדונות</td>
@@ -992,7 +1005,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-income-23c" data-field-name="867d-deposit-income-23c" disabled value="0.00" />
               </td>
-              <td>23 % (חברות)</td>
+              <td>23% (חברות)</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית על פקדונות</td>
@@ -1000,7 +1013,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-income-053" data-field-name="DepositIncomeTaxedAtPercent35_053" value="0.00" />
               </td>
-              <td>35 %</td>
+              <td>35%</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
@@ -1008,7 +1021,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-fx-income-078" data-field-name="DepositFXIncomeTaxedAtPercent15_078" value="0.00" />
               </td>
-              <td>15 %</td>
+              <td>15%</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
@@ -1016,7 +1029,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-fx-income-126" data-field-name="DepositFXIncomeTaxedAtPercent20_126" value="0.00" />
               </td>
-              <td>20 %</td>
+              <td>20%</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
@@ -1024,7 +1037,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-fx-income-142" data-field-name="DepositFXIncomeTaxedAtPercent25_142" value="0.00" />
               </td>
-              <td>25 %</td>
+              <td>25%</td>
             </tr>
             <tr class="disabled-field">
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
@@ -1032,7 +1045,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-forex-deposit-income-23c" value="0.00" />
               </td>
-              <td>23 % (חברות)</td>
+              <td>23% (חברות)</td>
             </tr>
             <tr>
               <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
@@ -1040,7 +1053,7 @@
               <td>
                 <input type="text" class="field-input" name="867d-deposit-fx-income-053" data-field-name="DepositFXIncomeTaxedAtPercent35_053" value="0.00" />
               </td>
-              <td>35 %</td>
+              <td>35%</td>
             </tr>
             <tr class="disabled-field">
               <td>הכנסה חייבת מתשלומי ריבית אחרים</td>
@@ -1055,17 +1068,19 @@
         </table>
 
         <div>
-          <label>סה"כ ריבית פטורה והפרשי הצמדה (שדה 209):
-          <input type="text" class="field-input" name="867d-total-exempt-interest-and-index-linkage-difference" data-field-name="TotalExemptInterestAndIndexLinkageDifference_209" value="0.00" /></label>
+          <label
+            >סה"כ ריבית פטורה והפרשי הצמדה (שדה 209):
+            <input type="text" class="field-input" name="867d-total-exempt-interest-and-index-linkage-difference" data-field-name="TotalExemptInterestAndIndexLinkageDifference_209" value="0.00"
+          /></label>
           <cite></cite>
         </div>
         <div class="disabled-field">
-          <label>סיבת הפטור :
-          <input type="text" name="867d-exemption-reason" disabled value="" /></label>
+          <label>סיבת הפטור : <input type="text" name="867d-exemption-reason" disabled value="" /></label>
         </div>
         <div>
-          <label>סה"כ מס שנוכה במקור מפקדונות לפני החזר (שדה 043)
-          <input type="text" class="field-input" name="867d-total-tax-withheld" data-field-name="TaxDeductedAtSourceDeposit_043" value="0.00" /></label>
+          <label
+            >סה"כ מס שנוכה במקור מפקדונות לפני החזר (שדה 043) <input type="text" class="field-input" name="867d-total-tax-withheld" data-field-name="TaxDeductedAtSourceDeposit_043" value="0.00"
+          /></label>
           <cite></cite>
         </div>
       </fieldset>

@@ -1232,6 +1232,7 @@ button:disabled {
 .user-email {
   margin-right: 10px;
   color: var(--text-color);
+  cursor: pointer;
 }
 
 .file-buttons {
@@ -2877,6 +2878,33 @@ a:not(.submit-instructions-button):visited {
   padding-top: 50px;
 }
 
+.account-modal {
+	background-color: var(--bg-color);
+	padding: 20px;
+	border-radius: 8px;
+	width: 90%;
+	max-width: 400px;
+	margin: 0 auto;
+	box-shadow: 0 4px 6px var(--modal-shadow);
+  }
+/* Customer modal styles */
+.account-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: var(--modal-overlay);
+	z-index: 1000;
+  }
+  
+  .account-overlay.active {
+	display: flex;
+	align-items: flex-start;
+	padding-top: 50px;
+  }
+
 .customer-modal {
   background-color: var(--bg-color);
   padding: 20px;
@@ -2912,4 +2940,16 @@ a:not(.submit-instructions-button):visited {
 
 #customerTabButton.visible {
   display: inline-block;
+}
+
+.delete-account-button {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+  padding: 0.5em 1.5em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.delete-account-button:hover {
+  background: var(--error-bg-hover);
 }
