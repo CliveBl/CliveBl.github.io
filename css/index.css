@@ -149,13 +149,13 @@ button:hover {
 
 h1 {
   color: var(--tax-blue);
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
 h2 {
   color: var(--tax-blue);
-  margin-top: 30px;
+  margin-top: 15px;
   margin-bottom: 15px;
 }
 
@@ -1778,14 +1778,20 @@ input#feedbackEmail {
   padding: 20px;
 }
 
+.instructions-section p {
+	font-size: 17px;
+  }
+
 .instructions-section ol {
   padding-right: 20px;
   margin-bottom: 30px;
+  font-size: 17px;
 }
 
 .instructions-section li {
   margin-bottom: 10px;
   line-height: 1.5;
+  font-size: 17px;
 }
 
 .important-note {
