@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "1.00";
+const uiVersion = "1.01";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -2537,7 +2537,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!disclaimerAccepted) {
     //await showDisclaimerModal();
     await showInfoModal(
-      "אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדוח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש."
+      "אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש."
     );
     cookieUtils.set("disclaimerAccepted", "true", 365);
   }

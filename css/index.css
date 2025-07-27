@@ -1801,15 +1801,6 @@ input#feedbackEmail {
   margin-top: 0;
 }
 
-.instructions-section a {
-  color: var(--button-color);
-  text-decoration: none;
-}
-
-.instructions-section a:hover {
-  text-decoration: underline;
-}
-
 .submit-instructions-container {
   margin-top: 30px;
   text-align: center;
