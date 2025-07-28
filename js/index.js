@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "1.01";
+const uiVersion = "1.02";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -53,6 +53,7 @@ const processButton = document.getElementById("processButton");
 const deleteAllButton = document.getElementById("deleteAllButton");
 const messageContainer = document.getElementById("messageContainer");
 const loginButton = document.getElementById("loginButton");
+const googleLoginButton = document.getElementById("googleLoginButton");
 const signOutButton = document.getElementById("signOutButton");
 const loginOverlay = document.getElementById("loginOverlay");
 const closeButton = document.querySelector(".close-button");
@@ -1085,14 +1086,12 @@ loginButton.addEventListener("click", () => {
         isAnonymousConversion = false;
     }
 });
+googleLoginButton.addEventListener("click", () => {
+    signInWithGoogle();
+});
 closeButton.addEventListener("click", () => {
     loginOverlay.classList.remove("active");
 });
-// loginOverlay.addEventListener("click", (e) => {
-//   if (e.target === loginOverlay) {
-//     loginOverlay.classList.remove("active");
-//   }
-// });
 // Function to switch between signin and signup modes
 function switchMode(mode) {
     const isSignup = mode === "signup";
@@ -2120,6 +2119,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!signedIn) {
         debug("Failed to fetch version:");
     }
+    // Check for Google OAuth2 callback
+    checkForGoogleCallback();
     restoreSelectedDocTypes();
     updateSignInUI();
     // Pre-fill feedback email if user is logged in
@@ -2228,8 +2229,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     // Initialize the file list view
     updateFileListView();
-    // Check for Google OAuth2 callback
-    checkForGoogleCallback();
 });
 // Function to validate email format
 function isValidEmail(email) {
@@ -2488,13 +2487,6 @@ function showInfoModal(message) {
             modal.style.display = "none";
             resolve(true);
         };
-        // // Close if clicking outside
-        // window.onclick = (event) => {
-        //   if (event.target === modal) {
-        //     modal.style.display = "none";
-        //     resolve(false);
-        //   }
-        // };
     });
 }
 // General warning modal function that returns a promise
@@ -2519,13 +2511,6 @@ function showWarningModal(message) {
             modal.style.display = "none";
             resolve(true);
         };
-        // Close if clicking outside
-        // window.onclick = (event) => {
-        //   if (event.target === modal) {
-        //     modal.style.display = "none";
-        //     resolve(false);
-        //   }
-        // };
     });
 }
 function updateFileListView() {
@@ -2558,75 +2543,64 @@ async function toggleFileListView() {
 }
 async function signInWithGoogle() {
     try {
-        // Get the Google login URL from the backend. Call with the parameter $AUTH_BASE_URL
-        //const response = await fetch(`${AUTH_BASE_URL}/google/login?redirect_base_uri=${encodeURIComponent(window.location.origin)}`);
-        const url = AUTH_BASE_URL.replace("auth", "oauth2/authorization/google");
-        debug("url:", url);
+        // Redirect to our backend Google OAuth endpoint
+        const url = `${AUTH_BASE_URL}/google`;
+        debug("Redirecting to Google OAuth:", url);
         window.location.href = url;
-        // const response = await fetch(url);
-        // if (!response.ok) {
-        //   throw new Error("Failed to get Google login URL");
-        // }
-        // const loginUrl = await response.text();
-        // // Redirect to Google login page
-        // window.location.href = loginUrl;
     }
     catch (error) {
         console.error("Error initiating Google login:", error);
         addMessage("שגיאה בהתחברות עם Google", "error");
     }
 }
-// ... existing code ...
-// Add event listener for Google login button
-// document.addEventListener("DOMContentLoaded", () => {
-//   const googleLoginButton = document.querySelector(".google-login");
-//   if (googleLoginButton) {
-//     googleLoginButton.addEventListener("click", (e) => {
-//       e.preventDefault();
-//       signInWithGoogle();
-//     });
-//   }
-// });
-// ... existing code ...
-// Add function to check for Google OAuth2 callback
-function checkForGoogleCallback() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code");
-    const state = true; /*urlParams.get('state');*/
-    if (code && state) {
-        // We're in the OAuth2 callback
-        //handleGoogleCallback();
-    }
-}
 async function handleGoogleCallback() {
     try {
         const url = new URL(window.location.href);
         const code = url.searchParams.get("code");
-        const state = url.searchParams.get("state");
-        if (!code || !state) {
-            throw new Error("Missing code or state parameter");
+        if (!code) {
+            throw new Error("Missing code parameter");
         }
-        // Send the code and state to the backend
-        const response = await fetch(`${AUTH_BASE_URL}/auth/google/callback?code=${code}&state=${state}`, {
-            method: "GET",
+        const baseUrl = signedIn ? API_BASE_URL : AUTH_BASE_URL;
+        const response = await fetch(`${baseUrl}/google/callback`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
             credentials: "include", // Important for receiving the cookie
+            body: JSON.stringify(code),
         });
         if (!response.ok) {
             throw new Error("Failed to complete Google login");
         }
-        const data = await response.json();
+        const result = await response.json();
+        userEmailValue = result.email;
+        signedIn = true; // Set to true since we have a valid response
         // Update UI with user info
         updateSignInUI();
         await loadExistingFiles();
-        // Remove the OAuth2 parameters from the URL
+        // Remove all OAuth2 parameters from the URL
         url.searchParams.delete("code");
         url.searchParams.delete("state");
+        url.searchParams.delete("error");
+        url.searchParams.delete("error_description");
+        url.searchParams.delete("error_uri");
+        url.searchParams.delete("scope");
+        url.searchParams.delete("authuser");
+        url.searchParams.delete("prompt");
         window.history.replaceState({}, "", url);
         addMessage("התחברת בהצלחה עם Google", "success");
     }
     catch (error) {
         console.error("Error handling Google callback:", error);
         addMessage("שגיאה בהתחברות עם Google", "error");
+    }
+}
+function checkForGoogleCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    if (code) {
+        // We're in the OAuth2 callback
+        handleGoogleCallback();
     }
 }
 if (customerSelect) {

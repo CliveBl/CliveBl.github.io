@@ -570,34 +570,6 @@ ul {
   color: var(--text-color);
 }
 
-.social-login {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.social-login button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background-color: var(--item-bg);
-  color: var(--text-color);
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.social-login button:hover {
-  background-color: var(--border-color);
-}
-
-.social-login img {
-  width: 20px;
-  height: 20px;
-}
 
 .mode-toggle {
   display: flex;
@@ -2379,43 +2351,32 @@ a:not(.submit-instructions-button):visited {
   cursor: not-allowed;
 }
 
-.google-login {
+.google-login-button {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  background-color: var(--button-text);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
+  /* padding: 10px; */
+  /* margin: 10px 0; */
+  /* background-color: var(--button-text); */
+  /* border: 1px solid var(--border-color); */
+  /* border-radius: 4px; */
   cursor: pointer;
-  transition: background-color 0.3s;
+  /* transition: background-color 0.3s; */
 }
 
-.google-login:hover {
-  background-color: var(--button-text-hover);
-}
 
-.google-login img {
+.google-login-button img {
   width: 18px;
   height: 18px;
   margin-right: 10px;
 }
 
-.google-login span {
+.google-login-button span {
   color: var(--button-text);
   font-family: "Google Sans", "Open Sans Hebrew", sans-serif;
   font-size: 14px;
   font-weight: 500;
-}
-
-.social-login {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  margin-top: 20px;
 }
 
 .highlighted-cell {
