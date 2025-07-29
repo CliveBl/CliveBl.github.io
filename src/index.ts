@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "1.02";
+const uiVersion = "1.03";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -2513,6 +2513,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (loginPassword) {
       loginPassword.focus();
     }
+    // remove the username parameter from the url
+	const url = new URL(window.location.href);
+    url.searchParams.delete("username");
+    window.history.replaceState({}, "", url);
   }
 
   const toggleLink = document.getElementById("toggleFileListView");
