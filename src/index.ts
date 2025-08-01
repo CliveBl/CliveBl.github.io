@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "1.03";
+const uiVersion = "1.04";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -1529,9 +1529,9 @@ loginForm.addEventListener("submit", async (e) => {
     // Clear previous messages
     clearMessages();
     if (error instanceof Error && error.message.includes("Bad credentials 401")) {
-      showInfoModal("שם משתמש או סיסמה שגויים");
+      showErrorModal("שם משתמש או סיסמה שגויים");
     } else if (error instanceof Error && error.message.includes("האימייל כבר בשימוש")) {
-      showInfoModal("האימייל כבר בשימוש");
+      showErrorModal("האימייל כבר בשימוש");
     } else {
       addMessage("שגיאה בהתחברות: " + (error instanceof Error ? translateError(error.message) : String(error)), "error");
       // Dismiss the login overlay
@@ -2833,6 +2833,30 @@ function showInfoModal(message: string) {
     };
   });
 }
+
+// General warning modal function that returns a promise
+function showErrorModal(message: string) {
+	return new Promise((resolve) => {
+	  const errorMessage = document.getElementById("errorMessage") as HTMLDivElement;
+	  errorMessage.textContent = message;
+  
+	  const modal = document.getElementById("generalErrorModal") as HTMLDivElement;
+	  modal.style.display = "block";
+  
+	  // Handle close button
+	  (modal.querySelector(".close-button") as HTMLButtonElement).onclick = () => {
+		modal.style.display = "none";
+		resolve(false);
+	  };
+  
+	  // Handle confirm button
+	  (modal.querySelector(".confirm-button") as HTMLButtonElement).onclick = () => {
+		modal.style.display = "none";
+		resolve(true);
+	  };
+	});
+  }
+
 // General warning modal function that returns a promise
 function showWarningModal(message: string) {
   return new Promise((resolve) => {
@@ -3069,24 +3093,33 @@ window.addEventListener("click", (event) => {
 });
 
 deleteAccountButton.addEventListener("click", async () => {
-  if (confirm("האם אתה בטוח שברצונך למחוק את החשבון וכל הנתונים? פעולה זו אינה הפיכה.")) {
+  const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את החשבון וכל הנתונים? פעולה זו אינה הפיכה.");
+  
+  if (confirmed) {
+	showLoadingOverlay("מחיקת חשבון...", {
+		total: 30,
+		unit: "שניות",
+		showCancelButton: false,
+	  });	
     try {
       const response = await fetch(`${API_BASE_URL}/deleteAccount`, {
         method: "DELETE",
         credentials: "include"
       });
       if (response.ok) {
-        alert("החשבון נמחק. תנותק מהמערכת.");
         accountOverlay.classList.remove("active");
         // Sign out the user and refresh UI
         clearUserSession();
+        addMessage("החשבון נמחק.", "success");
         //location.reload();
       } else {
         const errorText = await response.text();
-        alert("שגיאה במחיקת החשבון: " + errorText);
+        addMessage("שגיאה במחיקת החשבון: " + errorText, "error");
       }
     } catch (err) {
-      alert("שגיאה במחיקת החשבון: " + err);
+      addMessage("שגיאה במחיקת החשבון: " + err, "error");
+    } finally {
+      hideLoadingOverlay();
     }
   }
 });
