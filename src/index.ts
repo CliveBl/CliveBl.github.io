@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "1.04";
+const uiVersion = "1.05";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -318,6 +318,7 @@ function updateSignInUI() {
 
   if (isUserSignedIn) {
     userEmail.textContent = userEmailValue;
+    feedbackEmail.value = userEmailValue;
     signOutButton.disabled = false;
     // Show customer button for logged in users
     if (customerButton) {
@@ -1275,7 +1276,6 @@ googleLoginButton.addEventListener("click", () => {
 closeButton.addEventListener("click", () => {
   loginOverlay.classList.remove("active");
 });
-
 
 // Function to switch between signin and signup modes
 function switchMode(mode: string) {
@@ -2514,7 +2514,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       loginPassword.focus();
     }
     // remove the username parameter from the url
-	const url = new URL(window.location.href);
+    const url = new URL(window.location.href);
     url.searchParams.delete("username");
     window.history.replaceState({}, "", url);
   }
@@ -2836,26 +2836,26 @@ function showInfoModal(message: string) {
 
 // General warning modal function that returns a promise
 function showErrorModal(message: string) {
-	return new Promise((resolve) => {
-	  const errorMessage = document.getElementById("errorMessage") as HTMLDivElement;
-	  errorMessage.textContent = message;
-  
-	  const modal = document.getElementById("generalErrorModal") as HTMLDivElement;
-	  modal.style.display = "block";
-  
-	  // Handle close button
-	  (modal.querySelector(".close-button") as HTMLButtonElement).onclick = () => {
-		modal.style.display = "none";
-		resolve(false);
-	  };
-  
-	  // Handle confirm button
-	  (modal.querySelector(".confirm-button") as HTMLButtonElement).onclick = () => {
-		modal.style.display = "none";
-		resolve(true);
-	  };
-	});
-  }
+  return new Promise((resolve) => {
+    const errorMessage = document.getElementById("errorMessage") as HTMLDivElement;
+    errorMessage.textContent = message;
+
+    const modal = document.getElementById("generalErrorModal") as HTMLDivElement;
+    modal.style.display = "block";
+
+    // Handle close button
+    (modal.querySelector(".close-button") as HTMLButtonElement).onclick = () => {
+      modal.style.display = "none";
+      resolve(false);
+    };
+
+    // Handle confirm button
+    (modal.querySelector(".confirm-button") as HTMLButtonElement).onclick = () => {
+      modal.style.display = "none";
+      resolve(true);
+    };
+  });
+}
 
 // General warning modal function that returns a promise
 function showWarningModal(message: string) {
@@ -2929,7 +2929,6 @@ async function signInWithGoogle() {
   }
 }
 
-
 async function handleGoogleCallback() {
   try {
     const url = new URL(window.location.href);
@@ -2939,7 +2938,7 @@ async function handleGoogleCallback() {
       throw new Error("Missing code parameter");
     }
 
-	const baseUrl = signedIn ? API_BASE_URL : AUTH_BASE_URL;
+    const baseUrl = signedIn ? API_BASE_URL : AUTH_BASE_URL;
     const response = await fetch(`${baseUrl}/google/callback`, {
       method: "POST",
       headers: {
@@ -2979,13 +2978,13 @@ async function handleGoogleCallback() {
 }
 
 function checkForGoogleCallback() {
-	const urlParams = new URLSearchParams(window.location.search);
-	const code = urlParams.get("code");
-  
-	if (code) {
-	  // We're in the OAuth2 callback
-	  handleGoogleCallback();
-	}
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
+
+  if (code) {
+    // We're in the OAuth2 callback
+    handleGoogleCallback();
+  }
 }
 
 if (customerSelect) {
@@ -3062,7 +3061,6 @@ if (customerOverlay) {
   }
 }
 
-
 function translateError(error: string): string {
   const tranlationTable: Record<string, string> = {
     // "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
@@ -3094,17 +3092,17 @@ window.addEventListener("click", (event) => {
 
 deleteAccountButton.addEventListener("click", async () => {
   const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את החשבון וכל הנתונים? פעולה זו אינה הפיכה.");
-  
+
   if (confirmed) {
-	showLoadingOverlay("מחיקת חשבון...", {
-		total: 30,
-		unit: "שניות",
-		showCancelButton: false,
-	  });	
+    showLoadingOverlay("מחיקת חשבון...", {
+      total: 30,
+      unit: "שניות",
+      showCancelButton: false,
+    });
     try {
       const response = await fetch(`${API_BASE_URL}/deleteAccount`, {
         method: "DELETE",
-        credentials: "include"
+        credentials: "include",
       });
       if (response.ok) {
         accountOverlay.classList.remove("active");

@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "1.04";
+const uiVersion = "1.05";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -267,6 +267,7 @@ function updateSignInUI() {
     debug("updateSignInUI - userEmailValue:", userEmailValue, "isUserSignedIn:", isUserSignedIn);
     if (isUserSignedIn) {
         userEmail.textContent = userEmailValue;
+        feedbackEmail.value = userEmailValue;
         signOutButton.disabled = false;
         // Show customer button for logged in users
         if (customerButton) {
@@ -2726,7 +2727,7 @@ deleteAccountButton.addEventListener("click", async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/deleteAccount`, {
                 method: "DELETE",
-                credentials: "include"
+                credentials: "include",
             });
             if (response.ok) {
                 accountOverlay.classList.remove("active");

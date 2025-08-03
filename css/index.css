@@ -389,7 +389,7 @@ ul {
   background-color: var(--button-color-hover);
 }
 .loginout-button:disabled {
-  background-color: var(--button-gray);
+  background-color: var(--disabled-bg);
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -1384,7 +1384,7 @@ input#feedbackEmail {
 .send-feedback-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: var(--button-gray);
+  background-color: var(--disabled-bg);
 }
 
 @media screen and (max-width: 480px) {
@@ -2454,17 +2454,12 @@ a:not(.submit-instructions-button):visited {
 }
 
 #passwordModal .cancel-button {
-  background-color: var(--button-gray);
-  color: var(--button-text);
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
 }
 
-#passwordModal .cancel-button:hover {
-  background-color: var(--button-gray-hover);
-}
 
 /* Password toggle button styles */
 .password-toggle {
