@@ -381,6 +381,9 @@
             </div>
             <input type="password" id="loginPassword" autocomplete="current-password" placeholder="סיסמה" required />
             <button type="submit" id="submitButton">התחבר</button>
+            <div class="forgot-password-link">
+              <a href="#" id="forgotPasswordLink" class="stnd-link">שכחתי סיסמה</a>
+            </div>
           </form>
 
           <div class="login-divider">
@@ -521,6 +524,23 @@
         <div class="modal-footer">
           <button class="cancel-button">ביטול</button>
           <button class="confirm-button">אישור</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="passwordResetModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close-button">&times;</span>
+          <h2>🔐 איפוס סיסמה</h2>
+        </div>
+        <div class="modal-body">
+          <p>קישור לאיפוס סיסמה יישלח לכתובת הדוא״ל שהוזנה בטופס ההתחברות.</p>
+          <p><strong>דוא״ל:</strong> <span id="resetEmailDisplay"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-button">ביטול</button>
+          <button class="confirm-button" id="sendResetButton">שלח קישור</button>
         </div>
       </div>
     </div>

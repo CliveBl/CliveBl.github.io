@@ -19,7 +19,7 @@ if (domain.includes("localhost") || domain.includes("127.0.0.1")) {
   // Get environment from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
 const envParam = urlParams.get("env");
-currentEnv = envParam || "production";
+currentEnv = envParam ||currentEnv;
 console.log("Current environment:", currentEnv);
 
 export const API_BASE_URL = ENV[currentEnv as keyof typeof ENV].API_BASE_URL;

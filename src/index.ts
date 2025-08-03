@@ -1,6 +1,6 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 
-const uiVersion = "1.05";
+const uiVersion = "1.06";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -107,6 +107,8 @@ const privacyCheckbox = document.getElementById("privacyAgreement") as HTMLInput
 const sendFeedbackButton = document.getElementById("sendFeedbackButton") as HTMLButtonElement;
 const feedbackMessage = document.getElementById("feedbackMessage") as HTMLTextAreaElement;
 const loginPassword = document.getElementById("loginPassword") as HTMLInputElement;
+// Password reset modal functionality
+const forgotPasswordLink = document.getElementById("forgotPasswordLink") as HTMLAnchorElement;
 
 // Helper functions for localStorage
 function saveSelectedCustomerToStorage(customerName: string): void {
@@ -1289,6 +1291,10 @@ function switchMode(mode: string) {
     fullNameInput.setAttribute("required", "");
   } else {
     fullNameInput.removeAttribute("required");
+  }
+  // Show/hide forgot password link based on mode
+  if (forgotPasswordLink) {
+    forgotPasswordLink.style.display = isSignup ? "none" : "block";
   }
   googleButtonText.textContent = isSignup ? "הרשמה עם Google" : "התחבר עם Google";
   githubButtonText.textContent = isSignup ? "הרשמה עם GitHub" : "התחבר עם GitHub";
@@ -3121,3 +3127,91 @@ deleteAccountButton.addEventListener("click", async () => {
     }
   }
 });
+
+const passwordResetModal = document.getElementById("passwordResetModal") as HTMLDivElement;
+const resetEmailDisplay = document.getElementById("resetEmailDisplay") as HTMLSpanElement;
+const sendResetButton = document.getElementById("sendResetButton") as HTMLButtonElement;
+
+// Show password reset modal
+function showPasswordResetModal(): void {
+  const emailInput = document.getElementById("email") as HTMLInputElement;
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    showErrorModal("אנא הזן כתובת דוא״ל בטופס ההתחברות תחילה");
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    showErrorModal("כתובת הדוא״ל שהוזנה אינה תקינה");
+    return;
+  }
+
+  resetEmailDisplay.textContent = email;
+  passwordResetModal.style.display = "block";
+}
+
+// Handle forgot password link click
+if (forgotPasswordLink) {
+  forgotPasswordLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    showPasswordResetModal();
+  });
+}
+
+// Handle password reset modal close
+if (passwordResetModal) {
+  // Close modal when clicking close button
+  const resetCloseButton = passwordResetModal.querySelector(".close-button") as HTMLSpanElement;
+  if (resetCloseButton) {
+    resetCloseButton.addEventListener("click", () => {
+      passwordResetModal.style.display = "none";
+    });
+  }
+
+  // Handle cancel button
+  const resetCancelButton = passwordResetModal.querySelector(".cancel-button") as HTMLButtonElement;
+  if (resetCancelButton) {
+    resetCancelButton.addEventListener("click", () => {
+      passwordResetModal.style.display = "none";
+    });
+  }
+
+  // Handle send reset button
+  if (sendResetButton) {
+    sendResetButton.addEventListener("click", async () => {
+      const email = resetEmailDisplay.textContent;
+
+      try {
+        sendResetButton.disabled = true;
+        sendResetButton.textContent = "שולח...";
+
+        const response = await fetch(`${AUTH_BASE_URL}/requestPasswordReset`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+          }),
+          ...fetchConfig,
+        });
+
+        if (response.ok) {
+          passwordResetModal.style.display = "none";
+          showInfoModal("קישור לאיפוס סיסמה נשלח לכתובת הדוא״ל שלך. אנא בדוק את תיבת הדואר שלך. אם לא קיבלת את האימייל, בדוק את האיות של כתובת הדוא״ל ונסה שוב.");
+          showInfoModal("קישור לאיפוס סיסמה נשלח לכתובת הדוא״ל שלך. אנא בדוק את תיבת הדואר שלך.");
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.description || "שגיאה בשליחת קישור האיפוס");
+        }
+      } catch (error) {
+        console.error("Password reset request failed:", error);
+        showErrorModal("שגיאה בשליחת קישור האיפוס: " + (error instanceof Error ? error.message : String(error)));
+      } finally {
+        sendResetButton.disabled = false;
+        sendResetButton.textContent = "שלח קישור";
+      }
+    });
+  }
+}

@@ -45,6 +45,13 @@
   /* Link colors: use browser default in light mode */
   --link-color: #0000ff;
   --link-color-visited: inherit;
+  --background-color: var(--bg-color);
+  --primary-color: var(--button-color);
+  --primary-hover-color: var(--button-color-hover);
+  --disabled-color: var(--disabled-bg);
+  --success-color: var(--success-bg);
+  --error-color: var(--error-bg);
+  --text-muted-color: var(--message-text);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -94,6 +101,13 @@
     /* Link colors for dark mode */
     --link-color: #66b3ff;
     --link-color-visited: #bb86fc;
+    --background-color: var(--bg-color);
+    --primary-color: var(--button-color);
+    --primary-hover-color: var(--button-color-hover);
+    --disabled-color: var(--disabled-bg);
+    --success-color: var(--success-bg);
+    --error-color: var(--error-bg);
+    --text-muted-color: var(--message-text);
   }
 }
 
@@ -512,6 +526,7 @@ ul {
   font-size: 20px;
   color: var(--text-color);
   padding: 5px;
+  cursor: pointer;
 }
 
 .login-form {
@@ -526,6 +541,21 @@ ul {
   border-radius: 4px;
   background-color: var(--item-bg);
   color: var(--text-color);
+}
+
+.forgot-password-link {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.forgot-password-link a {
+  color: var(--link-color);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
 }
 
 .login-submit {
