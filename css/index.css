@@ -1508,6 +1508,55 @@ input#feedbackEmail {
   transition: opacity 0.5s ease-in-out;
 }
 
+/* Mobile responsive fixes for slideshow */
+@media (max-width: 768px) {
+  .slides {
+    height: 300px;
+  }
+  
+  .slides img {
+    object-fit: contain;
+    background-color: var(--bg-color);
+  }
+  
+  .slideshow-arrows {
+    padding: 0 10px;
+  }
+  
+  .arrow {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .slides {
+    height: 250px;
+  }
+  
+  .slideshow-arrows {
+    padding: 0 5px;
+  }
+  
+  .arrow {
+    width: 35px;
+    height: 35px;
+    padding: 8px;
+    font-size: 14px;
+  }
+  
+  .slideshow-dots {
+    bottom: 10px;
+  }
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+  }
+}
+
 .slides img.active {
   opacity: 1;
   display: block;
