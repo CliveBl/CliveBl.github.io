@@ -1,9 +1,10 @@
+// Field labels and hints
 const friendlyNames = {
     field867Type: "סוג שדה 867",
     field106Type: "סוג שדה 106",
     fields: "שדות",
     genericFields: "שדות נוספות",
-    clientName: "שם הלקוח",
+    clientName: "שם מלא",
     familyName: "שם משפחה",
     documentType: "סוג מסמך",
     organizationName: "שם הארגון",

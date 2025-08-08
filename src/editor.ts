@@ -228,7 +228,8 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
         // Iterate over all html elements and populate an item with the field names and values from the controls.
         for (const htmlElement of htmlElements) {
           const fieldName = htmlElement.getAttribute("data-field-name") as string;
-          item[fieldName] = getControlValue(htmlElement, fieldName);
+		  // Use the part of the field name after the /
+          item[fieldName.split("/")[1]] = getControlValue(htmlElement, fieldName);
         }
         updatedData[itemArrayName].push(item);
       }
@@ -439,16 +440,14 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       accordionContainer.className = "accordion-container";
       accordionContainer.setAttribute("data-doc-typename", fileData.documentType);
 
-      // Accordion Header
       const accordianheader = document.createElement("div") as HTMLDivElement;
       accordianheader.className = "accordion-header";
 
-      // Accordion Body (Initially Hidden)
+      // Initially Hidden
       const accordianBody = document.createElement("div") as HTMLDivElement;
       accordianBody.className = "accordian-body";
       accordianBody.style.display = "none";
 
-      // Toggle Button (+/-)
       const accordionToggleButton = document.createElement("button") as HTMLButtonElement;
       accordionToggleButton.className = "accordion-toggle-button";
 
@@ -676,8 +675,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       if (!input.className) input.className = "field-text-input";
       input.type = "text";
       input.maxLength = 30;
+	  input.placeholder = getFriendlyName(key);
       if (key.endsWith("clientName")) {
-        input.value = dummyName(fieldValue.value);
+		input.value = dummyName(fieldValue.value);
       } else {
         input.value = fieldValue.value;
       }
@@ -685,6 +685,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.className = "field-text-input";
       input.type = "text";
       input.maxLength = 100;
+	  input.placeholder = getFriendlyName(key);
       if (fieldValue.value) {
         input.value = fieldValue.value;
         input.classList.add("value");
@@ -832,7 +833,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       accordianBody.appendChild(fieldsToggleLink);
     }
 
-    function createFieldRow(container: HTMLElement, key: string, fieldValue: Value) {
+	function makeFieldName(itemTitle : string, index : number, key: string) {
+		if (itemTitle != "") {
+			return itemTitle + "[" + index + "]/" + key;
+		} else {
+			return key;
+		}
+	}
+
+    function createFieldRow(container: HTMLElement, itemTitle : string, index : number, key: string, fieldValue: Value) {
       // Skip fields already displayed in the header
       if (excludedHeaderFields.includes(key)) return;
 
@@ -855,7 +864,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           valueLabel.dir = "ltr";
         }
         valueLabel.className = "read-only-field-value";
-        valueLabel.setAttribute("data-field-name", key);
+        valueLabel.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         valueLabel.id = fieldId;
         fieldRow.appendChild(valueLabel);
         container.appendChild(fieldRow);
@@ -864,7 +873,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       if (key.endsWith("Options")) {
         const radioGroup = document.createElement("div") as HTMLDivElement;
-        radioGroup.setAttribute("data-field-name", key);
+        radioGroup.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         radioGroup.id = fieldId;
 
         const options = getFriendlyOptions(key);
@@ -892,7 +901,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         dropdown.id = fieldId;
         dropdown.name = key;
         dropdown.textContent = key;
-        dropdown.setAttribute("data-field-name", key);
+        dropdown.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         dropdown.appendChild(document.createTextNode(fieldValue.value));
         // Add options to the dropdown from the configuration data
         const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
@@ -911,7 +920,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       } else {
         let input = document.createElement("input") as HTMLInputElement;
         input.className = "field-input";
-        input.setAttribute("data-field-name", key);
+        input.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         // Associate the input with a unique ID and connect it to the label so that screen readers can read the label when the input is focused.
         input.id = fieldId;
 
@@ -949,7 +958,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           type: "any",
           value: value,
         };
-        createFieldRow(accordianBody, key, fieldValue);
+        createFieldRow(accordianBody, "", 0, key, fieldValue);
       }
     });
     // If it is an 867 form and we are not on mobile we render according to the template
@@ -980,7 +989,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           type: "any",
           value: value,
         };
-        createFieldRow(accordianBody, key, fieldValue);
+        createFieldRow(accordianBody, "", 0, key, fieldValue);
       });
     }
 
@@ -1061,7 +1070,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             if (key === "value" && ((item.field867Type && isExceptionalIntegerField(item.field867Type)) || (item.field106Type && isExceptionalIntegerField(item.field106Type)))) {
               fieldValue.type = "Integer";
             }
-            createFieldRow(itemContainer, key, fieldValue);
+            createFieldRow(itemContainer, title, index, key, fieldValue);
           });
         });
       }
