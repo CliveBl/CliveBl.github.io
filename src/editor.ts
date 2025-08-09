@@ -8,96 +8,6 @@ function makeUniqueId() {
   return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-function customerMessageModal({
-  title,
-  message,
-  button1Text,
-  button2Text = null,
-  displayTimeInSeconds = 1,
-}: {
-  title: string;
-  message: string;
-  button1Text: string;
-  button2Text?: string | null;
-  displayTimeInSeconds?: number;
-}) {
-  return new Promise((resolve) => {
-    // Remove any existing modal
-    const existingModal = document.getElementById("customModal");
-    if (existingModal) {
-      existingModal.remove();
-    }
-
-    // Create modal container
-    const timeModal = document.createElement("div");
-    timeModal.id = "customModal";
-
-    const timeModalContent = document.createElement("div");
-    timeModalContent.className = "time-modal-content";
-
-    const timeModalTitle = document.createElement("h2");
-    timeModalTitle.textContent = title;
-    timeModalTitle.className = "time-modal-title";
-    timeModalContent.appendChild(timeModalTitle);
-
-    const timeModalMessage = document.createElement("p");
-    timeModalMessage.textContent = message;
-    timeModalMessage.className = "time-modal-message";
-    timeModalContent.appendChild(timeModalMessage);
-
-    const timeModalButtonContainer = document.createElement("div") as HTMLDivElement;
-    timeModalButtonContainer.className = "time-modal-button-container";
-    timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
-
-    const timeModalCountdownText = document.createElement("p");
-    timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
-    timeModalCountdownText.className = "time-modal-countdown";
-    timeModalContent.appendChild(timeModalCountdownText);
-
-    // If displayTimeInSeconds > 0, hide buttons and auto-close
-    if (displayTimeInSeconds > 0) {
-      // Countdown update every second
-      let remainingTime = displayTimeInSeconds;
-      const countdownInterval = setInterval(() => {
-        remainingTime--;
-        timeModalCountdownText.textContent = `Closing in ${remainingTime} seconds...`;
-
-        if (remainingTime <= 0) {
-          clearInterval(countdownInterval);
-          timeModal.remove();
-          resolve(0); // Return 0 when auto-closing
-        }
-      }, 1000);
-    } else {
-      // Button 1
-      const timeModalButton1 = document.createElement("button") as HTMLButtonElement;
-      timeModalButton1.textContent = button1Text;
-      timeModalButton1.className = "time-modal-button";
-      timeModalButton1.onclick = () => {
-        timeModal.remove(); // Close modal
-        resolve(1); // Return 1 for first button clicked
-      };
-      timeModalButtonContainer.appendChild(timeModalButton1);
-
-      // Button 2 (if provided)
-      if (button2Text) {
-        const timeModalButton2 = document.createElement("button") as HTMLButtonElement;
-        timeModalButton2.textContent = button2Text;
-        timeModalButton2.className = "time-modal-button";
-        timeModalButton2.onclick = () => {
-          timeModal.remove(); // Close modal
-          resolve(2); // Return 2 for second button clicked
-        };
-        timeModalButtonContainer.appendChild(timeModalButton2);
-      }
-
-      timeModalContent.appendChild(timeModalButtonContainer);
-    }
-
-    timeModal.appendChild(timeModalContent);
-    document.body.appendChild(timeModal);
-  });
-}
 
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
@@ -1328,7 +1238,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
     // Append fields to the wrapper
     fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגונים", true));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגון", true));
     fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true));
     fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true));
 
@@ -1379,6 +1289,97 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     };
   }
 
+  function customerMessageModal({
+	title,
+	message,
+	button1Text,
+	button2Text = null,
+	displayTimeInSeconds = 1,
+  }: {
+	title: string;
+	message: string;
+	button1Text: string;
+	button2Text?: string | null;
+	displayTimeInSeconds?: number;
+  }) {
+	return new Promise((resolve) => {
+	  // Remove any existing modal
+	  const existingModal = document.getElementById("customModal");
+	  if (existingModal) {
+		existingModal.remove();
+	  }
+  
+	  // Create modal container
+	  const timeModal = document.createElement("div");
+	  timeModal.id = "customModal";
+  
+	  const timeModalContent = document.createElement("div");
+	  timeModalContent.className = "time-modal-content";
+  
+	  const timeModalTitle = document.createElement("h2");
+	  timeModalTitle.textContent = title;
+	  timeModalTitle.className = "time-modal-title";
+	  timeModalContent.appendChild(timeModalTitle);
+  
+	  const timeModalMessage = document.createElement("p");
+	  timeModalMessage.textContent = message;
+	  timeModalMessage.className = "time-modal-message";
+	  timeModalContent.appendChild(timeModalMessage);
+  
+	  const timeModalButtonContainer = document.createElement("div") as HTMLDivElement;
+	  timeModalButtonContainer.className = "time-modal-button-container";
+	  timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
+  
+	  const timeModalCountdownText = document.createElement("p");
+	  timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
+	  timeModalCountdownText.className = "time-modal-countdown";
+	  timeModalContent.appendChild(timeModalCountdownText);
+  
+	  // If displayTimeInSeconds > 0, hide buttons and auto-close
+	  if (displayTimeInSeconds > 0) {
+		// Countdown update every second
+		let remainingTime = displayTimeInSeconds;
+		const countdownInterval = setInterval(() => {
+		  remainingTime--;
+		  timeModalCountdownText.textContent = `Closing in ${remainingTime} seconds...`;
+  
+		  if (remainingTime <= 0) {
+			clearInterval(countdownInterval);
+			timeModal.remove();
+			resolve(0); // Return 0 when auto-closing
+		  }
+		}, 1000);
+	  } else {
+		// Button 1
+		const timeModalButton1 = document.createElement("button") as HTMLButtonElement;
+		timeModalButton1.textContent = button1Text;
+		timeModalButton1.className = "time-modal-button";
+		timeModalButton1.onclick = () => {
+		  timeModal.remove(); // Close modal
+		  resolve(1); // Return 1 for first button clicked
+		};
+		timeModalButtonContainer.appendChild(timeModalButton1);
+  
+		// Button 2 (if provided)
+		if (button2Text) {
+		  const timeModalButton2 = document.createElement("button") as HTMLButtonElement;
+		  timeModalButton2.textContent = button2Text;
+		  timeModalButton2.className = "time-modal-button";
+		  timeModalButton2.onclick = () => {
+			timeModal.remove(); // Close modal
+			resolve(2); // Return 2 for second button clicked
+		  };
+		  timeModalButtonContainer.appendChild(timeModalButton2);
+		}
+  
+		timeModalContent.appendChild(timeModalButtonContainer);
+	  }
+  
+	  timeModal.appendChild(timeModalContent);
+	  document.body.appendChild(timeModal);
+	});
+  }
+  
   async function displayFileInfoButtons(actionButtonsContainer: HTMLDivElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any) {
     // Create the save button
     const saveButton = document.createElement("button") as HTMLButtonElement;
