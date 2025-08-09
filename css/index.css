@@ -1204,32 +1204,65 @@ button:disabled {
   background-color: var(--bg-color);
   padding: 10px;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
   border-bottom: 1px solid var(--border-color);
   z-index: 1000;
   height: auto;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
 .auth-container h1 {
   margin: 0;
-  text-align: center;
   font-size: 20px;
 }
 
-.auth-container .controls {
+.header-right {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   gap: 10px;
-  height: 20px;
-  width: 100%;
 }
 
-#signOutButton {
-  margin-right: auto;
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 5px;
+  }
+  
+  .header-left {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .header-right {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .header-logo {
+    height: 30px;
+  }
+  
+  .auth-container h1 {
+    font-size: 18px;
+  }
 }
+
+
 
 .user-email {
   margin-right: 10px;
