@@ -1,9 +1,10 @@
 // Slideshow functionality
 let currentSlide = 0;
-const slides = document.querySelectorAll('.slides img');
+const slides = document.querySelectorAll('.slides > *');
 const dots = document.querySelectorAll('.dot');
 const prevButton = document.querySelector('.prev') as HTMLButtonElement;
 const nextButton = document.querySelector('.next') as HTMLButtonElement;
+const splashContainer = document.querySelector('.splash-container') as HTMLElement;
 
 function showSlide(n: number) {
     // Remove active class from all slides and dots
@@ -18,6 +19,11 @@ function showSlide(n: number) {
     // Show active slide and dot
     slides[currentSlide].classList.add('active');
     dots[currentSlide].classList.add('active');
+
+    // Only show splash-container for the first slide
+    if (splashContainer) {
+        splashContainer.style.display = currentSlide === 0 ? 'block' : 'none';
+    }
 
     // Disable/enable navigation buttons
     prevButton.disabled = currentSlide === 0;

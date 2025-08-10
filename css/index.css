@@ -1552,6 +1552,15 @@ input#feedbackEmail {
     background-color: var(--bg-color);
   }
   
+  .splash-container .hero-image {
+    object-fit: contain;
+    background-color: var(--bg-color);
+  }
+  
+  .logo-overlay {
+    width: 150px;
+  }
+  
   .slideshow-arrows {
     padding: 0 10px;
   }
@@ -1567,6 +1576,15 @@ input#feedbackEmail {
 @media (max-width: 480px) {
   .slides {
     height: 250px;
+  }
+  
+  .splash-container .hero-image {
+    object-fit: contain;
+    background-color: var(--bg-color);
+  }
+  
+  .logo-overlay {
+    width: 120px;
   }
   
   .slideshow-arrows {
@@ -1593,6 +1611,42 @@ input#feedbackEmail {
 .slides img.active {
   opacity: 1;
   display: block;
+}
+
+.splash-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.splash-container.active {
+  opacity: 1;
+}
+
+.splash-container .hero-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.logo-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  width: 200px;
+  height: auto;
+  opacity: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .slideshow-arrows {
