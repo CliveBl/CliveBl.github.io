@@ -5,7 +5,7 @@ const slides = document.querySelectorAll('.slides > *');
 const dots = document.querySelectorAll('.dot');
 const prevButton = document.querySelector('.prev');
 const nextButton = document.querySelector('.next');
-const splashContainer = document.querySelector('.splash-container');
+const logoOverlay = document.querySelector('.logo-overlay');
 function showSlide(n) {
     // Remove active class from all slides and dots
     slides.forEach(slide => slide.classList.remove('active'));
@@ -19,9 +19,9 @@ function showSlide(n) {
     // Show active slide and dot
     slides[currentSlide].classList.add('active');
     dots[currentSlide].classList.add('active');
-    // Only show splash-container for the first slide
-    if (splashContainer) {
-        splashContainer.style.display = currentSlide === 0 ? 'block' : 'none';
+    // Only show logo-overlay for the first slide
+    if (logoOverlay) {
+        logoOverlay.style.display = currentSlide === 0 ? 'block' : 'none';
     }
     // Disable/enable navigation buttons
     prevButton.disabled = currentSlide === 0;

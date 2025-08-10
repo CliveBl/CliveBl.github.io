@@ -4,7 +4,7 @@ const slides = document.querySelectorAll('.slides > *');
 const dots = document.querySelectorAll('.dot');
 const prevButton = document.querySelector('.prev') as HTMLButtonElement;
 const nextButton = document.querySelector('.next') as HTMLButtonElement;
-const splashContainer = document.querySelector('.splash-container') as HTMLElement;
+const logoOverlay = document.querySelector('.logo-overlay') as HTMLElement;
 
 function showSlide(n: number) {
     // Remove active class from all slides and dots
@@ -20,9 +20,9 @@ function showSlide(n: number) {
     slides[currentSlide].classList.add('active');
     dots[currentSlide].classList.add('active');
 
-    // Only show splash-container for the first slide
-    if (splashContainer) {
-        splashContainer.style.display = currentSlide === 0 ? 'block' : 'none';
+    // Only show logo-overlay for the first slide
+    if (logoOverlay) {
+        logoOverlay.style.display = currentSlide === 0 ? 'block' : 'none';
     }
 
     // Disable/enable navigation buttons
