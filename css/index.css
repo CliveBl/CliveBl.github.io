@@ -600,7 +600,6 @@ ul {
   color: var(--text-color);
 }
 
-
 .mode-toggle {
   display: flex;
   gap: 10px;
@@ -1241,28 +1240,26 @@ button:disabled {
     gap: 10px;
     padding: 10px 5px;
   }
-  
+
   .header-left {
     width: 100%;
     justify-content: center;
   }
-  
+
   .header-right {
     width: 100%;
     justify-content: center;
     flex-wrap: wrap;
   }
-  
+
   .header-logo {
     height: 30px;
   }
-  
+
   .auth-container h1 {
     font-size: 18px;
   }
 }
-
-
 
 .user-email {
   margin-right: 10px;
@@ -1546,25 +1543,16 @@ input#feedbackEmail {
   .slides {
     height: 300px;
   }
-  
+
   .slides img {
     object-fit: contain;
     background-color: var(--bg-color);
   }
-  
-  .splash-container .hero-image {
-    object-fit: contain;
-    background-color: var(--bg-color);
-  }
-  
-  .logo-overlay {
-    width: 150px;
-  }
-  
+
   .slideshow-arrows {
     padding: 0 10px;
   }
-  
+
   .arrow {
     width: 40px;
     height: 40px;
@@ -1573,35 +1561,41 @@ input#feedbackEmail {
   }
 }
 
+/* Logo scaling for different screen sizes */
+@media (max-width: 768px) {
+  .logo-overlay {
+    width: 20vw;
+    max-width: 150px;
+    min-width: 100px;
+  }
+}
+
 @media (max-width: 480px) {
   .slides {
     height: 250px;
   }
-  
-  .splash-container .hero-image {
-    object-fit: contain;
-    background-color: var(--bg-color);
-  }
-  
+
   .logo-overlay {
-    width: 120px;
+    width: 25vw;
+    max-width: 120px;
+    min-width: 80px;
   }
-  
+
   .slideshow-arrows {
     padding: 0 5px;
   }
-  
+
   .arrow {
     width: 35px;
     height: 35px;
     padding: 8px;
     font-size: 14px;
   }
-  
+
   .slideshow-dots {
     bottom: 10px;
   }
-  
+
   .dot {
     width: 10px;
     height: 10px;
@@ -1642,7 +1636,9 @@ input#feedbackEmail {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
-  width: 200px;
+  width: 15vw;
+  max-width: 200px;
+  min-width: 120px;
   height: auto;
   opacity: 1;
   pointer-events: none;
@@ -1885,7 +1881,7 @@ input#feedbackEmail {
 }
 
 .more-info-link {
-	color: var(--link-color);
+  color: var(--link-color);
   position: absolute;
   bottom: 10px;
   left: 10px;
@@ -1904,7 +1900,7 @@ input#feedbackEmail {
 }
 
 .more-info-link:visited {
-	color: var(--link-color-visited);
+  color: var(--link-color-visited);
 }
 
 @media (max-width: 600px) {
@@ -1917,8 +1913,8 @@ input#feedbackEmail {
 }
 
 .instructions-section p {
-	font-size: 17px;
-  }
+  font-size: 17px;
+}
 
 .instructions-section ol {
   padding-right: 20px;
@@ -2460,15 +2456,15 @@ a:not(.submit-instructions-button):visited {
 }
 
 .file-list-toggle-link:hover {
-	text-decoration: underline;
- }
+  text-decoration: underline;
+}
 
- .file-list-toggle-link:visited {
+.file-list-toggle-link:visited {
   color: var(--link-color-visited);
- }
+}
 
 .fields-toggle-link {
-	color: var(--link-color);
+  color: var(--link-color);
   text-decoration: none;
   font-size: 14px;
   cursor: pointer;
@@ -2476,7 +2472,7 @@ a:not(.submit-instructions-button):visited {
 }
 
 .fields-toggle-link:visited {
-	color: var(--link-color-visited);
+  color: var(--link-color-visited);
 }
 
 .fields-toggle-link:hover {
@@ -2530,7 +2526,6 @@ a:not(.submit-instructions-button):visited {
   cursor: pointer;
   /* transition: background-color 0.3s; */
 }
-
 
 .google-login-button img {
   width: 18px;
@@ -2625,7 +2620,6 @@ a:not(.submit-instructions-button):visited {
   border-radius: 4px;
   cursor: pointer;
 }
-
 
 /* Password toggle button styles */
 .password-toggle {
@@ -2881,7 +2875,7 @@ a:not(.submit-instructions-button):visited {
 /* Help link styles for editor forms */
 .stnd-link,
 .help-link {
-	color: var(--link-color);
+  color: var(--link-color);
   text-decoration: none;
   transition: color 0.3s ease;
   margin-right: auto;
@@ -2895,7 +2889,7 @@ a:not(.submit-instructions-button):visited {
 
 .stnd-link:visited,
 .help-link:visited {
-	color: var(--link-color-visited);
+  color: var(--link-color-visited);
 }
 
 /* Customer selection styles */
@@ -2947,7 +2941,6 @@ a:not(.submit-instructions-button):visited {
 }
 
 .update-customer-button {
-
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -2998,31 +2991,31 @@ a:not(.submit-instructions-button):visited {
 }
 
 .account-modal {
-	background-color: var(--bg-color);
-	padding: 20px;
-	border-radius: 8px;
-	width: 90%;
-	max-width: 400px;
-	margin: 0 auto;
-	box-shadow: 0 4px 6px var(--modal-shadow);
-  }
+  background-color: var(--bg-color);
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  margin: 0 auto;
+  box-shadow: 0 4px 6px var(--modal-shadow);
+}
 /* Customer modal styles */
 .account-overlay {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: var(--modal-overlay);
-	z-index: 1000;
-  }
-  
-  .account-overlay.active {
-	display: flex;
-	align-items: flex-start;
-	padding-top: 50px;
-  }
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--modal-overlay);
+  z-index: 1000;
+}
+
+.account-overlay.active {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 50px;
+}
 
 .customer-modal {
   background-color: var(--bg-color);
