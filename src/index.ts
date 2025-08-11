@@ -855,7 +855,7 @@ processButton.addEventListener("click", async () => {
 
     // Handle fatal error if present
     if (result.fatalProcessingError) {
-      addMessage("שגיאה קריטית: " + result.fatalProcessingError, "error");
+      addMessage("שגיאה: " + result.fatalProcessingError, "error");
     }
 
     // Handle warnings if present
@@ -1574,7 +1574,7 @@ async function loadResults(scrollToMessageSection = true) {
       if (result.messages) {
         // Handle fatal error if present
         if (result.messages.fatalProcessingError) {
-          addMessage("שגיאה קריטית: " + result.messages.fatalProcessingError, "error", scrollToMessageSection);
+          addMessage("שגיאה: " + result.messages.fatalProcessingError, "error", scrollToMessageSection);
         }
 
         // Handle warnings if present
