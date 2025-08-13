@@ -1,4 +1,11 @@
-import { debug } from "./index.js";
+// Debug flag
+const DEBUG = true;
+
+export function debug(...args: unknown[]): void {
+  if (DEBUG) {
+    console.log(...args);
+  }
+}
 
 // Field labels and hints
 const friendlyNames = {
@@ -198,3 +205,6 @@ export function dummyIdNumber(idNumber: string) {
 }
 
 export const NO_YEAR = "ללא שנה";
+
+export const ANONYMOUS_EMAIL = "AnonymousEmail";
+

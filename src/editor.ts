@@ -1,4 +1,7 @@
-import { configurationData, debug, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList, selectedCustomerDataEntryName } from "./index.js";
+import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList } from "./index.js";
+import { selectedCustomerDataEntryName } from "./authService.js";
+import { debug } from "./constants.js";
+
 import { API_BASE_URL } from "./env.js";
 import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, 
 	dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
@@ -7,7 +10,6 @@ import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyF
 function makeUniqueId() {
   return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
-
 
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];

@@ -1,50 +1,54 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "1.06";
-const defaultClientIdentificationNumber = "000000000";
-const ANONYMOUS_EMAIL = "AnonymousEmail";
+import { signInAnonymous, showInfoModal, showWarningModal, handleAuthResponse, SignedIn, UIVersion, ServerVersion, UserEmailValue, selectedCustomerDataEntryName, on, } from "./authService.js";
+import { debug } from "./constants.js";
+const DEFAULT_CLIENT_ID_NUMBER = "000000000";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
-const DEFAULT_CUSTOMER_DATA_ENTRY_NAME = "Default";
-const SELECTED_CUSTOMER_STORAGE_KEY = "selectedCustomerDataEntryName";
-// Customer list cache
-let customerListCache = null;
-let customerListCacheTimestamp = 0;
-const CUSTOMER_LIST_CACHE_DURATION = 60 * 60 * 1000; // 5 minutes in milliseconds
-export let selectedCustomerDataEntryName = loadSelectedCustomerFromStorage();
 export let configurationData;
 let latestFileInfoList = [];
 let documentIcons = {};
-let userEmailValue = "";
-let signedIn = false;
 let isCancelled = false;
 const fetchConfig = {
     mode: "cors",
 };
-// Add this near the top of your script
-const DEBUG = true;
 // Patterns for which to suppress retry button on FormError files
 const SUPPRESS_RETRY_PATTERNS = [
     /שנת המס-\d{4} אינה נתמכת/, // Tax year not supported
     // Add more patterns here as needed
 ];
+// Set up event listeners
+setupEventListeners();
+function setupEventListeners() {
+    debug("setupEventListeners");
+    on("authServiceInitialized", () => {
+        initialize();
+    });
+    on("signInChanged", () => {
+        if (SignedIn) {
+            loadExistingFiles();
+            loadResults(false);
+        }
+        else {
+            clearUserSession();
+        }
+    });
+    on("selectedCustomerChanged", () => {
+        if (SignedIn) {
+            loadExistingFiles();
+            loadResults(false);
+        }
+    });
+    debug("setupEventListeners done");
+}
 // Helper function to check if retry button should be suppressed
 function shouldSuppressRetryButton(reasonText) {
     return SUPPRESS_RETRY_PATTERNS.some((pattern) => pattern.test(reasonText));
-}
-export function debug(...args) {
-    if (DEBUG) {
-        console.log(...args);
-    }
 }
 // Import image utilities
 import { convertImageToBWAndResize } from "./imageUtils.js";
 import { cookieUtils } from "./cookieUtils.js";
 import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from "./editor.js";
 import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
-// Get environment from URL parameter
-const urlParams = new URLSearchParams(window.location.search);
-//const editableFileListParam = urlParams.get("editable");
 let editableFileList = localStorage.getItem("editableFileList") === "true";
-const usernameParam = urlParams.get("username");
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput");
 const fileList = document.getElementById("fileList");
@@ -52,70 +56,13 @@ const folderInput = document.getElementById("folderInput");
 const processButton = document.getElementById("processButton");
 const deleteAllButton = document.getElementById("deleteAllButton");
 const messageContainer = document.getElementById("messageContainer");
-const loginButton = document.getElementById("loginButton");
-const googleLoginButton = document.getElementById("googleLoginButton");
-const signOutButton = document.getElementById("signOutButton");
-const loginOverlay = document.getElementById("loginOverlay");
-const closeButton = document.querySelector(".close-button");
-const loginForm = document.querySelector(".login-form");
-const toggleButtons = document.querySelectorAll(".toggle-button");
-const modalTitle = document.getElementById("modalTitle");
-const submitButton = document.getElementById("submitButton");
-const googleButtonText = document.getElementById("googleButtonText");
-const githubButtonText = document.getElementById("githubButtonText");
-const userEmail = document.getElementById("userEmail");
-const customerButton = document.getElementById("customerButton");
-const customerOverlay = document.getElementById("customerOverlay");
 const createFormSelect = document.getElementById("createFormSelect");
 const acceptCookies = document.getElementById("acceptCookies");
 const cookieConsent = document.getElementById("cookieConsent");
-// Customer selection event handlers
-const customerSelect = document.getElementById("customerSelect");
-const customerNameInput = document.getElementById("customerNameInput");
-const updateCustomerButton = document.getElementById("updateCustomerButton");
 const feedbackEmail = document.getElementById("feedbackEmail");
 const privacyCheckbox = document.getElementById("privacyAgreement");
 const sendFeedbackButton = document.getElementById("sendFeedbackButton");
 const feedbackMessage = document.getElementById("feedbackMessage");
-const loginPassword = document.getElementById("loginPassword");
-// Password reset modal functionality
-const forgotPasswordLink = document.getElementById("forgotPasswordLink");
-// Helper functions for localStorage
-function saveSelectedCustomerToStorage(customerName) {
-    try {
-        localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
-    }
-    catch (error) {
-        debug("Failed to save selected customer to localStorage:", error);
-    }
-}
-function loadSelectedCustomerFromStorage() {
-    try {
-        const stored = localStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY);
-        return stored || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
-    }
-    catch (error) {
-        debug("Failed to load selected customer from localStorage:", error);
-        return DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
-    }
-}
-// Helper function to update selected customer and save to localStorage
-function updateSelectedCustomer(newCustomerName) {
-    selectedCustomerDataEntryName = newCustomerName;
-    saveSelectedCustomerToStorage(newCustomerName);
-}
-// Helper functions for customer list cache
-function isCustomerListCacheValid() {
-    return customerListCache !== null && Date.now() - customerListCacheTimestamp < CUSTOMER_LIST_CACHE_DURATION;
-}
-function clearCustomerListCache() {
-    customerListCache = null;
-    customerListCacheTimestamp = 0;
-}
-function setCustomerListCache(customerData) {
-    customerListCache = customerData;
-    customerListCacheTimestamp = Date.now();
-}
 export function updateButtons(hasEntries) {
     processButton.disabled = !hasEntries;
     deleteAllButton.disabled = !hasEntries;
@@ -182,148 +129,11 @@ function getDocTypes() {
         return Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));
     }
 }
-async function signInAnonymous() {
-    try {
-        debug("Anonymous sign in...");
-        const response = await fetch(`${AUTH_BASE_URL}/signInAnonymous`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-        });
-        if (!response.ok) {
-            const errorData = await response.json();
-            debug(errorData);
-            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-        }
-        const result = await response.json();
-        userEmailValue = result.email;
-        signedIn = true; // Set to true since we have a valid response
-        updateSignInUI();
-        return;
-    }
-    catch (error) {
-        debug("Sign in error:", error);
-        throw error;
-    }
-}
-async function handleLoginResponse(response) {
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed");
-    }
-    const data = await response.json();
-    // Store the JWT token from the cookie
-    // The token is automatically stored in cookies by the backend
-    // Update UI
-    updateSignInUI();
-    // Load user data
-    await loadExistingFiles();
-    return data;
-}
-async function signIn(email, password) {
-    try {
-        const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({
-                email: email,
-                password: password,
-            }),
-        });
-        if (!response.ok) {
-            const errorData = await response.json();
-            debug("Sign in error response:", errorData);
-            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
-        }
-        const text = await response.text();
-        debug("Raw response:", text);
-        if (!text) {
-            throw new Error("Empty response from server");
-        }
-        const result = JSON.parse(text);
-        userEmailValue = result.email;
-        signedIn = true; // Set to true since we have a valid response
-        updateSignInUI();
-        return;
-    }
-    catch (error) {
-        console.error("Sign in failed:", error);
-        debug("Sign in error details:", error);
-        throw error;
-    }
-}
-function translateCustomerDataEntryName(customerDataEntryName) {
-    if (customerDataEntryName === "Default") {
-        return "צור לקוח חדש";
-    }
-    return customerDataEntryName;
-}
-function updateSignInUI() {
-    // Check if user is signed in by checking if userEmailValue is not empty and not anonymous
-    const isUserSignedIn = userEmailValue && userEmailValue !== ANONYMOUS_EMAIL;
-    debug("updateSignInUI - userEmailValue:", userEmailValue, "isUserSignedIn:", isUserSignedIn);
-    if (isUserSignedIn) {
-        userEmail.textContent = userEmailValue;
-        feedbackEmail.value = userEmailValue;
-        signOutButton.disabled = false;
-        // Show customer button for logged in users
-        if (customerButton) {
-            customerButton.style.display = "inline-block";
-            customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
-        }
-    }
-    else if (userEmailValue === ANONYMOUS_EMAIL) {
-        // Anonymous user
-        userEmail.textContent = userEmailValue;
-        signOutButton.disabled = true;
-        loginButton.disabled = false;
-        // Hide customer button for anonymous users
-        if (customerButton) {
-            customerButton.style.display = "none";
-        }
-    }
-    else {
-        // Not signed in
-        userEmail.textContent = "";
-        signOutButton.disabled = true;
-        // Hide customer button for logged out users
-        if (customerButton) {
-            customerButton.style.display = "none";
-        }
-    }
-}
-// Update the sign out function
-function signOut() {
-    debug("signOut");
-    // Delete the cookie by calling the signOut api
-    fetch(`${API_BASE_URL}/signOut`, {
-        method: "POST",
-        credentials: "include",
-    });
-    // Update UI to show logged out state
-    clearUserSession();
-}
 // Update UI to show logged out state
 function clearUserSession() {
-    userEmailValue = "";
-    signedIn = false;
-    updateSignInUI();
     removeFileList();
     fileModifiedActions(false);
     clearMessages();
-    // Reset customer selection to default
-    updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
-    // Clear customer list cache
-    clearCustomerListCache();
-    // Hide customer button
-    if (customerButton) {
-        customerButton.style.display = "none";
-    }
     // Clear feedback form on sign out
     clearFeedbackForm();
 }
@@ -683,7 +493,7 @@ function updateLoadingProgress(current) {
 // Update the process button handler
 processButton.addEventListener("click", async () => {
     try {
-        if (!signedIn) {
+        if (!SignedIn) {
             await signInAnonymous();
         }
         showLoadingOverlay("מעבדת מסמכים...", {
@@ -758,7 +568,7 @@ async function uploadFilesWithProgress(validFiles, replacedFileId = null) {
         unit: "קבצים",
     });
     try {
-        if (!signedIn) {
+        if (!SignedIn) {
             await signInAnonymous();
         }
         // Upload files one by one
@@ -1065,277 +875,6 @@ export function addMessage(text, type = "info", scrollToMessageSection = true) {
     }
 }
 let isAnonymousConversion = false;
-// Add event listener for signup anonymous button
-signOutButton.addEventListener("click", () => {
-    signOut();
-    updateSignInUI();
-});
-loginButton.addEventListener("click", () => {
-    loginOverlay.classList.add("active");
-    if (signedIn && userEmail.textContent == ANONYMOUS_EMAIL) {
-        const signupButton = document.querySelector(".toggle-button[data-mode='signup']");
-        if (signupButton) {
-            loginPassword.setAttribute("autocomplete", "new-password");
-            signupButton.click();
-        }
-        isAnonymousConversion = true;
-    }
-    else {
-        const signinButton = document.querySelector(".toggle-button[data-mode='signin']");
-        if (signinButton) {
-            loginPassword.setAttribute("autocomplete", "current-password");
-            signinButton.click();
-        }
-        isAnonymousConversion = false;
-    }
-});
-googleLoginButton.addEventListener("click", () => {
-    signInWithGoogle();
-});
-closeButton.addEventListener("click", () => {
-    loginOverlay.classList.remove("active");
-});
-// Function to switch between signin and signup modes
-function switchMode(mode) {
-    const isSignup = mode === "signup";
-    modalTitle.textContent = isSignup ? "הרשמה" : "התחברות";
-    submitButton.textContent = isSignup ? "הירשם" : "התחבר";
-    const fullNameInput = document.getElementById("fullName");
-    const fullNameField = document.getElementById("fullNameField");
-    fullNameField.style.display = isSignup ? "block" : "none";
-    if (isSignup) {
-        fullNameInput.setAttribute("required", "");
-    }
-    else {
-        fullNameInput.removeAttribute("required");
-    }
-    // Show/hide forgot password link based on mode
-    if (forgotPasswordLink) {
-        forgotPasswordLink.style.display = isSignup ? "none" : "block";
-    }
-    googleButtonText.textContent = isSignup ? "הרשמה עם Google" : "התחבר עם Google";
-    githubButtonText.textContent = isSignup ? "הרשמה עם GitHub" : "התחבר עם GitHub";
-    toggleButtons.forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.mode === mode);
-    });
-}
-// Customer selection functions
-async function loadCustomerList(forceRefresh = false) {
-    // Check cache first (unless forced refresh)
-    if (!forceRefresh && isCustomerListCacheValid()) {
-        const customerData = customerListCache;
-        populateCustomerSelect(customerData);
-        return;
-    }
-    try {
-        const response = await fetch(`${API_BASE_URL}/getCustomerDataEntryNames`, {
-            method: "GET",
-            headers: {
-                Accept: "application/json",
-            },
-            credentials: "include",
-            ...fetchConfig,
-        });
-        if (!(await handleResponse(response, "Load customer list failed"))) {
-            return;
-        }
-        const customerData = await response.json();
-        // Cache the customer data
-        setCustomerListCache(customerData);
-        // Populate the select dropdown
-        populateCustomerSelect(customerData);
-    }
-    catch (error) {
-        console.error("Failed to load customer list:", error);
-        addMessage("שגיאה בטעינת רשימת הלקוחות: " + (error instanceof Error ? error.message : String(error)), "error");
-    }
-}
-// Helper function to populate the customer select dropdown
-function populateCustomerSelect(customerData) {
-    // Clear loading option
-    customerSelect.innerHTML = "";
-    // Extract customer names
-    const customerNames = customerData.map((customer) => customer.name);
-    // Validate that the stored customer still exists
-    if (!customerNames.includes(selectedCustomerDataEntryName)) {
-        updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
-    }
-    // Add existing customers - extract names from the objects
-    customerData.forEach((customer) => {
-        const option = document.createElement("option");
-        option.value = customer.name;
-        option.textContent = customer.name;
-        customerSelect.appendChild(option);
-    });
-    // Add "Create new customer" option
-    const newCustomerOption = document.createElement("option");
-    newCustomerOption.value = "new";
-    newCustomerOption.textContent = "צור לקוח חדש";
-    customerSelect.appendChild(newCustomerOption);
-    // Set current selection
-    customerSelect.value = translateCustomerDataEntryName(selectedCustomerDataEntryName);
-    customerNameInput.value = "";
-    // Enable update button if name is different and not duplicate
-    const inputValue = customerNameInput.value.trim();
-    const isEmpty = inputValue === "";
-    const isSameAsCurrent = inputValue === selectedCustomerDataEntryName;
-    // Check if name already exists
-    let isDuplicate = false;
-    if (customerListCache && inputValue) {
-        const existingNames = customerListCache.map((customer) => customer.name);
-        isDuplicate = existingNames.includes(inputValue);
-    }
-    updateCustomerButton.disabled = isEmpty || isSameAsCurrent || isDuplicate;
-}
-async function updateCustomerName() {
-    try {
-        debug("updateCustomerName");
-        const newName = customerNameInput.value.trim();
-        const oldName = selectedCustomerDataEntryName;
-        if (!newName) {
-            addMessage("שם לקוח לא יכול להיות ריק", "error");
-            return;
-        }
-        if (newName === oldName) {
-            addMessage("שם הלקוח לא השתנה", "info");
-            return;
-        }
-        // If creating new customer, only update local variable - no API call
-        if (customerSelect.value === "new") {
-            // Only update the local variable - no API call for new customer
-            updateSelectedCustomer(newName);
-            addMessage(`לקוח חדש נבחר: ${newName} (ייווצר בעת העלאה)`, "info");
-            // Dismiss the customer modal
-            customerOverlay.classList.remove("active");
-        }
-        else {
-            // Update existing customer name - make API call
-            const changeResponse = await fetch(`${API_BASE_URL}/changeCustomerDataEntryName`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    fromCustomerDataEntryName: oldName,
-                    toCustomerDataEntryName: newName,
-                }),
-                credentials: "include",
-                ...fetchConfig,
-            });
-            if (!(await handleResponse(changeResponse, "Update customer name failed"))) {
-                return;
-            }
-            updateSelectedCustomer(newName);
-            addMessage(`שם הלקוח עודכן ל: ${newName}`, "info");
-            // Reload customer list to reflect changes (force refresh to get updated data)
-            await loadCustomerList(true);
-            // Dismiss the customer modal
-            customerOverlay.classList.remove("active");
-        }
-        // Update customer button text
-        if (customerButton) {
-            customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
-        }
-        // Reload files and results with new customer
-        await loadExistingFiles();
-        await loadResults(false);
-    }
-    catch (error) {
-        console.error("Failed to update customer name:", error);
-        addMessage("שגיאה בעדכון שם הלקוח: " + (error instanceof Error ? error.message : String(error)), "error");
-    }
-}
-// Handlers for mode toggle buttons
-toggleButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-        switchMode(button.dataset.mode || "");
-    });
-});
-// login form submit handler
-loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email");
-    const loginPassword = document.getElementById("loginPassword");
-    const fullName = document.getElementById("fullName");
-    const isSignup = document.querySelector(".toggle-button.active")?.dataset.mode === "signup";
-    try {
-        if (isSignup) {
-            if (isAnonymousConversion) {
-                await convertAnonymousAccount(email.value, loginPassword.value, fullName.value);
-            }
-            else {
-                // Call the registration API
-                const response = await fetch(`${AUTH_BASE_URL}/createAccount`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        email: email.value,
-                        password: loginPassword.value,
-                        fullName: fullName.value,
-                    }),
-                    ...fetchConfig,
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error("הרשמה נכשלה: " + errorData.description);
-                }
-            }
-            // Show verification message and close login dialog
-            showInfoModal("נרשמת בהצלחה! אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.");
-            loginOverlay.classList.remove("active");
-            // Clear the form
-            email.value = "";
-            loginPassword.value = "";
-            fullName.value = "";
-        }
-        else {
-            // Call the signIn API
-            await signIn(email.value, loginPassword.value);
-            // Clear stored tax results
-            localStorage.removeItem("taxResults");
-            localStorage.removeItem("taxResultsYear");
-            // Clear tax results display
-            const taxResultsContainer = document.getElementById("taxResultsContainer");
-            const taxCalculationContent = document.getElementById("taxCalculationContent");
-            taxResultsContainer.classList.remove("active");
-            taxCalculationContent.innerHTML = "";
-            // Handle signin
-            await loadExistingFiles(); // Load files with new token
-            // Dont scroll
-            await loadResults(false);
-            // Initialize customer selection if user is logged in
-            if (signedIn && userEmailValue !== ANONYMOUS_EMAIL) {
-                await loadCustomerList();
-                // Update customer button text
-                if (customerButton) {
-                    customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
-                }
-            }
-        }
-        //addMessage("התחברת בהצלחה!");
-        loginOverlay.classList.remove("active");
-    }
-    catch (error) {
-        console.error("Login failed:", error);
-        // Clear previous messages
-        clearMessages();
-        if (error instanceof Error && error.message.includes("Bad credentials 401")) {
-            showErrorModal("שם משתמש או סיסמה שגויים");
-        }
-        else if (error instanceof Error && error.message.includes("האימייל כבר בשימוש")) {
-            showErrorModal("האימייל כבר בשימוש");
-        }
-        else {
-            addMessage("שגיאה בהתחברות: " + (error instanceof Error ? translateError(error.message) : String(error)), "error");
-            // Dismiss the login overlay
-            loginOverlay.classList.remove("active");
-        }
-    }
-});
-const googleLogin = document.querySelector(".google-login");
-const githubLogin = document.querySelector(".github-login");
 async function loadResults(scrollToMessageSection = true) {
     try {
         const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=${selectedCustomerDataEntryName}`, {
@@ -1522,7 +1061,7 @@ async function downloadResult(fileName) {
 // Update delete all handler - remove confirmation dialog
 deleteAllButton.addEventListener("click", async () => {
     try {
-        if (!signedIn) {
+        if (!SignedIn) {
             debug("no auth token");
             return;
         }
@@ -1937,30 +1476,15 @@ export function fileModifiedActions(hasEntries) {
 }
 // Return true if the response is ok, false if we signed out otherwise throw an exception..
 export async function handleResponse(response, errorMessage) {
-    if (!response.ok) {
-        const errorData = await response.json();
-        debug(errorData);
-        if (errorData.detail.includes("JWT")) {
-            signOut();
-            // The session timed out. Please reconnect.
-            addMessage("הסשן פג תוקף. אנא התחבר מחדש.", "error");
-            return false;
-        }
-        if (errorData.detail.includes("User not found")) {
-            // If we have an Anonymous account inform the user that his data has been deleted with a modal warning:
-            if (userEmail.textContent == ANONYMOUS_EMAIL) {
-                showInfoModal("חשבון אנונימי נמחק אוטומטית אחרי 30 יום, יחד עם כל הנתונים שלו. אתה יכול להשתמש בחשבון אנונימי חדש או ליצור משתמש קבוע על ידי הרישמה.");
-            }
-            clearUserSession();
-            return false;
-        }
-        throw new Error(errorData.detail);
+    if (await handleAuthResponse(response, errorMessage)) {
+        return true;
     }
-    return true;
+    clearUserSession();
+    return false;
 }
 async function calculateTax(fileName) {
     try {
-        if (!signedIn) {
+        if (!SignedIn) {
             await signInAnonymous();
         }
         debug("calculateTax", fileName);
@@ -2092,28 +1616,17 @@ acceptCookies.addEventListener("click", () => {
     cookieConsent.classList.remove("active");
 });
 // Initialize when DOM is ready
-document.addEventListener("DOMContentLoaded", async () => {
-    debug("DOMContentLoaded 2");
-    const versionNumber = document.getElementById("versionNumber");
+// document.addEventListener("DOMContentLoaded", async () => {
+//   debug("DOMContentLoaded 2");
+async function initialize() {
+    const versionNumberElement = document.getElementById("versionNumber");
+    debug("initialize");
     // Get and display version number
     try {
         await loadConfiguration();
-        signedIn = false;
-        userEmailValue = "";
-        versionNumber.textContent = `גרסה ${uiVersion}`;
-        const response = await fetch(`${API_BASE_URL}/getBasicInfo`, {
-            method: "GET",
-            headers: {
-                Accept: "application/json",
-            },
-            credentials: "include",
-            ...fetchConfig,
-        });
-        if (response.ok) {
-            const json = await response.json();
-            versionNumber.textContent = `גרסה ${json.productVersion} ${uiVersion}`;
-            userEmailValue = json.userEmail;
-            signedIn = true;
+        versionNumberElement.textContent = `גרסה ${UIVersion}`;
+        if (SignedIn) {
+            versionNumberElement.textContent = `גרסה ${ServerVersion} ${UIVersion}`;
             initializeDocumentIcons();
             await loadExistingFiles();
             await loadResults(false); // Dont scroll
@@ -2123,16 +1636,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     catch (error) {
         console.error("Exception fetching Basic Info:", error);
     }
-    if (!signedIn) {
-        debug("Failed to fetch version:");
+    if (!SignedIn) {
+        debug("Not signed in");
     }
-    // Check for Google OAuth2 callback
-    checkForGoogleCallback();
     restoreSelectedDocTypes();
-    updateSignInUI();
     // Pre-fill feedback email if user is logged in
-    if (signedIn) {
-        feedbackEmail.value = userEmailValue;
+    if (SignedIn) {
+        feedbackEmail.value = UserEmailValue;
         updateFeedbackButtonState();
     }
     // Add event listeners for document count selects
@@ -2181,43 +1691,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         })
             .join("");
     }
-    // Add this new code
-    if (usernameParam) {
-        // Show the login modal
-        //loginOverlay.style.display = "flex";
-        loginOverlay.classList.add("active");
-        if (signedIn && userEmail.textContent == ANONYMOUS_EMAIL) {
-            document.querySelector(".toggle-button[data-mode='signup']").click();
-            isAnonymousConversion = true;
-        }
-        else {
-            document.querySelector(".toggle-button[data-mode='signin']").click();
-            isAnonymousConversion = false;
-        }
-        // Get the email input field and set its value
-        const emailInput = document.getElementById("email");
-        if (emailInput) {
-            emailInput.value = usernameParam;
-        }
-        // Make sure we're in login mode (not register mode)
-        const loginToggle = document.querySelector('[data-mode="login"]');
-        if (loginToggle) {
-            loginToggle.click();
-        }
-        // Focus on the password field since we already have the email
-        const loginPassword = document.getElementById("loginPassword");
-        if (loginPassword) {
-            loginPassword.focus();
-        }
-        // remove the username parameter from the url
-        const url = new URL(window.location.href);
-        url.searchParams.delete("username");
-        window.history.replaceState({}, "", url);
-    }
     const toggleLink = document.getElementById("toggleFileListView");
     if (toggleLink) {
         toggleLink.addEventListener("click", (e) => {
-            if (signedIn) {
+            if (SignedIn) {
                 e.preventDefault();
                 toggleFileListView();
             }
@@ -2240,7 +1717,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     // Initialize the file list view
     updateFileListView();
-});
+}
 // Function to validate email format
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -2335,13 +1812,13 @@ function restoreSelectedDocTypes() {
 }
 // Add change handler for form select
 document.getElementById("createFormSelect").addEventListener("change", async (e) => {
-    if (!signedIn) {
+    if (!SignedIn) {
         await signInAnonymous();
     }
     const formType = e.target.value;
     if (!formType)
         return;
-    const identificationNumber = defaultClientIdentificationNumber;
+    const identificationNumber = DEFAULT_CLIENT_ID_NUMBER;
     try {
         const response = await fetch(`${API_BASE_URL}/createForm`, {
             method: "POST",
@@ -2414,9 +1891,7 @@ function updateMissingDocuments() {
             }
         }
     });
-    // Update warning section
     const warningSection = document.getElementById("missingDocsWarning");
-    //const warningList = document.getElementById("missingDocsList") as HTMLUListElement;
     if (missingDocs.length > 0) {
         warningSection.innerHTML = `<strong>שים לב!</strong> חסרים המסמכים הבאים: ${missingDocs.map((doc) => doc.name).join(", ")}`;
         const warningList = document.createElement("ul");
@@ -2461,88 +1936,6 @@ function initializeDocumentIcons() {
         }
     });
 }
-async function convertAnonymousAccount(email, password, fullName) {
-    const response = await fetch(`${API_BASE_URL}/convertAnonymousAccount`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-            email: email,
-            password: password,
-            fullName: fullName,
-        }),
-    });
-    if (!(await handleResponse(response, "Convert anonymous account failed"))) {
-        return;
-    }
-    const result = await response.json();
-    signOut();
-    updateSignInUI();
-}
-// General warning modal function that returns a promise
-function showInfoModal(message) {
-    return new Promise((resolve) => {
-        const infoMessage = document.getElementById("infoMessage");
-        infoMessage.textContent = message;
-        const modal = document.getElementById("generalInfoModal");
-        modal.style.display = "block";
-        // Handle close button
-        modal.querySelector(".close-button").onclick = () => {
-            modal.style.display = "none";
-            resolve(false);
-        };
-        // Handle confirm button
-        modal.querySelector(".confirm-button").onclick = () => {
-            modal.style.display = "none";
-            resolve(true);
-        };
-    });
-}
-// General warning modal function that returns a promise
-function showErrorModal(message) {
-    return new Promise((resolve) => {
-        const errorMessage = document.getElementById("errorMessage");
-        errorMessage.textContent = message;
-        const modal = document.getElementById("generalErrorModal");
-        modal.style.display = "block";
-        // Handle close button
-        modal.querySelector(".close-button").onclick = () => {
-            modal.style.display = "none";
-            resolve(false);
-        };
-        // Handle confirm button
-        modal.querySelector(".confirm-button").onclick = () => {
-            modal.style.display = "none";
-            resolve(true);
-        };
-    });
-}
-// General warning modal function that returns a promise
-function showWarningModal(message) {
-    return new Promise((resolve) => {
-        const warningMessage = document.getElementById("warningMessage");
-        warningMessage.textContent = message;
-        const modal = document.getElementById("generalWarningModal");
-        modal.style.display = "block";
-        // Handle close button
-        modal.querySelector(".close-button").onclick = () => {
-            modal.style.display = "none";
-            resolve(false);
-        };
-        // Handle cancel button
-        modal.querySelector(".cancel-button").onclick = () => {
-            modal.style.display = "none";
-            resolve(false);
-        };
-        // Handle confirm button
-        modal.querySelector(".confirm-button").onclick = () => {
-            modal.style.display = "none";
-            resolve(true);
-        };
-    });
-}
 function updateFileListView() {
     const toggleLink = document.getElementById("toggleFileListView");
     const fileList = document.getElementById("fileList");
@@ -2571,133 +1964,6 @@ async function toggleFileListView() {
     updateFileListView();
     await loadExistingFiles();
 }
-async function signInWithGoogle() {
-    try {
-        // Redirect to our backend Google OAuth endpoint
-        const url = `${AUTH_BASE_URL}/google`;
-        debug("Redirecting to Google OAuth:", url);
-        window.location.href = url;
-    }
-    catch (error) {
-        console.error("Error initiating Google login:", error);
-        addMessage("שגיאה בהתחברות עם Google", "error");
-    }
-}
-async function handleGoogleCallback() {
-    try {
-        const url = new URL(window.location.href);
-        const code = url.searchParams.get("code");
-        if (!code) {
-            throw new Error("Missing code parameter");
-        }
-        const baseUrl = signedIn ? API_BASE_URL : AUTH_BASE_URL;
-        const response = await fetch(`${baseUrl}/google/callback`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include", // Important for receiving the cookie
-            body: JSON.stringify(code),
-        });
-        if (!response.ok) {
-            throw new Error("Failed to complete Google login");
-        }
-        const result = await response.json();
-        userEmailValue = result.email;
-        signedIn = true; // Set to true since we have a valid response
-        // Update UI with user info
-        updateSignInUI();
-        await loadExistingFiles();
-        // Remove all OAuth2 parameters from the URL
-        url.searchParams.delete("code");
-        url.searchParams.delete("state");
-        url.searchParams.delete("error");
-        url.searchParams.delete("error_description");
-        url.searchParams.delete("error_uri");
-        url.searchParams.delete("scope");
-        url.searchParams.delete("authuser");
-        url.searchParams.delete("prompt");
-        window.history.replaceState({}, "", url);
-        addMessage("התחברת בהצלחה עם Google", "success");
-    }
-    catch (error) {
-        console.error("Error handling Google callback:", error);
-        addMessage("שגיאה בהתחברות עם Google", "error");
-    }
-}
-function checkForGoogleCallback() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code");
-    if (code) {
-        // We're in the OAuth2 callback
-        handleGoogleCallback();
-    }
-}
-if (customerSelect) {
-    customerSelect.addEventListener("change", () => {
-        if (customerSelect.value === "new") {
-            customerNameInput.value = "";
-            customerNameInput.focus();
-        }
-        else {
-            customerNameInput.value = customerSelect.value;
-            updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
-            // If selecting an existing customer, switch to it immediately
-            if (customerSelect.value !== selectedCustomerDataEntryName) {
-                updateSelectedCustomer(customerSelect.value);
-                // Update customer button text
-                if (customerButton) {
-                    customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
-                }
-                // Reload files and results with the new customer
-                loadExistingFiles();
-                loadResults(false);
-                addMessage(`עברת ללקוח: ${customerSelect.value}`, "info");
-                // Dismiss the customer modal
-                customerOverlay.classList.remove("active");
-            }
-        }
-    });
-}
-if (customerNameInput) {
-    customerNameInput.addEventListener("input", () => {
-        const inputValue = customerNameInput.value.trim();
-        const isEmpty = inputValue === "";
-        const isSameAsCurrent = inputValue === selectedCustomerDataEntryName;
-        // Check if name already exists (for both new and existing customers)
-        let isDuplicate = false;
-        if (customerListCache && inputValue) {
-            const existingNames = customerListCache.map((customer) => customer.name);
-            isDuplicate = existingNames.includes(inputValue);
-        }
-        updateCustomerButton.disabled = isEmpty || isSameAsCurrent || isDuplicate;
-    });
-}
-if (updateCustomerButton) {
-    updateCustomerButton.addEventListener("click", updateCustomerName);
-}
-// Customer modal event handlers
-if (customerButton) {
-    customerButton.addEventListener("click", () => {
-        customerOverlay.classList.add("active");
-        loadCustomerList();
-    });
-}
-if (customerOverlay) {
-    // Close modal when clicking on overlay
-    customerOverlay.addEventListener("click", (e) => {
-        if (e.target === customerOverlay) {
-            customerOverlay.classList.remove("active");
-        }
-    });
-    // Close modal when clicking close button
-    const customerCloseButton = customerOverlay.querySelector(".close-button");
-    if (customerCloseButton) {
-        customerCloseButton.addEventListener("click", () => {
-            customerOverlay.classList.remove("active");
-        });
-    }
-}
 function translateError(error) {
     const tranlationTable = {
         // "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
@@ -2705,133 +1971,5 @@ function translateError(error) {
     };
     debug("translateError:", error);
     return tranlationTable[error] || error;
-}
-const accountOverlay = document.getElementById("accountOverlay");
-const closeAccountModal = document.getElementById("closeAccountModal");
-const deleteAccountButton = document.getElementById("deleteAccountButton");
-userEmail.addEventListener("click", () => {
-    if (signedIn && userEmail.textContent !== ANONYMOUS_EMAIL) {
-        accountOverlay.classList.add("active");
-    }
-});
-closeAccountModal.addEventListener("click", () => {
-    accountOverlay.classList.remove("active");
-});
-window.addEventListener("click", (event) => {
-    if (event.target === accountOverlay) {
-        accountOverlay.classList.remove("active");
-    }
-});
-deleteAccountButton.addEventListener("click", async () => {
-    const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את החשבון וכל הנתונים? פעולה זו אינה הפיכה.");
-    if (confirmed) {
-        showLoadingOverlay("מחיקת חשבון...", {
-            total: 30,
-            unit: "שניות",
-            showCancelButton: false,
-        });
-        try {
-            const response = await fetch(`${API_BASE_URL}/deleteAccount`, {
-                method: "DELETE",
-                credentials: "include",
-            });
-            if (response.ok) {
-                accountOverlay.classList.remove("active");
-                // Sign out the user and refresh UI
-                clearUserSession();
-                addMessage("החשבון נמחק.", "success");
-                //location.reload();
-            }
-            else {
-                const errorText = await response.text();
-                addMessage("שגיאה במחיקת החשבון: " + errorText, "error");
-            }
-        }
-        catch (err) {
-            addMessage("שגיאה במחיקת החשבון: " + err, "error");
-        }
-        finally {
-            hideLoadingOverlay();
-        }
-    }
-});
-const passwordResetModal = document.getElementById("passwordResetModal");
-const resetEmailDisplay = document.getElementById("resetEmailDisplay");
-const sendResetButton = document.getElementById("sendResetButton");
-// Show password reset modal
-function showPasswordResetModal() {
-    const emailInput = document.getElementById("email");
-    const email = emailInput.value.trim();
-    if (!email) {
-        showErrorModal("אנא הזן כתובת דוא״ל בטופס ההתחברות תחילה");
-        return;
-    }
-    if (!isValidEmail(email)) {
-        showErrorModal("כתובת הדוא״ל שהוזנה אינה תקינה");
-        return;
-    }
-    resetEmailDisplay.textContent = email;
-    passwordResetModal.style.display = "block";
-}
-// Handle forgot password link click
-if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        showPasswordResetModal();
-    });
-}
-// Handle password reset modal close
-if (passwordResetModal) {
-    // Close modal when clicking close button
-    const resetCloseButton = passwordResetModal.querySelector(".close-button");
-    if (resetCloseButton) {
-        resetCloseButton.addEventListener("click", () => {
-            passwordResetModal.style.display = "none";
-        });
-    }
-    // Handle cancel button
-    const resetCancelButton = passwordResetModal.querySelector(".cancel-button");
-    if (resetCancelButton) {
-        resetCancelButton.addEventListener("click", () => {
-            passwordResetModal.style.display = "none";
-        });
-    }
-    // Handle send reset button
-    if (sendResetButton) {
-        sendResetButton.addEventListener("click", async () => {
-            const email = resetEmailDisplay.textContent;
-            try {
-                sendResetButton.disabled = true;
-                sendResetButton.textContent = "שולח...";
-                const response = await fetch(`${AUTH_BASE_URL}/requestPasswordReset`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                    }),
-                    ...fetchConfig,
-                });
-                if (response.ok) {
-                    passwordResetModal.style.display = "none";
-                    showInfoModal("קישור לאיפוס סיסמה נשלח לכתובת הדוא״ל שלך. אנא בדוק את תיבת הדואר שלך. אם לא קיבלת את האימייל, בדוק את האיות של כתובת הדוא״ל ונסה שוב.");
-                    showInfoModal("קישור לאיפוס סיסמה נשלח לכתובת הדוא״ל שלך. אנא בדוק את תיבת הדואר שלך.");
-                }
-                else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.description || "שגיאה בשליחת קישור האיפוס");
-                }
-            }
-            catch (error) {
-                console.error("Password reset request failed:", error);
-                showErrorModal("שגיאה בשליחת קישור האיפוס: " + (error instanceof Error ? error.message : String(error)));
-            }
-            finally {
-                sendResetButton.disabled = false;
-                sendResetButton.textContent = "שלח קישור";
-            }
-        });
-    }
 }
 //# sourceMappingURL=index.js.map

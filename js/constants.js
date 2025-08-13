@@ -1,3 +1,10 @@
+// Debug flag
+const DEBUG = true;
+export function debug(...args) {
+    if (DEBUG) {
+        console.log(...args);
+    }
+}
 // Field labels and hints
 const friendlyNames = {
     field867Type: "סוג שדה 867",
@@ -184,4 +191,5 @@ export function dummyIdNumber(idNumber) {
     return idNumber;
 }
 export const NO_YEAR = "ללא שנה";
+export const ANONYMOUS_EMAIL = "AnonymousEmail";
 //# sourceMappingURL=constants.js.map

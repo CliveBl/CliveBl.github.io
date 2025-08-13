@@ -194,7 +194,7 @@ ul {
 
 .main-container {
   max-width: 800px;
-  margin: 20px auto 0; /* Increased top margin to account for auth container */
+  margin: 80px auto 0; /* Adequate top margin to clear fixed auth header */
   padding: 0 10px;
   position: relative;
   z-index: 1;
@@ -208,6 +208,26 @@ ul {
   position: relative;
   z-index: 1;
 }
+
+/* Help container with proper spacing for fixed auth header */
+.help-container {
+  max-width: 1200px;
+  margin: 80px auto 0; /* Adequate top margin to clear fixed auth header */
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Landing container with proper spacing for fixed auth header */
+.landing-container {
+  max-width: 800px;
+  margin: 80px auto 0; /* Adequate top margin to clear fixed auth header */
+  padding: 40px 20px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
 
 /* Remove default list styling */
 .file-list {

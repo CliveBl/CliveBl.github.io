@@ -1,4 +1,5 @@
-import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList, selectedCustomerDataEntryName } from "./index.js";
+import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList } from "./index.js";
+import { selectedCustomerDataEntryName } from "./authService.js";
 import { API_BASE_URL } from "./env.js";
 import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */

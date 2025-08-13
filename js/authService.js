@@ -1,0 +1,485 @@
+import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
+import { ANONYMOUS_EMAIL, debug } from "./constants.js";
+// Authentication state
+export let UserEmailValue = "";
+export let SignedIn = false;
+export let UIVersion = "1.07";
+export let ServerVersion = "";
+// Customer management
+export let selectedCustomerDataEntryName = "Default";
+const DEFAULT_CUSTOMER_DATA_ENTRY_NAME = "Default";
+const SELECTED_CUSTOMER_STORAGE_KEY = "selectedCustomerDataEntryName";
+// Customer list cache
+let customerListCache = null;
+let customerListCacheTimestamp = 0;
+const CUSTOMER_LIST_CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+const fetchConfig = { mode: "cors" };
+const listeners = {};
+export function on(eventName, callback) {
+    if (!listeners[eventName]) {
+        listeners[eventName] = [];
+    }
+    listeners[eventName].push(callback);
+}
+function emit(eventName) {
+    const callbacks = listeners[eventName];
+    if (callbacks) {
+        callbacks.forEach(callback => callback());
+    }
+}
+// Customer storage functions
+export function saveSelectedCustomerToStorage(customerName) {
+    localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
+}
+export function loadSelectedCustomerFromStorage() {
+    return localStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY) || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
+}
+export function updateSelectedCustomer(newCustomerName) {
+    selectedCustomerDataEntryName = newCustomerName;
+    emit("selectedCustomerChanged");
+    saveSelectedCustomerToStorage(newCustomerName);
+}
+// Customer list cache management
+function isCustomerListCacheValid() {
+    return customerListCache !== null && Date.now() - customerListCacheTimestamp < CUSTOMER_LIST_CACHE_DURATION;
+}
+function clearCustomerListCache() {
+    customerListCache = null;
+    customerListCacheTimestamp = 0;
+}
+export function setCustomerListCache(customerData) {
+    customerListCache = customerData;
+    customerListCacheTimestamp = Date.now();
+}
+export function getCustomerListCache() {
+    return customerListCache;
+}
+// Authentication functions
+export async function signInAnonymous() {
+    try {
+        debug("Anonymous sign in...");
+        const response = await fetch(`${AUTH_BASE_URL}/signInAnonymous`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            debug(errorData);
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
+        }
+        const result = await response.json();
+        UserEmailValue = result.email;
+        SignedIn = true;
+        emit("signInChanged");
+        return;
+    }
+    catch (error) {
+        debug("Sign in error:", error);
+        throw error;
+    }
+}
+export async function handleLoginResponse(response) {
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+    }
+    const data = await response.json();
+    return data;
+}
+export async function signIn(email, password) {
+    debug("signIn");
+    try {
+        const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                email: email,
+                password: password,
+            }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            debug("Sign in error response:", errorData);
+            throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
+        }
+        const text = await response.text();
+        if (!text) {
+            throw new Error("Empty response from server");
+        }
+        const result = JSON.parse(text);
+        UserEmailValue = result.email;
+        SignedIn = true;
+        emit("signInChanged");
+        return;
+    }
+    catch (error) {
+        console.error("Sign in failed:", error);
+        debug("Sign in error details:", error);
+        throw error;
+    }
+}
+export async function createAccount(email, password, fullName) {
+    // Call the registration API
+    const response = await fetch(`${AUTH_BASE_URL}/createAccount`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            email: email,
+            password: password,
+            fullName: fullName,
+        }),
+        ...fetchConfig,
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error("הרשמה נכשלה: " + errorData.description);
+    }
+}
+export async function convertAnonymousAccount(email, password, fullName) {
+    const response = await fetch(`${API_BASE_URL}/convertAnonymousAccount`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+            email: email,
+            password: password,
+            fullName: fullName,
+        }),
+    });
+    if (!(await handleAuthResponse(response, "Convert anonymous account failed"))) {
+        return;
+    }
+    const result = await response.json();
+    signOut();
+}
+export function signOut() {
+    debug("signOut");
+    // Delete the cookie by calling the signOut api
+    fetch(`${API_BASE_URL}/signOut`, {
+        method: "POST",
+        credentials: "include",
+    });
+    // Update UI to show logged out state
+    clearUserSession();
+}
+export function clearUserSession() {
+    UserEmailValue = "";
+    SignedIn = false;
+    emit("signInChanged");
+    // Reset customer selection to default
+    updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
+    // Clear customer list cache
+    clearCustomerListCache();
+}
+// Customer management functions
+export async function loadCustomerList(forceRefresh = false) {
+    if (!forceRefresh && isCustomerListCacheValid()) {
+        debug("Using cached customer list");
+        return customerListCache;
+    }
+    try {
+        debug("Loading customer list from server...");
+        const response = await fetch(`${API_BASE_URL}/getCustomerDataEntryNames`, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+            },
+            credentials: "include",
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const customerData = await response.json();
+        setCustomerListCache(customerData);
+        return customerData;
+    }
+    catch (error) {
+        console.error("Failed to load customer list:", error);
+        throw error;
+    }
+}
+export async function updateCustomerName() {
+    const customerNameInput = document.getElementById("customerNameInput");
+    const newCustomerName = customerNameInput.value.trim();
+    if (!newCustomerName) {
+        throw new Error("שם לקוח לא יכול להיות ריק");
+    }
+    try {
+        const response = await fetch(`${API_BASE_URL}/changeCustomerDataEntryName`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                oldCustomerDataEntryName: selectedCustomerDataEntryName,
+                newCustomerDataEntryName: newCustomerName,
+            }),
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`שגיאה בעדכון שם לקוח: ${errorText}`);
+        }
+        // Update local state
+        updateSelectedCustomer(newCustomerName);
+        // Refresh customer list
+        await loadCustomerList(true);
+        // Close modal
+        const customerOverlay = document.getElementById("customerOverlay");
+        if (customerOverlay) {
+            customerOverlay.classList.remove("active");
+        }
+    }
+    catch (error) {
+        console.error("Failed to update customer name:", error);
+        throw error;
+    }
+}
+// Google OAuth functions
+export async function signInWithGoogle() {
+    try {
+        // Redirect to our backend Google OAuth endpoint
+        const url = `${AUTH_BASE_URL}/google`;
+        debug("Redirecting to Google OAuth:", url);
+        window.location.href = url;
+    }
+    catch (error) {
+        console.error("Error initiating Google login:", error);
+        throw new Error("שגיאה בהתחברות עם Google");
+    }
+}
+export async function handleGoogleCallback() {
+    try {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
+        if (!code) {
+            throw new Error("Missing code parameter");
+        }
+        const baseUrl = SignedIn ? API_BASE_URL : AUTH_BASE_URL;
+        const response = await fetch(`${baseUrl}/google/callback`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include", // Important for receiving the cookie
+            body: JSON.stringify(code),
+        });
+        if (!response.ok) {
+            throw new Error("Failed to complete Google login");
+        }
+        const result = await response.json();
+        UserEmailValue = result.email;
+        SignedIn = true;
+        // Remove all OAuth2 parameters from the URL
+        url.searchParams.delete("code");
+        url.searchParams.delete("state");
+        url.searchParams.delete("error");
+        url.searchParams.delete("error_description");
+        url.searchParams.delete("error_uri");
+        url.searchParams.delete("scope");
+        url.searchParams.delete("authuser");
+        url.searchParams.delete("prompt");
+        window.history.replaceState({}, "", url);
+    }
+    catch (error) {
+        console.error("Error handling Google callback:", error);
+        throw new Error("שגיאה בהתחברות עם Google");
+    }
+}
+export function checkForGoogleCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    if (code) {
+        // We're in the OAuth2 callback
+        handleGoogleCallback();
+    }
+}
+// Password reset functions
+export async function requestPasswordReset(email) {
+    try {
+        const response = await fetch(`${AUTH_BASE_URL}/requestPasswordReset`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: email,
+            }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.description || "שגיאה בשליחת קישור האיפוס");
+        }
+    }
+    catch (error) {
+        console.error("Password reset request failed:", error);
+        throw error;
+    }
+}
+// Account deletion
+export async function deleteAccount() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/deleteAccount`, {
+            method: "DELETE",
+            credentials: "include",
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`שגיאה במחיקת החשבון: ${errorText}`);
+        }
+        // Sign out the user
+        clearUserSession();
+    }
+    catch (error) {
+        console.error("Failed to delete account:", error);
+        throw error;
+    }
+}
+// Utility functions
+export function translateCustomerDataEntryName(customerDataEntryName) {
+    if (customerDataEntryName === "Default") {
+        return "צור לקוח חדש";
+    }
+    return customerDataEntryName;
+}
+export function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+export function translateError(error) {
+    const translationTable = {
+        "HTTP error! status: Bad credentials 401": "שם משתמש או סיסמה שגויים",
+    };
+    debug("translateError:", error);
+    return translationTable[error] || error;
+}
+// Initialize customer data from storage
+export function initializeCustomerData() {
+    selectedCustomerDataEntryName = loadSelectedCustomerFromStorage();
+}
+// Return true if the response is ok, false if we signed out otherwise throw an exception..
+export async function handleAuthResponse(response, errorMessage) {
+    if (!response.ok) {
+        const errorData = await response.json();
+        debug(errorData);
+        if (errorData.detail.includes("JWT")) {
+            signOut();
+            // The session timed out. Please reconnect.
+            showErrorModal("הסשן פג תוקף. אנא התחבר מחדש.");
+            return false;
+        }
+        if (errorData.detail.includes("User not found")) {
+            // If we have an Anonymous account inform the user that his data has been deleted with a modal warning:
+            if (UserEmailValue == ANONYMOUS_EMAIL) {
+                showInfoModal("חשבון אנונימי נמחק אוטומטית אחרי 30 יום, יחד עם כל הנתונים שלו. אתה יכול להשתמש בחשבון אנונימי חדש או ליצור משתמש קבוע על ידי הרישמה.");
+            }
+            clearUserSession();
+            return false;
+        }
+        throw new Error(errorData.detail);
+    }
+    return true;
+}
+// General warning modal function that returns a promise
+export function showInfoModal(message) {
+    return new Promise((resolve) => {
+        const infoMessage = document.getElementById("infoMessage");
+        infoMessage.textContent = message;
+        const modal = document.getElementById("generalInfoModal");
+        modal.style.display = "block";
+        // Handle close button
+        modal.querySelector(".close-button").onclick = () => {
+            modal.style.display = "none";
+            resolve(false);
+        };
+        // Handle confirm button
+        modal.querySelector(".confirm-button").onclick = () => {
+            modal.style.display = "none";
+            resolve(true);
+        };
+    });
+}
+// General warning modal function that returns a promise
+export function showErrorModal(message) {
+    return new Promise((resolve) => {
+        const errorMessage = document.getElementById("errorMessage");
+        errorMessage.textContent = message;
+        const modal = document.getElementById("generalErrorModal");
+        modal.style.display = "block";
+        // Handle close button
+        modal.querySelector(".close-button").onclick = () => {
+            modal.style.display = "none";
+            resolve(false);
+        };
+        // Handle confirm button
+        modal.querySelector(".confirm-button").onclick = () => {
+            modal.style.display = "none";
+            resolve(true);
+        };
+    });
+}
+// General warning modal function that returns a promise
+export function showWarningModal(message) {
+    return new Promise((resolve) => {
+        const warningMessage = document.getElementById("warningMessage");
+        warningMessage.textContent = message;
+        const modal = document.getElementById("generalWarningModal");
+        modal.style.display = "block";
+        // Handle close button
+        modal.querySelector(".close-button").onclick = () => {
+            modal.style.display = "none";
+            resolve(false);
+        };
+        // Handle cancel button
+        modal.querySelector(".cancel-button").onclick = () => {
+            modal.style.display = "none";
+            resolve(false);
+        };
+        // Handle confirm button
+        modal.querySelector(".confirm-button").onclick = () => {
+            modal.style.display = "none";
+            resolve(true);
+        };
+    });
+}
+// Initialize when DOM is ready
+document.addEventListener("DOMContentLoaded", async () => {
+    debug("AuthServiceDOMContentLoaded");
+    // Get and display version number
+    try {
+        UserEmailValue = "";
+        const response = await fetch(`${API_BASE_URL}/getBasicInfo`, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+            },
+            credentials: "include",
+            ...fetchConfig,
+        });
+        if (response.ok) {
+            const json = await response.json();
+            ServerVersion = json.productVersion;
+            UserEmailValue = json.userEmail;
+            SignedIn = true;
+            debug("Successfully got BasicInfo");
+        }
+    }
+    catch (error) {
+        console.error("Exception fetching Basic Info:", error);
+    }
+    if (!SignedIn) {
+        debug("Failed to fetch version:");
+    }
+    emit("authServiceInitialized");
+});
+//# sourceMappingURL=authService.js.map

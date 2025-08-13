@@ -1,0 +1,201 @@
+<!-- Authentication Header Template -->
+<script type="module" src="js/authUI.js"></script>
+<div class="auth-container">
+  <div class="header-left">
+    <a href="index.html" class="header-logo-link">
+      <img src="cgtLogo200.jpg" alt="CGT Logo" class="header-logo">
+    </a>
+    <h1>{{ site.title }}</h1>
+  </div>
+  <div class="header-right">
+    <span id="userEmail" class="user-email"></span>
+    <button id="customerButton" class="customer-button" style="display: none" title="בחר לקוח">לקוח</button>
+    <button id="loginButton" class="loginout-button" title="מומלץ ליצור חשבון כדי שתוכל לחזור לנתונים שלך מכל מקום">התחברות</button>
+    <button id="signOutButton" class="loginout-button" disabled title="התנתקות מהמערכת">התנתק</button>
+  </div>
+</div>
+
+<!-- Login and questionnaire overlays stay outside main container -->
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-modal">
+    <div class="login-header">
+      <h2 id="modalTitle">התחברות</h2>
+      <button class="close-button">✕</button>
+    </div>
+    <div class="login-options">
+      <!-- Add mode toggle buttons -->
+      <div class="mode-toggle">
+        <button class="toggle-button active" data-mode="signin">התחברות</button>
+        <button class="toggle-button" data-mode="signup">הרשמה</button>
+      </div>
+
+      <form class="login-form" id="loginForm">
+        <input type="email" id="email" placeholder="דוא״ל" required autocomplete="email" />
+        <div id="fullNameField" style="display: none">
+          <input type="text" id="fullName" autocomplete="name" placeholder="שם מלא" />
+        </div>
+        <input type="password" id="loginPassword" autocomplete="current-password" placeholder="סיסמה" required />
+        <button type="submit" id="submitButton">התחבר</button>
+        <div class="forgot-password-link">
+          <a href="#" id="forgotPasswordLink" class="stnd-link">שכחתי סיסמה</a>
+        </div>
+      </form>
+
+      <div class="login-divider">
+        <span>או</span>
+      </div>
+
+      <div class="social-login">
+        <button class="google-login-button" id="googleLoginButton">
+          <img
+            src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDE4IDE4Ij48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiLz48cGF0aCBmaWxsPSIjMzRBODUzIiBkPSJNOSAxOGM0LjQgMCA4LjEtMS40IDEwLjItNC4yTDE1IDE0LjJjLTEuNCAxLTMuMiAxLjYtNiAxLjYtNC42IDAtOC41LTMuMS05LjktNy4zTDIgOS4ydjIuMkE5IDkgMCAwIDAgOSAxOHoiLz48cGF0aCBmaWxsPSIjRkJCQzA1IiBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDlsMy0zLjN6Ii8+PHBhdGggZmlsbD0iI0VBNDMzNSIgZD0iTTkgMy42YzEuMyAwIDIuNS40IDMuNC4xbDEuNi0xLjZDMTIuNS45IDEwLjkgMCA5IDAgNS40IDAgMi4yIDIuMiAxIDUuNGwzIDIuM2MxLjQtNC4yIDUuMy03LjMgOS45LTcuM3oiLz48L3N2Zz4="
+            alt="Google"
+          />
+          <span id="googleButtonText">התחבר עם Google</span>
+        </button>
+        <button class="github-login" style="display: none;">
+          <img
+            src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjMjQyOTJlIiBkPSJNMTIgLjI5N2MtNi42MyAwLTEyIDUuMzczLTEyIDEyIDAgNS4zMDMgMy40MzggOS44IDguMjA1IDExLjM4NS42LjExMy44Mi0uMjU4LjgyLS41NzcgMC0uMjg1LS4wMS0xLjA0LS4wMTUtMi4wNC0zLjMzOC43MjQtNC4wNDItMS42MS00LjA0Mi0xLjYxQzQuNDIyIDE4LjA3IDMuNjMzIDE3LjcgMy42MzMgMTcuN2MtMS4wODctLjc0NC4wODQtLjcyOS4wODQtLjcyOSAxLjIwNS4wODQgMS44MzggMS4yMzYgMS44MzggMS4yMzYgMS4wNyAxLjgzNSAyLjgwOSAxLjMwNSAzLjQ5NS45OTguMTA4LS43NzYuNDE3LTEuMzA1Ljc2LTEuNjA1LTIuNjY1LS4zLTUuNDY2LTEuMzMyLTUuNDY2LTUuOTMgMC0xLjMxLjQ2NS0yLjM4IDEuMjM1LTMuMjItLjEzNS0uMzAzLS41NC0xLjUyMy4xMDUtMy4xNzYgMCAwIDEuMDA1LS4zMjIgMy4zIDEuMjMuOTYtLjI2NyAxLjk4LS40IDMtLjQwNXMyLjA0LjEzOCAzIC40MDVjMi4yOC0xLjU1MiAzLjI4NS0xLjIzIDMuMjg1LTEuMjMuNjQ1IDEuNjUzLjI0IDIuODczLjEyIDMuMTc2Ljc2NS44NCAxLjIzIDEuOTEgMS4yMyAzLjIyIDAgNC42MS0yLjgwNSA1LjYyNS01LjQ3NSA1LjkyLjQyLjM2LjgxIDEuMDk2LjgxIDIuMjIgMCAxLjYwNi0uMDE1IDIuODk2LS4wMTUgMy4yODYgMCAuMzE1LjIxLjY5LjgyNS41N0MyMC41NjUgMjIuMDkyIDI0IDE3LjU5MiAyNCAxMi4yOTdjMC02LjYyNy01LjM3My0xMi0xMi0xMiIvPjwvc3ZnPg=="
+            alt="GitHub"
+          />
+          <span id="githubButtonText">התחבר עם GitHub</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Customer selection modal -->
+<div id="customerOverlay" class="customer-overlay">
+  <div class="customer-modal">
+    <div class="customer-header">
+      <h2>בחירת לקוח</h2>
+      <button class="close-button">✕</button>
+    </div>
+    <div class="customer-content">
+      <div class="customer-selection-group">
+        <label for="customerSelect">בחר לקוח:</label>
+        <select id="customerSelect" class="customer-select">
+          <option value="">טוען...</option>
+        </select>
+      </div>
+      <div class="customer-selection-group">
+        <label for="customerNameInput">שם לקוח:</label>
+        <input type="text" id="customerNameInput" class="customer-name-input" placeholder="הכנס שם לקוח" maxlength="50" />
+      </div>
+      <button type="button" id="updateCustomerButton" class="update-customer-button" disabled>עדכן</button>
+    </div>
+  </div>
+</div>
+
+<!-- Account Management Modal -->
+<div id="accountOverlay" class="account-overlay">
+  <div class="account-modal">
+    <div class="login-header">
+      <h2>ניהול חשבון</h2>
+      <button class="close-button" id="closeAccountModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>כאן תוכל לנהל את החשבון שלך. פעולה זו תמחק את כל הנתונים שלך לצמיתות.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="delete-account-button" id="deleteAccountButton">מחק חשבון</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay and cookie consent stay outside main container -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+    <div id="loadingMessage"></div>
+    <div id="loadingProgress" class="loading-progress" style="display: none"><span id="currentProgress">0</span> / <span id="totalProgress">0</span> <span id="progressUnit">קבצים</span></div>
+    <button id="cancelLoadingButton" class="cancel-loading-button">ביטול</button>
+  </div>
+</div>
+
+<div id="cookieConsent" class="cookie-consent">
+  <div class="cookie-content">
+    <span>אתר זה משתמש בקבצי Cookie כדי לשפר את חווית המשתמש שלך.</span>
+    <button id="acceptCookies" class="cookie-button">אישור</button>
+  </div>
+</div>
+
+<div id="generalWarningModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close-button">&times;</span>
+      <h2>⚠️ אזהרה</h2>
+    </div>
+    <div class="modal-body">
+      <p id="warningMessage"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-button">ביטול</button>
+      <button class="confirm-button">אישור</button>
+    </div>
+  </div>
+</div>
+<div id="generalInfoModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close-button">&times;</span>
+      <h2>ℹ️ מידע</h2>
+    </div>
+    <div class="modal-body">
+      <p id="infoMessage"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="confirm-button">אישור</button>
+    </div>
+  </div>
+</div>
+<div id="generalErrorModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close-button">&times;</span>
+      <h2>❌ שגיאה</h2>
+    </div>
+    <div class="modal-body">
+      <p id="errorMessage"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="confirm-button">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div id="passwordModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>סיסמה נדרשת</h2>
+    </div>
+    <div class="modal-body">
+      <form class="login-form" id="passwordForm">
+        <label for="passwordInput" id="passwordMessage"></label>
+        <input type="password" id="passwordInput" placeholder="הכנס סיסמה" />
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-button">ביטול</button>
+      <button class="confirm-button">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div id="passwordResetModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close-button">&times;</span>
+      <h2>🔐 איפוס סיסמה</h2>
+    </div>
+    <div class="modal-body">
+      <p>קישור לאיפוס סיסמה יישלח לכתובת הדוא״ל שהוזנה בטופס ההתחברות.</p>
+      <p><strong>דוא״ל:</strong> <span id="resetEmailDisplay"></span></p>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-button">ביטול</button>
+      <button class="confirm-button" id="sendResetButton">שלח קישור</button>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -29,7 +31,7 @@ body {
             font-size: 1.1em;
         }
 
-        .terms-container {
+        .terms-accept-container {
             margin: 20px 0;
             display: flex;
             align-items: center;
@@ -51,6 +53,7 @@ body {
     </style>
 </head>
 <body>
+    {% include auth-header.html %}
     <div class="landing-container">
         <h1>דו״ח שנתי - עשה זאת בעצמך</h1>
         
@@ -95,7 +98,7 @@ body {
             </p>
         </div>
 
-        <div class="terms-container">
+        <div class="terms-accept-container">
             <input type="checkbox" id="termsCheckbox" class="custom-checkbox">
             <label for="termsCheckbox">
                 קראתי ואני מסכים/ה ל<a class="stnd-link" href="terms.html" target="_self">תנאי השימוש</a> ו<a class="stnd-link" href="privacy_policy.html" target="_self">מדיניות הפרטיות</a>
@@ -114,7 +117,8 @@ body {
     </div>
 
     <!-- <script type="module" src="js/index.js"></script> -->
-    <script src="js/slideshow.js"></script>
+    <script type="module" src="js/authService.js"></script>
+    <script type="module" src="js/slideshow.js"></script>
     <script type="module">
         import { cookieUtils } from './js/cookieUtils.js';
         
