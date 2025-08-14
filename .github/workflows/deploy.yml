@@ -22,7 +22,9 @@ jobs:
       - name: Install dependencies
         run: |
           gem install bundler
-          bundle install
+          bundle config set --local deployment 'false'
+          bundle config set --local path 'vendor/bundle'
+          bundle install --jobs 4 --retry 3
 
       - name: Build Jekyll site
         run: bundle exec jekyll build
