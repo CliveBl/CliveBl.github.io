@@ -1,9 +1,10 @@
 import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
 import { ANONYMOUS_EMAIL, debug } from "./constants.js";
+import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.07";
+export let UIVersion = "1.08";
 export let ServerVersion = "";
 // Customer management
 export let selectedCustomerDataEntryName = "Default";
@@ -27,6 +28,13 @@ function emit(eventName) {
         callbacks.forEach(callback => callback());
     }
 }
+const acceptCookies = document.getElementById("acceptCookies");
+const cookieConsent = document.getElementById("cookieConsent");
+// Add cookie consent button handler
+acceptCookies.addEventListener("click", () => {
+    cookieUtils.set("cookiesAccepted", "true", 365); // Cookie expires in 1 year
+    cookieConsent.classList.remove("active");
+});
 // Customer storage functions
 export function saveSelectedCustomerToStorage(customerName) {
     localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
@@ -479,6 +487,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (!SignedIn) {
         debug("Failed to fetch version:");
+    }
+    // Check if user has already accepted cookies
+    const cookiesAccepted = cookieUtils.get("cookiesAccepted");
+    if (!cookiesAccepted) {
+        const cookieConsent = document.getElementById("cookieConsent");
+        if (cookieConsent) {
+            cookieConsent.classList.add("active");
+        }
     }
     emit("authServiceInitialized");
 });

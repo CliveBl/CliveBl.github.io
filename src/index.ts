@@ -95,8 +95,6 @@ const processButton = document.getElementById("processButton") as HTMLButtonElem
 const deleteAllButton = document.getElementById("deleteAllButton") as HTMLButtonElement;
 const messageContainer = document.getElementById("messageContainer") as HTMLDivElement;
 const createFormSelect = document.getElementById("createFormSelect") as HTMLSelectElement;
-const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElement;
-const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
 const feedbackEmail = document.getElementById("feedbackEmail") as HTMLInputElement;
 const privacyCheckbox = document.getElementById("privacyAgreement") as HTMLInputElement;
 const sendFeedbackButton = document.getElementById("sendFeedbackButton") as HTMLButtonElement;
@@ -1866,12 +1864,6 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
   }
 }
 
-// Add cookie consent button handler
-acceptCookies.addEventListener("click", () => {
-  cookieUtils.set("cookiesAccepted", "true", 365); // Cookie expires in 1 year
-  cookieConsent.classList.remove("active");
-});
-
 // Initialize when DOM is ready
 // document.addEventListener("DOMContentLoaded", async () => {
 //   debug("DOMContentLoaded 2");
@@ -1986,14 +1978,6 @@ async function initialize() {
     });
   }
 
-  // Check if user has already accepted cookies
-  const cookiesAccepted = cookieUtils.get("cookiesAccepted");
-  if (!cookiesAccepted) {
-    const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
-    if (cookieConsent) {
-      cookieConsent.classList.add("active");
-    }
-  }
 
   // Check if disclaimer has been accepted
   const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");

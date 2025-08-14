@@ -57,8 +57,6 @@ const processButton = document.getElementById("processButton");
 const deleteAllButton = document.getElementById("deleteAllButton");
 const messageContainer = document.getElementById("messageContainer");
 const createFormSelect = document.getElementById("createFormSelect");
-const acceptCookies = document.getElementById("acceptCookies");
-const cookieConsent = document.getElementById("cookieConsent");
 const feedbackEmail = document.getElementById("feedbackEmail");
 const privacyCheckbox = document.getElementById("privacyAgreement");
 const sendFeedbackButton = document.getElementById("sendFeedbackButton");
@@ -1610,11 +1608,6 @@ function displayTaxCalculation(result, year, shouldScroll = false) {
         });
     }
 }
-// Add cookie consent button handler
-acceptCookies.addEventListener("click", () => {
-    cookieUtils.set("cookiesAccepted", "true", 365); // Cookie expires in 1 year
-    cookieConsent.classList.remove("active");
-});
 // Initialize when DOM is ready
 // document.addEventListener("DOMContentLoaded", async () => {
 //   debug("DOMContentLoaded 2");
@@ -1723,14 +1716,6 @@ async function initialize() {
                 toggleFileListView();
             }
         });
-    }
-    // Check if user has already accepted cookies
-    const cookiesAccepted = cookieUtils.get("cookiesAccepted");
-    if (!cookiesAccepted) {
-        const cookieConsent = document.getElementById("cookieConsent");
-        if (cookieConsent) {
-            cookieConsent.classList.add("active");
-        }
     }
     // Check if disclaimer has been accepted
     const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
