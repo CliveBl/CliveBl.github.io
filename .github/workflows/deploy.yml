@@ -17,13 +17,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.4.5'
-          bundler-cache: true
+          bundler-cache: false
 
       - name: Install dependencies
         run: |
           gem install bundler
-          bundle config set --local deployment 'false'
-          bundle config set --local path 'vendor/bundle'
           bundle lock --add-platform x86_64-linux
           bundle install --jobs 4 --retry 3
 
