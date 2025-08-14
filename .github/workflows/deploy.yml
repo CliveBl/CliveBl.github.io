@@ -3,7 +3,7 @@ name: Deploy Jekyll to Cloudflare Workers
 on:
   push:
     branches:
-      - main
+      - jekyll
 
 jobs:
   build-and-deploy:
@@ -11,12 +11,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.4.5' # Match your local Ruby version
+          ruby-version: '3.4.5'
+          bundler-cache: true
 
       - name: Install dependencies
         run: |
@@ -26,10 +27,21 @@ jobs:
       - name: Build Jekyll site
         run: bundle exec jekyll build
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
       - name: Install Wrangler
         run: npm install -g wrangler
 
-      - name: Publish to Cloudflare Workers
+      - name: Authenticate with Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: wrangler publish
+        run: wrangler whoami
+
+      - name: Deploy to Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: wrangler deploy
