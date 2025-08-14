@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
-const uiVersion = "1.06";
+const uiVersion = "1.07";
 const defaultClientIdentificationNumber = "000000000";
 const ANONYMOUS_EMAIL = "AnonymousEmail";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -2128,7 +2128,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     // Check for Google OAuth2 callback
     checkForGoogleCallback();
-    restoreSelectedDocTypes();
     updateSignInUI();
     // Pre-fill feedback email if user is logged in
     if (signedIn) {
@@ -2137,17 +2136,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     // Add event listeners for document count selects
     document.querySelectorAll('select[id$="-count"]').forEach((select) => {
+        // Add a option to upload a file
+        select.innerHTML += `<option value="upload file">העלאת מסמך</option>`;
         // Add option to the select only if the user can add forms
         if (configurationData != null && configurationData.formTypes.some((formType) => formType.userCanAdd)) {
             select.innerHTML += `<option value="create form">צור חדש</option>`;
         }
         // Add event listener to the select
         select.addEventListener("change", async (e) => {
-            const target = e.target;
-            if (target.value === "create form") {
+            const selectElement = e.target;
+            if (selectElement.value === "create form") {
                 // Get the document type from the select's id
-                const docType = target.id.replace("-count", "");
-                const docTypeName = target.closest(".doc-item")?.getAttribute("data-doc-typename") || "";
+                const docType = selectElement.id.replace("-count", "");
+                const docTypeName = selectElement.closest(".doc-item")?.getAttribute("data-doc-typename") || "";
                 // Create a new form of this type
                 const createFormSelect = document.getElementById("createFormSelect");
                 if (createFormSelect) {
@@ -2160,12 +2161,35 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
                 // Reset the count select to its previous value
-                target.value = target.getAttribute("data-previous-value") || "0";
+                selectElement.value = selectElement.getAttribute("data-previous-value") || "0";
+            }
+            else if (selectElement.value === "upload file") {
+                // Open the select document dialog
+                const fileInput = document.getElementById("fileInput");
+                const currentValue = selectElement.getAttribute("data-previous-value") || "0";
+                fileInput.click();
+                // Reset the count select to its previous value
+                // If target.value is an integer, add 1 to it until reaches the maximum value and then leave it at the maximum value.
+                if (!isNaN(parseInt(currentValue))) {
+                    const newValue = Math.max(parseInt(currentValue), selectElement.options.length - 3); // -3 because we have 3 options: upload file, create form, and 0
+                    selectElement.value = newValue.toString();
+                    selectElement.setAttribute("data-previous-value", selectElement.value);
+                }
             }
             else {
                 // Store the current value for future reference
-                target.setAttribute("data-previous-value", target.value);
+                selectElement.setAttribute("data-previous-value", selectElement.value);
             }
+            // Updates panel color
+            const docItem = select.closest(".doc-item");
+            if (parseInt(select.value) > 0) {
+                docItem.classList.add("selected");
+            }
+            else {
+                docItem.classList.remove("selected");
+            }
+            saveSelectedDocTypes();
+            updateMissingDocuments();
         });
     });
     // Update form creation select elements according to the form types
@@ -2240,6 +2264,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     // Initialize the file list view
     updateFileListView();
+    // Needs to be last so that select elements can be populated before updating them.
+    restoreSelectedDocTypes();
 });
 // Function to validate email format
 function isValidEmail(email) {
@@ -2281,20 +2307,6 @@ sendFeedbackButton.addEventListener("click", async () => {
         addMessage("שגיאה בשליחת המשוב: " + (error instanceof Error ? error.message : String(error)), "error");
     }
 });
-// Add change handlers for document count selects
-document.querySelectorAll(".doc-controls select").forEach((select) => {
-    select.addEventListener("change", () => {
-        const docItem = select.closest(".doc-item");
-        if (parseInt(select.value) > 0) {
-            docItem.classList.add("selected");
-        }
-        else {
-            docItem.classList.remove("selected");
-        }
-        saveSelectedDocTypes();
-        updateMissingDocuments();
-    });
-});
 function clearFeedbackForm() {
     feedbackEmail.value = "";
     feedbackMessage.value = "";
@@ -2319,15 +2331,17 @@ function restoreSelectedDocTypes() {
     Object.entries(savedSelections).forEach(([docType, value]) => {
         const docItem = document.querySelector(`.doc-item[data-doc-type="${docType}"]`);
         if (docItem) {
-            const select = docItem.querySelector("select");
-            if (select) {
-                select.value = value;
-                // Update selected class based on value
-                if (parseInt(value) > 0) {
-                    docItem.classList.add("selected");
-                }
-                else {
-                    docItem.classList.remove("selected");
+            const selectElement = docItem.querySelector("select");
+            if (selectElement) {
+                if (selectElement.options.length > 0) {
+                    selectElement.value = value;
+                    // Update selected class based on value
+                    if (parseInt(value) > 0) {
+                        docItem.classList.add("selected");
+                    }
+                    else {
+                        docItem.classList.remove("selected");
+                    }
                 }
             }
         }
