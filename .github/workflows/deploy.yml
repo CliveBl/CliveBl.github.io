@@ -36,6 +36,10 @@ jobs:
       - name: Install Wrangler
         run: npm install -g wrangler
 
+      - name: Install Workers dependencies
+        working-directory: ./workers-site
+        run: npm install
+
       - name: Authenticate with Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
