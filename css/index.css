@@ -1821,7 +1821,7 @@ input#feedbackEmail {
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 40px;
   margin-top: 20px;
 }
 
