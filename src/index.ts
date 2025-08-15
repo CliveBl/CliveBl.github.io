@@ -2046,7 +2046,6 @@ function saveSelectedDocTypes() {
 
 // Function to restore selected doc types from localStorage
 function restoreSelectedDocTypes() {
-  debug("restoreSelectedDocTypes");
   const savedSelections = JSON.parse(localStorage.getItem("docSelections") || "{}");
   Object.entries(savedSelections).forEach(([docType, value]) => {
     const docItem = document.querySelector(`.doc-item[data-doc-type="${docType}"]`);

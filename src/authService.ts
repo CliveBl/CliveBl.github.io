@@ -5,7 +5,7 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.09";
+export let UIVersion = "1.10";
 export let ServerVersion = "";
 
 // Customer management
@@ -34,6 +34,10 @@ function emit(eventName: string): void {
   if (callbacks) {
     callbacks.forEach(callback => callback());
   }
+}
+function updateSignInState(bool: boolean): void {
+	SignedIn = bool;
+	emit("signInChanged");
 }
 
 const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElement;
@@ -99,8 +103,7 @@ export async function signInAnonymous(): Promise<void> {
 
     const result = await response.json();
     UserEmailValue = result.email;
-    SignedIn = true;
-    emit("signInChanged");
+	updateSignInState(true);
     return;
   } catch (error) {
     debug("Sign in error:", error);
@@ -146,8 +149,7 @@ export async function signIn(email: string, password: string): Promise<void> {
 
     const result = JSON.parse(text);
     UserEmailValue = result.email;
-    SignedIn = true;
-    emit("signInChanged");
+	updateSignInState(true);
     return;
   } catch (error) {
     console.error("Sign in failed:", error);
@@ -213,8 +215,7 @@ export function signOut(): void {
 
 export function clearUserSession(): void {
   UserEmailValue = "";
-  SignedIn = false;
-  emit("signInChanged");
+  updateSignInState(false);
 
   // Reset customer selection to default
   updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
@@ -334,7 +335,6 @@ export async function handleGoogleCallback(): Promise<void> {
 
     const result = await response.json();
     UserEmailValue = result.email;
-    SignedIn = true;
 
     // Remove all OAuth2 parameters from the URL
     url.searchParams.delete("code");
@@ -346,6 +346,7 @@ export async function handleGoogleCallback(): Promise<void> {
     url.searchParams.delete("authuser");
     url.searchParams.delete("prompt");
     window.history.replaceState({}, "", url);
+	updateSignInState(true);
   } catch (error) {
     console.error("Error handling Google callback:", error);
     throw new Error("שגיאה בהתחברות עם Google");
