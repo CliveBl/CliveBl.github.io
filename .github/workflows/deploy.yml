@@ -19,6 +19,17 @@ jobs:
           ruby-version: '3.4.5'
           bundler-cache: false
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Node.js dependencies
+        run: npm install
+
+      - name: Compile TypeScript
+        run: npm run build
+
       - name: Install dependencies
         run: |
           gem install bundler
@@ -27,11 +38,6 @@ jobs:
 
       - name: Build Jekyll site
         run: bundle exec jekyll build
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
 
       - name: Install Wrangler
         run: npm install -g wrangler
