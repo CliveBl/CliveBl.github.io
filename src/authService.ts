@@ -5,7 +5,7 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.10";
+export let UIVersion = "1.11";
 export let ServerVersion = "";
 
 // Customer management
@@ -103,6 +103,10 @@ export async function signInAnonymous(): Promise<void> {
 
     const result = await response.json();
     UserEmailValue = result.email;
+    
+    // Clear basic info cache since user state has changed
+    clearBasicInfoCache();
+    
 	updateSignInState(true);
     return;
   } catch (error) {
@@ -149,11 +153,14 @@ export async function signIn(email: string, password: string): Promise<void> {
 
     const result = JSON.parse(text);
     UserEmailValue = result.email;
+    
+    // Clear basic info cache since user state has changed
+    clearBasicInfoCache();
+    
 	updateSignInState(true);
     return;
   } catch (error) {
     console.error("Sign in failed:", error);
-    debug("Sign in error details:", error);
     throw error;
   }
 }
@@ -222,6 +229,9 @@ export function clearUserSession(): void {
 
   // Clear customer list cache
   clearCustomerListCache();
+  
+  // Clear basic info cache
+  clearBasicInfoCache();
 }
 
 // Customer management functions
@@ -346,6 +356,10 @@ export async function handleGoogleCallback(): Promise<void> {
     url.searchParams.delete("authuser");
     url.searchParams.delete("prompt");
     window.history.replaceState({}, "", url);
+    
+    // Clear basic info cache since user state has changed
+    clearBasicInfoCache();
+    
 	updateSignInState(true);
   } catch (error) {
     console.error("Error handling Google callback:", error);
@@ -541,18 +555,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     UserEmailValue = "";
 
-    const response = await fetch(`${API_BASE_URL}/getBasicInfo`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      credentials: "include",
-      ...fetchConfig,
-    });
-    if (response.ok) {
-      const json = await response.json();
-      ServerVersion = json.productVersion;
-      UserEmailValue = json.userEmail;
+    const basicInfo = await getBasicInfo();
+    if (basicInfo) {
+      ServerVersion = basicInfo.productVersion;
+      UserEmailValue = basicInfo.userEmail;
       SignedIn = true;
 
       debug("Successfully got BasicInfo");
@@ -576,3 +582,67 @@ document.addEventListener("DOMContentLoaded", async () => {
   emit("authServiceInitialized");
 
 });
+
+// Basic info caching with session storage
+const BASIC_INFO_CACHE_KEY = 'basicInfo';
+const BASIC_INFO_TIMESTAMP_KEY = 'basicInfoTimestamp';
+const BASIC_INFO_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+export async function getBasicInfo(forceRefresh = false): Promise<any> {
+  // Check cache first if not forcing refresh
+  if (!forceRefresh) {
+    const cached = sessionStorage.getItem(BASIC_INFO_CACHE_KEY);
+    const timestamp = sessionStorage.getItem(BASIC_INFO_TIMESTAMP_KEY);
+    
+    if (cached && timestamp) {
+      const age = Date.now() - parseInt(timestamp);
+      if (age < BASIC_INFO_CACHE_DURATION) {
+        //debug("Using cached basic info");
+        return JSON.parse(cached);
+      }
+    }
+  }
+  
+  try {
+    debug("Fetching fresh basic info from server");
+    const response = await fetch(`${API_BASE_URL}/getBasicInfo`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      credentials: "include",
+      ...fetchConfig,
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Cache the data
+      sessionStorage.setItem(BASIC_INFO_CACHE_KEY, JSON.stringify(data));
+      sessionStorage.setItem(BASIC_INFO_TIMESTAMP_KEY, Date.now().toString());
+      
+      //debug("Successfully cached basic info");
+      return data;
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Failed to fetch basic info:", error);
+    
+    // Return cached data if available, even if stale
+    const cached = sessionStorage.getItem(BASIC_INFO_CACHE_KEY);
+    if (cached) {
+      debug("Returning stale cached basic info due to fetch error");
+      return JSON.parse(cached);
+    }
+    
+    throw error;
+  }
+}
+
+// Clear basic info cache (call this on logout or when data might be stale)
+export function clearBasicInfoCache(): void {
+  sessionStorage.removeItem(BASIC_INFO_CACHE_KEY);
+  sessionStorage.removeItem(BASIC_INFO_TIMESTAMP_KEY);
+  debug("Cleared basic info cache");
+}
