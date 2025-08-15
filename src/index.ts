@@ -1,16 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR, ANONYMOUS_EMAIL } from "./constants.js";
-import {
-  signInAnonymous,
-  showInfoModal,
-  showWarningModal,
-  handleAuthResponse,
-  SignedIn,
-  UIVersion,
-  ServerVersion,
-  UserEmailValue,
-  selectedCustomerDataEntryName,
-  on,
-} from "./authService.js";
+import { signInAnonymous, showInfoModal, showWarningModal, handleAuthResponse, SignedIn, UIVersion, ServerVersion, UserEmailValue, selectedCustomerDataEntryName, on } from "./authService.js";
 import { debug } from "./constants.js";
 
 const DEFAULT_CLIENT_ID_NUMBER = "000000000";
@@ -51,6 +40,23 @@ const SUPPRESS_RETRY_PATTERNS = [
 // Set up event listeners
 setupEventListeners();
 
+async function initializeUserSession() {
+  await loadExistingFiles();
+  await loadResults(false);
+  restoreSelectedDocTypes();
+  updateMissingDocuments();
+}
+
+// Update UI to show logged out state
+function clearUserSession() {
+	removeFileList();
+	fileModifiedActions(false);
+	clearMessages();
+  
+	// Clear feedback form on sign out
+	clearFeedbackForm();
+  }
+
 function setupEventListeners() {
   debug("setupEventListeners");
   on("authServiceInitialized", () => {
@@ -58,8 +64,7 @@ function setupEventListeners() {
   });
   on("signInChanged", () => {
     if (SignedIn) {
-      loadExistingFiles();
-      loadResults(false);
+      initializeUserSession();
     } else {
       clearUserSession();
     }
@@ -67,8 +72,7 @@ function setupEventListeners() {
 
   on("selectedCustomerChanged", () => {
     if (SignedIn) {
-      loadExistingFiles();
-      loadResults(false);
+      initializeUserSession();
     }
   });
   debug("setupEventListeners done");
@@ -100,24 +104,15 @@ const privacyCheckbox = document.getElementById("privacyAgreement") as HTMLInput
 const sendFeedbackButton = document.getElementById("sendFeedbackButton") as HTMLButtonElement;
 const feedbackMessage = document.getElementById("feedbackMessage") as HTMLTextAreaElement;
 
-
 export function updateButtons(hasEntries: boolean) {
   processButton.disabled = !hasEntries;
   deleteAllButton.disabled = !hasEntries;
 }
 
 function updateFileListP(fileInfoList: FileInfo[], isNewUpload = false) {
-  // // Deep copy the fileInfoList
-  // const fileInfoListCopy = structuredClone(fileInfoList);
-  // // Filter so that only document type "טופס 867" are included
-  // const fileInfoCGT = fileInfoListCopy.filter((file) => file.documentType === "טופס 867");
-  // // Sort the array by fileName from after the /
-  // fileInfoCGT.sort((a, b) => a.fileName.split("/").pop()!.localeCompare(b.fileName.split("/").pop()!));
-  // debug("CGT forms",fileInfoCGT);
   if (editableFileList) {
     displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false, isNewUpload);
     updateButtons(editableFileListHasEntries());
-    updateMissingDocuments();
   } else {
     updateFileList(fileInfoList, isNewUpload);
   }
@@ -168,16 +163,6 @@ function getDocTypes() {
   } else {
     return Array.from(document.querySelectorAll("#fileList li")).map((li) => li.getAttribute("data-doc-typename"));
   }
-}
-
-// Update UI to show logged out state
-function clearUserSession() {
-  removeFileList();
-  fileModifiedActions(false);
-  clearMessages();
-
-  // Clear feedback form on sign out
-  clearFeedbackForm();
 }
 
 // Add this function to load files with existing token
@@ -429,7 +414,6 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
   updateDeleteAllButton(fileList.children.length > 0);
   // Enable/disable process button based on file list
   updateProcessButton(fileInfoList.length > 0);
-  updateMissingDocuments();
 }
 
 // Add function to update process button state
@@ -868,6 +852,7 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
 
           fileInfoList = await response.json();
           updateFileListP(fileInfoList, true); // true = new upload
+          updateMissingDocuments();
           uploadSuccess = true;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
@@ -1625,21 +1610,21 @@ export function addFileToList(fileInfo: any) {
     // Don't toggle if clicking delete button
     if ((e.target && (e.target as HTMLElement).closest(".delete-button")) || (e.target as HTMLElement).closest(".edit-button")) return;
 
-    // Close any other open accordions first
-    const allAccordions = document.querySelectorAll(".accordion-content");
-    const allExpandIcons = document.querySelectorAll(".expand-icon");
-    const allEditButtons = document.querySelectorAll(".edit-button");
-    const allFileNames = document.querySelectorAll(".fileNameElement");
+    // // Close any other open accordions first
+    // const allAccordions = document.querySelectorAll(".accordion-content");
+    // const allExpandIcons = document.querySelectorAll(".expand-icon");
+    // const allEditButtons = document.querySelectorAll(".edit-button");
+    // const allFileNames = document.querySelectorAll(".fileNameElement");
 
-    allAccordions.forEach((acc, index) => {
-      if (acc !== accordionContent && (acc as HTMLElement).style.display === "block") {
-        (acc as HTMLElement).style.display = "none";
-        allExpandIcons[index].textContent = "▼";
-        allExpandIcons[index].classList.remove("expanded");
-        (allEditButtons[index] as HTMLButtonElement).style.display = "none";
-        allFileNames[index].classList.remove("expanded");
-      }
-    });
+    // allAccordions.forEach((acc, index) => {
+    //   if (acc !== accordionContent && (acc as HTMLElement).style.display === "block") {
+    //     (acc as HTMLElement).style.display = "none";
+    //     allExpandIcons[index].textContent = "▼";
+    //     allExpandIcons[index].classList.remove("expanded");
+    //     (allEditButtons[index] as HTMLButtonElement).style.display = "none";
+    //     allFileNames[index].classList.remove("expanded");
+    //   }
+    // });
 
     const isExpanded = accordionContent.style.display === "block";
     if (isExpanded) {
@@ -1870,7 +1855,6 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
 async function initialize() {
   const versionNumberElement = document.getElementById("versionNumber") as HTMLSpanElement;
   debug("initialize");
-  // Get and display version number
   try {
     await loadConfiguration();
     versionNumberElement.textContent = `גרסה ${UIVersion}`;
@@ -1889,7 +1873,6 @@ async function initialize() {
   if (!SignedIn) {
     debug("Not signed in");
   }
-
 
   // Pre-fill feedback email if user is logged in
   if (SignedIn) {
@@ -1942,7 +1925,7 @@ async function initialize() {
         // Store the current value for future reference
         selectElement.setAttribute("data-previous-value", selectElement.value);
       }
-	  // Updates panel color
+      // Updates panel color
       const docItem = select.closest(".doc-item") as HTMLElement;
       if (parseInt((select as HTMLSelectElement).value) > 0) {
         docItem.classList.add("selected");
@@ -1978,12 +1961,10 @@ async function initialize() {
     });
   }
 
-
   // Check if disclaimer has been accepted
   const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
   if (!disclaimerAccepted) {
-    //await showDisclaimerModal();
-    await showInfoModal(
+    showInfoModal(
       "אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש."
     );
     cookieUtils.set("disclaimerAccepted", "true", 365);
@@ -1993,6 +1974,8 @@ async function initialize() {
   updateFileListView();
   // Needs to be last so that select elements can be populated before updating them.
   restoreSelectedDocTypes();
+  // Update missing documents
+  updateMissingDocuments();
 }
 
 // Function to validate email format
@@ -2063,6 +2046,7 @@ function saveSelectedDocTypes() {
 
 // Function to restore selected doc types from localStorage
 function restoreSelectedDocTypes() {
+  debug("restoreSelectedDocTypes");
   const savedSelections = JSON.parse(localStorage.getItem("docSelections") || "{}");
   Object.entries(savedSelections).forEach(([docType, value]) => {
     const docItem = document.querySelector(`.doc-item[data-doc-type="${docType}"]`);
@@ -2114,6 +2098,7 @@ function restoreSelectedDocTypes() {
 
     const fileInfoList = await response.json();
     updateFileListP(fileInfoList, true); // true = new form creation
+    updateMissingDocuments();
     clearResultsControls();
     clearMessages();
     // Jump to the last file in the file list
@@ -2132,6 +2117,7 @@ function restoreSelectedDocTypes() {
 
 // Add this function to update missing document counts
 function updateMissingDocuments() {
+  debug("updateMissingDocuments");
   // Get all documents from file list
   const fileListDocs = getDocTypes();
 
@@ -2174,7 +2160,7 @@ function updateMissingDocuments() {
   });
 
   const warningSection = document.getElementById("missingDocsWarning") as HTMLDivElement;
-  
+
   if (missingDocs.length > 0) {
     warningSection.innerHTML = `<strong>שים לב!</strong> חסרים המסמכים הבאים: ${missingDocs.map((doc: { name: string }) => doc.name).join(", ")}`;
     const warningList = document.createElement("ul") as HTMLUListElement;

@@ -112,40 +112,41 @@ body {
 			<a href="faq.html" class="stnd-link">שאלות נפוצות</a>
 		</p>    </div>
 
-    <div id="cookieBanner" class="cookie-banner">
-        אתר זה משתמש בקבצי Cookie כדי להבטיח לך את החוויה הטובה ביותר באתר שלנו.
-        <button id="acceptCookies" class="cookie-button">אני מסכים</button>
-    </div>
-
     <!-- <script type="module" src="js/index.js"></script> -->
     <script type="module" src="js/authService.js"></script>
     <script type="module" src="js/slideshow.js"></script>
     <script type="module">
         import { cookieUtils } from './js/cookieUtils.js';
         
-        const checkbox = document.getElementById('termsCheckbox');
+        const termsCheckbox = document.getElementById('termsCheckbox');
         const startButton = document.getElementById('startButton');
-        const cookieBanner = document.getElementById('cookieBanner');
-        const acceptCookiesButton = document.getElementById('acceptCookies');
-
-        checkbox.addEventListener('change', () => {
-            startButton.disabled = !checkbox.checked;
-        });
+ 
+		termsCheckbox.checked = cookieUtils.get("termsAccepted") === "true";
+		startButton.disabled = !termsCheckbox.checked;
+		
+        termsCheckbox.addEventListener('change', () => {
+            startButton.disabled = !termsCheckbox.checked;
+			if (termsCheckbox.checked) {
+				cookieUtils.set("termsAccepted", "true", 365);
+			}else{
+				cookieUtils.delete("termsAccepted");
+			}
+		});
 
         startButton.addEventListener('click', () => {
             window.location.href = 'tax_return.html';
         });
 
-        // Show cookie banner if not accepted
-        if (!cookieUtils.get('cookiesAccepted')) {
-            cookieBanner.style.display = 'block';
-        }
 
-        // Handle cookie acceptance
-        acceptCookiesButton.addEventListener('click', () => {
-            cookieUtils.set('cookiesAccepted', 'true', 365);
-            cookieBanner.style.display = 'none';
-        });
+		  // Check if disclaimer has been accepted
+		  const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
+  if (!disclaimerAccepted) {
+    showInfoModal(
+      "אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש."
+    );
+    cookieUtils.set("disclaimerAccepted", "true", 365);
+  }
+
     </script>
 	<script>nl_pos = "br";nl_compact = "1";</script>
 	<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
