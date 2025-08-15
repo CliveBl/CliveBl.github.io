@@ -3074,3 +3074,32 @@ a:not(.submit-instructions-button):visited {
 .delete-account-button:hover {
   background: var(--error-bg-hover);
 }
+
+/* Dynamic red border styles for upload buttons and process button */
+.custom-file-input label.no-files-border {
+  border: 3px solid var(--error-border);
+  border-radius: 8px;
+  animation: pulseBorder 2s ease-in-out infinite;
+}
+
+.process-button.has-files-border {
+  border: 3px solid var(--error-border);
+  border-radius: 8px;
+  animation: pulseBorder 2s ease-in-out infinite;
+}
+
+/* Pulsing animation for attention-grabbing borders */
+@keyframes pulseBorder {
+  0% {
+    border-color: var(--error-border);
+    opacity: 0.6;
+  }
+  50% {
+    border-color: #ff6b6b;
+    opacity: 1;
+  }
+  100% {
+    border-color: var(--error-border);
+    opacity: 0.6;
+  }
+}

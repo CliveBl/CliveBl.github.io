@@ -107,6 +107,26 @@ const feedbackMessage = document.getElementById("feedbackMessage") as HTMLTextAr
 export function updateButtons(hasEntries: boolean) {
   processButton.disabled = !hasEntries;
   deleteAllButton.disabled = !hasEntries;
+  updateBorderStyles(hasEntries);
+}
+
+// Function to update border styles based on file count
+function updateBorderStyles(hasEntries: boolean) {
+  const uploadLabels = document.querySelectorAll('.custom-file-input label');
+  
+  if (hasEntries) {
+    // Files exist: remove red border from upload buttons, add to process button
+    uploadLabels.forEach(label => {
+      label.classList.remove('no-files-border');
+    });
+    processButton.classList.add('has-files-border');
+  } else {
+    // No files: add red border to upload buttons, remove from process button
+    uploadLabels.forEach(label => {
+      label.classList.add('no-files-border');
+    });
+    processButton.classList.remove('has-files-border');
+  }
 }
 
 function updateFileListP(fileInfoList: FileInfo[], isNewUpload = false) {
@@ -124,6 +144,8 @@ function removeFileList() {
   } else {
     fileList.innerHTML = "";
   }
+  // Update border styles when file list is cleared
+  updateBorderStyles(false);
 }
 
 function openFileListEntryP(fileName: string, property: string | null, shouldScroll = true) {
@@ -194,6 +216,11 @@ async function loadExistingFiles() {
     document.querySelectorAll(".custom-file-input label").forEach((label) => {
       label.classList.remove("disabled");
     });
+
+    // Update border styles based on whether files were loaded
+    if (fileInfoList.length === 0) {
+      updateBorderStyles(false);
+    }
   } catch (error: unknown) {
     // Only show message if it's not an auth error
     if (error instanceof Error && !error.message.includes("Invalid token")) {
@@ -410,16 +437,11 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
     }
   });
 
-  // Enable/disable delete all button based on file list
-  updateDeleteAllButton(fileList.children.length > 0);
-  // Enable/disable process button based on file list
-  updateProcessButton(fileInfoList.length > 0);
+  // Update all buttons and border styles based on file list
+  updateButtons(fileInfoList.length > 0);
 }
 
-// Add function to update process button state
-function updateProcessButton(hasEntries: boolean) {
-  processButton.disabled = !hasEntries;
-}
+
 
 // Refactor uploadFilesListener to accept File[] or HTMLInputElement
 async function uploadFilesListener(inputOrFiles: HTMLInputElement | File[], replacedFileId: string | null = null) {
@@ -1688,8 +1710,7 @@ export function addFileToList(fileInfo: any) {
 }
 
 export function fileModifiedActions(hasEntries: boolean) {
-  updateDeleteAllButton(hasEntries);
-  updateProcessButton(hasEntries);
+  updateButtons(hasEntries);
   updateMissingDocuments();
   clearResultsControls();
 }
@@ -1762,10 +1783,7 @@ async function calculateTax(fileName: string) {
   }
 }
 
-function updateDeleteAllButton(hasEntries: boolean) {
-  const deleteAllButton = document.getElementById("deleteAllButton") as HTMLButtonElement;
-  deleteAllButton.disabled = !hasEntries;
-}
+
 
 // Helper function to get color class based on numeric value
 function getValueColorClass(value: string): string {
