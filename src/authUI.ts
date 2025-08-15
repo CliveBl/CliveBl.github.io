@@ -84,15 +84,6 @@ function setupEventListeners(): void {
     });
   }
 
-  // Login overlay close on outside click
-  if (loginOverlay) {
-    loginOverlay.addEventListener("click", (e) => {
-      if (e.target === loginOverlay) {
-        loginOverlay.classList.remove("active");
-      }
-    });
-  }
-
   // Login form submission
   if (loginForm) {
     loginForm.addEventListener("submit", handleLoginFormSubmit);
@@ -178,14 +169,6 @@ function setupEventListeners(): void {
   if (closeAccountModal && accountOverlay) {
     closeAccountModal.addEventListener("click", () => {
       accountOverlay.classList.remove("active");
-    });
-  }
-
-  if (accountOverlay) {
-    window.addEventListener("click", (event) => {
-      if (event.target === accountOverlay) {
-        accountOverlay.classList.remove("active");
-      }
     });
   }
 
