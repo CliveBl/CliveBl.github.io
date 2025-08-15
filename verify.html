@@ -3,30 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Verification</title>
+    <link rel="stylesheet" href="css/index.css" />
+   <title>Account Verification</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f5;
-        }
+		body {	
+			display: flex; 
+		 }
         .container {
             text-align: center;
             padding: 2rem;
-            background-color: white;
+            background-color: var(--bg-color);
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--modal-shadow);
+            color: var(--text-color);
         }
         .loading {
             display: none;
         }
         .error {
-            color: red;
+            color: var(--error-text);
             display: none;
+        }
+        a {
+            color: var(--link-color);
+        }
+        a:visited {
+            color: var(--link-color-visited);
         }
     </style>
 </head>
