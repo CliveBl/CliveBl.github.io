@@ -14,11 +14,7 @@
 	<link rel="stylesheet" href="css/index.css" />
 
 <style>
-
-body {	
-         display: flex; 
-      }
-	  
+  
         .landing-container {
             max-width: 800px;
             padding: 40px 20px;
@@ -56,7 +52,6 @@ body {
 <body>
     {% include auth-header.html %}
     <div class="landing-container">
-        <h1>דו״ח שנתי - עשה זאת בעצמך</h1>
         
         <div class="slideshow-container">
             <div class="slideshow-arrows">
@@ -123,7 +118,7 @@ body {
  
 		termsCheckbox.checked = cookieUtils.get("termsAccepted") === "true";
 		startButton.disabled = !termsCheckbox.checked;
-		
+
         termsCheckbox.addEventListener('change', () => {
             startButton.disabled = !termsCheckbox.checked;
 			if (termsCheckbox.checked) {

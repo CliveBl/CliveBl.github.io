@@ -113,6 +113,7 @@
 
 /* Update existing styles to use variables */
 body {
+  display: flex;
   font-family: "Open Sans Hebrew", sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: subpixel-antialiased;
