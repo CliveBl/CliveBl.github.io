@@ -3,8 +3,7 @@ import { selectedCustomerDataEntryName } from "./authService.js";
 import { debug } from "./constants.js";
 
 import { API_BASE_URL } from "./env.js";
-import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, 
-	dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
+import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 
 function makeUniqueId() {
@@ -140,7 +139,7 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
         // Iterate over all html elements and populate an item with the field names and values from the controls.
         for (const htmlElement of htmlElements) {
           const fieldName = htmlElement.getAttribute("data-field-name") as string;
-		  // Use the part of the field name after the /
+          // Use the part of the field name after the /
           item[fieldName.split("/")[1]] = getControlValue(htmlElement, fieldName);
         }
         updatedData[itemArrayName].push(item);
@@ -305,6 +304,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
     // Create year toggle button
     const yearToggleButton = document.createElement("button") as HTMLButtonElement;
+    yearToggleButton.type = "button";
     yearToggleButton.textContent = "+";
     yearToggleButton.className = "date-accordion-toggle-button";
     yearHeader.appendChild(yearToggleButton);
@@ -317,7 +317,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Add error icon if year is NO_YEAR
     if (year === NO_YEAR) {
       const errorIcon = document.createElement("span") as HTMLSpanElement;
-      errorIcon.textContent = "❌   " + "חשוב לבדוק ולתקן אם יש צורך!"
+      errorIcon.textContent = "❌   " + "חשוב לבדוק ולתקן אם יש צורך!";
       errorIcon.className = "year-error-icon";
       errorIcon.title = "שנה לא זוהתה - יש לבדוק את המסמך";
       yearTitle.appendChild(errorIcon);
@@ -361,6 +361,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       accordianBody.style.display = "none";
 
       const accordionToggleButton = document.createElement("button") as HTMLButtonElement;
+      accordionToggleButton.type = "button";
       accordionToggleButton.className = "accordion-toggle-button";
 
       displayFileInfoPlusMinusButton(accordianBody, accordionToggleButton);
@@ -436,7 +437,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Only expand if this is a new upload and it's the year of the last uploaded file
     if (isNewUpload) {
       const lastFile = allFilesData[allFilesData.length - 1];
-      
+
       if (lastFile) {
         // For FormError files, only expand the NO_YEAR accordion
         if (lastFile.type === "FormError" && year === NO_YEAR) {
@@ -587,9 +588,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       if (!input.className) input.className = "field-text-input";
       input.type = "text";
       input.maxLength = 30;
-	  input.placeholder = getFriendlyName(key);
+      input.placeholder = getFriendlyName(key);
       if (key.endsWith("clientName")) {
-		input.value = dummyName(fieldValue.value);
+        input.value = dummyName(fieldValue.value);
       } else {
         input.value = fieldValue.value;
       }
@@ -597,7 +598,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.className = "field-text-input";
       input.type = "text";
       input.maxLength = 100;
-	  input.placeholder = getFriendlyName(key);
+      input.placeholder = getFriendlyName(key);
       if (fieldValue.value) {
         input.value = fieldValue.value;
         input.classList.add("value");
@@ -734,7 +735,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     const fieldsToggleLink = accordianBody.querySelector(".fields-toggle-link") as HTMLAnchorElement;
     const actionButtons = accordianBody.querySelectorAll(".form-action-button");
     const buttonsArray: HTMLButtonElement[] = Array.from(actionButtons) as HTMLButtonElement[];
-    
+
     // Store any existing action buttons container
     const existingActionContainer = accordianBody.querySelector(".form-actions-container");
 
@@ -745,15 +746,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       accordianBody.appendChild(fieldsToggleLink);
     }
 
-	function makeFieldName(itemTitle : string, index : number, key: string) {
-		if (itemTitle != "") {
-			return itemTitle + "[" + index + "]/" + key;
-		} else {
-			return key;
-		}
-	}
+    function makeFieldName(itemTitle: string, index: number, key: string) {
+      if (itemTitle != "") {
+        return itemTitle + "[" + index + "]/" + key;
+      } else {
+        return key;
+      }
+    }
 
-    function createFieldRow(container: HTMLElement, itemTitle : string, index : number, key: string, fieldValue: Value) {
+    function createFieldRow(container: HTMLElement, itemTitle: string, index: number, key: string, fieldValue: Value) {
       // Skip fields already displayed in the header
       if (excludedHeaderFields.includes(key)) return;
 
@@ -916,6 +917,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         accordianBody.appendChild(titleElement);
         // Add a button to add a new item on the same line as the title
         const addItemButton = document.createElement("button");
+        addItemButton.type = "button";
         addItemButton.textContent = addButtonLabel;
         addItemButton.className = "form-add-item-button";
         titleElement.appendChild(addItemButton);
@@ -953,6 +955,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
           // Add remove button
           const deleteItemButton = document.createElement("button") as HTMLButtonElement;
+          deleteItemButton.type = "button";
           deleteItemButton.textContent = "🗑️";
           deleteItemButton.className = "delete-item-button";
           deleteItemButton.onclick = () => {
@@ -998,7 +1001,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Create a container for action buttons and help link
     const actionButtonsContainer = document.createElement("div") as HTMLDivElement;
     actionButtonsContainer.className = "form-actions-container";
-    
+
     // Re-add the action buttons (or create new ones if this is the first render)
     if (buttonsArray.length > 0) {
       buttonsArray.forEach((button) => {
@@ -1011,7 +1014,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
     // Add help link to the same container
     addHelpLink(actionButtonsContainer, fileData.documentType);
-    
+
     accordianBody.appendChild(actionButtonsContainer);
   }
 
@@ -1049,17 +1052,17 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   function getHelpSectionId(documentType: string): string {
     // Find the doc-item element that matches the document type
     const docItem = document.querySelector(`[data-doc-typename="${documentType}"]`) as HTMLElement;
-    
+
     if (docItem) {
       // Get the data-doc-type attribute which contains the help section ID
       return docItem.getAttribute("data-doc-type") || "unsupported";
     }
-    
+
     // Fallback for error cases
     if (documentType === "FormError" || documentType === "Error") {
       return "unsupported";
     }
-    
+
     // Default fallback
     return "unsupported";
   }
@@ -1250,6 +1253,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
   /* ********************************** create delete button ************************************** */
   function displayFileInfoDeleteButton(editorDeleteButton: HTMLButtonElement, fileData: any, accordionContainer: HTMLDivElement) {
+    editorDeleteButton.type = "button";
     editorDeleteButton.textContent = "🗑️";
     editorDeleteButton.className = "delete-button";
 
@@ -1264,22 +1268,32 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       })
         .then((response) => {
           if (response.ok) {
-            addMessage("קובץ נמחק בהצלחה!", "success");
-            // check if accordionContainers parent will now be empty and remove it if so
-            const parent = accordionContainer.parentElement;
-            accordionContainer.remove();
-            if (parent && parent.children.length === 1) {
-              parent.remove();
-              // refresh the accordion
-              window.location.reload();
+            clearMessages();
+            addMessage("מסמך נמחק בהצלחה!", "success");
+            // Remove the accordion container
+            // Check if the year container (parent) now only has the header left
+            const yearContainer = accordionContainer.closest(".date-accordion-container");
+            if (yearContainer) {
+              const yearBody = yearContainer.querySelector(".date-accordion-body");
+              /* 1 for the last file and 1 the captions row. */
+              if (yearBody && yearBody.children.length === 2) {
+                yearContainer.remove();
+              } else {
+                accordionContainer.remove();
+              }
             }
+
             // Remove the file from the backupAllFilesData array
             const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
             if (backupFormIndex !== -1) {
               backupAllFilesData.splice(backupFormIndex, 1);
             }
-            updateButtons(editableFileListHasEntries());
-            fileModifiedActions(editableFileListHasEntries());
+
+            // Check if there are any files left
+            const hasEntries = editableFileListHasEntries();
+
+            updateButtons(hasEntries);
+            fileModifiedActions(hasEntries);
           } else {
             addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
           }
@@ -1292,105 +1306,109 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   }
 
   function customerMessageModal({
-	title,
-	message,
-	button1Text,
-	button2Text = null,
-	displayTimeInSeconds = 1,
+    title,
+    message,
+    button1Text,
+    button2Text = null,
+    displayTimeInSeconds = 1,
   }: {
-	title: string;
-	message: string;
-	button1Text: string;
-	button2Text?: string | null;
-	displayTimeInSeconds?: number;
+    title: string;
+    message: string;
+    button1Text: string;
+    button2Text?: string | null;
+    displayTimeInSeconds?: number;
   }) {
-	return new Promise((resolve) => {
-	  // Remove any existing modal
-	  const existingModal = document.getElementById("customModal");
-	  if (existingModal) {
-		existingModal.remove();
-	  }
-  
-	  // Create modal container
-	  const timeModal = document.createElement("div");
-	  timeModal.id = "customModal";
-  
-	  const timeModalContent = document.createElement("div");
-	  timeModalContent.className = "time-modal-content";
-  
-	  const timeModalTitle = document.createElement("h2");
-	  timeModalTitle.textContent = title;
-	  timeModalTitle.className = "time-modal-title";
-	  timeModalContent.appendChild(timeModalTitle);
-  
-	  const timeModalMessage = document.createElement("p");
-	  timeModalMessage.textContent = message;
-	  timeModalMessage.className = "time-modal-message";
-	  timeModalContent.appendChild(timeModalMessage);
-  
-	  const timeModalButtonContainer = document.createElement("div") as HTMLDivElement;
-	  timeModalButtonContainer.className = "time-modal-button-container";
-	  timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
-  
-	  const timeModalCountdownText = document.createElement("p");
-	  timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
-	  timeModalCountdownText.className = "time-modal-countdown";
-	  timeModalContent.appendChild(timeModalCountdownText);
-  
-	  // If displayTimeInSeconds > 0, hide buttons and auto-close
-	  if (displayTimeInSeconds > 0) {
-		// Countdown update every second
-		let remainingTime = displayTimeInSeconds;
-		const countdownInterval = setInterval(() => {
-		  remainingTime--;
-		  timeModalCountdownText.textContent = `Closing in ${remainingTime} seconds...`;
-  
-		  if (remainingTime <= 0) {
-			clearInterval(countdownInterval);
-			timeModal.remove();
-			resolve(0); // Return 0 when auto-closing
-		  }
-		}, 1000);
-	  } else {
-		// Button 1
-		const timeModalButton1 = document.createElement("button") as HTMLButtonElement;
-		timeModalButton1.textContent = button1Text;
-		timeModalButton1.className = "time-modal-button";
-		timeModalButton1.onclick = () => {
-		  timeModal.remove(); // Close modal
-		  resolve(1); // Return 1 for first button clicked
-		};
-		timeModalButtonContainer.appendChild(timeModalButton1);
-  
-		// Button 2 (if provided)
-		if (button2Text) {
-		  const timeModalButton2 = document.createElement("button") as HTMLButtonElement;
-		  timeModalButton2.textContent = button2Text;
-		  timeModalButton2.className = "time-modal-button";
-		  timeModalButton2.onclick = () => {
-			timeModal.remove(); // Close modal
-			resolve(2); // Return 2 for second button clicked
-		  };
-		  timeModalButtonContainer.appendChild(timeModalButton2);
-		}
-  
-		timeModalContent.appendChild(timeModalButtonContainer);
-	  }
-  
-	  timeModal.appendChild(timeModalContent);
-	  document.body.appendChild(timeModal);
-	});
+    return new Promise((resolve) => {
+      // Remove any existing modal
+      const existingModal = document.getElementById("customModal");
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Create modal container
+      const timeModal = document.createElement("div");
+      timeModal.id = "customModal";
+
+      const timeModalContent = document.createElement("div");
+      timeModalContent.className = "time-modal-content";
+
+      const timeModalTitle = document.createElement("h2");
+      timeModalTitle.textContent = title;
+      timeModalTitle.className = "time-modal-title";
+      timeModalContent.appendChild(timeModalTitle);
+
+      const timeModalMessage = document.createElement("p");
+      timeModalMessage.textContent = message;
+      timeModalMessage.className = "time-modal-message";
+      timeModalContent.appendChild(timeModalMessage);
+
+      const timeModalButtonContainer = document.createElement("div") as HTMLDivElement;
+      timeModalButtonContainer.className = "time-modal-button-container";
+      timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
+
+      const timeModalCountdownText = document.createElement("p");
+      timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
+      timeModalCountdownText.className = "time-modal-countdown";
+      timeModalContent.appendChild(timeModalCountdownText);
+
+      // If displayTimeInSeconds > 0, hide buttons and auto-close
+      if (displayTimeInSeconds > 0) {
+        // Countdown update every second
+        let remainingTime = displayTimeInSeconds;
+        const countdownInterval = setInterval(() => {
+          remainingTime--;
+          timeModalCountdownText.textContent = `Closing in ${remainingTime} seconds...`;
+
+          if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+            timeModal.remove();
+            resolve(0); // Return 0 when auto-closing
+          }
+        }, 1000);
+      } else {
+        // Button 1
+        const timeModalButton1 = document.createElement("button") as HTMLButtonElement;
+        timeModalButton1.type = "button";
+        timeModalButton1.textContent = button1Text;
+        timeModalButton1.className = "time-modal-button";
+        timeModalButton1.onclick = () => {
+          timeModal.remove(); // Close modal
+          resolve(1); // Return 1 for first button clicked
+        };
+        timeModalButtonContainer.appendChild(timeModalButton1);
+
+        // Button 2 (if provided)
+        if (button2Text) {
+          const timeModalButton2 = document.createElement("button") as HTMLButtonElement;
+          timeModalButton2.type = "button";
+          timeModalButton2.textContent = button2Text;
+          timeModalButton2.className = "time-modal-button";
+          timeModalButton2.onclick = () => {
+            timeModal.remove(); // Close modal
+            resolve(2); // Return 2 for second button clicked
+          };
+          timeModalButtonContainer.appendChild(timeModalButton2);
+        }
+
+        timeModalContent.appendChild(timeModalButtonContainer);
+      }
+
+      timeModal.appendChild(timeModalContent);
+      document.body.appendChild(timeModal);
+    });
   }
-  
+
   async function displayFileInfoButtons(actionButtonsContainer: HTMLDivElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any) {
     // Create the save button
     const saveButton = document.createElement("button") as HTMLButtonElement;
+    saveButton.type = "button";
     saveButton.className = "form-action-button";
     saveButton.disabled = true;
     saveButton.textContent = "שמור שינויים";
 
     // Create the cancel button
     const cancelButton = document.createElement("button") as HTMLButtonElement;
+    cancelButton.type = "button";
     cancelButton.className = "form-action-button";
     cancelButton.disabled = true;
     cancelButton.textContent = "ביטול שינויים";

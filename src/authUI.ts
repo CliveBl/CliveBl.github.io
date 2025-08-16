@@ -11,6 +11,7 @@ import {
   loadCustomerList,
   getCustomerListCache,
   updateCustomerName,
+  updateSelectedCustomer,
   requestPasswordReset,
   deleteAccount,
   isValidEmail,
@@ -21,6 +22,7 @@ import {
   showErrorModal,
   showInfoModal,
   showWarningModal,
+  DEFAULT_CUSTOMER_DATA_ENTRY_NAME,
 } from "./authService.js";
 
 import { ANONYMOUS_EMAIL } from "./constants.js";
@@ -290,10 +292,11 @@ function handleCustomerSelectChange(): void {
     // If selecting an existing customer, switch to it immediately
     if (customerSelect.value !== selectedCustomerDataEntryName) {
       // This would need to be handled by the main application
-      // For now, just update the UI
-      if (customerButton) {
-        customerButton.textContent = translateCustomerDataEntryName(customerSelect.value);
-      }
+      updateSelectedCustomer(customerSelect.value);
+      // Update the UI
+      customerButton.textContent = translateCustomerDataEntryName(customerSelect.value);
+      // Dismiss the customer overlay
+      customerOverlay.classList.remove("active");
     }
   }
 }
@@ -441,7 +444,7 @@ export function populateCustomerSelect(customerData: { name: string; modified: n
     customerData.forEach((customer) => {
       const option = document.createElement("option");
       option.value = customer.name;
-      option.textContent = customer.name;
+      option.textContent = customer.name === DEFAULT_CUSTOMER_DATA_ENTRY_NAME ? "ברירת מחדל" : customer.name;
       customerSelect.appendChild(option);
     });
   } else {
@@ -466,7 +469,6 @@ function showPasswordResetModal(): void {
   resetEmailDisplay.textContent = email;
   passwordResetModal.style.display = "block";
 }
-
 
 if (usernameParam) {
   // Show the login modal

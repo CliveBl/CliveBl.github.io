@@ -5,12 +5,12 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.11";
+export let UIVersion = "1.12";
 export let ServerVersion = "";
 
 // Customer management
-export let selectedCustomerDataEntryName = "Default";
-const DEFAULT_CUSTOMER_DATA_ENTRY_NAME = "Default";
+export const DEFAULT_CUSTOMER_DATA_ENTRY_NAME = "Default";
+export let selectedCustomerDataEntryName = DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
 const SELECTED_CUSTOMER_STORAGE_KEY = "selectedCustomerDataEntryName";
 
 // Customer list cache
@@ -423,8 +423,8 @@ export async function deleteAccount(): Promise<void> {
 
 // Utility functions
 export function translateCustomerDataEntryName(customerDataEntryName: string): string {
-  if (customerDataEntryName === "Default") {
-    return "צור לקוח חדש";
+  if (customerDataEntryName === DEFAULT_CUSTOMER_DATA_ENTRY_NAME) {
+    return "לקוח";
   }
   return customerDataEntryName;
 }
