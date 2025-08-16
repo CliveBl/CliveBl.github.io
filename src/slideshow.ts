@@ -85,11 +85,11 @@ function handleSwipe() {
     // Check if the swipe is more horizontal than vertical
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
         if (deltaX > 0) {
-            // Swipe right - go to previous slide
-            showSlide(currentSlide - 1);
-        } else {
-            // Swipe left - go to next slide
+            // Swipe right - go to next slide
             showSlide(currentSlide + 1);
+        } else {
+            // Swipe left - go to previous slide
+            showSlide(currentSlide - 1);
         }
     }
 }
