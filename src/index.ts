@@ -1957,6 +1957,45 @@ async function initialize() {
     });
   });
 
+  // Add event listener for info-section toggle
+  const infoSectionToggle = document.getElementById("infoSectionToggle");
+  const infoSectionContent = document.getElementById("infoSectionContent");
+  if (infoSectionToggle && infoSectionContent) {
+                         // Check if info section was previously collapsed
+        const wasCollapsed = sessionStorage.getItem("infoSectionCollapsed") === "true";
+        if (wasCollapsed) {
+          // Already collapsed by default in HTML, just update the icon and title
+          const toggleIcon = infoSectionToggle.querySelector(".toggle-icon") as HTMLElement;
+          toggleIcon.textContent = "▼"; // Use same icons as editor accordion
+          infoSectionToggle.title = "הצג מידע";
+        } else {
+          // Expand the section by removing the collapsed class
+          infoSectionContent.classList.remove("collapsed");
+          const toggleIcon = infoSectionToggle.querySelector(".toggle-icon") as HTMLElement;
+          toggleIcon.textContent = "▲"; // Use same icons as editor accordion
+          infoSectionToggle.title = "הסתר מידע";
+        }
+    
+    infoSectionToggle.addEventListener("click", () => {
+      const isCollapsed = infoSectionContent.classList.contains("collapsed");
+      const toggleIcon = infoSectionToggle.querySelector(".toggle-icon") as HTMLElement;
+      
+                       if (isCollapsed) {
+            // Expand the section
+            infoSectionContent.classList.remove("collapsed");
+            toggleIcon.textContent = "▲"; // Use same icons as editor accordion
+            infoSectionToggle.title = "הסתר מידע";
+            sessionStorage.setItem("infoSectionCollapsed", "false");
+          } else {
+            // Collapse the section
+            infoSectionContent.classList.add("collapsed");
+            toggleIcon.textContent = "▼"; // Use same icons as editor accordion
+            infoSectionToggle.title = "הצג מידע";
+            sessionStorage.setItem("infoSectionCollapsed", "true");
+          }
+    });
+  }
+
   // Update form creation select elements according to the form types
   const createFormSelect = document.getElementById("createFormSelect") as HTMLSelectElement;
   createFormSelect.innerHTML = `<option value="">צור מסמך חדש</option>`;

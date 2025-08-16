@@ -767,19 +767,58 @@ ul {
 
 .info-section {
   background-color: var(--item-bg);
-  padding: 20px;
+  padding: 10px;
   border-radius: 8px;
-  margin: 20px 0;
+  margin: 10px 0;
   box-shadow: 0 2px 4px var(--modal-shadow);
   position: relative;
 }
 
+.info-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
 .info-section h2 {
-  margin: 0 0 20px 0;
+  margin: 0;
   color: var(--text-color);
   font-size: 1.3em;
-  border-right: 4px solid var(--tax-green);
-  padding-right: 10px;
+  /* border-right: 4px solid var(--tax-green); */
+  padding-right: 1px;
+}
+
+.info-section-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  color: var(--text-color);
+  font-size: 1.2em;
+}
+
+.info-section-toggle:hover {
+  background-color: var(--border-color);
+}
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.info-section-content {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform-origin: top;
+}
+
+.info-section-content.collapsed {
+  opacity: 0;
+  transform: scaleY(0);
+  height: 0;
+  overflow: hidden;
 }
 
 .required-docs {
