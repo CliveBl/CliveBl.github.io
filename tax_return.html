@@ -1,5 +1,6 @@
 ---
 ---
+
 <!DOCTYPE html>
 <!-- Set language to Hebrew -->
 <html lang="he" dir="rtl">
@@ -25,246 +26,253 @@
 
       <div class="scrollable-content">
         <div class="info-section">
-          <h2>מסמכים נדרשים להגשת הדו״ח לשני בני הזוג</h2>
-          <div class="required-docs">
-            <div class="doc-item" data-doc-type="identity-document" data-doc-typename="תעודת זהות">
-              <div class="doc-details">
-                <h3>תעודת זהות</h3>
-                <span class="doc-icon">🪪</span>
-                <p>תעודת זהות של שני בני הזוג</p>
-                <a href="help.html#identity-document" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="identity-document-count" id="identity-document-count">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                  </select></label
-                >
-                <label for="identity-document-count" id="identity-document-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="form106" data-doc-typename="טופס 106">
-              <div class="doc-details">
-                <h3>טופס 106</h3>
-                <span class="doc-icon">📄</span>
-                <p>תלושי משכורת שנתיים מכל מעסיק</p>
-                <a href="help.html#form106" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="form106-count" id="form106-count">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                  </select></label
-                >
-                <label for="form106-count" id="form106-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="capital-gains" data-doc-typename="טופס 867">
-              <div class="doc-details">
-                <h3>טופס 867</h3>
-                <span class="doc-icon">📊</span>
-                <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
-                <a href="help.html#capital-gains" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="capital-gains-count" id="capital-gains-count">
-                    <option value="0">0</option>
-                    <option value="1" selected>1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                  </select></label
-                >
-                <label for="capital-gains-count" id="capital-gains-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="residency" data-doc-typename="אישור תושב">
-              <div class="doc-details">
-                <h3>אישור תושב</h3>
-                <span class="doc-icon">🏠</span>
-                <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
-                <a href="help.html#residency" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="residency-count" id="residency-count">
-                    <option value="0" selected>0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                  </select></label
-                >
-                <label for="residency-count" id="residency-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="donations" data-doc-typename="קבלה תרומה">
-              <div class="doc-details">
-                <h3>אישורי תרומות</h3>
-                <span class="doc-icon">💝</span>
-                <p>קבלות על תרומות למוסדות מוכרים</p>
-                <a href="help.html#donations" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="donations-count" id="donations-count">
-                    <option value="0" selected>0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                  </select></label
-                >
-                <label for="donations-count" id="donations-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="national-insurance" data-doc-typename="אישור ביטוח לאומי">
-              <div class="doc-details">
-                <h3>ביטוח לאומי</h3>
-                <span class="doc-icon">🏛️</span>
-                <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
-                <a href="help.html#national-insurance" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="national-insurance-count" id="national-insurance-count">
-                    <option value="0" selected>0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                  </select></label
-                >
-                <label for="national-insurance-count" id="national-insurance-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="education" data-doc-typename="אישור זכאות לתואר">
-              <div class="doc-details">
-                <h3>אישור זכאות לתואר</h3>
-                <span class="doc-icon">🏫</span>
-                <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
-                <a href="help.html#education" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="education-count" id="education-count">
-                    <option value="0" selected>0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                  </select></label
-                >
-                <label for="education-count" id="education-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="service-release" data-doc-typename="תעודת שחרור/תעודת סיום שירות">
-              <div class="doc-details">
-                <h3>תעודת שחרור</h3>
-                <span class="doc-icon">🪖</span>
-                <p>תעודת שחרור משירות צבאי או לאומי</p>
-                <a href="help.html#service-release" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="service-release-count" id="service-release-count">
-                    <option value="0" selected>0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                  </select></label
-                >
-                <label for="service-release-count" id="service-release-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="disability-documents" data-doc-typename="אישור נכה/עיוור">
-              <div class="doc-details">
-                <h3>מסמכי נכות רפואית</h3>
-                <span class="doc-icon">👨‍🦼</span>
-                <p>טופס 1516 - בקשה לעדכון נכות רפואית לפטור ממס הכנסה עפ"י סעיף 9(5) לפקודת מס הכנסה ופרוטוקול ועדה</p>
-                <a href="help.html#disability-documents" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="disability-documents-count" id="disability-documents-count">
-                    <option value="0" selected>0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                  </select></label
-                >
-                <label for="disability-documents-count" id="disability-documents-missing" class="doc-status"></label>
-              </div>
-            </div>
-            <div class="doc-item" data-doc-type="unsupported" data-doc-typename="לא נתמך">
-              <div class="doc-details">
-                <h3>מסמכים ומצבים לא נתמכים</h3>
-                <span class="doc-icon">⚠️</span>
-                <p>מסמכים שלא נתמכים כרגע במערכת: מס שבח, קריפטו, ברוקר זר, נכסים בחו"ל</p>
-                <a href="help.html#unsupported" class="more-info-link">
-                  <span>מידע נוסף</span>
-                </a>
-              </div>
-              <div class="doc-controls">
-                <label
-                  >כמות
-                  <select name="unsupported-count" id="unsupported-count">
-                    <option value="0" selected>0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                  </select></label
-                >
-                <label for="unsupported-count" id="unsupported-missing" class="doc-status"></label>
-              </div>
-            </div>
+          <div class="info-section-header">
+            <button class="info-section-toggle" id="infoSectionToggle" title="הצג/הסתר מידע">
+              <span class="toggle-icon">▼</span>
+            </button>
+            <h2>בחרו את הכמות המסמכים מכל סוג שצריך להיות לשני בני הזוג ביחד</h2>
           </div>
-          <div class="missing-docs-warning" id="missingDocsWarning"></div>
+          <div class="info-section-content collapsed" id="infoSectionContent">
+            <div class="required-docs">
+              <div class="doc-item" data-doc-type="identity-document" data-doc-typename="תעודת זהות">
+                <div class="doc-details">
+                  <h3>תעודת זהות</h3>
+                  <span class="doc-icon">🪪</span>
+                  <p>תעודת זהות של שני בני הזוג</p>
+                  <a href="help.html#identity-document" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="identity-document-count" id="identity-document-count">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2" selected>2</option>
+                    </select></label
+                  >
+                  <label for="identity-document-count" id="identity-document-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="form106" data-doc-typename="טופס 106">
+                <div class="doc-details">
+                  <h3>טופס 106</h3>
+                  <span class="doc-icon">📄</span>
+                  <p>תלושי משכורת שנתיים מכל מעסיק</p>
+                  <a href="help.html#form106" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="form106-count" id="form106-count">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2" selected>2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select></label
+                  >
+                  <label for="form106-count" id="form106-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="capital-gains" data-doc-typename="טופס 867">
+                <div class="doc-details">
+                  <h3>טופס 867</h3>
+                  <span class="doc-icon">📊</span>
+                  <p>אישורים שנתיים מהבנקים על רווחים מניירות ערך.</p>
+                  <a href="help.html#capital-gains" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="capital-gains-count" id="capital-gains-count">
+                      <option value="0">0</option>
+                      <option value="1" selected>1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                    </select></label
+                  >
+                  <label for="capital-gains-count" id="capital-gains-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="residency" data-doc-typename="אישור תושב">
+                <div class="doc-details">
+                  <h3>אישור תושב</h3>
+                  <span class="doc-icon">🏠</span>
+                  <p>אישור תושב מהרשות המקומית (אם רלוונטי)</p>
+                  <a href="help.html#residency" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="residency-count" id="residency-count">
+                      <option value="0" selected>0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                    </select></label
+                  >
+                  <label for="residency-count" id="residency-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="donations" data-doc-typename="קבלה תרומה">
+                <div class="doc-details">
+                  <h3>אישורי תרומות</h3>
+                  <span class="doc-icon">💝</span>
+                  <p>קבלות על תרומות למוסדות מוכרים</p>
+                  <a href="help.html#donations" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="donations-count" id="donations-count">
+                      <option value="0" selected>0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="11">11</option>
+                      <option value="12">12</option>
+                    </select></label
+                  >
+                  <label for="donations-count" id="donations-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="national-insurance" data-doc-typename="אישור ביטוח לאומי">
+                <div class="doc-details">
+                  <h3>ביטוח לאומי</h3>
+                  <span class="doc-icon">🏛️</span>
+                  <p>אישור שנתי מביטוח לאומי על תשלומים והחזרים</p>
+                  <a href="help.html#national-insurance" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="national-insurance-count" id="national-insurance-count">
+                      <option value="0" selected>0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </select></label
+                  >
+                  <label for="national-insurance-count" id="national-insurance-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="education" data-doc-typename="אישור זכאות לתואר">
+                <div class="doc-details">
+                  <h3>אישור זכאות לתואר</h3>
+                  <span class="doc-icon">🏫</span>
+                  <p>אישור על סיום תואר או מסלול לימודים מוכר</p>
+                  <a href="help.html#education" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="education-count" id="education-count">
+                      <option value="0" selected>0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                    </select></label
+                  >
+                  <label for="education-count" id="education-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="service-release" data-doc-typename="תעודת שחרור/תעודת סיום שירות">
+                <div class="doc-details">
+                  <h3>תעודת שחרור</h3>
+                  <span class="doc-icon">🪖</span>
+                  <p>תעודת שחרור משירות צבאי או לאומי</p>
+                  <a href="help.html#service-release" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="service-release-count" id="service-release-count">
+                      <option value="0" selected>0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                    </select></label
+                  >
+                  <label for="service-release-count" id="service-release-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="disability-documents" data-doc-typename="אישור נכה/עיוור">
+                <div class="doc-details">
+                  <h3>מסמכי נכות רפואית</h3>
+                  <span class="doc-icon">👨‍🦼</span>
+                  <p>טופס 1516 - בקשה לעדכון נכות רפואית לפטור ממס הכנסה עפ"י סעיף 9(5) לפקודת מס הכנסה ופרוטוקול ועדה</p>
+                  <a href="help.html#disability-documents" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="disability-documents-count" id="disability-documents-count">
+                      <option value="0" selected>0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                    </select></label
+                  >
+                  <label for="disability-documents-count" id="disability-documents-missing" class="doc-status"></label>
+                </div>
+              </div>
+              <div class="doc-item" data-doc-type="unsupported" data-doc-typename="לא נתמך">
+                <div class="doc-details">
+                  <h3>מסמכים ומצבים לא נתמכים</h3>
+                  <span class="doc-icon">⚠️</span>
+                  <p>מסמכים שלא נתמכים כרגע במערכת: מס שבח, קריפטו, ברוקר זר, נכסים בחו"ל</p>
+                  <a href="help.html#unsupported" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <label
+                    >כמות
+                    <select name="unsupported-count" id="unsupported-count">
+                      <option value="0" selected>0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select></label
+                  >
+                  <label for="unsupported-count" id="unsupported-missing" class="doc-status"></label>
+                </div>
+              </div>
+            </div>
+            <div class="missing-docs-warning" id="missingDocsWarning"></div>
+          </div>
         </div>
 
         <!-- Add toggle link for file list view -->
@@ -274,7 +282,7 @@
 
         <!-- Container for the list of uploaded files -->
         <ul class="file-list" id="fileList"></ul>
-        <div id="expandableAreaUploadFiles"> </div>
+        <div id="expandableAreaUploadFiles"></div>
 
         <!-- Drag and drop area -->
         <div id="dragDropArea" class="drag-drop-area">
@@ -355,579 +363,579 @@
       </div>
     </div>
 
-	<div class="container_867_templates" id="template_867_2022" hidden>
-		<fieldset>
-		  <legend>טופס 867 א+ב - פרטי רווחי הון</legend>
-		  <p>מבוסס על מבנה נתוני ההכנסה בטופס 867 א+ב. מספרי השדות מתייחסים לשדות בטופס המקורי.</p>
-		  <table>
-			<thead>
-			  <tr>
-				<th>שיעור מס</th>
-				<th>רווחים חייבים ללא הפסדים</th>
-				<th>רווחים משותפויות נפט</th>
-				<th>רווחים פטורים</th>
-			  </tr>
-			</thead>
-			<tbody>
-			  <tr>
-				<td>0%</td>
-				<td>
-				  <input type="text" class="field-input" name="867ab-gains-0" data-field-name="ProfitIncomeTaxedAtPercent0" value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-oilgains-0" disabled value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-exempt-0" disabled value="0.00" />
-				</td>
-			  </tr>
-			  <tr>
-				<td>15%</td>
-				<td>
-				  <input type="text" class="field-input" name="867ab-gains-15" data-field-name="ProfitIncomeTaxedAtPercent15" value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-oilgains-15" disabled value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-exempt-15" disabled value="0.00" />
-				</td>
-			  </tr>
-			  <tr>
-				<td>20%</td>
-				<td>
-				  <input type="text" class="field-input" name="867ab-gains-20" data-field-name="ProfitIncomeTaxedAtPercent20" value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-oilgains-20" disabled value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-exempt-20" disabled value="0.00" />
-				</td>
-			  </tr>
-			  <tr>
-				<td>25%</td>
-				<td>
-				  <input type="text" class="field-input" name="867ab-gains-25" data-field-name="ProfitIncomeTaxedAtPercent25" value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-oilgains-25" disabled value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-exempt-25" disabled value="0.00" />
-				</td>
-			  </tr>
-			  <tr>
-				<td>23% (חברות)</td>
-				<td>
-				  <input type="text" class="field-input" name="867ab-gains-23c" data-field-name="ProfitIncomeTaxedAtPercent23" value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-oilgains-23c" disabled value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-exempt-23c" disabled  value="0.00" />
-				</td>
-			  </tr>
-			  <tr>
-				<td>35%</td>
-				<td>
-				  <input type="text" class="field-input" name="867ab-gains-35" data-field-name="ProfitIncomeTaxedAtPercent35" value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-oilgains-35" disabled value="0.00" />
-				</td>
-				<td class="disabled-field">
-				  <input type="text" class="field-input" name="867ab-exempt-35" disabled value="0.00" />
-				</td>
-			  </tr>
-			</tbody>
-		  </table>
-		  <cite></cite>
-  
-		  <div>
-			<!--הפסדים ברי קיזוז-->
-			<label>הפסדים ברי קיזוז <input type="text" class="field-input" name="867ab-offsetable-losses" data-field-name="OffsetableLosses" value="0.00" /></label>
-			<cite></cite>
-		  </div>
-		  <div class="disabled-field">
-			<label>הפסדים ממכירת יחידות קרן השקעות <input type="text" class="field-input" name="867ab-reit-losses" data-field-name="867ab-reit-losses" disabled value="0.00" /></label>
-			<cite></cite>
-		  </div>
-		  <div class="disabled-field">
-			<label>הפסדים לא כשירים לניכוי <input type="text" class="field-input" name="867ab-nonsetoff-losses" data-field-name="867ab-nonsetoff-losses" disabled value="0.00" /></label>
-			<cite></cite>
-		  </div>
-		  <div>
-			<label>מחזור מכירות <input type="text" class="field-input" name="867ab-total-sales" data-field-name="TotalSales_256" value="0.00" /></label>
-			<cite></cite>
-		  </div>
-		  <div>
-			<label>מספר עסקאות <input type="text" class="field-input" name="867ab-number-of-deals" data-field-name="NumberOfDealsInteger" value="0" /></label>
-			<cite></cite>
-		  </div>
-		  <div class="disabled-field">
-			<label>סיבת הפטור <input type="text" name="867ab-exemption-reason" disabled value="" /></label>
-			<cite></cite>
-			<p>סיבות אפשריות לפטור תושב חוץ, תושב חוזר ותיק, תושב ישראל לראשונה.</p>
-			<cite></cite>
-		  </div>
-		  <div>
-			<label>מס שנוכה במקור <input type="text" class="field-input" name="867ab-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceProfit_040" value="0.00" /></label>
-			<cite></cite>
-		  </div>
-		</fieldset>
-  
-		<fieldset>
-		  <legend>טופס 867 ג - פרטי דיבידנד וריבית מניירות ערך</legend>
-  
-		  <fieldset>
-			<legend>דיבידנד / חלוקת רווחים מניירות ערך</legend>
-			<table>
-			  <thead>
-				<tr>
-				  <th>שיעור מס</th>
-				  <th>הכנסה מדיבידנד לפני ניכוי הפסדים (ישראל ומחו"ל)</th>
-				  <th>הכנסה מדיבידנד מחו"ל (כלול בעמודה השמאלית)</th>
-				  <th>רווחים פטורים</th>
-				  <th>מס ששולם בחו"ל כשיר לניכוי/זיכוי</th>
-				</tr>
-			  </thead>
-			  <tbody>
-				<tr>
-				  <td>0%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-income-00" data-field-name="DividendIncomeTaxedAtPercent0" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-income-abroad-00" data-field-name="DividendIncomeAbroadTaxedAtPercent0" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-exempt-00" data-field-name="ExemptProfitsTaxedAtPercent0" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-taxabroad-allowed-00" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>4%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-income-04" data-field-name="DividendIncomeTaxedAtPercent4" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-income-abroad-04" data-field-name="DividendIncomeAbroadTaxedAtPercent4" disabled @value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-exempt-04" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-taxabroad-allowed-04" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>15%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-income-15" data-field-name="DividendIncomeTaxedAtPercent15" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-income-abroad-15" data-field-name="DividendIncomeAbroadTaxedAtPercent15" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-exempt-15" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-taxabroad-allowed-15" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>20%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-income-20" data-field-name="DividendIncomeTaxedAtPercent20" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-income-abroad-20" data-field-name="DividendIncomeAbroadTaxedAtPercent20" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-exempt-20" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-taxabroad-allowed-20" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>25%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-income-25" data-field-name="DividendIncomeTaxedAtPercent25" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-income-abroad-25" data-field-name="DividendIncomeAbroadTaxedAtPercent25" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-exempt-25" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-taxabroad-allowed-25" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>23% (חברות)</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-income-23" data-field-name="DividendIncomeTaxedAtPercent23" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-income-abroad-23" data-field-name="DividendIncomeAbroadTaxedAtPercent23" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-exempt-23c" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-div-taxabroad-allowed-23c" disabled value="0.00" />
-				  </td>
-				</tr>
-			  </tbody>
-			</table>
-			<cite></cite>
-  
-			<table class="disabled-field">
-			  <thead>
-				<tr>
-				  <th>שיעור מס</th>
-				  <th>הכנסה מקרנות זרות הנסחרות בישראל, קרנות פטורות וקרנות סל</th>
-				</tr>
-			  </thead>
-			  <tbody>
-				<tr>
-				  <td>0%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-funds-00" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>4%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-funds-04" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>15%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-funds-15" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>20%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-funds-20" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>25%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-funds-25" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>23% (חברות)</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-div-funds-23c" disabled value="0.00" />
-				  </td>
-				</tr>
-			  </tbody>
-			</table>
-			<cite></cite>
-  
-			<div>
-			  <label
-				>מס שנוכה במקור מדיבידנד/חלוקת רווחים <input type="text" class="field-input" name="867g-div-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceDividend_040" value="0.00"
-			  /></label>
-			  <cite></cite>
-			</div>
-		  </fieldset>
-  
-		  <fieldset>
-			<legend>ריבית / דמי הנחה מניירות ערך</legend>
-			<table>
-			  <thead>
-				<tr>
-				  <th>שיעור מס</th>
-				  <th>הכנסה מריבית/דמי הנחה לפני ניכוי הפסדים (ישראל ומחו"ל)</th>
-				  <th>הכנסה מריבית מחו"ל (כלול בעמודה השמאלית)</th>
-				  <th>רווחים פטורים</th>
-				  <th>מס ששולם בחו"ל כשיר לניכוי/זיכוי</th>
-				</tr>
-			  </thead>
-			  <tbody>
-				<tr>
-				  <td>0%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-int-income-00" data-field-name="InterestIncomeTaxedAtPercent0" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-income-abroad-00" data-field-name="InterestIncomeAbroadTaxedAtPercent0" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-exempt-0" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-taxabroad-allowed-0" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>10%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-int-income-10" data-field-name="InterestIncomeTaxedAtPercent10" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-income-abroad-10" data-field-name="InterestIncomeAbroadTaxedAtPercent10" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-exempt-10" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-taxabroad-allowed-10" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>15%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-int-income-15" data-field-name="InterestIncomeTaxedAtPercent15" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-income-abroad-15" data-field-name="InterestIncomeAbroadTaxedAtPercent15" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-exempt-15" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-taxabroad-allowed-15" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>20%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-int-income-20" data-field-name="InterestIncomeTaxedAtPercent20" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-income-abroad-20" data-field-name="InterestIncomeAbroadTaxedAtPercent20" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-exempt-20" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-taxabroad-allowed-20" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>25%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-int-income-25" data-field-name="InterestIncomeTaxedAtPercent25" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-income-abroad-25" data-field-name="InterestIncomeAbroadTaxedAtPercent25" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-exempt-25" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-taxabroad-allowed-25" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>23% (חברות)</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-int-income-23" data-field-name="InterestIncomeTaxedAtPercent23" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-income-abroad-23" data-field-name="InterestIncomeAbroadTaxedAtPercent23" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-exempt-23c" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-taxabroad-allowed-23c" disabled value="0.00" />
-				  </td>
-				</tr>
-				<tr>
-				  <td>35%</td>
-				  <td>
-					<input type="text" class="field-input" name="867g-int-income-35" data-field-name="InterestIncomeTaxedAtPercent35" value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-income-abroad-35" data-field-name="InterestIncomeAbroadTaxedAtPercent35" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-exempt-35" disabled value="0.00" />
-				  </td>
-				  <td class="disabled-field">
-					<input type="text" class="field-input" name="867g-int-taxabroad-allowed-35" disabled value="0.00" />
-				  </td>
-				</tr>
-			  </tbody>
-			</table>
-			<cite></cite>
-  
-			<div>
-			  <label
-				>מס שנוכה במקור מריבית / דמי הנחה <input type="text" class="field-input" name="867g-int-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceInterest_040" value="0.00"
-			  /></label>
-			  <cite></cite>
-			</div>
-		  </fieldset>
-  
-		  <div class="disabled-field">
-			<label>סיבת הפטור <input type="text" name="867g-exemption-reason" disabled value="" /></label>
-		  </div>
-		</fieldset>
-  
-		<fieldset>
-		  <legend>טופס 867 ד - פרטי ריבית ורווחים מפקדונות/חסכונות</legend>
-		  <p>מבוסס על מבנה נתוני ההכנסה בטופס 867 ד. מספרי השדות מתייחסים לשדות בטופס המקורי.</p>
-  
-		  <table>
-			<thead>
-			  <tr>
-				<th>מוצר / סוג הכנסה</th>
-				<th>מספר שדה</th>
-				<th>סכום (ש"ח)</th>
-				<th>שיעור מס</th>
-			  </tr>
-			</thead>
-			<tbody>
-			  <tr>
-				<td>הכנסה חייבת מריבית על יתרות עו"ש בזכות</td>
-				<td>שדה 076</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-current-account-income-076" data-field-name="DepositCurrentAccountIncomeTaxedAtPercent10_076" value="0.00" />
-				</td>
-				<td>10%</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית על יתרות עו"ש בזכות</td>
-				<td>שדה 078</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-current-account-income-078" data-field-name="DepositCurrentAccountIncomeTaxedAtPercent15_078" value="0.00" />
-				</td>
-				<td>15%</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית על פקדונות</td>
-				<td>שדה 076</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-income-076" data-field-name="DepositIncomeTaxedAtPercent10_076" value="0.00" />
-				</td>
-				<td>10%</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית על פקדונות</td>
-				<td>שדה 078</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-income-078" data-field-name="DepositIncomeTaxedAtPercent15_078" value="0.00" />
-				</td>
-				<td>15%</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית על פקדונות</td>
-				<td>שדה 126</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-income-126" data-field-name="DepositIncomeTaxedAtPercent20_126" value="0.00" />
-				</td>
-				<td>20%</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית על פקדונות</td>
-				<td>שדה 142</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-income-142" data-field-name="DepositIncomeTaxedAtPercent25_142" value="0.00" />
-				</td>
-				<td>25%</td>
-			  </tr>
-			  <tr class="disabled-field">
-				<td>הכנסה חייבת מריבית על פקדונות</td>
-				<td></td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-income-23c" data-field-name="867d-deposit-income-23c" disabled value="0.00" />
-				</td>
-				<td>23% (חברות)</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית על פקדונות</td>
-				<td>שדה 053</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-income-053" data-field-name="DepositIncomeTaxedAtPercent35_053" value="0.00" />
-				</td>
-				<td>35%</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
-				<td>שדה 078</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-fx-income-078" data-field-name="DepositFXIncomeTaxedAtPercent15_078" value="0.00" />
-				</td>
-				<td>15%</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
-				<td>שדה 126</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-fx-income-126" data-field-name="DepositFXIncomeTaxedAtPercent20_126" value="0.00" />
-				</td>
-				<td>20%</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
-				<td>שדה 142</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-fx-income-142" data-field-name="DepositFXIncomeTaxedAtPercent25_142" value="0.00" />
-				</td>
-				<td>25%</td>
-			  </tr>
-			  <tr class="disabled-field">
-				<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
-				<td></td>
-				<td>
-				  <input type="text" class="field-input" name="867d-forex-deposit-income-23c" value="0.00" />
-				</td>
-				<td>23% (חברות)</td>
-			  </tr>
-			  <tr>
-				<td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
-				<td>שדה 053</td>
-				<td>
-				  <input type="text" class="field-input" name="867d-deposit-fx-income-053" data-field-name="DepositFXIncomeTaxedAtPercent35_053" value="0.00" />
-				</td>
-				<td>35%</td>
-			  </tr>
-			  <tr class="disabled-field">
-				<td>הכנסה חייבת מתשלומי ריבית אחרים</td>
-				<td></td>
-				<td>
-				  <input type="text" class="field-input" name="867d-other-interest-income" disabled value="0.00" />
-				</td>
-				<td></td>
-			  </tr>
-			</tbody>
-			<cite></cite>
-		  </table>
-  
-		  <div>
-			<label
-			  >סה"כ ריבית פטורה והפרשי הצמדה (שדה 209):
-			  <input type="text" class="field-input" name="867d-total-exempt-interest-and-index-linkage-difference" data-field-name="TotalExemptInterestAndIndexLinkageDifference_209" value="0.00"
-			/></label>
-			<cite></cite>
-		  </div>
-		  <div class="disabled-field">
-			<label>סיבת הפטור: <input type="text" name="867d-exemption-reason" disabled value="" /></label>
-		  </div>
-		  <div>
-			<label
-			  >סה"כ מס שנוכה במקור מפקדונות לפני החזר (שדה 043) <input type="text" class="field-input" name="867d-total-tax-withheld" data-field-name="TaxDeductedAtSourceDeposit_043" value="0.00"
-			/></label>
-			<cite></cite>
-		  </div>
-		</fieldset>
-	  </div>
-  
+    <div class="container_867_templates" id="template_867_2022" hidden>
+      <fieldset>
+        <legend>טופס 867 א+ב - פרטי רווחי הון</legend>
+        <p>מבוסס על מבנה נתוני ההכנסה בטופס 867 א+ב. מספרי השדות מתייחסים לשדות בטופס המקורי.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>שיעור מס</th>
+              <th>רווחים חייבים ללא הפסדים</th>
+              <th>רווחים משותפויות נפט</th>
+              <th>רווחים פטורים</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0%</td>
+              <td>
+                <input type="text" class="field-input" name="867ab-gains-0" data-field-name="ProfitIncomeTaxedAtPercent0" value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-oilgains-0" disabled value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-exempt-0" disabled value="0.00" />
+              </td>
+            </tr>
+            <tr>
+              <td>15%</td>
+              <td>
+                <input type="text" class="field-input" name="867ab-gains-15" data-field-name="ProfitIncomeTaxedAtPercent15" value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-oilgains-15" disabled value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-exempt-15" disabled value="0.00" />
+              </td>
+            </tr>
+            <tr>
+              <td>20%</td>
+              <td>
+                <input type="text" class="field-input" name="867ab-gains-20" data-field-name="ProfitIncomeTaxedAtPercent20" value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-oilgains-20" disabled value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-exempt-20" disabled value="0.00" />
+              </td>
+            </tr>
+            <tr>
+              <td>25%</td>
+              <td>
+                <input type="text" class="field-input" name="867ab-gains-25" data-field-name="ProfitIncomeTaxedAtPercent25" value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-oilgains-25" disabled value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-exempt-25" disabled value="0.00" />
+              </td>
+            </tr>
+            <tr>
+              <td>23% (חברות)</td>
+              <td>
+                <input type="text" class="field-input" name="867ab-gains-23c" data-field-name="ProfitIncomeTaxedAtPercent23" value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-oilgains-23c" disabled value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-exempt-23c" disabled value="0.00" />
+              </td>
+            </tr>
+            <tr>
+              <td>35%</td>
+              <td>
+                <input type="text" class="field-input" name="867ab-gains-35" data-field-name="ProfitIncomeTaxedAtPercent35" value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-oilgains-35" disabled value="0.00" />
+              </td>
+              <td class="disabled-field">
+                <input type="text" class="field-input" name="867ab-exempt-35" disabled value="0.00" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <cite></cite>
+
+        <div>
+          <!--הפסדים ברי קיזוז-->
+          <label>הפסדים ברי קיזוז <input type="text" class="field-input" name="867ab-offsetable-losses" data-field-name="OffsetableLosses" value="0.00" /></label>
+          <cite></cite>
+        </div>
+        <div class="disabled-field">
+          <label>הפסדים ממכירת יחידות קרן השקעות <input type="text" class="field-input" name="867ab-reit-losses" data-field-name="867ab-reit-losses" disabled value="0.00" /></label>
+          <cite></cite>
+        </div>
+        <div class="disabled-field">
+          <label>הפסדים לא כשירים לניכוי <input type="text" class="field-input" name="867ab-nonsetoff-losses" data-field-name="867ab-nonsetoff-losses" disabled value="0.00" /></label>
+          <cite></cite>
+        </div>
+        <div>
+          <label>מחזור מכירות <input type="text" class="field-input" name="867ab-total-sales" data-field-name="TotalSales_256" value="0.00" /></label>
+          <cite></cite>
+        </div>
+        <div>
+          <label>מספר עסקאות <input type="text" class="field-input" name="867ab-number-of-deals" data-field-name="NumberOfDealsInteger" value="0" /></label>
+          <cite></cite>
+        </div>
+        <div class="disabled-field">
+          <label>סיבת הפטור <input type="text" name="867ab-exemption-reason" disabled value="" /></label>
+          <cite></cite>
+          <p>סיבות אפשריות לפטור תושב חוץ, תושב חוזר ותיק, תושב ישראל לראשונה.</p>
+          <cite></cite>
+        </div>
+        <div>
+          <label>מס שנוכה במקור <input type="text" class="field-input" name="867ab-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceProfit_040" value="0.00" /></label>
+          <cite></cite>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>טופס 867 ג - פרטי דיבידנד וריבית מניירות ערך</legend>
+
+        <fieldset>
+          <legend>דיבידנד / חלוקת רווחים מניירות ערך</legend>
+          <table>
+            <thead>
+              <tr>
+                <th>שיעור מס</th>
+                <th>הכנסה מדיבידנד לפני ניכוי הפסדים (ישראל ומחו"ל)</th>
+                <th>הכנסה מדיבידנד מחו"ל (כלול בעמודה השמאלית)</th>
+                <th>רווחים פטורים</th>
+                <th>מס ששולם בחו"ל כשיר לניכוי/זיכוי</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-income-00" data-field-name="DividendIncomeTaxedAtPercent0" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-income-abroad-00" data-field-name="DividendIncomeAbroadTaxedAtPercent0" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-exempt-00" data-field-name="ExemptProfitsTaxedAtPercent0" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-taxabroad-allowed-00" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>4%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-income-04" data-field-name="DividendIncomeTaxedAtPercent4" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-income-abroad-04" data-field-name="DividendIncomeAbroadTaxedAtPercent4" disabled @value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-exempt-04" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-taxabroad-allowed-04" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>15%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-income-15" data-field-name="DividendIncomeTaxedAtPercent15" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-income-abroad-15" data-field-name="DividendIncomeAbroadTaxedAtPercent15" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-exempt-15" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-taxabroad-allowed-15" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>20%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-income-20" data-field-name="DividendIncomeTaxedAtPercent20" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-income-abroad-20" data-field-name="DividendIncomeAbroadTaxedAtPercent20" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-exempt-20" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-taxabroad-allowed-20" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>25%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-income-25" data-field-name="DividendIncomeTaxedAtPercent25" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-income-abroad-25" data-field-name="DividendIncomeAbroadTaxedAtPercent25" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-exempt-25" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-taxabroad-allowed-25" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>23% (חברות)</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-income-23" data-field-name="DividendIncomeTaxedAtPercent23" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-income-abroad-23" data-field-name="DividendIncomeAbroadTaxedAtPercent23" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-exempt-23c" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-div-taxabroad-allowed-23c" disabled value="0.00" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <cite></cite>
+
+          <table class="disabled-field">
+            <thead>
+              <tr>
+                <th>שיעור מס</th>
+                <th>הכנסה מקרנות זרות הנסחרות בישראל, קרנות פטורות וקרנות סל</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-funds-00" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>4%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-funds-04" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>15%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-funds-15" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>20%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-funds-20" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>25%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-funds-25" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>23% (חברות)</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-div-funds-23c" disabled value="0.00" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <cite></cite>
+
+          <div>
+            <label
+              >מס שנוכה במקור מדיבידנד/חלוקת רווחים <input type="text" class="field-input" name="867g-div-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceDividend_040" value="0.00"
+            /></label>
+            <cite></cite>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>ריבית / דמי הנחה מניירות ערך</legend>
+          <table>
+            <thead>
+              <tr>
+                <th>שיעור מס</th>
+                <th>הכנסה מריבית/דמי הנחה לפני ניכוי הפסדים (ישראל ומחו"ל)</th>
+                <th>הכנסה מריבית מחו"ל (כלול בעמודה השמאלית)</th>
+                <th>רווחים פטורים</th>
+                <th>מס ששולם בחו"ל כשיר לניכוי/זיכוי</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-int-income-00" data-field-name="InterestIncomeTaxedAtPercent0" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-income-abroad-00" data-field-name="InterestIncomeAbroadTaxedAtPercent0" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-exempt-0" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-taxabroad-allowed-0" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>10%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-int-income-10" data-field-name="InterestIncomeTaxedAtPercent10" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-income-abroad-10" data-field-name="InterestIncomeAbroadTaxedAtPercent10" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-exempt-10" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-taxabroad-allowed-10" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>15%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-int-income-15" data-field-name="InterestIncomeTaxedAtPercent15" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-income-abroad-15" data-field-name="InterestIncomeAbroadTaxedAtPercent15" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-exempt-15" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-taxabroad-allowed-15" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>20%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-int-income-20" data-field-name="InterestIncomeTaxedAtPercent20" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-income-abroad-20" data-field-name="InterestIncomeAbroadTaxedAtPercent20" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-exempt-20" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-taxabroad-allowed-20" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>25%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-int-income-25" data-field-name="InterestIncomeTaxedAtPercent25" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-income-abroad-25" data-field-name="InterestIncomeAbroadTaxedAtPercent25" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-exempt-25" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-taxabroad-allowed-25" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>23% (חברות)</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-int-income-23" data-field-name="InterestIncomeTaxedAtPercent23" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-income-abroad-23" data-field-name="InterestIncomeAbroadTaxedAtPercent23" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-exempt-23c" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-taxabroad-allowed-23c" disabled value="0.00" />
+                </td>
+              </tr>
+              <tr>
+                <td>35%</td>
+                <td>
+                  <input type="text" class="field-input" name="867g-int-income-35" data-field-name="InterestIncomeTaxedAtPercent35" value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-income-abroad-35" data-field-name="InterestIncomeAbroadTaxedAtPercent35" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-exempt-35" disabled value="0.00" />
+                </td>
+                <td class="disabled-field">
+                  <input type="text" class="field-input" name="867g-int-taxabroad-allowed-35" disabled value="0.00" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <cite></cite>
+
+          <div>
+            <label
+              >מס שנוכה במקור מריבית / דמי הנחה <input type="text" class="field-input" name="867g-int-tax-deducted-at-source" data-field-name="TaxDeductedAtSourceInterest_040" value="0.00"
+            /></label>
+            <cite></cite>
+          </div>
+        </fieldset>
+
+        <div class="disabled-field">
+          <label>סיבת הפטור <input type="text" name="867g-exemption-reason" disabled value="" /></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>טופס 867 ד - פרטי ריבית ורווחים מפקדונות/חסכונות</legend>
+        <p>מבוסס על מבנה נתוני ההכנסה בטופס 867 ד. מספרי השדות מתייחסים לשדות בטופס המקורי.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>מוצר / סוג הכנסה</th>
+              <th>מספר שדה</th>
+              <th>סכום (ש"ח)</th>
+              <th>שיעור מס</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>הכנסה חייבת מריבית על יתרות עו"ש בזכות</td>
+              <td>שדה 076</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-current-account-income-076" data-field-name="DepositCurrentAccountIncomeTaxedAtPercent10_076" value="0.00" />
+              </td>
+              <td>10%</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית על יתרות עו"ש בזכות</td>
+              <td>שדה 078</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-current-account-income-078" data-field-name="DepositCurrentAccountIncomeTaxedAtPercent15_078" value="0.00" />
+              </td>
+              <td>15%</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית על פקדונות</td>
+              <td>שדה 076</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-income-076" data-field-name="DepositIncomeTaxedAtPercent10_076" value="0.00" />
+              </td>
+              <td>10%</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית על פקדונות</td>
+              <td>שדה 078</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-income-078" data-field-name="DepositIncomeTaxedAtPercent15_078" value="0.00" />
+              </td>
+              <td>15%</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית על פקדונות</td>
+              <td>שדה 126</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-income-126" data-field-name="DepositIncomeTaxedAtPercent20_126" value="0.00" />
+              </td>
+              <td>20%</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית על פקדונות</td>
+              <td>שדה 142</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-income-142" data-field-name="DepositIncomeTaxedAtPercent25_142" value="0.00" />
+              </td>
+              <td>25%</td>
+            </tr>
+            <tr class="disabled-field">
+              <td>הכנסה חייבת מריבית על פקדונות</td>
+              <td></td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-income-23c" data-field-name="867d-deposit-income-23c" disabled value="0.00" />
+              </td>
+              <td>23% (חברות)</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית על פקדונות</td>
+              <td>שדה 053</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-income-053" data-field-name="DepositIncomeTaxedAtPercent35_053" value="0.00" />
+              </td>
+              <td>35%</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+              <td>שדה 078</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-fx-income-078" data-field-name="DepositFXIncomeTaxedAtPercent15_078" value="0.00" />
+              </td>
+              <td>15%</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+              <td>שדה 126</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-fx-income-126" data-field-name="DepositFXIncomeTaxedAtPercent20_126" value="0.00" />
+              </td>
+              <td>20%</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+              <td>שדה 142</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-fx-income-142" data-field-name="DepositFXIncomeTaxedAtPercent25_142" value="0.00" />
+              </td>
+              <td>25%</td>
+            </tr>
+            <tr class="disabled-field">
+              <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+              <td></td>
+              <td>
+                <input type="text" class="field-input" name="867d-forex-deposit-income-23c" value="0.00" />
+              </td>
+              <td>23% (חברות)</td>
+            </tr>
+            <tr>
+              <td>הכנסה חייבת מריבית מפקדונות נקובים במט"ח</td>
+              <td>שדה 053</td>
+              <td>
+                <input type="text" class="field-input" name="867d-deposit-fx-income-053" data-field-name="DepositFXIncomeTaxedAtPercent35_053" value="0.00" />
+              </td>
+              <td>35%</td>
+            </tr>
+            <tr class="disabled-field">
+              <td>הכנסה חייבת מתשלומי ריבית אחרים</td>
+              <td></td>
+              <td>
+                <input type="text" class="field-input" name="867d-other-interest-income" disabled value="0.00" />
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+          <cite></cite>
+        </table>
+
+        <div>
+          <label
+            >סה"כ ריבית פטורה והפרשי הצמדה (שדה 209):
+            <input type="text" class="field-input" name="867d-total-exempt-interest-and-index-linkage-difference" data-field-name="TotalExemptInterestAndIndexLinkageDifference_209" value="0.00"
+          /></label>
+          <cite></cite>
+        </div>
+        <div class="disabled-field">
+          <label>סיבת הפטור: <input type="text" name="867d-exemption-reason" disabled value="" /></label>
+        </div>
+        <div>
+          <label
+            >סה"כ מס שנוכה במקור מפקדונות לפני החזר (שדה 043) <input type="text" class="field-input" name="867d-total-tax-withheld" data-field-name="TaxDeductedAtSourceDeposit_043" value="0.00"
+          /></label>
+          <cite></cite>
+        </div>
+      </fieldset>
+    </div>
+
     <script>
       nl_pos = "br";
       nl_compact = "1";
