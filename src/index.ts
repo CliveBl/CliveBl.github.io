@@ -1984,20 +1984,20 @@ async function initialize() {
         const wasCollapsed = sessionStorage.getItem("infoSectionCollapsed") === "true";
         if (wasCollapsed) {
           // Already collapsed by default in HTML, just update the icon and title
-          const toggleIcon = infoSectionToggle.querySelector(".toggle-icon") as HTMLElement;
+          const toggleIcon = infoSectionToggle.querySelector("#infoSectionToggleIcon") as HTMLElement;
           toggleIcon.textContent = "▼"; // Use same icons as editor accordion
           infoSectionToggle.title = "הצג מידע";
         } else {
           // Expand the section by removing the collapsed class
           infoSectionContent.classList.remove("collapsed");
-          const toggleIcon = infoSectionToggle.querySelector(".toggle-icon") as HTMLElement;
+          const toggleIcon = infoSectionToggle.querySelector("#infoSectionToggleIcon") as HTMLElement;
           toggleIcon.textContent = "▲"; // Use same icons as editor accordion
           infoSectionToggle.title = "הסתר מידע";
         }
     
     infoSectionToggle.addEventListener("click", () => {
       const isCollapsed = infoSectionContent.classList.contains("collapsed");
-      const toggleIcon = infoSectionToggle.querySelector(".toggle-icon") as HTMLElement;
+      const toggleIcon = infoSectionToggle.querySelector("#infoSectionToggleIcon") as HTMLElement;
       
                        if (isCollapsed) {
             // Expand the section

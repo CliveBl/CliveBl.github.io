@@ -801,12 +801,7 @@ ul {
 }
 
 .info-section-toggle:hover {
-  background-color: var(--border-color);
-}
-
-.toggle-icon {
-  display: inline-block;
-  transition: transform 0.3s ease;
+  background-color: transparent;
 }
 
 .info-section-content {
