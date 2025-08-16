@@ -1663,6 +1663,7 @@ export function addFileToList(fileInfo: any) {
   });
 
   const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
   deleteButton.textContent = "🗑️";
   deleteButton.className = "delete-button";
   deleteButton.title = "מחק";
@@ -1682,6 +1683,7 @@ export function addFileToList(fileInfo: any) {
     retryInput.multiple = true;
 
     const retryButton = document.createElement("button") as HTMLButtonElement;
+    retryButton.type = "button";
     retryButton.innerHTML = "ניסיון שנית";
     retryButton.className = "form-action-button";
     //retryInputLabel.className = "custom-file-input-label";
