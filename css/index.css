@@ -3075,8 +3075,14 @@ a:not(.submit-instructions-button):visited {
   background: var(--error-bg-hover);
 }
 
-/* Dynamic red border styles for upload buttons and process button */
+/* Dynamic red border styles for upload buttons, doc selects, and process button */
 .custom-file-input label.no-files-border {
+  border: 3px solid var(--error-border);
+  border-radius: 8px;
+  animation: pulseBorder 2s ease-in-out infinite;
+}
+
+.doc-controls select.no-files-border {
   border: 3px solid var(--error-border);
   border-radius: 8px;
   animation: pulseBorder 2s ease-in-out infinite;

@@ -113,17 +113,24 @@ export function updateButtons(hasEntries: boolean) {
 // Function to update border styles based on file count
 function updateBorderStyles(hasEntries: boolean) {
   const uploadLabels = document.querySelectorAll('.custom-file-input label');
+  const docSelects = document.querySelectorAll('.doc-controls select');
   
   if (hasEntries) {
-    // Files exist: remove red border from upload buttons, add to process button
+    // Files exist: remove red border from upload buttons and doc selects, add to process button
     uploadLabels.forEach(label => {
       label.classList.remove('no-files-border');
     });
+    docSelects.forEach(select => {
+      select.classList.remove('no-files-border');
+    });
     processButton.classList.add('has-files-border');
   } else {
-    // No files: add red border to upload buttons, remove from process button
+    // No files: add red border to upload buttons and doc selects, remove from process button
     uploadLabels.forEach(label => {
       label.classList.add('no-files-border');
+    });
+    docSelects.forEach(select => {
+      select.classList.add('no-files-border');
     });
     processButton.classList.remove('has-files-border');
   }
@@ -1929,6 +1936,10 @@ async function initialize() {
         }
         // Reset the count select to its previous value
         selectElement.value = selectElement.getAttribute("data-previous-value") || "0";
+        // Cancel pulsing animation on all document items when create form is selected
+        document.querySelectorAll('.doc-controls select').forEach(docSelect => {
+          docSelect.classList.remove('no-files-border');
+        });
       } else if (selectElement.value === "upload file") {
         // Open the select document dialog
         const fileInput = document.getElementById("fileInput") as HTMLInputElement;
@@ -1941,6 +1952,10 @@ async function initialize() {
           selectElement.value = newValue.toString();
           selectElement.setAttribute("data-previous-value", selectElement.value);
         }
+        // Cancel pulsing animation on all document items when upload file is selected
+        document.querySelectorAll('.doc-controls select').forEach(docSelect => {
+          docSelect.classList.remove('no-files-border');
+        });
       } else {
         // Store the current value for future reference
         selectElement.setAttribute("data-previous-value", selectElement.value);
@@ -1949,6 +1964,10 @@ async function initialize() {
       const docItem = select.closest(".doc-item") as HTMLElement;
       if (parseInt((select as HTMLSelectElement).value) > 0) {
         docItem.classList.add("selected");
+        // Cancel pulsing animation on all document items when any doc item is selected
+        document.querySelectorAll('.doc-controls select').forEach(docSelect => {
+          docSelect.classList.remove('no-files-border');
+        });
       } else {
         docItem.classList.remove("selected");
       }
