@@ -3,7 +3,7 @@ name: Deploy to Cloudflare Workers
 on:
   push:
     branches:
-      - staging
+      - cgt-staging
   workflow_dispatch:
     inputs:
       environment:
@@ -71,7 +71,7 @@ jobs:
   deploy-staging:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/staging'
+    if: github.ref == 'refs/heads/cgt-staging'
 
     steps:
       - name: Download build artifact
@@ -87,7 +87,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: wrangler whoami
 
-      - name: Deploy to Staging
+      - name: Deploy to cgt-staging
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: wrangler deploy --config wrangler.jsonc
