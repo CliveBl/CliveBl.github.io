@@ -767,12 +767,11 @@ ul {
 
 .info-section {
   background-color: var(--item-bg);
-  padding-top: 5px;
+  padding: 10px 10px 10px 10px;
   border-radius: 8px;
   box-shadow: 0 2px 4px var(--modal-shadow);
   position: relative;
   margin-bottom: 0px;
-  padding-bottom: 0px;
 }
 
 .info-section-header {
@@ -814,6 +813,7 @@ ul {
   height: 0;
   overflow: hidden;
   margin-bottom: 0px;
+  padding: 0px 10px 0px 10px;
 }
 
 .required-docs {
@@ -1306,6 +1306,7 @@ button:disabled {
 @media (max-width: 768px) {
 	.info-section {
 	  margin-top: 25px;
+	  padding: 0px 0px 0px 0px;
 	}
   }
 }
