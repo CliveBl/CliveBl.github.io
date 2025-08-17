@@ -89,7 +89,7 @@ import { cookieUtils } from "./cookieUtils.js";
 import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from "./editor.js";
 import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
 
-let editableFileList = localStorage.getItem("editableFileList") === "true";
+let editableFileList = sessionStorage.getItem("editableFileList") === "true";
 
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput") as HTMLInputElement;
@@ -2306,7 +2306,7 @@ function updateFileListView() {
 // If we are doing something after this we should await it.
 async function toggleFileListView() {
   editableFileList = !editableFileList;
-  localStorage.setItem("editableFileList", editableFileList.toString());
+  sessionStorage.setItem("editableFileList", editableFileList.toString());
   updateFileListView();
   await loadExistingFiles();
 }

@@ -5,7 +5,7 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.12";
+export let UIVersion = "1.13";
 export let ServerVersion = "";
 
 // Customer management
@@ -51,11 +51,11 @@ acceptCookies.addEventListener("click", () => {
 
 // Customer storage functions
 export function saveSelectedCustomerToStorage(customerName: string): void {
-  localStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
+  sessionStorage.setItem(SELECTED_CUSTOMER_STORAGE_KEY, customerName);
 }
 
 export function loadSelectedCustomerFromStorage(): string {
-  return localStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY) || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
+  return sessionStorage.getItem(SELECTED_CUSTOMER_STORAGE_KEY) || DEFAULT_CUSTOMER_DATA_ENTRY_NAME;
 }
 
 export function updateSelectedCustomer(newCustomerName: string): void {
