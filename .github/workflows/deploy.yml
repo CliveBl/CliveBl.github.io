@@ -1,14 +1,28 @@
-name: Deploy Jekyll to Cloudflare Workers
+name: Deploy to Cloudflare Workers
 
 on:
   push:
     branches:
-      - jekyll
+      - staging
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+
+env:
+  NODE_VERSION: '22'
+  RUBY_VERSION: '3.4.5'
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
+    outputs:
+      build-artifact: ${{ steps.build.outputs.build-path }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -16,13 +30,13 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.4.5'
+          ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Node.js dependencies
         run: npm install
@@ -30,7 +44,7 @@ jobs:
       - name: Compile TypeScript
         run: npm run build
 
-      - name: Install dependencies
+      - name: Install Ruby dependencies
         run: |
           gem install bundler
           bundle lock --add-platform x86_64-linux
@@ -39,19 +53,65 @@ jobs:
       - name: Build Jekyll site
         run: bundle exec jekyll build
 
-      - name: Install Wrangler
-        run: npm install -g wrangler
-
       - name: Install Workers dependencies
         working-directory: ./workers-site
         run: npm install
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-build
+          path: |
+            _site/
+            workers-site/
+            wrangler.jsonc
+            wrangler.prod.jsonc
+          retention-days: 1
+
+  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-build
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
 
       - name: Authenticate with Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: wrangler whoami
 
-      - name: Deploy to Cloudflare Workers
+      - name: Deploy to Staging
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: wrangler deploy
+        run: wrangler deploy --config wrangler.jsonc
+
+  deploy-production:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-build
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Authenticate with Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: wrangler whoami
+
+      - name: Deploy to Production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: wrangler deploy --config wrangler.prod.jsonc
