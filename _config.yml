@@ -19,7 +19,7 @@
 # in the templates via {{ site.myvariable }}.
 
 title: דו״ח שנתי - עשה זאת בעצמך
-email: your-email@example.com
+email: cgtpersonaltaxil@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Yearly tax return preparation tool for Israeli taxpayers
 baseurl: "" # the subpath of your site, e.g. /blog
