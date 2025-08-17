@@ -767,11 +767,12 @@ ul {
 
 .info-section {
   background-color: var(--item-bg);
-  padding: 10px;
+  padding-top: 5px;
   border-radius: 8px;
-  margin: 10px 0;
   box-shadow: 0 2px 4px var(--modal-shadow);
   position: relative;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
 }
 
 .info-section-header {
@@ -784,9 +785,7 @@ ul {
 .info-section h2 {
   margin: 0;
   color: var(--text-color);
-  font-size: 1.3em;
-  /* border-right: 4px solid var(--tax-green); */
-  padding-right: 1px;
+  font-size: 18px;
 }
 
 .info-section-toggle {
@@ -814,6 +813,7 @@ ul {
   transform: scaleY(0);
   height: 0;
   overflow: hidden;
+  margin-bottom: 0px;
 }
 
 .required-docs {
@@ -984,10 +984,6 @@ ul {
 .taxpayer-input-container input::placeholder {
   color: var(--message-text);
   opacity: 0.7;
-}
-
-.info-section {
-  position: relative;
 }
 
 .missing-docs-warning {
@@ -1214,7 +1210,6 @@ ul {
 }
 
 .header-container,
-.info-section,
 .taxpayer-input-container,
 .button-container,
 .message-container,
@@ -1301,6 +1296,17 @@ button:disabled {
 
   .auth-container h1 {
     font-size: 18px;
+  }
+  .info-section h2 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 16px;
+  }
+  /* Mobile-specific spacing */
+@media (max-width: 768px) {
+	.info-section {
+	  margin-top: 25px;
+	}
   }
 }
 
