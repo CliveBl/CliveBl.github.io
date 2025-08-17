@@ -1306,7 +1306,7 @@ button:disabled {
 @media (max-width: 768px) {
 	.info-section {
 	  margin-top: 25px;
-	  padding: 0px 0px 0px 0px;
+	  padding: 0px 10px 10px 10px;
 	}
   }
 }
