@@ -683,9 +683,8 @@ processButton.addEventListener("click", async () => {
 
     // If no fatal errors, load results
     if (!result.fatalProcessingError) {
-      //addMessage("טוען תוצאות...", "info");
       // Wait a moment for processing to complete on server
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      //   await new Promise((resolve) => setTimeout(resolve, 1000));
       await loadResults();
       addMessage("העיבוד הושלם", "info");
     }
