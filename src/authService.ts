@@ -646,3 +646,18 @@ export function clearBasicInfoCache(): void {
   sessionStorage.removeItem(BASIC_INFO_TIMESTAMP_KEY);
   debug("Cleared basic info cache");
 }
+
+// Terms acceptance management
+export function acceptTerms(): void {
+  cookieUtils.set("termsAccepted", "true", 365); // Cookie expires in 1 year
+  emit("termsAcceptedChanged");
+}
+
+export function declineTerms(): void {
+  cookieUtils.delete("termsAccepted");
+  emit("termsAcceptedChanged");
+}
+
+export function isTermsAccepted(): boolean {
+  return cookieUtils.get("termsAccepted") === "true";
+}

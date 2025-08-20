@@ -49,16 +49,15 @@ async function initializeUserSession() {
 
 // Update UI to show logged out state
 function clearUserSession() {
-	removeFileList();
-	fileModifiedActions(false);
-	clearMessages();
-  
-	// Clear feedback form on sign out
-	clearFeedbackForm();
-  }
+  removeFileList();
+  fileModifiedActions(false);
+  clearMessages();
+
+  // Clear feedback form on sign out
+  clearFeedbackForm();
+}
 
 function setupEventListeners() {
-  debug("setupEventListeners");
   on("authServiceInitialized", () => {
     initialize();
   });
@@ -112,27 +111,27 @@ export function updateButtons(hasEntries: boolean) {
 
 // Function to update border styles based on file count
 function updateBorderStyles(hasEntries: boolean) {
-  const uploadLabels = document.querySelectorAll('.custom-file-input label');
-  const docSelects = document.querySelectorAll('.doc-controls select');
-  
+  const uploadLabels = document.querySelectorAll(".custom-file-input label");
+  const docSelects = document.querySelectorAll(".doc-controls select");
+
   if (hasEntries) {
     // Files exist: remove red border from upload buttons and doc selects, add to process button
-    uploadLabels.forEach(label => {
-      label.classList.remove('no-files-border');
+    uploadLabels.forEach((label) => {
+      label.classList.remove("no-files-border");
     });
-    docSelects.forEach(select => {
-      select.classList.remove('no-files-border');
+    docSelects.forEach((select) => {
+      select.classList.remove("no-files-border");
     });
-    processButton.classList.add('has-files-border');
+    processButton.classList.add("has-files-border");
   } else {
     // No files: add red border to upload buttons and doc selects, remove from process button
-    uploadLabels.forEach(label => {
-      label.classList.add('no-files-border');
+    uploadLabels.forEach((label) => {
+      label.classList.add("no-files-border");
     });
-    docSelects.forEach(select => {
-      select.classList.add('no-files-border');
+    docSelects.forEach((select) => {
+      select.classList.add("no-files-border");
     });
-    processButton.classList.remove('has-files-border');
+    processButton.classList.remove("has-files-border");
   }
 }
 
@@ -235,6 +234,7 @@ async function loadExistingFiles() {
     }
     throw error;
   }
+  debug("loadExistingFiles done");
 }
 
 // Add this helper function at the start of your script
@@ -447,8 +447,6 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
   // Update all buttons and border styles based on file list
   updateButtons(fileInfoList.length > 0);
 }
-
-
 
 // Refactor uploadFilesListener to accept File[] or HTMLInputElement
 async function uploadFilesListener(inputOrFiles: HTMLInputElement | File[], replacedFileId: string | null = null) {
@@ -996,11 +994,10 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       messageDiv.classList.add("clickable");
 
       // Make the messageDiv a clickable link to open all files
-      messageText.addEventListener("click", () => {
+      messageText.addEventListener("click", async () => {
         if (!editableFileList) {
           // switch to the editable file list view
-          editableFileList = true;
-          updateFileListView();
+          await toggleFileListView();
         }
 
         // Extract file names and properties
@@ -1791,8 +1788,6 @@ async function calculateTax(fileName: string) {
   }
 }
 
-
-
 // Helper function to get color class based on numeric value
 function getValueColorClass(value: string): string {
   if (!value || value.trim() === "") return "";
@@ -1876,8 +1871,6 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
 }
 
 // Initialize when DOM is ready
-// document.addEventListener("DOMContentLoaded", async () => {
-//   debug("DOMContentLoaded 2");
 async function initialize() {
   const versionNumberElement = document.getElementById("versionNumber") as HTMLSpanElement;
   debug("initialize");
@@ -1936,8 +1929,8 @@ async function initialize() {
         // Reset the count select to its previous value
         selectElement.value = selectElement.getAttribute("data-previous-value") || "0";
         // Cancel pulsing animation on all document items when create form is selected
-        document.querySelectorAll('.doc-controls select').forEach(docSelect => {
-          docSelect.classList.remove('no-files-border');
+        document.querySelectorAll(".doc-controls select").forEach((docSelect) => {
+          docSelect.classList.remove("no-files-border");
         });
       } else if (selectElement.value === "upload file") {
         // Open the select document dialog
@@ -1952,8 +1945,8 @@ async function initialize() {
           selectElement.setAttribute("data-previous-value", selectElement.value);
         }
         // Cancel pulsing animation on all document items when upload file is selected
-        document.querySelectorAll('.doc-controls select').forEach(docSelect => {
-          docSelect.classList.remove('no-files-border');
+        document.querySelectorAll(".doc-controls select").forEach((docSelect) => {
+          docSelect.classList.remove("no-files-border");
         });
       } else {
         // Store the current value for future reference
@@ -1964,8 +1957,8 @@ async function initialize() {
       if (parseInt((select as HTMLSelectElement).value) > 0) {
         docItem.classList.add("selected");
         // Cancel pulsing animation on all document items when any doc item is selected
-        document.querySelectorAll('.doc-controls select').forEach(docSelect => {
-          docSelect.classList.remove('no-files-border');
+        document.querySelectorAll(".doc-controls select").forEach((docSelect) => {
+          docSelect.classList.remove("no-files-border");
         });
       } else {
         docItem.classList.remove("selected");
@@ -1979,38 +1972,38 @@ async function initialize() {
   const infoSectionToggle = document.getElementById("infoSectionToggle");
   const infoSectionContent = document.getElementById("infoSectionContent");
   if (infoSectionToggle && infoSectionContent) {
-                         // Check if info section was previously collapsed
-        const wasCollapsed = sessionStorage.getItem("infoSectionCollapsed") === "true";
-        if (wasCollapsed) {
-          // Already collapsed by default in HTML, just update the icon and title
-          const toggleIcon = infoSectionToggle.querySelector("#infoSectionToggleIcon") as HTMLElement;
-          toggleIcon.textContent = "▼"; // Use same icons as editor accordion
-          infoSectionToggle.title = "הצג מידע";
-        } else {
-          // Expand the section by removing the collapsed class
-          infoSectionContent.classList.remove("collapsed");
-          const toggleIcon = infoSectionToggle.querySelector("#infoSectionToggleIcon") as HTMLElement;
-          toggleIcon.textContent = "▲"; // Use same icons as editor accordion
-          infoSectionToggle.title = "הסתר מידע";
-        }
-    
+    // Check if info section was previously collapsed
+    const wasCollapsed = sessionStorage.getItem("infoSectionCollapsed") === "true";
+    if (wasCollapsed) {
+      // Already collapsed by default in HTML, just update the icon and title
+      const toggleIcon = infoSectionToggle.querySelector("#infoSectionToggleIcon") as HTMLElement;
+      toggleIcon.textContent = "▼"; // Use same icons as editor accordion
+      infoSectionToggle.title = "הצג מידע";
+    } else {
+      // Expand the section by removing the collapsed class
+      infoSectionContent.classList.remove("collapsed");
+      const toggleIcon = infoSectionToggle.querySelector("#infoSectionToggleIcon") as HTMLElement;
+      toggleIcon.textContent = "▲"; // Use same icons as editor accordion
+      infoSectionToggle.title = "הסתר מידע";
+    }
+
     infoSectionToggle.addEventListener("click", () => {
       const isCollapsed = infoSectionContent.classList.contains("collapsed");
       const toggleIcon = infoSectionToggle.querySelector("#infoSectionToggleIcon") as HTMLElement;
-      
-                       if (isCollapsed) {
-            // Expand the section
-            infoSectionContent.classList.remove("collapsed");
-            toggleIcon.textContent = "▲"; // Use same icons as editor accordion
-            infoSectionToggle.title = "הסתר מידע";
-            sessionStorage.setItem("infoSectionCollapsed", "false");
-          } else {
-            // Collapse the section
-            infoSectionContent.classList.add("collapsed");
-            toggleIcon.textContent = "▼"; // Use same icons as editor accordion
-            infoSectionToggle.title = "הצג מידע";
-            sessionStorage.setItem("infoSectionCollapsed", "true");
-          }
+
+      if (isCollapsed) {
+        // Expand the section
+        infoSectionContent.classList.remove("collapsed");
+        toggleIcon.textContent = "▲"; // Use same icons as editor accordion
+        infoSectionToggle.title = "הסתר מידע";
+        sessionStorage.setItem("infoSectionCollapsed", "false");
+      } else {
+        // Collapse the section
+        infoSectionContent.classList.add("collapsed");
+        toggleIcon.textContent = "▼"; // Use same icons as editor accordion
+        infoSectionToggle.title = "הצג מידע";
+        sessionStorage.setItem("infoSectionCollapsed", "true");
+      }
     });
   }
 

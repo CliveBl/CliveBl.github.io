@@ -114,19 +114,20 @@
     <script type="module" src="js/slideshow.js"></script>
     <script type="module">
         import { cookieUtils } from './js/cookieUtils.js';
+        import { acceptTerms, declineTerms, isTermsAccepted, showInfoModal } from './js/authService.js';
         
         const termsCheckbox = document.getElementById('termsCheckbox');
         const startButton = document.getElementById('startButton');
  
-		termsCheckbox.checked = cookieUtils.get("termsAccepted") === "true";
+		termsCheckbox.checked = isTermsAccepted();
 		startButton.disabled = !termsCheckbox.checked;
 
         termsCheckbox.addEventListener('change', () => {
             startButton.disabled = !termsCheckbox.checked;
 			if (termsCheckbox.checked) {
-				cookieUtils.set("termsAccepted", "true", 365);
-			}else{
-				cookieUtils.delete("termsAccepted");
+				acceptTerms();
+			} else {
+				declineTerms();
 			}
 		});
 

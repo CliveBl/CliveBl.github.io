@@ -23,9 +23,10 @@ import {
   showInfoModal,
   showWarningModal,
   DEFAULT_CUSTOMER_DATA_ENTRY_NAME,
+  isTermsAccepted
 } from "./authService.js";
 
-import { ANONYMOUS_EMAIL } from "./constants.js";
+import { ANONYMOUS_EMAIL, debug } from "./constants.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const usernameParam = urlParams.get("username");
@@ -72,6 +73,11 @@ checkForGoogleCallback();
 
 // Set up all event listeners
 function setupEventListeners(): void {
+  // Listen for terms acceptance events
+  on("termsAcceptedChanged", () => {
+    updateLoginButtonState();
+  });
+
   // Login button
   if (loginButton && loginOverlay) {
     loginButton.addEventListener("click", () => {
@@ -386,7 +392,8 @@ export function updateSignInUI(): void {
     // Anonymous user
     userEmail.textContent = UserEmailValue;
     signOutButton.disabled = true;
-    loginButton.disabled = false;
+    // Update login button state based on terms acceptance
+    updateLoginButtonState();
     // Hide customer button for anonymous users
     if (customerButton) {
       customerButton.style.display = "none";
@@ -395,6 +402,8 @@ export function updateSignInUI(): void {
     // Not signed in
     userEmail.textContent = "";
     signOutButton.disabled = true;
+    // Update login button state based on terms acceptance
+    updateLoginButtonState();
     // Hide customer button for logged out users
     if (customerButton) {
       customerButton.style.display = "none";
@@ -502,3 +511,25 @@ if (usernameParam) {
   url.searchParams.delete("username");
   window.history.replaceState({}, "", url);
 }
+
+function updateLoginButtonState(): void {
+  const loginButton = document.getElementById("loginButton") as HTMLButtonElement;
+  if (loginButton) {
+    const termsAccepted = isTermsAccepted();
+    loginButton.disabled = !termsAccepted;
+    
+    // Set tooltip text based on terms acceptance
+    if (termsAccepted) {
+      loginButton.title = "התחבר למערכת";
+    } else {
+      loginButton.title = "אנא הסכם לתנאי השימוש תחילה";
+    }
+  }
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM is fully loaded and parsed
+	updateLoginButtonState();
+    debug('AuthUI DOM is ready!');
+});
