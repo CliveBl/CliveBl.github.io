@@ -98,6 +98,35 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract UI Version
+        id: extract-version
+        run: |
+          VERSION=$(grep -o 'UIVersion = "[^"]*"' src/authService.ts | cut -d'"' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Create and push tag
+        run: |
+          VERSION="${{ steps.extract-version.outputs.version }}"
+          # Use Jerusalem time (UTC+2/UTC+3)
+          TIMESTAMP=$(TZ='Asia/Jerusalem' date '+%Y%m%d-%H%M')
+          TAG_NAME="${VERSION}-${TIMESTAMP}"
+          
+          echo "Creating tag: $TAG_NAME"
+          echo "Using Jerusalem timezone: $TIMESTAMP"
+          
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+          
+          echo "Tag $TAG_NAME created and pushed successfully"
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
