@@ -13,7 +13,7 @@ function makeUniqueId() {
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
 const addFieldsText = "הצג כל השדות";
-const removeFieldsText = "הציג סדות שיש ערכים בלבד";
+const removeFieldsText = "הצג שדות שיש ערכים בלבד";
 const MAX_INTEGER_LENGTH = 10;
 // Template map years: template name
 const template867YearsMap = {
@@ -337,6 +337,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     };
 
     displayFileInfoHeader(yearBody, allFilesData);
+    const lastFile = allFilesData[allFilesData.length - 1];
 
     // Add files to year body
     files.forEach((fileData: any) => {
@@ -418,14 +419,25 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         toggleLinkContainer.className = "fields-toggle";
         const fieldsToggleLink = document.createElement("a") as HTMLAnchorElement;
         fieldsToggleLink.className = "fields-toggle-link";
-        fieldsToggleLink.textContent = addFieldsText;
+        if (withAllFields) {
+          fieldsToggleLink.textContent = removeFieldsText;
+        } else {
+          fieldsToggleLink.textContent = addFieldsText;
+        }
         fieldsToggleLink.href = "#";
         fieldsToggleLink.addEventListener("click", handleToggleClick);
         toggleLinkContainer.appendChild(fieldsToggleLink);
         accordianBody.appendChild(toggleLinkContainer);
+        // For a new upload that has fields we show all fields.
+        if (isNewUpload) {
+          // This will render, so skip it later to avoid doing it twice.
+          toggleFieldsView(fieldsToggleLink);
+        }
       }
       // First, display additional fields in the body (including action buttons and help link)
-      renderFields(fileData, accordianBody, withAllFields);
+      if (!isNewUpload || !fileData.fields) {
+        renderFields(fileData, accordianBody, isNewUpload && fileData.fileId === lastFile.fileId);
+      }
       accordionContainer.appendChild(accordianBody);
       yearBody.appendChild(accordionContainer);
     });
@@ -503,7 +515,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         });
       }
     }
-    // Create a new list of obkects.
+    // Create a new list of objects.
     let updatedAllFilesData: any[] = [];
     // Now clone data, (which is an array of file objects), into updatedData item by item.
     allFilesData.forEach((file: any) => {
