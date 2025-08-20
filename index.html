@@ -9,6 +9,25 @@
     <title>דו״ח שנתי - עשה זאת בעצמך</title>
 	<meta name="description" content="Yearly tax return preparation tool for Israeli taxpayers">
 	<link rel="canonical" href="https://www.taxesil.top/" />
+	
+	<!-- PWA Meta Tags -->
+	<meta name="theme-color" content="#ff6b35">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta name="apple-mobile-web-app-title" content="דו״ח שנתי">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="msapplication-TileColor" content="#ff6b35">
+	<meta name="msapplication-config" content="/browserconfig.xml">
+	
+	<!-- PWA Manifest -->
+	<link rel="manifest" href="/manifest.json">
+	
+	<!-- Apple Touch Icons -->
+	<link rel="apple-touch-icon" href="assets/taxesil/cgtLogo200Trans.webp">
+	<link rel="apple-touch-icon" sizes="152x152" href="assets/taxesil/cgtLogo200Trans.webp">
+	<link rel="apple-touch-icon" sizes="180x180" href="assets/taxesil/cgtLogo200Trans.webp">
+	<link rel="apple-touch-icon" sizes="167x167" href="assets/taxesil/cgtLogo200Trans.webp">
+	
 	<!-- CSS Styles -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
 	<link rel="stylesheet" href="css/index.css" />
@@ -112,6 +131,7 @@
     <!-- <script type="module" src="js/index.js"></script> -->
     <script type="module" src="js/authService.js"></script>
     <script type="module" src="js/slideshow.js"></script>
+    <script type="module" src="js/pwa-installer.js"></script>
     <script type="module">
         import { cookieUtils } from './js/cookieUtils.js';
         import { acceptTerms, declineTerms, isTermsAccepted, showInfoModal } from './js/authService.js';

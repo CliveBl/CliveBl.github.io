@@ -18,9 +18,19 @@
   "homepage": "https://github.com/CliveBl/CliveBl.github.io#readme",
   "scripts": {
     "watch": "tsc -w",
-    "build": "tsc"
+    "build": "tsc",
+    "build:pwa": "tsc && npm run generate:icons"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
+  },
+  "pwa": {
+    "name": "דו״ח שנתי - עשה זאת בעצמך",
+    "short_name": "דו״ח שנתי",
+    "description": "Yearly tax return preparation tool for Israeli taxpayers",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ff6b35"
   }
 }

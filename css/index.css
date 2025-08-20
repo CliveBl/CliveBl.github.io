@@ -3150,3 +3150,100 @@ a:not(.submit-instructions-button):visited {
     opacity: 0.6;
   }
 }
+
+/* PWA Install Button Styles */
+.pwa-install-button {
+  background: var(--button-color);
+  color: var(--button-text);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pwa-install-button:hover {
+  background: var(--button-color-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.pwa-install-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* PWA Standalone Mode Styles */
+@media (display-mode: standalone) {
+  .pwa-install-button {
+    display: none !important;
+  }
+  
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* PWA Installation Prompt Styles */
+.install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  max-width: 90%;
+  text-align: center;
+}
+
+.install-prompt h3 {
+  margin: 0 0 12px 0;
+  color: var(--text-color);
+  font-size: 1.1em;
+}
+
+.install-prompt .prompt-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.install-prompt button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+
+.install-prompt .install-btn {
+  background: var(--button-color);
+  color: var(--button-text);
+}
+
+.install-prompt .install-btn:hover {
+  background: var(--button-color-hover);
+}
+
+.install-prompt .dismiss-btn {
+  background: var(--button-gray);
+  color: var(--button-text);
+}
+
+.install-prompt .dismiss-btn:hover {
+  background: var(--button-gray-hover);
+}
