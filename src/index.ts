@@ -40,6 +40,9 @@ const SUPPRESS_RETRY_PATTERNS = [
 // Set up event listeners
 setupEventListeners();
 
+// Check for shared files when page loads
+checkForSharedFiles();
+
 async function initializeUserSession() {
   await loadExistingFiles();
   await loadResults(false);
@@ -80,6 +83,215 @@ function setupEventListeners() {
 // Helper function to check if retry button should be suppressed
 function shouldSuppressRetryButton(reasonText: string): boolean {
   return SUPPRESS_RETRY_PATTERNS.some((pattern) => pattern.test(reasonText));
+}
+
+// Check for files shared to this app via PWA share target
+async function checkForSharedFiles(): Promise<void> {
+  try {
+    // Check if we're on the tax return page
+    if (!window.location.pathname.includes('tax_return.html')) {
+      return;
+    }
+
+    // Debug logging
+    console.log('checkForSharedFiles: pathname =', window.location.pathname);
+    console.log('checkForSharedFiles: search =', window.location.search);
+
+    // Check if this page was loaded with shared files parameter
+    if (window.location.search.includes('shared=true') && 
+        window.location.search.includes('source=share')) {
+      console.log('Detected shared files via PWA share target');
+      
+      // Try to get shared files from various sources
+      const sharedFiles = await getSharedFilesFromMultipleSources();
+      
+      if (sharedFiles && sharedFiles.length > 0) {
+        console.log(`Processing ${sharedFiles.length} shared files`);
+        
+        // Process shared files using existing upload logic
+        await uploadFilesListener(sharedFiles, null);
+        
+        // Show success message
+        showInfoModal(`הקבצים הועברו בהצלחה! התקבלו ${sharedFiles.length} קבצים באמצעות שיתוף. הקבצים עובדים כעת.`);
+        
+        // Clean up shared files
+        await clearSharedFilesFromSession();
+      }
+    }
+  } catch (error) {
+    console.error('Error checking for shared files:', error);
+  }
+}
+
+// Get shared files from multiple sources
+async function getSharedFilesFromMultipleSources(): Promise<File[] | null> {
+  try {
+    // Check session storage for shared files
+    const sharedFilesData = sessionStorage.getItem('sharedFiles');
+    if (sharedFilesData) {
+      const filesData = JSON.parse(sharedFilesData);
+      console.log('Found shared files in sessionStorage:', filesData.length);
+      
+      // Convert base64 data back to File objects
+      const files = await Promise.all(filesData.map(async (fileInfo: any) => {
+        try {
+          if (fileInfo.data && fileInfo.data.startsWith('data:')) {
+            // Convert base64 data URL back to File object
+            const response = await fetch(fileInfo.data);
+            const blob = await response.blob();
+            return new File([blob], fileInfo.name, { 
+              type: fileInfo.type, 
+              lastModified: fileInfo.lastModified || Date.now() 
+            });
+          } else {
+            // Fallback: create a basic File object if data is missing
+            console.warn('File data missing for:', fileInfo.name);
+            return new File([], fileInfo.name, { 
+              type: fileInfo.type, 
+              lastModified: fileInfo.lastModified || Date.now() 
+            });
+          }
+        } catch (fileError) {
+          console.error('Error reconstructing file:', fileInfo.name, fileError);
+          // Return a placeholder file to maintain the count
+          return new File([], fileInfo.name, { 
+            type: fileInfo.type, 
+            lastModified: fileInfo.lastModified || Date.now() 
+          });
+        }
+      }));
+      
+      console.log(`Successfully reconstructed ${files.length} shared files`);
+      return files;
+    }
+    
+    // Check if we have files in the current page context
+    // This would be set by the service worker or other means
+    const currentPageFiles = (window as any).sharedFiles;
+    if (currentPageFiles && Array.isArray(currentPageFiles)) {
+      return currentPageFiles;
+    }
+    
+    // Try to get files from service worker cache as final fallback
+    const cachedFiles = await getSharedFilesFromCache();
+    if (cachedFiles && cachedFiles.length > 0) {
+      console.log(`Retrieved ${cachedFiles.length} files from service worker cache`);
+      return cachedFiles;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error getting shared files from multiple sources:', error);
+    return null;
+  }
+}
+
+// Get shared files from session storage or other sources (kept for compatibility)
+async function getSharedFilesFromSession(): Promise<File[] | null> {
+  return getSharedFilesFromMultipleSources();
+}
+
+// Get shared files from service worker cache as fallback
+async function getSharedFilesFromCache(): Promise<File[] | null> {
+  try {
+    if ('caches' in window) {
+      const cache = await caches.open('shared-files');
+      const keys = await cache.keys();
+      const sharedFileKeys = keys.filter(key => key.url.includes('/shared/'));
+      
+      if (sharedFileKeys.length > 0) {
+        console.log(`Found ${sharedFileKeys.length} shared files in cache`);
+        const files = await Promise.all(
+          sharedFileKeys.map(async (key) => {
+            const response = await cache.match(key);
+            if (response) {
+              const blob = await response.blob();
+              const fileName = key.url.split('/').pop() || 'shared-file';
+              return new File([blob], fileName, { type: blob.type });
+            }
+            return null;
+          })
+        );
+        
+        const validFiles = files.filter(f => f !== null) as File[];
+        console.log(`Retrieved ${validFiles.length} valid files from cache`);
+        return validFiles;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting shared files from cache:', error);
+    return null;
+  }
+}
+
+// Clear shared files from session storage and cache
+async function clearSharedFilesFromSession(): Promise<void> {
+  try {
+    // Clear session storage
+    sessionStorage.removeItem('sharedFiles');
+    
+    // Clear service worker cache
+    if ('caches' in window) {
+      const cache = await caches.open('shared-files');
+      const keys = await cache.keys();
+      const sharedFileKeys = keys.filter(key => key.url.includes('/shared/'));
+      
+      if (sharedFileKeys.length > 0) {
+        console.log(`Clearing ${sharedFileKeys.length} shared files from cache`);
+        await Promise.all(sharedFileKeys.map(key => cache.delete(key)));
+      }
+    }
+    
+    console.log('Cleared shared files from all storage locations');
+  } catch (error) {
+    console.error('Error clearing shared files from storage:', error);
+  }
+}
+
+// Test function to simulate shared files via service worker message
+export async function testSharedFilesViaMessage(files: File[]): Promise<boolean> {
+  try {
+    if (!('serviceWorker' in navigator)) {
+      console.error('Service Worker not supported');
+      return false;
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    if (!registration.active) {
+      console.error('Service Worker not active');
+      return false;
+    }
+
+    console.log(`Testing shared files via message: ${files.length} files`);
+
+    // Create a message channel for response
+    const messageChannel = new MessageChannel();
+    
+    return new Promise((resolve) => {
+      messageChannel.port1.onmessage = (event) => {
+        if (event.data.success) {
+          console.log('Service Worker response:', event.data.message);
+          resolve(true);
+        } else {
+          console.error('Service Worker error:', event.data.error);
+          resolve(false);
+        }
+      };
+
+      // Send files to service worker
+      registration.active!.postMessage({
+        action: 'share-target',
+        title: 'Test Shared Tax Documents',
+        text: 'Simulated share from test',
+        files: files
+      }, [messageChannel.port2]);
+    });
+
+  } catch (error) {
+    console.error('Error testing shared files via message:', error);
+    return false;
+  }
 }
 
 // Import image utilities

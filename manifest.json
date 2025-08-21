@@ -46,7 +46,7 @@
     }
   ],
   "share_target": {
-    "action": "/",
+    "action": "/share-handler.html",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
