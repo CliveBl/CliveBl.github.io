@@ -1,5 +1,8 @@
 console.log('Service Worker: Starting up...');
 console.log('Service Worker: Self location:', self.location.href);
+console.log('Service Worker: Is PWA context:', self.matchMedia('(display-mode: standalone)').matches);
+console.log('Service Worker: Display mode:', self.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser');
+console.log('Service Worker: User agent:', navigator.userAgent);
 
 const CACHE_NAME = 'cgt-tax-return-v1';
 const urlsToCache = [
@@ -43,6 +46,9 @@ const urlsToCache = [
 // Install event - cache resources
 self.addEventListener('install', (event: any) => {
   console.log('Service Worker: Installing...');
+  console.log('Service Worker: Installation scope:', (self as any).registration?.scope);
+  console.log('Service Worker: Installation location:', self.location.href);
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache: Cache) => {
@@ -57,7 +63,12 @@ self.addEventListener('install', (event: any) => {
 
 // Combined fetch event handler - handles both caching and share functionality
 self.addEventListener('fetch', (event: any) => {
+  console.log('Service Worker: ===== FETCH EVENT TRIGGERED =====');
   console.log(`Service Worker: Fetch event for ${event.request.method} ${event.request.url}`);
+  console.log(`Service Worker: Request mode: ${event.request.mode}`);
+  console.log(`Service Worker: Request destination: ${event.request.destination}`);
+  console.log(`Service Worker: Request referrer: ${event.request.referrer}`);
+  console.log(`Service Worker: Current scope: ${self.location.href}`);
   
   // Handle POST requests for share functionality
   if (event.request.method === 'POST' && 
