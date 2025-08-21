@@ -28,6 +28,49 @@ async function handleEvent(event) {
   const url = new URL(event.request.url)
   let options = {}
 
+  // Handle POST requests to share-handler.html
+  if (event.request.method === 'POST' && url.pathname === '/share-handler.html') {
+    console.log('Cloudflare Worker: Handling POST request to share-handler.html')
+    
+    try {
+      // Get the form data from the POST request
+      const formData = await event.request.formData()
+      const files = formData.getAll('documents')
+      
+      console.log(`Cloudflare Worker: Received ${files.length} shared files`)
+      
+      // Store files in a temporary storage (you might want to use Cloudflare KV or R2 for this)
+      // For now, we'll just log and return a success response
+      
+      // Return the share-handler.html page with a success message
+      const response = await getAssetFromKV(event, options)
+      const html = await response.text()
+      
+      // Add a script to show the files were received
+      const modifiedHtml = html.replace(
+        '</body>',
+        `<script>
+          console.log('Cloudflare Worker: Files received via POST');
+          console.log('File count:', ${files.length});
+          // You can add more processing here
+        </script>
+        </body>`
+      )
+      
+      return new Response(modifiedHtml, {
+        headers: {
+          'Content-Type': 'text/html',
+          'X-Files-Count': files.length.toString(),
+          'X-Share-Request': 'true'
+        }
+      })
+      
+    } catch (error) {
+      console.error('Cloudflare Worker: Error processing POST request:', error)
+      return new Response('Error processing shared files', { status: 500 })
+    }
+  }
+
   /**
    * You can add custom logic to how we fetch your assets
    * by configuring the function `mapRequestToAsset`
