@@ -39,23 +39,39 @@ async function handleEvent(event) {
       
       console.log(`Cloudflare Worker: Received ${files.length} shared files`)
       
-      // Store files in a temporary storage (you might want to use Cloudflare KV or R2 for this)
-      // For now, we'll just log and return a success response
-      
-      // Return the share-handler.html page with a success message
-      const response = await getAssetFromKV(event, options)
-      const html = await response.text()
-      
-      // Add a script to show the files were received
-      const modifiedHtml = html.replace(
-        '</body>',
-        `<script>
-          console.log('Cloudflare Worker: Files received via POST');
-          console.log('File count:', ${files.length});
-          // You can add more processing here
-        </script>
-        </body>`
-      )
+             // Convert files to base64 and pass them to the browser
+       const fileData = []
+       for (let i = 0; i < files.length; i++) {
+         const file = files[i]
+         const arrayBuffer = await file.arrayBuffer()
+         const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+         
+         fileData.push({
+           name: file.name,
+           type: file.type,
+           size: file.size,
+           lastModified: file.lastModified,
+           data: `data:${file.type};base64,${base64}`
+         })
+       }
+       
+       // Return the share-handler.html page with file data embedded
+       const response = await getAssetFromKV(event, options)
+       const html = await response.text()
+       
+       // Add script with file data so the page can access it immediately
+       const modifiedHtml = html.replace(
+         '</body>',
+         `<script>
+           console.log('Cloudflare Worker: Files received via POST');
+           console.log('File count:', ${files.length});
+           
+           // Make files available to the page
+           window.sharedFilesFromWorker = ${JSON.stringify(fileData)};
+           console.log('Files made available to page:', window.sharedFilesFromWorker);
+         </script>
+         </body>`
+       )
       
       return new Response(modifiedHtml, {
         headers: {
