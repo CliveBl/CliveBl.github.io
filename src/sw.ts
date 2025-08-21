@@ -55,54 +55,11 @@ self.addEventListener('install', (event: any) => {
   );
 });
 
-// Fetch event - serve from cache when offline
+// Combined fetch event handler - handles both caching and share functionality
 self.addEventListener('fetch', (event: any) => {
-  // Skip non-GET requests (like POST for share target)
-  if (event.request.method !== 'GET') {
-    return;
-  }
-
-  event.respondWith(
-    caches.match(event.request)
-      .then((response: Response | undefined) => {
-        // Return cached version or fetch from network
-        if (response) {
-          console.log('Service Worker: Serving from cache:', event.request.url);
-          return response;
-        }
-        
-        console.log('Service Worker: Fetching from network:', event.request.url);
-        return fetch(event.request);
-      })
-      .catch((error: Error) => {
-        console.error('Service Worker: Fetch failed:', error);
-        // Return a fallback response for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
-        }
-      })
-  );
-});
-
-// Activate event - clean up old caches
-self.addEventListener('activate', (event: any) => {
-  console.log('Service Worker: Activating...');
-  event.waitUntil(
-    caches.keys().then((cacheNames: string[]) => {
-      return Promise.all(
-        cacheNames.map((cacheName: string) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-});
-
-// Handle shared files (POST requests)
-self.addEventListener('fetch', (event: any) => {
+  console.log(`Service Worker: Fetch event for ${event.request.method} ${event.request.url}`);
+  
+  // Handle POST requests for share functionality
   if (event.request.method === 'POST' && 
       event.request.url.includes('share-handler.html')) {
     
@@ -160,7 +117,53 @@ self.addEventListener('fetch', (event: any) => {
           });
         })
     );
+    
+    return; // Exit early for share requests
   }
+  
+  // Handle GET requests for caching (only if not already handled)
+  if (event.request.method === 'GET') {
+    event.respondWith(
+      caches.match(event.request)
+        .then((response: Response | undefined) => {
+          // Return cached version or fetch from network
+          if (response) {
+            console.log('Service Worker: Serving from cache:', event.request.url);
+            return response;
+          }
+          
+          console.log('Service Worker: Fetching from network:', event.request.url);
+          return fetch(event.request);
+        })
+        .catch((error: Error) => {
+          console.error('Service Worker: Fetch failed:', error);
+          // Return a fallback response for navigation requests
+          if (event.request.mode === 'navigate') {
+            return caches.match('/');
+          }
+        })
+    );
+  }
+  
+  // For any other requests, let them pass through to the network
+  console.log('Service Worker: Letting request pass through:', event.request.url);
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event: any) => {
+  console.log('Service Worker: Activating...');
+  event.waitUntil(
+    caches.keys().then((cacheNames: string[]) => {
+      return Promise.all(
+        cacheNames.map((cacheName: string) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Service Worker: Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
 });
 
 // Handle messages from the main page (for testing)
