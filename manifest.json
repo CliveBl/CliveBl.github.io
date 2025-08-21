@@ -12,21 +12,21 @@
   "dir": "rtl",
   "icons": [
     {
-      "src": "assets/taxesil/cgtLogo200Trans.webp",
+      "src": "assets/taxesil/cgtLogo200.png",
       "sizes": "200x200",
-      "type": "image/webp",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "assets/taxesil/cgtLogo200Trans.webp",
+      "src": "assets/taxesil/cgtLogo200.png",
       "sizes": "192x192",
-      "type": "image/webp",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/taxesil/cgtLogo200Trans.webp",
+      "src": "assets/taxesil/cgtLogo200.png",
       "sizes": "512x512",
-      "type": "image/webp",
+      "type": "image/png",
       "purpose": "any"
     }
   ],
