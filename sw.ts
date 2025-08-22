@@ -1,7 +1,5 @@
 console.log('Service Worker: Starting up...');
 console.log('Service Worker: Self location:', self.location.href);
-console.log('Service Worker: Is PWA context:', self.matchMedia('(display-mode: standalone)').matches);
-console.log('Service Worker: Display mode:', self.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser');
 console.log('Service Worker: User agent:', navigator.userAgent);
 
 const CACHE_NAME = 'cgt-tax-return-v1';

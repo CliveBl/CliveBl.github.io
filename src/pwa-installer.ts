@@ -106,12 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // Register service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/js/sw.js')
+    navigator.serviceWorker.register('/sw.js')
       .then((registration: ServiceWorkerRegistration) => {
-        console.log('SW registered: ', registration);
+        console.log('PWAInstaller SW registered: ', registration);
       })
       .catch((registrationError: Error) => {
-        console.log('SW registration failed: ', registrationError);
+        console.log('PWAInstaller SW registration failed: ', registrationError);
       });
   });
 }
