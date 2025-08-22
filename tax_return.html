@@ -956,64 +956,11 @@
         </div>
       </fieldset>
     </div>
-
-  <script>
-function logToPanel(message) {
-  const log = document.getElementById("debug-log");
-  const entry = document.createElement("div");
-  entry.textContent = message;
-  log.appendChild(entry);
-}
-
-function simulateShare() {
-  const mockFiles = [
-    new File(["Dummy PDF content"], "form106.pdf", { type: "application/pdf" }),
-    new File(["Image content"], "donation_receipt.jpg", { type: "image/jpeg" })
-  ];
-
-  navigator.serviceWorker.ready.then(registration => {
-    registration.active.postMessage({
-      action: "share-target",
-      title: "Simulated Tax Docs",
-      text: "Testing share payload",
-      files: mockFiles
-    });
-    logToPanel("✅ Simulated share payload sent to service worker.");
-  });
-}
-
-// Listen for messages from the service worker
-navigator.serviceWorker.addEventListener("message", event => {
-  logToPanel("📨 Message from SW: " + JSON.stringify(event.data));
-});
-
-  </script>
-  
+ 
     <script>
       nl_pos = "br";
       nl_compact = "1";
     </script>
     <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
-	<div id="debug-panel" style="
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  width: 320px;
-  max-height: 400px;
-  overflow-y: auto;
-  background: #fff;
-  border: 2px solid #0078d4;
-  padding: 12px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  direction: ltr;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 9999;
-">
-  <!-- <h3 style="margin-top: 0;">🔍 Debug Panel</h3>
-  <button onclick="simulateShare()" style="margin-bottom: 10px;">Simulate Share</button>
-  <div id="debug-log"></div> -->
-</div>
-
   </body>
 </html>

@@ -75,56 +75,50 @@ self.addEventListener('fetch', (event: any) => {
     console.log('Service Worker: Intercepting share request');
     
     event.respondWith(
-      fetch(event.request)
-        .then(async (response: Response) => {
-          try {
-            // Clone the request to read the body
-            const clonedRequest = event.request.clone();
-            const formData = await clonedRequest.formData();
-            const files = formData.getAll('documents');
-            
-            console.log(`Service Worker: Found ${files.length} shared files`);
-            
-            // Store files in cache for potential retrieval
-            if (files.length > 0) {
-              const cache = await caches.open('shared-files');
-              for (let i = 0; i < files.length; i++) {
-                const file = files[i] as File;
-                const cacheKey = `/shared/${Date.now()}_${i}_${file.name}`;
-                await cache.put(cacheKey, new Response(file));
-                console.log(`Service Worker: Cached file: ${cacheKey}`);
-              }
+      (async () => {
+        try {
+          // Clone the request to read the body BEFORE making the fetch
+          const clonedRequest = event.request.clone();
+          const formData = await clonedRequest.formData();
+          const files = formData.getAll('documents');
+          
+          console.log(`Service Worker: Found ${files.length} shared files`);
+          
+          // Store files in cache for potential retrieval
+          if (files.length > 0) {
+            const cache = await caches.open('shared-files');
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i] as File;
+              const cacheKey = `/shared/${Date.now()}_${i}_${file.name}`;
+              await cache.put(cacheKey, new Response(file));
+              console.log(`Service Worker: Cached file: ${cacheKey}`);
             }
-            
-            // Clone the response to modify it
-            const modifiedResponse = new Response(response.body, {
-              status: response.status,
-              statusText: response.statusText,
-              headers: response.headers
-            });
-            
-            // Add custom header to indicate this was a share request
-            modifiedResponse.headers.set('X-Share-Request', 'true');
-            modifiedResponse.headers.set('X-Files-Count', files.length.toString());
-            
-            return modifiedResponse;
-          } catch (error) {
-            console.error('Service Worker: Error processing share request:', error);
-            // Return a fallback response
-            return new Response('Share request processed', {
-              status: 200,
-              headers: { 'Content-Type': 'text/plain' }
-            });
           }
-        })
-        .catch((error: Error) => {
-          console.error('Service Worker: Share request failed:', error);
+          
+          // Now make the fetch with the original request
+          const response = await fetch(event.request);
+          
+          // Clone the response to modify it
+          const modifiedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers
+          });
+          
+          // Add custom header to indicate this was a share request
+          modifiedResponse.headers.set('X-Share-Request', 'true');
+          modifiedResponse.headers.set('X-Files-Count', files.length.toString());
+          
+          return modifiedResponse;
+        } catch (error) {
+          console.error('Service Worker: Error processing share request:', error);
           // Return a fallback response
           return new Response('Share request processed', {
             status: 200,
             headers: { 'Content-Type': 'text/plain' }
           });
-        })
+        }
+      })()
     );
     
     return; // Exit early for share requests

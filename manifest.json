@@ -12,12 +12,6 @@
   "dir": "rtl",
   "icons": [
     {
-      "src": "assets/taxesil/cgtLogo200.png",
-      "sizes": "200x200",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
       "src": "assets/taxesil/cgtLogo192.png",
       "sizes": "192x192",
       "type": "image/png",
