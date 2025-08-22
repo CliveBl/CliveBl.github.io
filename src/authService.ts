@@ -5,7 +5,7 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.17";
+export let UIVersion = "1.18";
 export let ServerVersion = "";
 
 // Customer management
@@ -547,9 +547,43 @@ export function showWarningModal(message: string) {
   });
 }
 
+
+async function registerServiceWorker() {
+	if ('serviceWorker' in navigator) {
+		try {
+			// Check if already registered first
+			const existingRegistration = await navigator.serviceWorker.getRegistration();
+			if (existingRegistration) {
+				console.log('Service worker already registered, waiting for ready state...');
+				await navigator.serviceWorker.ready;
+				console.log('Existing service worker is ready');
+				return existingRegistration;
+			}
+			
+			// Not registered yet, so register it
+			console.log('Share handler: Registering service worker...');
+			const registration = await navigator.serviceWorker.register('/sw.js');
+			console.log('Share handler: Service worker registered:', registration);
+			
+			// Wait for service worker to be ready
+			await navigator.serviceWorker.ready;
+			console.log('Share handler: Service worker is ready');
+			
+			return registration;
+		} catch (error) {
+			console.error('Share handler: Service worker registration failed:', error);
+			return null;
+		}
+	}
+	return null;
+}
+
+
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", async () => {
   debug("AuthServiceDOMContentLoaded");
+
+  await registerServiceWorker();
 
   // Get and display version number
   try {

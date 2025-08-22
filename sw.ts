@@ -248,3 +248,4 @@ self.addEventListener('message', (event: any) => {
     console.log('Service Worker: Received unhandled message:', event.data);
   }
 });
+ 

@@ -36,6 +36,7 @@
         }
     </style>
 </head>
+<script src="/js/authService.js"></script>
 <body>
     <h1>מעבד קבצים משותפים</h1>
     <div class="loading">מעבד את הקבצים המשותפים...</div>
@@ -43,26 +44,6 @@
     <div id="errorMessage" class="error" style="display: none;"></div>
     
     <script>
-        // Register service worker first to ensure it's active for share handling
-        async function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                try {
-                    console.log('Share handler: Registering service worker...');
-                    const registration = await navigator.serviceWorker.register('/js/sw.js');
-                    console.log('Share handler: Service worker registered:', registration);
-                    
-                    // Wait for service worker to be ready
-                    await navigator.serviceWorker.ready;
-                    console.log('Share handler: Service worker is ready');
-                    
-                    return registration;
-                } catch (error) {
-                    console.error('Share handler: Service worker registration failed:', error);
-                    return null;
-                }
-            }
-            return null;
-        }
 
         // This page receives shared files via POST and redirects to tax return page
         document.addEventListener('DOMContentLoaded', async () => {

@@ -1,5 +1,7 @@
 js/*.map
 js/*.js
+sw.js
+sw.js.map
 _site
 .sass-cache
 .jekyll-cache

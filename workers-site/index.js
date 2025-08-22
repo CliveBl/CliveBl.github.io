@@ -30,61 +30,15 @@ async function handleEvent(event) {
 
   // Handle POST requests to share-handler.html
   if (event.request.method === 'POST' && url.pathname === '/share-handler.html') {
-    console.log('Cloudflare Worker: Handling POST request to share-handler.html')
+    console.log('Cloudflare Worker: Redirecting POST request from share-handler.html to index.html')
     
-    try {
-      // Get the form data from the POST request
-      const formData = await event.request.formData()
-      const files = formData.getAll('documents')
-      
-      console.log(`Cloudflare Worker: Received ${files.length} shared files`)
-      
-             // Convert files to base64 and pass them to the browser
-       const fileData = []
-       for (let i = 0; i < files.length; i++) {
-         const file = files[i]
-         const arrayBuffer = await file.arrayBuffer()
-         const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
-         
-         fileData.push({
-           name: file.name,
-           type: file.type,
-           size: file.size,
-           lastModified: file.lastModified,
-           data: `data:${file.type};base64,${base64}`
-         })
-       }
-       
-       // Return the share-handler.html page with file data embedded
-       const response = await getAssetFromKV(event, options)
-       const html = await response.text()
-       
-       // Add script with file data so the page can access it immediately
-       const modifiedHtml = html.replace(
-         '</body>',
-         `<script>
-           console.log('Cloudflare Worker: Files received via POST');
-           console.log('File count:', ${files.length});
-           
-           // Make files available to the page
-           window.sharedFilesFromWorker = ${JSON.stringify(fileData)};
-           console.log('Files made available to page:', window.sharedFilesFromWorker);
-         </script>
-         </body>`
-       )
-      
-      return new Response(modifiedHtml, {
-        headers: {
-          'Content-Type': 'text/html',
-          'X-Files-Count': files.length.toString(),
-          'X-Share-Request': 'true'
-        }
-      })
-      
-    } catch (error) {
-      console.error('Cloudflare Worker: Error processing POST request:', error)
-      return new Response('Error processing shared files', { status: 500 })
-    }
+    // Redirect to index.html
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': '/index.html'
+      }
+    })
   }
 
   /**
