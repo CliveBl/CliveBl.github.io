@@ -50,15 +50,23 @@
             try {
                 // First, ensure service worker is registered and ready
                 console.log('Share handler: Starting up...');
+                console.log('Share handler: Current URL:', window.location.href);
+                console.log('Share handler: Search params:', window.location.search);
+                
                 await registerServiceWorker();
                 
                 // Check if we have shared files in the request
                 const urlParams = new URLSearchParams(window.location.search);
                 const shared = urlParams.get('shared');
                 
+                console.log('Share handler: Shared parameter:', shared);
+                
                 if (shared === 'true') {
                     // Try to get shared files from the POST request
+                    console.log('Share handler: Attempting to get shared files...');
                     const files = await getSharedFilesFromRequest();
+                    
+                    console.log('Share handler: Files retrieved:', files);
                     
                     if (files && files.length > 0) {
                         console.log(`Processing ${files.length} shared files`);
@@ -135,6 +143,37 @@
                     });
                 }
 
+                // Try to read from the service worker cache if available
+                if ('serviceWorker' in navigator && 'caches' in window) {
+                    try {
+                        const cache = await caches.open('shared-files');
+                        const keys = await cache.keys();
+                        const sharedKeys = keys.filter(key => key.url.includes('/shared/'));
+                        
+                        if (sharedKeys.length > 0) {
+                            console.log(`Found ${sharedKeys.length} files in service worker cache`);
+                            const files = await Promise.all(sharedKeys.map(async key => {
+                                const response = await cache.match(key);
+                                if (response) {
+                                    const blob = await response.blob();
+                                    return new File([blob], key.url.split('/').pop() || 'shared-file', { 
+                                        type: blob.type || 'application/octet-stream' 
+                                    });
+                                }
+                                return null;
+                            }));
+                            
+                            const validFiles = files.filter(f => f !== null);
+                            if (validFiles.length > 0) {
+                                console.log(`Retrieved ${validFiles.length} files from cache`);
+                                return validFiles;
+                            }
+                        }
+                    } catch (cacheError) {
+                        console.log('Could not read from service worker cache:', cacheError);
+                    }
+                }
+
                 return null;
             } catch (error) {
                 console.error('Error getting shared files from request:', error);
@@ -150,6 +189,28 @@
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
+        }
+
+        // Function to register service worker
+        async function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('Service Worker registered successfully:', registration);
+                    
+                    // Wait for the service worker to be ready
+                    await navigator.serviceWorker.ready;
+                    console.log('Service Worker is ready');
+                    
+                    return registration;
+                } catch (error) {
+                    console.error('Service Worker registration failed:', error);
+                    throw error;
+                }
+            } else {
+                console.log('Service Worker not supported');
+                return null;
+            }
         }
 
         // Function to show error message

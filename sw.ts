@@ -77,39 +77,58 @@ self.addEventListener('fetch', (event: any) => {
     event.respondWith(
       (async () => {
         try {
-          // Clone the request to read the body BEFORE making the fetch
-          const clonedRequest = event.request.clone();
-          const formData = await clonedRequest.formData();
-          const files = formData.getAll('documents');
-          
-          console.log(`Service Worker: Found ${files.length} shared files`);
-          
-          // Store files in cache for potential retrieval
-          if (files.length > 0) {
-            const cache = await caches.open('shared-files');
-            for (let i = 0; i < files.length; i++) {
-              const file = files[i] as File;
-              const cacheKey = `/shared/${Date.now()}_${i}_${file.name}`;
-              await cache.put(cacheKey, new Response(file));
-              console.log(`Service Worker: Cached file: ${cacheKey}`);
-            }
+          // For navigation mode requests, we can't read the body directly
+          // Instead, we'll let the request proceed normally to the share handler
+          if (event.request.mode === 'navigate') {
+            console.log('Service Worker: Navigation mode detected, letting request proceed');
+            console.log('Service Worker: Request headers:', Object.fromEntries(event.request.headers.entries()));
+            console.log('Service Worker: Request body used:', event.request.bodyUsed);
+            
+            // Let the request go through to the share handler page
+            // The page will handle the POST data
+            return fetch(event.request);
           }
           
-          // Now make the fetch with the original request
-          const response = await fetch(event.request);
-          
-          // Clone the response to modify it
-          const modifiedResponse = new Response(response.body, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: response.headers
-          });
-          
-          // Add custom header to indicate this was a share request
-          modifiedResponse.headers.set('X-Share-Request', 'true');
-          modifiedResponse.headers.set('X-Files-Count', files.length.toString());
-          
-          return modifiedResponse;
+          // For non-navigation requests, try to read the body
+          try {
+            const clonedRequest = event.request.clone();
+            const formData = await clonedRequest.formData();
+            const files = formData.getAll('documents');
+            
+            console.log(`Service Worker: Found ${files.length} shared files`);
+            
+            // Store files in cache for potential retrieval
+            if (files.length > 0) {
+              const cache = await caches.open('shared-files');
+              for (let i = 0; i < files.length; i++) {
+                const file = files[i] as File;
+                const cacheKey = `/shared/${Date.now()}_${i}_${file.name}`;
+                await cache.put(cacheKey, new Response(file));
+                console.log(`Service Worker: Cached file: ${cacheKey}`);
+              }
+            }
+            
+            // Now make the fetch with the original request
+            const response = await fetch(event.request);
+            
+            // Clone the response to modify it
+            const modifiedResponse = new Response(response.body, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: response.headers
+            });
+            
+            // Add custom header to indicate this was a share request
+            modifiedResponse.headers.set('X-Share-Request', 'true');
+            modifiedResponse.headers.set('X-Files-Count', files.length.toString());
+            
+            return modifiedResponse;
+          } catch (bodyError) {
+            console.log('Service Worker: Could not read request body, letting request proceed');
+            
+            // If we can't read the body, let the request proceed normally
+            return fetch(event.request);
+          }
         } catch (error) {
           console.error('Service Worker: Error processing share request:', error);
           // Return a fallback response
