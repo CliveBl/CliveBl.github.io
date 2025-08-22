@@ -18,8 +18,8 @@
   "homepage": "https://github.com/CliveBl/CliveBl.github.io#readme",
   "scripts": {
     "watch": "tsc -w",
-    "build": "tsc",
-    "build:pwa": "tsc && npm run generate:icons"
+    "build": "tsc -p src/tsconfig.json && tsc -p tsconfig.json",
+    "build:pwa": "tsc -p src/tsconfig.json && tsc -p tsconfig.json && npm run generate:icons"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
