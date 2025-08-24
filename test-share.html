@@ -173,7 +173,7 @@
             if (!registration) {
                 log('No existing registration, attempting to register service worker...', 'info');
                 try {
-                    registration = await navigator.serviceWorker.register('/js/sw.js');
+                    registration = await navigator.serviceWorker.register('/sw.js');
                     log('Service Worker registered successfully', 'success');
                     
                     // Wait for it to become active
@@ -441,7 +441,7 @@
                     throw new Error('Service Worker not supported');
                 }
                 
-                const registration = await navigator.serviceWorker.register('/js/sw.js');
+                const registration = await navigator.serviceWorker.register('/sw.js');
                 log('Service Worker registered successfully', 'success');
                 showStatus('registerSwStatus', 'Service Worker registered successfully', 'success');
                 
@@ -540,7 +540,7 @@
                 
                 // Now register a fresh service worker
                 log('Registering fresh service worker...', 'info');
-                const registration = await navigator.serviceWorker.register('/js/sw.js');
+                const registration = await navigator.serviceWorker.register('/sw.js');
                 log('Fresh service worker registered successfully', 'success');
                 
                 // Wait for it to become active

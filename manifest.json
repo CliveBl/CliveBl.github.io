@@ -2,7 +2,8 @@
   "name": "דו״ח שנתי - עשה זאת בעצמך",
   "short_name": "דו״ח שנתי",
   "description": "Yearly tax return preparation tool for Israeli taxpayers",
-  "start_url": "/index.html",
+  "id": "/v1",
+  "start_url": "",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ff6b35",
@@ -10,6 +11,7 @@
   "scope": "/",
   "lang": "he",
   "dir": "rtl",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "assets/taxesil/cgtLogo192.png",
