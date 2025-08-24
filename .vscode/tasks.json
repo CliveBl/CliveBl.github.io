@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "typescript",
+			"tsconfig": "tsconfig.json",
+			"option": "watch",
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"group": "build",
+			"label": "tsc: watch - tsconfig.json"
+		},
+		{
+			"type": "typescript",
+			"tsconfig": "src/tsconfig.json",
+			"option": "watch",
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"group": "build",
+			"label": "tsc: watch - src/tsconfig.json"
+		},
+		{
+			"label": "tsc: watch - both",
+			"dependsOrder": "parallel",
+			"dependsOn": [
+				"tsc: watch - tsconfig.json",
+				"tsc: watch - src/tsconfig.json"
+			],
+			"group": "build"
+		}
+	]
+}
