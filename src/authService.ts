@@ -5,7 +5,7 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.19";
+export let UIVersion = "1.20";
 export let ServerVersion = "";
 
 // Customer management
@@ -264,11 +264,8 @@ export async function loadCustomerList(forceRefresh = false): Promise<{ name: st
   }
 }
 
-export async function updateCustomerName(): Promise<void> {
-  const customerNameInput = document.getElementById("customerNameInput") as HTMLInputElement;
-  const newCustomerName = customerNameInput.value.trim();
-
-  if (!newCustomerName) {
+export async function updateCustomerName(newCustomerName: string): Promise<void> {
+  if (newCustomerName.length < 1) {
     throw new Error("שם לקוח לא יכול להיות ריק");
   }
 
@@ -280,8 +277,8 @@ export async function updateCustomerName(): Promise<void> {
       },
       credentials: "include",
       body: JSON.stringify({
-        oldCustomerDataEntryName: selectedCustomerDataEntryName,
-        newCustomerDataEntryName: newCustomerName,
+        fromCustomerDataEntryName: selectedCustomerDataEntryName,
+        toCustomerDataEntryName: newCustomerName,
       }),
     });
 
@@ -306,6 +303,46 @@ export async function updateCustomerName(): Promise<void> {
     throw error;
   }
 }
+
+export async function duplicateCustomerDataEntry(newCustomerName: string): Promise<void> {
+	if (newCustomerName.length < 1) {
+	  throw new Error("שם לקוח לא יכול להיות ריק");
+	}
+  
+	try {
+	  const response = await fetch(`${API_BASE_URL}/duplicateCustomerDataEntry`, {
+		method: "POST",
+		headers: {
+		  "Content-Type": "application/json",
+		},
+		credentials: "include",
+		body: JSON.stringify({
+		  fromCustomerDataEntryName: selectedCustomerDataEntryName,
+		  toCustomerDataEntryName: newCustomerName,
+		}),
+	  });
+  
+	  if (!response.ok) {
+		const errorText = await response.text();
+		throw new Error(`שגיאה בעדכון שם לקוח: ${errorText}`);
+	  }
+  
+	  // Update local state
+	  updateSelectedCustomer(newCustomerName);
+  
+	  // Refresh customer list
+	  await loadCustomerList(true);
+  
+	  // Close modal
+	  const customerOverlay = document.getElementById("customerOverlay") as HTMLDivElement;
+	  if (customerOverlay) {
+		customerOverlay.classList.remove("active");
+	  }
+	} catch (error) {
+	  console.error("Failed to update customer name:", error);
+	  throw error;
+	}
+  }
 
 // Google OAuth functions
 export async function signInWithGoogle(): Promise<void> {

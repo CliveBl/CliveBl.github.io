@@ -23,7 +23,8 @@ import {
   showInfoModal,
   showWarningModal,
   DEFAULT_CUSTOMER_DATA_ENTRY_NAME,
-  isTermsAccepted
+  isTermsAccepted,
+  duplicateCustomerDataEntry
 } from "./authService.js";
 
 import { ANONYMOUS_EMAIL, debug } from "./constants.js";
@@ -288,9 +289,10 @@ async function handleGoogleLogin(): Promise<void> {
 }
 
 function handleCustomerSelectChange(): void {
-  if (customerSelect.value === "new") {
+  if (customerSelect.value === "new" || customerSelect.value === "duplicate") {
     customerNameInput.value = "";
     customerNameInput.focus();
+	updateCustomerButton.disabled = true;
   } else {
     customerNameInput.value = customerSelect.value;
     updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
@@ -325,7 +327,11 @@ function handleCustomerNameInput(): void {
 
 async function handleUpdateCustomerName(): Promise<void> {
   try {
-    await updateCustomerName();
+	if (customerSelect.value === "duplicate") {
+		await duplicateCustomerDataEntry(customerNameInput.value.trim());
+	} else {
+		await updateCustomerName(customerNameInput.value.trim());
+	}
     // Update customer button text
     if (customerButton) {
       customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
@@ -449,6 +455,7 @@ export function populateCustomerSelect(customerData: { name: string; modified: n
 
   if (customerData && customerData.length > 0) {
     customerSelect.innerHTML = '<option value="new">צור לקוח חדש</option>';
+	customerSelect.innerHTML += '<option value="duplicate">שכפל לקוח</option>';
 
     customerData.forEach((customer) => {
       const option = document.createElement("option");
