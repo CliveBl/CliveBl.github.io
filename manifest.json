@@ -2,7 +2,7 @@
   "name": "דו״ח שנתי - עשה זאת בעצמך",
   "short_name": "דו״ח שנתי",
   "description": "Yearly tax return preparation tool for Israeli taxpayers",
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ff6b35",
@@ -44,9 +44,9 @@
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
+      "title": "name",
+      "text": "description",
+      "url": "link",
       "files": [
         {
           "name": "documents",
