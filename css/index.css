@@ -1302,12 +1302,15 @@ button:disabled {
     color: var(--text-color);
     font-size: 16px;
   }
-  /* Mobile-specific spacing */
-@media (max-width: 768px) {
-	.info-section {
-	  margin-top: 25px;
-	  padding: 0px 10px 10px 10px;
-	}
+
+  /* Increase top margin for main containers when auth-container is taller */
+  .main-container,
+  .tax-return-main-container {
+    margin-top: 120px;
+  }
+  .main-container,
+  .tax-return-main-container {
+    margin-top: 120px;
   }
 }
 
