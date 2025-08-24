@@ -25,6 +25,9 @@ const template867YearsMap = {
   2023: "template_867_2022",
   2024: "template_867_2022",
 };
+const fetchConfig = {
+  mode: "cors" as RequestMode,
+};
 
 interface Value {
   type: string;
@@ -1273,10 +1276,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=${selectedCustomerDataEntryName}`;
       fetch(deleteUrl, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
         credentials: "include",
+        ...fetchConfig,
       })
         .then((response) => {
           if (response.ok) {

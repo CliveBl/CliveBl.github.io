@@ -32,12 +32,12 @@ export function on(eventName: string, callback: EventCallback): void {
 function emit(eventName: string): void {
   const callbacks = listeners[eventName];
   if (callbacks) {
-    callbacks.forEach(callback => callback());
+    callbacks.forEach((callback) => callback());
   }
 }
 function updateSignInState(bool: boolean): void {
-	SignedIn = bool;
-	emit("signInChanged");
+  SignedIn = bool;
+  emit("signInChanged");
 }
 
 const acceptCookies = document.getElementById("acceptCookies") as HTMLButtonElement;
@@ -45,9 +45,9 @@ const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement
 
 // Add cookie consent button handler
 acceptCookies.addEventListener("click", () => {
-	cookieUtils.set("cookiesAccepted", "true", 365); // Cookie expires in 1 year
-	cookieConsent.classList.remove("active");
-  });
+  cookieUtils.set("cookiesAccepted", "true", 365); // Cookie expires in 1 year
+  cookieConsent.classList.remove("active");
+});
 
 // Customer storage functions
 export function saveSelectedCustomerToStorage(customerName: string): void {
@@ -72,6 +72,10 @@ function isCustomerListCacheValid(): boolean {
 function clearCustomerListCache(): void {
   customerListCache = null;
   customerListCacheTimestamp = 0;
+}
+
+export function customerListCacheLength(): number {
+  return customerListCache ? customerListCache.length : 0;
 }
 
 export function setCustomerListCache(customerData: { name: string; modified: number; dbver: number }[]): void {
@@ -103,11 +107,11 @@ export async function signInAnonymous(): Promise<void> {
 
     const result = await response.json();
     UserEmailValue = result.email;
-    
+
     // Clear basic info cache since user state has changed
     clearBasicInfoCache();
-    
-	updateSignInState(true);
+
+    updateSignInState(true);
     return;
   } catch (error) {
     debug("Sign in error:", error);
@@ -126,7 +130,7 @@ export async function handleLoginResponse(response: Response): Promise<any> {
 }
 
 export async function signIn(email: string, password: string): Promise<void> {
-	debug("signIn");
+  debug("signIn");
   try {
     const response = await fetch(`${AUTH_BASE_URL}/signIn`, {
       method: "POST",
@@ -153,11 +157,11 @@ export async function signIn(email: string, password: string): Promise<void> {
 
     const result = JSON.parse(text);
     UserEmailValue = result.email;
-    
+
     // Clear basic info cache since user state has changed
     clearBasicInfoCache();
-    
-	updateSignInState(true);
+
+    updateSignInState(true);
     return;
   } catch (error) {
     console.error("Sign in failed:", error);
@@ -229,14 +233,14 @@ export function clearUserSession(): void {
 
   // Clear customer list cache
   clearCustomerListCache();
-  
+
   // Clear basic info cache
   clearBasicInfoCache();
 }
 
 // Customer management functions
 export async function loadCustomerList(forceRefresh = false): Promise<{ name: string; modified: number; dbver: number }[]> {
-  if (!forceRefresh && isCustomerListCacheValid()) {
+  if (!forceRefresh && isCustomerListCacheValid() && customerListCacheLength() > 0) {
     debug("Using cached customer list");
     return customerListCache!;
   }
@@ -264,13 +268,79 @@ export async function loadCustomerList(forceRefresh = false): Promise<{ name: st
   }
 }
 
-export async function updateCustomerName(newCustomerName: string): Promise<void> {
-  if (newCustomerName.length < 1) {
-    throw new Error("שם לקוח לא יכול להיות ריק");
-  }
-
+export async function updateCustomerName(oldCustomerName: string, newCustomerName: string): Promise<void> {
   try {
     const response = await fetch(`${API_BASE_URL}/changeCustomerDataEntryName`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        fromCustomerDataEntryName: oldCustomerName,
+        toCustomerDataEntryName: newCustomerName,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`שגיאה בעדכון שם לקוח: ${errorText}`);
+    }
+
+    // Update local state
+    updateSelectedCustomer(newCustomerName);
+
+    // Refresh customer list from result
+    const customerData = await response.json();
+    setCustomerListCache(customerData);
+
+    // Close modal
+    const customerOverlay = document.getElementById("customerOverlay") as HTMLDivElement;
+    if (customerOverlay) {
+      customerOverlay.classList.remove("active");
+    }
+  } catch (error) {
+    console.error("Failed to update customer name:", error);
+    throw error;
+  }
+}
+
+// Delete a customer and all its files. The caller must call updateSelectedCustomer() after this function returns.
+export async function deleteCustomer(newCustomerName: string): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/deleteCustomer?customerDataEntryName=${newCustomerName}`, {
+      method: "DELETE",
+      credentials: "include",
+      ...fetchConfig,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`שגיאה במחיקת לקוח: ${errorText}`);
+    }
+
+    // Refresh customer list from result if there are any customers left
+    const customerData = await response.json();
+    if (customerData.length > 0) {
+      setCustomerListCache(customerData);
+    } else {
+      clearCustomerListCache();
+    }
+
+    // Close modal
+    const customerOverlay = document.getElementById("customerOverlay") as HTMLDivElement;
+    if (customerOverlay) {
+      customerOverlay.classList.remove("active");
+    }
+  } catch (error) {
+    console.error("Failed to delete customer:", error);
+    throw error;
+  }
+}
+
+export async function duplicateCustomerDataEntry(newCustomerName: string): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/duplicateCustomerDataEntry`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -303,46 +373,6 @@ export async function updateCustomerName(newCustomerName: string): Promise<void>
     throw error;
   }
 }
-
-export async function duplicateCustomerDataEntry(newCustomerName: string): Promise<void> {
-	if (newCustomerName.length < 1) {
-	  throw new Error("שם לקוח לא יכול להיות ריק");
-	}
-  
-	try {
-	  const response = await fetch(`${API_BASE_URL}/duplicateCustomerDataEntry`, {
-		method: "POST",
-		headers: {
-		  "Content-Type": "application/json",
-		},
-		credentials: "include",
-		body: JSON.stringify({
-		  fromCustomerDataEntryName: selectedCustomerDataEntryName,
-		  toCustomerDataEntryName: newCustomerName,
-		}),
-	  });
-  
-	  if (!response.ok) {
-		const errorText = await response.text();
-		throw new Error(`שגיאה בעדכון שם לקוח: ${errorText}`);
-	  }
-  
-	  // Update local state
-	  updateSelectedCustomer(newCustomerName);
-  
-	  // Refresh customer list
-	  await loadCustomerList(true);
-  
-	  // Close modal
-	  const customerOverlay = document.getElementById("customerOverlay") as HTMLDivElement;
-	  if (customerOverlay) {
-		customerOverlay.classList.remove("active");
-	  }
-	} catch (error) {
-	  console.error("Failed to update customer name:", error);
-	  throw error;
-	}
-  }
 
 // Google OAuth functions
 export async function signInWithGoogle(): Promise<void> {
@@ -393,11 +423,11 @@ export async function handleGoogleCallback(): Promise<void> {
     url.searchParams.delete("authuser");
     url.searchParams.delete("prompt");
     window.history.replaceState({}, "", url);
-    
+
     // Clear basic info cache since user state has changed
     clearBasicInfoCache();
-    
-	updateSignInState(true);
+
+    updateSignInState(true);
   } catch (error) {
     console.error("Error handling Google callback:", error);
     throw new Error("שגיאה בהתחברות עם Google");
@@ -443,6 +473,7 @@ export async function deleteAccount(): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/deleteAccount`, {
       method: "DELETE",
       credentials: "include",
+      ...fetchConfig,
     });
 
     if (!response.ok) {
@@ -584,39 +615,37 @@ export function showWarningModal(message: string) {
   });
 }
 
-
 async function registerServiceWorker() {
-	if ('serviceWorker' in navigator) {
-		try {
-			// Check if already registered first
-			debug("Checking if service worker is already registered");
-			const existingRegistration = await navigator.serviceWorker.getRegistration();
-			debug("Existing service worker registration:", existingRegistration);
-			if (existingRegistration) {
-				debug('Service worker already registered, waiting for ready state...');
-				await navigator.serviceWorker.ready;
-				debug('Existing service worker is ready');
-				return existingRegistration;
-			}
-			
-			// Not registered yet, so register it
-			debug('Registering service worker...');
-			const registration = await navigator.serviceWorker.register('/sw.js');
-			debug('Service worker registered:', registration);
-			
-			// Wait for service worker to be ready
-			await navigator.serviceWorker.ready;
-			debug('Service worker is ready');
-			
-			return registration;
-		} catch (error) {
-			debug('Service worker registration failed:', error);
-			return null;
-		}
-	}
-	return null;
-}
+  if ("serviceWorker" in navigator) {
+    try {
+      // Check if already registered first
+      debug("Checking if service worker is already registered");
+      const existingRegistration = await navigator.serviceWorker.getRegistration();
+      debug("Existing service worker registration:", existingRegistration);
+      if (existingRegistration) {
+        debug("Service worker already registered, waiting for ready state...");
+        await navigator.serviceWorker.ready;
+        debug("Existing service worker is ready");
+        return existingRegistration;
+      }
 
+      // Not registered yet, so register it
+      debug("Registering service worker...");
+      const registration = await navigator.serviceWorker.register("/sw.js");
+      debug("Service worker registered:", registration);
+
+      // Wait for service worker to be ready
+      await navigator.serviceWorker.ready;
+      debug("Service worker is ready");
+
+      return registration;
+    } catch (error) {
+      debug("Service worker registration failed:", error);
+      return null;
+    }
+  }
+  return null;
+}
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", async () => {
@@ -643,22 +672,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     debug("Failed to fetch version:");
   }
 
-   // Check if user has already accepted cookies
-   const cookiesAccepted = cookieUtils.get("cookiesAccepted");
-   if (!cookiesAccepted) {
-	 const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
-	 if (cookieConsent) {
-	   cookieConsent.classList.add("active");
-	 }
-   }
+  // Check if user has already accepted cookies
+  const cookiesAccepted = cookieUtils.get("cookiesAccepted");
+  if (!cookiesAccepted) {
+    const cookieConsent = document.getElementById("cookieConsent") as HTMLDivElement;
+    if (cookieConsent) {
+      cookieConsent.classList.add("active");
+    }
+  }
 
   emit("authServiceInitialized");
-
 });
 
 // Basic info caching with session storage
-const BASIC_INFO_CACHE_KEY = 'basicInfo';
-const BASIC_INFO_TIMESTAMP_KEY = 'basicInfoTimestamp';
+const BASIC_INFO_CACHE_KEY = "basicInfo";
+const BASIC_INFO_TIMESTAMP_KEY = "basicInfoTimestamp";
 const BASIC_INFO_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 export async function getBasicInfo(forceRefresh = false): Promise<any> {
@@ -666,7 +694,7 @@ export async function getBasicInfo(forceRefresh = false): Promise<any> {
   if (!forceRefresh) {
     const cached = sessionStorage.getItem(BASIC_INFO_CACHE_KEY);
     const timestamp = sessionStorage.getItem(BASIC_INFO_TIMESTAMP_KEY);
-    
+
     if (cached && timestamp) {
       const age = Date.now() - parseInt(timestamp);
       if (age < BASIC_INFO_CACHE_DURATION) {
@@ -675,7 +703,7 @@ export async function getBasicInfo(forceRefresh = false): Promise<any> {
       }
     }
   }
-  
+
   try {
     debug("Fetching fresh basic info from server");
     const response = await fetch(`${API_BASE_URL}/getBasicInfo`, {
@@ -686,14 +714,14 @@ export async function getBasicInfo(forceRefresh = false): Promise<any> {
       credentials: "include",
       ...fetchConfig,
     });
-    
+
     if (response.ok) {
       const data = await response.json();
-      
+
       // Cache the data
       sessionStorage.setItem(BASIC_INFO_CACHE_KEY, JSON.stringify(data));
       sessionStorage.setItem(BASIC_INFO_TIMESTAMP_KEY, Date.now().toString());
-      
+
       //debug("Successfully cached basic info");
       return data;
     } else {
@@ -701,14 +729,14 @@ export async function getBasicInfo(forceRefresh = false): Promise<any> {
     }
   } catch (error) {
     console.error("Failed to fetch basic info:", error);
-    
+
     // Return cached data if available, even if stale
     const cached = sessionStorage.getItem(BASIC_INFO_CACHE_KEY);
     if (cached) {
       debug("Returning stale cached basic info due to fetch error");
       return JSON.parse(cached);
     }
-    
+
     throw error;
   }
 }

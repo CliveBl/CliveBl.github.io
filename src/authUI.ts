@@ -24,7 +24,9 @@ import {
   showWarningModal,
   DEFAULT_CUSTOMER_DATA_ENTRY_NAME,
   isTermsAccepted,
-  duplicateCustomerDataEntry
+  duplicateCustomerDataEntry,
+  deleteCustomer,
+  customerListCacheLength,
 } from "./authService.js";
 
 import { ANONYMOUS_EMAIL, debug } from "./constants.js";
@@ -116,6 +118,11 @@ function setupEventListeners(): void {
     updateSignInUI();
   });
 
+  on("selectedCustomerChanged", () => {
+    // Update the customer button text
+    customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
+  });
+
   // Google login button
   const googleLoginButton = document.getElementById("googleLoginButton") as HTMLButtonElement;
   if (googleLoginButton) {
@@ -133,6 +140,12 @@ function setupEventListeners(): void {
       customerOverlay.classList.add("active");
       loadCustomerList().then((customerList) => {
         populateCustomerSelect(customerList);
+        if (customerList.length == 0) {
+          updateCustomerButton.innerHTML = "צור";
+          updateCustomerButton.disabled = true;
+        }
+        customerNameInput.disabled = false;
+        customerNameInput.value = "";
       });
     });
   }
@@ -163,7 +176,7 @@ function setupEventListeners(): void {
   }
 
   if (updateCustomerButton) {
-    updateCustomerButton.addEventListener("click", handleUpdateCustomerName);
+    updateCustomerButton.addEventListener("click", handleUpdateCustomer);
   }
 
   // Account management events
@@ -292,20 +305,27 @@ function handleCustomerSelectChange(): void {
   if (customerSelect.value === "new" || customerSelect.value === "duplicate") {
     customerNameInput.value = "";
     customerNameInput.focus();
-	updateCustomerButton.disabled = true;
+    updateCustomerButton.disabled = true;
+    customerNameInput.disabled = false;
+    updateCustomerButton.innerHTML = "צור";
+  } else if (customerSelect.value === "delete") {
+    customerNameInput.value = selectedCustomerDataEntryName;
+    updateCustomerButton.disabled = false;
+    updateCustomerButton.innerHTML = "מחק";
+    customerNameInput.disabled = true;
   } else {
     customerNameInput.value = customerSelect.value;
     updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
-
+    customerNameInput.disabled = false;
     // If selecting an existing customer, switch to it immediately
     if (customerSelect.value !== selectedCustomerDataEntryName) {
-      // This would need to be handled by the main application
       updateSelectedCustomer(customerSelect.value);
       // Update the UI
-      customerButton.textContent = translateCustomerDataEntryName(customerSelect.value);
+      //customerButton.textContent = translateCustomerDataEntryName(customerSelect.value);
       // Dismiss the customer overlay
       customerOverlay.classList.remove("active");
     }
+    updateCustomerButton.innerHTML = "עדכן";
   }
 }
 
@@ -325,13 +345,23 @@ function handleCustomerNameInput(): void {
   updateCustomerButton.disabled = isEmpty || isSameAsCurrent || isDuplicate;
 }
 
-async function handleUpdateCustomerName(): Promise<void> {
+async function handleUpdateCustomer(): Promise<void> {
   try {
-	if (customerSelect.value === "duplicate") {
-		await duplicateCustomerDataEntry(customerNameInput.value.trim());
-	} else {
-		await updateCustomerName(customerNameInput.value.trim());
-	}
+    if (customerSelect.value === "duplicate") {
+      await duplicateCustomerDataEntry(customerNameInput.value.trim());
+    } else if (customerSelect.value === "delete") {
+      await deleteCustomer(customerNameInput.value.trim());
+      // Update to the next one in the list
+      if (customerListCacheLength() > 0) {
+        updateSelectedCustomer(getCustomerListCache()![0].name);
+      } else {
+        updateSelectedCustomer(DEFAULT_CUSTOMER_DATA_ENTRY_NAME);
+      }
+    } else if (customerSelect.value === "new") {
+      await updateCustomerName("", customerNameInput.value.trim());
+    } else {
+      await updateCustomerName(selectedCustomerDataEntryName, customerNameInput.value.trim());
+    }
     // Update customer button text
     if (customerButton) {
       customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
@@ -455,7 +485,8 @@ export function populateCustomerSelect(customerData: { name: string; modified: n
 
   if (customerData && customerData.length > 0) {
     customerSelect.innerHTML = '<option value="new">צור לקוח חדש</option>';
-	customerSelect.innerHTML += '<option value="duplicate">שכפל לקוח</option>';
+    customerSelect.innerHTML += '<option value="duplicate">שכפל לקוח</option>';
+    customerSelect.innerHTML += '<option value="delete">מחק לקוח</option>';
 
     customerData.forEach((customer) => {
       const option = document.createElement("option");
@@ -524,7 +555,7 @@ function updateLoginButtonState(): void {
   if (loginButton) {
     const termsAccepted = isTermsAccepted();
     loginButton.disabled = !termsAccepted;
-    
+
     // Set tooltip text based on terms acceptance
     if (termsAccepted) {
       loginButton.title = "התחבר למערכת";
@@ -534,9 +565,8 @@ function updateLoginButtonState(): void {
   }
 }
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    // DOM is fully loaded and parsed
-	updateLoginButtonState();
-    debug('AuthUI DOM is ready!');
+document.addEventListener("DOMContentLoaded", function () {
+  // DOM is fully loaded and parsed
+  updateLoginButtonState();
+  debug("AuthUI DOM is ready!");
 });
