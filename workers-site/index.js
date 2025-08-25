@@ -32,13 +32,15 @@ async function handleEvent(event) {
   if (event.request.method === 'POST' && url.pathname === '/share-handler.html') {
     console.log('Cloudflare Worker: Redirecting POST request from share-handler.html to index.html')
     
-    // Redirect to index.html
-    return new Response(null, {
-      status: 302,
-      headers: {
-        'Location': '/tax_return.html'
-      }
-    })
+  // Let the service worker intercept and process the request
+  // The service worker can then redirect or handle the data as needed
+  return new Response('Processing...', {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/plain',
+      'Cache-Control': 'no-cache'
+    }
+  })
   }
 
   /**
