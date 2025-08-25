@@ -5,7 +5,7 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.20";
+export let UIVersion = "1.21";
 export let ServerVersion = "";
 
 // Customer management
@@ -682,6 +682,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   emit("authServiceInitialized");
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const shared = urlParams.get("shared");
+
+  console.log("Share handler: Shared parameter:", shared);
+
+//   if (shared) {
+//     window.location.href = "/share-handler.html";
+//   }
 });
 
 // Basic info caching with session storage

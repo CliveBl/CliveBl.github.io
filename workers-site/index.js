@@ -36,7 +36,7 @@ async function handleEvent(event) {
     return new Response(null, {
       status: 302,
       headers: {
-        'Location': '/index.html'
+        'Location': '/tax_return.html'
       }
     })
   }
