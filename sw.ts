@@ -146,9 +146,9 @@ self.addEventListener("fetch", (event: any) => {
             );
 
             return modifiedResponse;
-          } catch (bodyError) {
+          } catch (bodyError: any) {
             console.error(
-              "Service Worker: Could not read request body, letting request proceed",
+              "Service Worker: Could not read request body, letting request proceed- bodyError: " + bodyError,
               bodyError
             );
 
