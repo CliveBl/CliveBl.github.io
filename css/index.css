@@ -3164,6 +3164,7 @@ a:not(.submit-instructions-button):visited {
   padding: 8px 16px;
   flex: 1;
   min-width: 140px;
+  color: var(--button-text);
 }
 
 /* Responsive design for API key buttons */
@@ -3201,6 +3202,7 @@ a:not(.submit-instructions-button):visited {
   
   .delete-account-button {
     width: 100%;
+	color: var(--button-text);
   }
   
   .delete-confirmation-help {
