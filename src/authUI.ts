@@ -193,6 +193,7 @@ function setupEventListeners(): void {
       if (SignedIn && userEmail.textContent !== ANONYMOUS_EMAIL) {
         accountOverlay.classList.add("active");
 		deleteConfirmationInput.value = "";
+		deleteAccountButton.disabled = true;
       }
     });
   }
