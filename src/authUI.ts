@@ -192,6 +192,7 @@ function setupEventListeners(): void {
     userEmail.addEventListener("click", () => {
       if (SignedIn && userEmail.textContent !== ANONYMOUS_EMAIL) {
         accountOverlay.classList.add("active");
+		deleteConfirmationInput.value = "";
       }
     });
   }
@@ -204,6 +205,22 @@ function setupEventListeners(): void {
 
   if (deleteAccountButton) {
     deleteAccountButton.addEventListener("click", handleDeleteAccount);
+  }
+
+function handleDeleteConfirmationInput(): void {
+  const deleteConfirmationInput = document.getElementById("deleteConfirmationInput") as HTMLInputElement;
+  const deleteAccountButton = document.getElementById("deleteAccountButton") as HTMLButtonElement;
+  if (deleteConfirmationInput && deleteAccountButton) {
+    const inputValue = deleteConfirmationInput.value.trim();
+    deleteAccountButton.disabled = inputValue !== "DELETE";
+  }
+}
+
+  // Delete confirmation input event listeners - mobile-friendly with multiple event types
+  const deleteConfirmationInput = document.getElementById("deleteConfirmationInput") as HTMLInputElement;
+  if (deleteConfirmationInput) {
+    // Listen to multiple events for better mobile support
+    deleteConfirmationInput.addEventListener("input", handleDeleteConfirmationInput);
   }
 
   // Password reset events
