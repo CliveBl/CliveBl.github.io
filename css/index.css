@@ -3052,6 +3052,162 @@ a:not(.submit-instructions-button):visited {
   margin: 0 auto;
   box-shadow: 0 4px 6px var(--modal-shadow);
 }
+
+.account-section {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--item-bg);
+}
+
+.account-section:first-child {
+  margin-top: 0;
+}
+
+.account-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-separator {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 20px 0;
+  opacity: 0.6;
+}
+
+.delete-account-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 15px;
+}
+
+.delete-confirmation {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.delete-confirmation-label {
+  font-size: 0.9em;
+  color: var(--text-color);
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.delete-confirmation-help {
+  font-size: 0.8em;
+  color: var(--message-text);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.delete-confirmation-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9em;
+  background-color: var(--item-bg);
+  color: var(--text-color);
+  min-width: 200px;
+}
+
+.delete-confirmation-input:focus {
+  outline: none;
+  border-color: var(--button-color);
+  box-shadow: 0 0 0 2px rgba(208, 188, 82, 0.2);
+}
+
+.delete-confirmation-input.valid {
+  border-color: var(--success-border);
+  box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+}
+
+.delete-account-button:disabled {
+  background-color: var(--disabled-bg);
+  color: var(--disabled-text);
+  cursor: not-allowed;
+  border-color: var(--disabled-text);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.delete-account-button:disabled:hover {
+  background-color: var(--disabled-bg);
+  opacity: 0.6;
+}
+
+.account-section h3 {
+  margin: 0 0 10px 0;
+  color: var(--text-color);
+  font-size: 1.2em;
+}
+
+.account-section p {
+  margin: 0 0 15px 0;
+  color: var(--text-color);
+  font-size: 0.9em;
+}
+
+/* API key section specific styles - inherits from .account-section */
+
+.api-key-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.create-api-key-button,
+.revoke-api-key-button {
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  flex: 1;
+  min-width: 140px;
+}
+
+/* Responsive design for API key buttons */
+@media (max-width: 768px) {
+  .api-key-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .create-api-key-button,
+  .revoke-api-key-button {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+/* Responsive design for delete confirmation */
+@media (max-width: 768px) {
+  .delete-confirmation {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    align-items: stretch;
+  }
+  
+  .delete-confirmation-label {
+    margin-right: 0;
+    text-align: center;
+  }
+  
+  .delete-confirmation-input {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .delete-account-button {
+    width: 100%;
+  }
+  
+  .delete-confirmation-help {
+    text-align: center;
+  }
+}
+
 /* Customer modal styles */
 .account-overlay {
   display: none;
@@ -3105,18 +3261,6 @@ a:not(.submit-instructions-button):visited {
 
 #customerTabButton.visible {
   display: inline-block;
-}
-
-.delete-account-button {
-  background: var(--error-bg);
-  color: var(--error-text);
-  border: 1px solid var(--error-border);
-  padding: 0.5em 1.5em;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.delete-account-button:hover {
-  background: var(--error-bg-hover);
 }
 
 /* Dynamic red border styles for upload buttons, doc selects, and process button */
@@ -3249,4 +3393,112 @@ a:not(.submit-instructions-button):visited {
 
 .install-prompt .dismiss-btn:hover {
   background: var(--button-gray-hover);
+}
+
+/* API Key Display Modal Styles */
+.api-key-display-section {
+  padding: 10px 0;
+}
+
+.warning-message {
+  background-color: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.warning-message p {
+  margin: 5px 0;
+  color: var(--warning-text);
+  font-weight: 500;
+}
+
+.warning-message p:first-child {
+  margin-top: 0;
+}
+
+.warning-message p:last-child {
+  margin-bottom: 0;
+}
+
+.api-key-container {
+  margin-bottom: 15px;
+}
+
+.api-key-container label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.api-key-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#apiKeyDisplay {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--item-bg);
+  color: var(--text-color);
+  font-family: monospace;
+  font-size: 14px;
+  cursor: text;
+}
+
+#apiKeyDisplay:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.copy-button {
+  background: var(--button-color);
+  color: var(--button-text);
+  border: 1px solid var(--border-color);
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.copy-button:hover {
+  background: var(--button-color-hover);
+}
+
+.copy-button:active {
+  transform: translateY(1px);
+}
+
+.copy-button.copied {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: var(--success-border);
+}
+
+/* Ensure API key display modal has proper z-index */
+#apiKeyDisplayModal {
+  z-index: 1001;
+}
+
+/* Responsive design for API key display */
+@media (max-width: 768px) {
+  .api-key-input-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .copy-button {
+    width: 100%;
+  }
+  
+  #apiKeyDisplay {
+    font-size: 12px;
+  }
 }

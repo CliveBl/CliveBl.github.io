@@ -27,6 +27,8 @@ import {
   duplicateCustomerDataEntry,
   deleteCustomer,
   customerListCacheLength,
+  createAPIKey,
+  revokeAPIKey,
 } from "./authService.js";
 
 import { ANONYMOUS_EMAIL, debug } from "./constants.js";
@@ -58,6 +60,12 @@ const forgotPasswordLink = document.getElementById("forgotPasswordLink") as HTML
 const passwordResetModal = document.getElementById("passwordResetModal") as HTMLDivElement;
 const resetEmailDisplay = document.getElementById("resetEmailDisplay") as HTMLSpanElement;
 const sendResetButton = document.getElementById("sendResetButton") as HTMLButtonElement;
+const createApiKeyButton = document.getElementById("createApiKeyButton") as HTMLButtonElement;
+const revokeApiKeyButton = document.getElementById("revokeApiKeyButton") as HTMLButtonElement;
+const apiKeyDisplayModal = document.getElementById("apiKeyDisplayModal") as HTMLDivElement;
+const apiKeyDisplay = document.getElementById("apiKeyDisplay") as HTMLInputElement;
+const copyApiKeyButton = document.getElementById("copyApiKeyButton") as HTMLButtonElement;
+const closeApiKeyDisplay = document.getElementById("closeApiKeyDisplay") as HTMLButtonElement;
 
 // Initialize customer data
 initializeCustomerData();
@@ -223,6 +231,46 @@ function setupEventListeners(): void {
 
     if (sendResetButton) {
       sendResetButton.addEventListener("click", handlePasswordReset);
+    }
+  }
+
+  // API key creation events
+  if (createApiKeyButton) {
+    createApiKeyButton.addEventListener("click", async () => {
+      const confirmed = await showWarningModal("שים לב: יצירת מפתח API חדש תחליף את המפתח הקיים שלך. המפתח הישן לא יעבוד יותר לאחר יצירת המפתח החדש. האם אתה בטוח שברצונך להמשיך?");
+      if (confirmed) {
+        await handleCreateApiKey();
+      }
+    });
+  }
+
+  // API key revocation events
+  if (revokeApiKeyButton) {
+    revokeApiKeyButton.addEventListener("click", async () => {
+      const confirmed = await showWarningModal("שים לב: ביטול מפתח API יגרום לכך שהמפתח הנוכחי לא יעבוד יותר. האם אתה בטוח שברצונך לבטל את המפתח?");
+      if (confirmed) {
+        await handleRevokeApiKey();
+      }
+    });
+  }
+
+  // API key display modal events
+  if (apiKeyDisplayModal) {
+    const apiKeyDisplayCloseButton = apiKeyDisplayModal.querySelector(".close-button") as HTMLSpanElement;
+    if (apiKeyDisplayCloseButton) {
+      apiKeyDisplayCloseButton.addEventListener("click", () => {
+        apiKeyDisplayModal.style.display = "none";
+      });
+    }
+
+    if (closeApiKeyDisplay) {
+      closeApiKeyDisplay.addEventListener("click", () => {
+        apiKeyDisplayModal.style.display = "none";
+      });
+    }
+
+    if (copyApiKeyButton) {
+      copyApiKeyButton.addEventListener("click", handleCopyApiKey);
     }
   }
 }
@@ -408,6 +456,72 @@ async function handlePasswordReset(): Promise<void> {
   } finally {
     sendResetButton.disabled = false;
     sendResetButton.textContent = "שלח קישור";
+  }
+}
+
+// API key functions
+async function handleCreateApiKey(): Promise<void> {
+  try {
+    // Call the service function to create a new API key
+    const apiKey = await createAPIKey();
+    
+    // Display the API key in the display modal
+    if (apiKeyDisplay && apiKeyDisplayModal) {
+      apiKeyDisplay.value = apiKey;
+      apiKeyDisplayModal.style.display = "block";
+    }
+    
+    // Close the account modal as well
+    if (accountOverlay) {
+      accountOverlay.classList.remove("active");
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    showErrorModal("שגיאה ביצירת מפתח API: " + errorMessage);
+  }
+}
+
+async function handleRevokeApiKey(): Promise<void> {
+  try {
+    // Call the service function to revoke the current API key
+    await revokeAPIKey();
+    
+    // Show success message
+    showInfoModal("מפתח API בוטל בהצלחה!");
+    
+    // Close the account modal
+    if (accountOverlay) {
+      accountOverlay.classList.remove("active");
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    showErrorModal("שגיאה בביטול מפתח API: " + errorMessage);
+  }
+}
+
+function handleCopyApiKey(): void {
+  if (apiKeyDisplay && copyApiKeyButton) {
+    try {
+      // Copy the API key to clipboard
+      apiKeyDisplay.select();
+      apiKeyDisplay.setSelectionRange(0, 99999); // For mobile devices
+      document.execCommand('copy');
+      
+      // Show visual feedback
+      const originalText = copyApiKeyButton.textContent;
+      copyApiKeyButton.textContent = "הועתק!";
+      copyApiKeyButton.classList.add("copied");
+      
+      // Reset button after 2 seconds
+      setTimeout(() => {
+        copyApiKeyButton.textContent = originalText;
+        copyApiKeyButton.classList.remove("copied");
+      }, 2000);
+      
+      //showInfoModal("מפתח API הועתק ללוח!");
+    } catch (error) {
+      showErrorModal("שגיאה בהעתקת מפתח API: " + error);
+    }
   }
 }
 

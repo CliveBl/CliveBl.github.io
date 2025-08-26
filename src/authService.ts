@@ -771,3 +771,47 @@ export function declineTerms(): void {
 export function isTermsAccepted(): boolean {
   return cookieUtils.get("termsAccepted") === "true";
 }
+
+// API Key management functions
+export async function createAPIKey(): Promise<string> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/createAPIKey`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "שגיאה ביצירת מפתח API");
+    }
+
+    const apiKey = await response.text();
+    return apiKey;
+  } catch (error) {
+    console.error("Failed to create API key:", error);
+    throw error;
+  }
+}
+
+export async function revokeAPIKey(): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/revokeAPIKey`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "שגיאה בביטול מפתח API");
+    }
+  } catch (error) {
+    console.error("Failed to revoke API key:", error);
+    throw error;
+  }
+}

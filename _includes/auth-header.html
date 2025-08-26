@@ -96,10 +96,28 @@
       <button class="close-button" id="closeAccountModal">✕</button>
     </div>
     <div class="modal-body">
-      <p>כאן תוכל לנהל את החשבון שלך. פעולה זו תמחק את כל הנתונים שלך לצמיתות.</p>
-    </div>
-    <div class="modal-footer">
-      <button class="delete-account-button" id="deleteAccountButton">מחק חשבון</button>
+      <div class="account-section">
+        <h3>מפתח API</h3>
+        <p>צור מפתח API חדש לגישה למערכת.</p>
+        <div class="api-key-buttons">
+          <button class="create-api-key-button" id="createApiKeyButton">צור מפתח API חדש</button>
+          <button class="revoke-api-key-button" id="revokeApiKeyButton">בטל מפתח API</button>
+        </div>
+      </div>
+      
+      <div class="section-separator"></div>
+      
+      <div class="account-section">
+        <h3>מחיקת חשבון</h3>
+        <p>פעולה זו תמחק את כל הנתונים שלך לצמיתות.</p>
+        <div class="delete-account-actions">
+          <div class="delete-confirmation">
+            <label for="deleteConfirmationInput" class="delete-confirmation-label">אישור מחיקה:</label>
+            <input type="text" id="deleteConfirmationInput" class="delete-confirmation-input" placeholder="הקלד DELETE כדי לאשר" aria-describedby="deleteConfirmationHelp" />
+            <button class="delete-account-button" id="deleteAccountButton" disabled aria-describedby="deleteConfirmationHelp">מחק חשבון</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -196,6 +214,35 @@
     <div class="modal-footer">
       <button class="cancel-button">ביטול</button>
       <button class="confirm-button" id="sendResetButton">שלח קישור</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="apiKeyDisplayModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close-button">&times;</span>
+      <h2>🔑 מפתח API חדש נוצר</h2>
+    </div>
+    <div class="modal-body">
+      <div class="api-key-display-section">
+        <div class="warning-message">
+          <p><strong>⚠️ חשוב מאוד:</strong></p>
+          <p>שמור את המפתח הזה במקום בטוח. הוא לא יוצג שוב!</p>
+        </div>
+        <div class="api-key-container">
+          <label for="apiKeyDisplay">מפתח API שלך:</label>
+          <div class="api-key-input-group">
+            <input type="text" id="apiKeyDisplay" readonly />
+            <button type="button" id="copyApiKeyButton" class="copy-button">העתק</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="confirm-button" id="closeApiKeyDisplay">אישור</button>
     </div>
   </div>
 </div>
