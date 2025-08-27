@@ -193,8 +193,8 @@ function setupEventListeners(): void {
     accountManagementButton.addEventListener("click", () => {
       if (SignedIn && userEmail.textContent !== ANONYMOUS_EMAIL) {
         accountOverlay.classList.add("active");
-		deleteConfirmationInput.value = "";
-		deleteAccountButton.disabled = true;
+        deleteConfirmationInput.value = "";
+        deleteAccountButton.disabled = true;
       }
     });
   }
@@ -209,14 +209,13 @@ function setupEventListeners(): void {
     deleteAccountButton.addEventListener("click", handleDeleteAccount);
   }
 
-function handleDeleteConfirmationInput(): void {
-  const deleteConfirmationInput = document.getElementById("deleteConfirmationInput") as HTMLInputElement;
-  const deleteAccountButton = document.getElementById("deleteAccountButton") as HTMLButtonElement;
-  if (deleteConfirmationInput && deleteAccountButton) {
-    const inputValue = deleteConfirmationInput.value.trim();
-    deleteAccountButton.disabled = inputValue !== "DELETE";
+  function handleDeleteConfirmationInput(): void {
+    const deleteConfirmationInput = document.getElementById("deleteConfirmationInput") as HTMLInputElement;
+    if (deleteConfirmationInput && deleteAccountButton) {
+      const inputValue = deleteConfirmationInput.value.trim();
+      deleteAccountButton.disabled = inputValue !== "DELETE";
+    }
   }
-}
 
   // Delete confirmation input event listeners - mobile-friendly with multiple event types
   const deleteConfirmationInput = document.getElementById("deleteConfirmationInput") as HTMLInputElement;
@@ -483,13 +482,13 @@ async function handleCreateApiKey(): Promise<void> {
   try {
     // Call the service function to create a new API key
     const apiKey = await createAPIKey();
-    
+
     // Display the API key in the display modal
     if (apiKeyDisplay && apiKeyDisplayModal) {
       apiKeyDisplay.value = apiKey;
       apiKeyDisplayModal.style.display = "block";
     }
-    
+
     // Close the account modal as well
     if (accountOverlay) {
       accountOverlay.classList.remove("active");
@@ -504,10 +503,10 @@ async function handleRevokeApiKey(): Promise<void> {
   try {
     // Call the service function to revoke the current API key
     await revokeAPIKey();
-    
+
     // Show success message
     showInfoModal("מפתח API בוטל בהצלחה!");
-    
+
     // Close the account modal
     if (accountOverlay) {
       accountOverlay.classList.remove("active");
@@ -524,19 +523,19 @@ function handleCopyApiKey(): void {
       // Copy the API key to clipboard
       apiKeyDisplay.select();
       apiKeyDisplay.setSelectionRange(0, 99999); // For mobile devices
-      document.execCommand('copy');
-      
+      document.execCommand("copy");
+
       // Show visual feedback
       const originalText = copyApiKeyButton.textContent;
       copyApiKeyButton.textContent = "הועתק!";
       copyApiKeyButton.classList.add("copied");
-      
+
       // Reset button after 2 seconds
       setTimeout(() => {
         copyApiKeyButton.textContent = originalText;
         copyApiKeyButton.classList.remove("copied");
       }, 2000);
-      
+
       //showInfoModal("מפתח API הועתק ללוח!");
     } catch (error) {
       showErrorModal("שגיאה בהעתקת מפתח API: " + error);
@@ -549,16 +548,18 @@ export function updateSignInUI(): void {
   // Check if user is signed in by checking if userEmailValue is not empty and not anonymous
   const isUserSignedIn = UserEmailValue && UserEmailValue !== ANONYMOUS_EMAIL;
 
-  if (isUserSignedIn && userEmail && signOutButton) {
+  if (isUserSignedIn) {
     userEmail.textContent = UserEmailValue;
-	userEmail.title = UserEmailValue;
+    userEmail.title = UserEmailValue;
     signOutButton.disabled = false;
     // Show customer button for logged in users
     if (customerButton) {
       customerButton.style.display = "inline-block";
       customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
     }
-  } else if (UserEmailValue === ANONYMOUS_EMAIL && userEmail && signOutButton && loginButton) {
+    // Enable account management button for signed in users
+    accountManagementButton.disabled = false;
+  } else if (UserEmailValue === ANONYMOUS_EMAIL) {
     // Anonymous user
     userEmail.textContent = UserEmailValue;
     signOutButton.disabled = true;
@@ -568,10 +569,12 @@ export function updateSignInUI(): void {
     if (customerButton) {
       customerButton.style.display = "none";
     }
-  } else if (userEmail && signOutButton) {
+    // Disable account management button for anonymous users
+    accountManagementButton.disabled = true;
+  } else {
     // Not signed in
     userEmail.textContent = "";
-	userEmail.title = "";
+    userEmail.title = "";
     signOutButton.disabled = true;
     // Update login button state based on terms acceptance
     updateLoginButtonState();
@@ -579,6 +582,8 @@ export function updateSignInUI(): void {
     if (customerButton) {
       customerButton.style.display = "none";
     }
+    // Disable account management button for logged out users
+    accountManagementButton.disabled = true;
   }
 }
 
@@ -686,8 +691,6 @@ if (usernameParam) {
 }
 
 function updateLoginButtonState(): void {
-  const loginButton = document.getElementById("loginButton") as HTMLButtonElement;
-  if (loginButton) {
     const termsAccepted = isTermsAccepted();
     loginButton.disabled = !termsAccepted;
 
@@ -697,7 +700,6 @@ function updateLoginButtonState(): void {
     } else {
       loginButton.title = "אנא הסכם לתנאי השימוש תחילה";
     }
-  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
