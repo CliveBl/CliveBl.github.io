@@ -425,6 +425,29 @@ ul {
   }
 }
 
+/* Account management button styles */
+.account-management-button {
+  background-color: var(--button-color);
+  color: var(--button-text);
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 6px;
+}
+
+.account-management-button:hover {
+  background-color: var(--button-color-hover);
+  transform: scale(1.05);
+}
+
+.account-management-button:disabled {
+  background-color: var(--disabled-bg);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .file-item.warning {
   border-right-color: var(--warning-border);
   background-color: var(--warning-bg);
@@ -1317,7 +1340,6 @@ button:disabled {
 .user-email {
   margin-right: 10px;
   color: var(--text-color);
-  cursor: pointer;
   max-width: 200px;
   white-space: nowrap;
   overflow: hidden;
@@ -1325,6 +1347,12 @@ button:disabled {
   display: inline-block;
   direction: ltr;
   text-align: left;
+}
+
+@media (max-width: 768px) {
+  .user-email {
+    max-width: 150px;
+  }
 }
 
 .file-buttons {
@@ -3220,7 +3248,7 @@ a:not(.submit-instructions-button):visited {
   }
 }
 
-/* Customer modal styles */
+/* Account modal styles */
 .account-overlay {
   display: none;
   position: fixed;

@@ -38,6 +38,7 @@ const usernameParam = urlParams.get("username");
 
 // Initialize DOM references
 const userEmail = document.getElementById("userEmail") as HTMLSpanElement;
+const accountManagementButton = document.getElementById("accountManagementButton") as HTMLButtonElement;
 const customerButton = document.getElementById("customerButton") as HTMLButtonElement;
 const loginButton = document.getElementById("loginButton") as HTMLButtonElement;
 const signOutButton = document.getElementById("signOutButton") as HTMLButtonElement;
@@ -188,8 +189,8 @@ function setupEventListeners(): void {
   }
 
   // Account management events
-  if (userEmail && accountOverlay) {
-    userEmail.addEventListener("click", () => {
+  if (accountManagementButton && accountOverlay) {
+    accountManagementButton.addEventListener("click", () => {
       if (SignedIn && userEmail.textContent !== ANONYMOUS_EMAIL) {
         accountOverlay.classList.add("active");
 		deleteConfirmationInput.value = "";
