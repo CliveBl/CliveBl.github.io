@@ -550,6 +550,7 @@ export function updateSignInUI(): void {
 
   if (isUserSignedIn && userEmail && signOutButton) {
     userEmail.textContent = UserEmailValue;
+	userEmail.title = UserEmailValue;
     signOutButton.disabled = false;
     // Show customer button for logged in users
     if (customerButton) {
@@ -569,6 +570,7 @@ export function updateSignInUI(): void {
   } else if (userEmail && signOutButton) {
     // Not signed in
     userEmail.textContent = "";
+	userEmail.title = "";
     signOutButton.disabled = true;
     // Update login button state based on terms acceptance
     updateLoginButtonState();
@@ -690,7 +692,7 @@ function updateLoginButtonState(): void {
 
     // Set tooltip text based on terms acceptance
     if (termsAccepted) {
-      loginButton.title = "התחבר למערכת";
+      loginButton.title = "התחבר או צור חשבון";
     } else {
       loginButton.title = "אנא הסכם לתנאי השימוש תחילה";
     }

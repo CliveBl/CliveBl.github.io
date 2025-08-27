@@ -1404,6 +1404,7 @@ function displayResults(results: { file: { fileName: string } }[]) {
         const taxCalculateButton = document.createElement("button");
         taxCalculateButton.className = "action-button tax-calculate-button";
         taxCalculateButton.innerHTML = "💰 חשב מס";
+		taxCalculateButton.title = "חשב את המס לתשלום או להחזר עבור שנת המס של הקובץ";
         taxCalculateButton.addEventListener("click", () => {
           calculateTax(result.file.fileName);
         });
@@ -1420,6 +1421,7 @@ function displayResults(results: { file: { fileName: string } }[]) {
       const textSpan = document.createElement("span");
       textSpan.className = "download-button-text";
       textSpan.textContent = "הורדה";
+      downloadButton.title = "הורד את הקובץ";
 
       downloadButton.appendChild(textSpan);
       downloadButton.appendChild(iconSpan);

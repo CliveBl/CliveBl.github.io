@@ -1318,6 +1318,13 @@ button:disabled {
   margin-right: 10px;
   color: var(--text-color);
   cursor: pointer;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  direction: ltr;
+  text-align: left;
 }
 
 .file-buttons {
