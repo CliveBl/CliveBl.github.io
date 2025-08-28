@@ -339,7 +339,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       yearToggleButton.textContent = yearToggleButton.textContent === "+" ? "-" : "+";
     };
 
-    displayFileInfoHeader(yearBody, allFilesData);
+    if (year !== NO_YEAR) {
+      displayFileInfoHeader(yearBody, allFilesData);
+    }
     const lastFile = allFilesData[allFilesData.length - 1];
 
     // Add files to year body
