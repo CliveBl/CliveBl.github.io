@@ -1273,7 +1273,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     editorDeleteButton.className = "delete-button";
 
     editorDeleteButton.onclick = () => {
-      const deleteUrl = `${API_BASE_URL}/deleteFile?fileId=${fileData.fileId}&customerDataEntryName=${selectedCustomerDataEntryName}`;
+      const deleteUrl = `${API_BASE_URL}/deleteForm?fileId=${fileData.fileId}&customerDataEntryName=${selectedCustomerDataEntryName}`;
       fetch(deleteUrl, {
         method: "DELETE",
         credentials: "include",
