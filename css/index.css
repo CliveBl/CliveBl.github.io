@@ -1184,6 +1184,20 @@ ul {
   color: var(--text-color);
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.copy-tax-results-button {
+  background-color: var(--button-color);
+  color: var(--button-text);
+}
+
+.copy-tax-results-button:hover {
+  background-color: var(--button-color-hover);
+  transform: translateY(-1px);
 }
 
 .cookie-consent {

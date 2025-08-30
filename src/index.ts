@@ -2022,9 +2022,19 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
   debug("displayTaxCalculation");
   const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
   taxCalculationContent.innerHTML = ""; // Clear existing results
-  // Append year to the title id taxResultsTitle
+  
+  // Update title with year
   const taxResultsTitle = document.getElementById("taxResultsTitle") as HTMLHeadingElement;
-  taxResultsTitle.innerHTML = "תוצאות חישוב מס עבור שנה " + year;
+  const titleSpan = taxResultsTitle.querySelector("span");
+  if (titleSpan) {
+    titleSpan.textContent = `תוצאות חישוב מס עבור שנה ${year}`;
+  }
+  
+  // Add event listener for copy button
+  const copyButton = document.getElementById("copyTaxResultsBtn");
+  if (copyButton) {
+    copyButton.addEventListener("click", copyTaxResults);
+  }
 
   // Create table
   const table = document.createElement("table");
@@ -2081,6 +2091,70 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
       top: document.body.scrollHeight,
       behavior: "smooth",
     });
+  }
+}
+
+// Function to copy tax results to clipboard
+async function copyTaxResults() {
+  try {
+    const taxResultsContainer = document.getElementById("taxResultsContainer");
+    if (taxResultsContainer) {
+      // Copy the entire tax results container for complete context
+      const htmlContent = taxResultsContainer.innerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      
+      // Use clipboard API with blob for rich HTML copying
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': blob,
+          'text/plain': blob
+        })
+      ]);
+      
+      // Show visual feedback
+      const copyButton = document.getElementById("copyTaxResultsBtn");
+      if (copyButton) {
+        const originalText = copyButton.innerHTML;
+        copyButton.innerHTML = "הועתק!";
+        copyButton.title = "הועתק ללוח";
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+          copyButton.innerHTML = "העתק";
+          copyButton.title = "העתק תוצאות מס";
+        }, 2000);
+      }
+    }
+  } catch (error) {
+    // Fallback for older browsers or when clipboard API is not available
+    try {
+      const taxResultsContainer = document.getElementById("taxResultsContainer");
+      if (taxResultsContainer) {
+        // Create a temporary textarea to copy the entire container content
+        const textarea = document.createElement("textarea");
+        textarea.value = taxResultsContainer.innerHTML;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        
+        // Show visual feedback
+        const copyButton = document.getElementById("copyTaxResultsBtn");
+        if (copyButton) {
+          const originalText = copyButton.innerHTML;
+          copyButton.innerHTML = "הועתק!";
+          copyButton.title = "הועתק ללוח";
+          
+          // Reset button after 2 seconds
+          setTimeout(() => {
+            copyButton.innerHTML = "העתק";
+            copyButton.title = "העתק תוצאות מס";
+          }, 2000);
+        }
+      }
+    } catch (fallbackError) {
+      console.error("Failed to copy tax results:", fallbackError);
+    }
   }
 }
 

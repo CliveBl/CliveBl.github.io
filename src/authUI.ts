@@ -517,13 +517,11 @@ async function handleRevokeApiKey(): Promise<void> {
   }
 }
 
-function handleCopyApiKey(): void {
+async function handleCopyApiKey(): Promise<void> {
   if (apiKeyDisplay && copyApiKeyButton) {
     try {
-      // Copy the API key to clipboard
-      apiKeyDisplay.select();
-      apiKeyDisplay.setSelectionRange(0, 99999); // For mobile devices
-      document.execCommand("copy");
+      // Use modern clipboard API
+      await navigator.clipboard.writeText(apiKeyDisplay.value || apiKeyDisplay.textContent || '');
 
       // Show visual feedback
       const originalText = copyApiKeyButton.textContent;
@@ -538,7 +536,25 @@ function handleCopyApiKey(): void {
 
       //showInfoModal("מפתח API הועתק ללוח!");
     } catch (error) {
-      showErrorModal("שגיאה בהעתקת מפתח API: " + error);
+      // Fallback to legacy method if clipboard API fails
+      try {
+        apiKeyDisplay.select();
+        apiKeyDisplay.setSelectionRange(0, 99999); // For mobile devices
+        document.execCommand("copy");
+        
+        // Show visual feedback
+        const originalText = copyApiKeyButton.textContent;
+        copyApiKeyButton.textContent = "הועתק!";
+        copyApiKeyButton.classList.add("copied");
+
+        // Reset button after 2 seconds
+        setTimeout(() => {
+          copyApiKeyButton.textContent = originalText;
+          copyApiKeyButton.classList.remove("copied");
+        }, 2000);
+      } catch (fallbackError) {
+        showErrorModal("שגיאה בהעתקת מפתח API: " + fallbackError);
+      }
     }
   }
 }
