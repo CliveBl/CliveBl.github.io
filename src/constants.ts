@@ -23,7 +23,8 @@ const friendlyNames = {
   receiptInteger: "מספר קבלה",
   donationDate: "תאריך תרומה",
   nonProfitTaxFileNumber: "קוד עמותה/ארגון",
-  employerTaxFileNumber: "מספר מעסיק",
+  employerTaxFileNumber: "תיק ניקויים מעביד",
+  pensionFundTaxFileNumber: "תיק ניקויים קרן פנסיה",
   branchCode: "קוד סניף",
   accountNumber: "מספר חשבון",
   matchTag: "תג התאמה",
@@ -208,3 +209,6 @@ export const NO_YEAR = "ללא שנה";
 
 export const ANONYMOUS_EMAIL = "AnonymousEmail";
 
+export function is106TypeForm(fileData: any) {
+	return fileData.documentType === "טופס 106" || fileData.type === "FormNewPensionFund";
+}

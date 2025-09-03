@@ -1,9 +1,8 @@
 import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList } from "./index.js";
 import { selectedCustomerDataEntryName } from "./authService.js";
-import { debug } from "./constants.js";
 
 import { API_BASE_URL } from "./env.js";
-import { getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
+import { debug, is106TypeForm, getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 
 function makeUniqueId() {
@@ -248,12 +247,13 @@ function setFieldNotChanged(field: HTMLElement) {
   }
 }
 
-export async function displayFileInfoInExpandableArea(allFilesData: any, backupAllFilesData: any, withAllFields = false, isNewUpload = false) {
+export async function displayFileInfoInExpandableArea(allFilesData: any, backupAllFilesData: any, isNewlyUploadedFile = false) {
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLDivElement;
   if (!expandableArea) {
     console.error('Element with id "expandableAreaUploadFiles" not found!');
     return;
   }
+  let showAllVFields: boolean = isNewlyUploadedFile;
 
   expandableArea.innerHTML = "";
   expandableArea.style.display = "block";
@@ -418,30 +418,36 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         toggleFieldsView(toggleLink);
       }
 
+      // For a form with variable fields we show a toggle link for displaying all fields
       if (fileData.fields && configurationData) {
-        // Create div with a toggle link for displaying all fields
+        // If the configuration data shows that the form has less than five variable field types we will show
+        // them all.
+        if (!showAllVFields) {
+          const formType = configurationData.formTypes.find((form) => form.formType === fileData.type);
+          if (formType?.fieldTypes && formType.fieldTypes.length < 5) {
+            showAllVFields = true;
+          }
+        }
         const toggleLinkContainer = document.createElement("div") as HTMLDivElement;
         toggleLinkContainer.className = "fields-toggle";
         const fieldsToggleLink = document.createElement("a") as HTMLAnchorElement;
         fieldsToggleLink.className = "fields-toggle-link";
-        if (withAllFields) {
-          fieldsToggleLink.textContent = removeFieldsText;
-        } else {
-          fieldsToggleLink.textContent = addFieldsText;
-        }
+        fieldsToggleLink.textContent = addFieldsText;
         fieldsToggleLink.href = "#";
         fieldsToggleLink.addEventListener("click", handleToggleClick);
         toggleLinkContainer.appendChild(fieldsToggleLink);
         accordianBody.appendChild(toggleLinkContainer);
-        // For a new upload that has fields we show all fields.
-        if (isNewUpload) {
+        // For a new upload that has fields we show all variable fields.
+        if (showAllVFields) {
           // This will render, so skip it later to avoid doing it twice.
           toggleFieldsView(fieldsToggleLink);
         }
       }
-      // First, display additional fields in the body (including action buttons and help link)
-      if (!isNewUpload || !fileData.fields) {
-        renderFields(fileData, accordianBody, isNewUpload && fileData.fileId === lastFile.fileId);
+      if (!showAllVFields || !fileData.fields) {
+        // For a form without variable fields or showAllFields is false. If showAllFields is true and it is
+        // the last file in the year (probaly a new upload), we render the fields.
+        renderFields(fileData, accordianBody, isNewlyUploadedFile || fileData.fileId === lastFile.fileId);
+        debug("renderFields");
       }
       accordionContainer.appendChild(accordianBody);
       yearBody.appendChild(accordionContainer);
@@ -452,7 +458,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     expandableArea.appendChild(yearContainer);
 
     // Only expand if this is a new upload and it's the year of the last uploaded file
-    if (isNewUpload) {
+    if (isNewlyUploadedFile) {
       const lastFile = allFilesData[allFilesData.length - 1];
 
       if (lastFile) {
@@ -481,7 +487,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     return updateFormAPI(fileId, payload);
   }
 
-  function updateFormAllFields(allFilesData: any, fileId: string, fileType: string, fileData: any, withAllFields: boolean) {
+  // Returns a new list with the fileId item updated with the new file data.
+  function updateFormAllFields(allFilesData: any, fileId: string, fileType: string, newFileData: any, withAllFields: boolean) {
     // Find the formType details
     const formDetails = configurationData.formTypes.find((form) => form.formType === fileType) as { fieldTypes?: string[] };
     if (!formDetails) {
@@ -497,7 +504,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     }
 
     // Deep copy existing fields from fileData (excluding the `fields` object)
-    const updatedFileData = structuredClone(fileData);
+    const updatedFileData = structuredClone(newFileData);
     //delete existingData.fields; // Ensure we don't mix fields with other properties
 
     // Initialize fieldsData reference to existing fields from fileData.fields
@@ -526,6 +533,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     allFilesData.forEach((file: any) => {
       if (file.fileId === fileId) {
         updatedAllFilesData.push(updatedFileData);
+        // Replace the file in the backupAllFilesData array with the updated file data.
+        backupAllFilesData[backupAllFilesData.findIndex((form: any) => form.fileId === fileId)] = updatedFileData;
       } else {
         // Deep clone the file object
         updatedAllFilesData.push(structuredClone(file));
@@ -626,6 +635,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.pattern = "\\d{9}";
       input.inputMode = "numeric";
       input.value = dummyIdNumber(fieldValue.value);
+      input.placeholder = getFriendlyName(key);
       input.oninput = () => {
         input.value = input.value.replace(/\D/g, "").slice(0, 9);
       };
@@ -752,9 +762,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     const fieldsToggleLink = accordianBody.querySelector(".fields-toggle-link") as HTMLAnchorElement;
     const actionButtons = accordianBody.querySelectorAll(".form-action-button");
     const buttonsArray: HTMLButtonElement[] = Array.from(actionButtons) as HTMLButtonElement[];
-
-    // Store any existing action buttons container
-    const existingActionContainer = accordianBody.querySelector(".form-actions-container");
 
     // Clear the body
     accordianBody.innerHTML = "";
@@ -1011,7 +1018,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Call the function for children
     renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
 
-    const template = fileData.documentType === "טופס 106" ? Generic106Item : Generic867Item;
+    const template = is106TypeForm(fileData) ? Generic106Item : Generic867Item;
     // Call the function for generic fields
     renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה", template, withAllFields);
 
@@ -1026,7 +1033,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       });
     } else {
       // This is the first render, create new buttons.
-      displayFileInfoButtons(actionButtonsContainer, fileData, accordianBody, allFilesData);
+      displayFileInfoButtons(actionButtonsContainer, fileData, accordianBody, allFilesData, withAllFields);
     }
 
     // Add help link to the same container
@@ -1413,7 +1420,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     });
   }
 
-  async function displayFileInfoButtons(actionButtonsContainer: HTMLDivElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any) {
+  async function displayFileInfoButtons(actionButtonsContainer: HTMLDivElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any, withAllFields: boolean) {
     // Create the save button
     const saveButton = document.createElement("button") as HTMLButtonElement;
     saveButton.type = "button";
@@ -1438,7 +1445,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
       if (backupFormIndex !== -1) {
         // Replace the form in the allFilesData array with the form in the backupAllFilesData array
-        renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
+        renderFields(backupAllFilesData[backupFormIndex], accordianBody, withAllFields);
         clearChanged(accordianBody);
       }
     };
@@ -1507,10 +1514,16 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         if (formIndex !== -1) {
           const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
           if (backupFormIndex !== -1) {
-            // Replace the form in the allFilesData array with the form in the backupAllFilesData array
-            backupAllFilesData[backupFormIndex] = structuredClone(updatedData[formIndex]);
+            // Create a new object from the updatedData that takes account of withAllFields.
+            const updatedBackupData = updateFormAllFields(backupAllFilesData, fileData.fileId, fileData.type, updatedData[formIndex], withAllFields);
+            if (updatedBackupData) {
+              // Replace the form in the allFilesData array with the form in the backupAllFilesData array
+              //backupAllFilesData[backupFormIndex] = updatedBackupData[backupFormIndex];
+			  backupAllFilesData = updatedBackupData;
+            }
             // Update the display
-            renderFields(backupAllFilesData[backupFormIndex], accordianBody, false);
+            renderFields(backupAllFilesData[backupFormIndex], accordianBody, withAllFields);
+            //displayFileInfoInExpandableArea(updatedData, backupAllFilesData, false);
           }
         }
         clearChanged(accordianBody);

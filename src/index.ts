@@ -9,6 +9,8 @@ interface FormType {
   formType: string;
   formName: string;
   userCanAdd: boolean;
+  fieldTypes?: string[];
+  fields?: string[];
 }
 
 interface FileInfo {
@@ -349,7 +351,8 @@ function updateBorderStyles(hasEntries: boolean) {
 
 function updateFileListP(fileInfoList: FileInfo[], isNewUpload = false) {
   if (editableFileList) {
-    displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), false, isNewUpload);
+
+    displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), isNewUpload);
     updateButtons(editableFileListHasEntries());
   } else {
     updateFileList(fileInfoList, isNewUpload);

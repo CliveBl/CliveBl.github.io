@@ -5,7 +5,7 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.25";
+export let UIVersion = "1.26";
 export let ServerVersion = "";
 
 // Customer management
