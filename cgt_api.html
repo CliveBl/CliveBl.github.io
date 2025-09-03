@@ -1,0 +1,582 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGT API Documentation</title>
+    <meta name="description" content="API Documentation for CGT" />
+    <link rel="canonical" href="https://www.taxesil.top/cgt_api.html" />
+    <link rel="icon" type="image/x-icon" href="tax-day.ico" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
+    <link rel="stylesheet" href="css/index.css">
+    <style>
+        /* API Documentation specific styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--item-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px var(--modal-shadow);
+            border: 1px solid var(--border-color);
+        }
+        h1 {
+            color: var(--tax-blue);
+            border-bottom: 3px solid var(--button-color);
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: var(--tax-blue);
+            margin-top: 30px;
+            border-left: 4px solid var(--button-color);
+            padding-left: 15px;
+        }
+        h3 {
+            color: var(--tax-blue);
+            margin-top: 25px;
+        }
+        .endpoint {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .get { background: var(--success-border); color: white; }
+        .post { background: var(--button-color); color: var(--button-text); }
+        .delete { background: var(--error-border); color: white; }
+        .url {
+            font-family: 'Courier New', monospace;
+            background: var(--item-bg);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 3px;
+            display: inline-block;
+            margin: 5px 0;
+            border: 1px solid var(--border-color);
+        }
+        .description {
+            margin: 10px 0;
+            color: var(--message-text);
+        }
+        .parameters {
+            margin: 15px 0;
+        }
+        .parameter {
+            background: var(--item-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .param-name {
+            font-weight: bold;
+            color: var(--tax-blue);
+        }
+        .param-type {
+            color: var(--message-text);
+            font-style: italic;
+        }
+        .param-required {
+            color: var(--error-text);
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .response {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            border-radius: 3px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .json-example {
+            color: var(--text-color);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .note {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 3px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            border-radius: 3px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .auth-info {
+            background: var(--highlight-bg);
+            border: 1px solid var(--highlight-border);
+            border-radius: 3px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--button-color);
+            color: var(--button-text);
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--message-text);
+            text-align: center;
+        }
+        
+        /* Override external CSS for API documentation */
+        body {
+            direction: ltr !important;
+            text-align: left !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CGT API Documentation</h1>
+        
+        <div class="auth-info">
+            <strong>Authentication:</strong> All endpoints require an API key to be set in the X-API-Key header. The API key can be obtained in the account settings menu.
+        </div>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a class="stnd-link" href="#account-operations">Account Operations</a></li>
+                <li><a class="stnd-link" href="#file-operations">File Operations</a></li>
+                <li><a class="stnd-link" href="#form-operations">Form Operations</a></li>
+                <li><a class="stnd-link" href="#customer-operations">Customer Operations</a></li>
+                <li><a class="stnd-link" href="#tax-operations">Tax Operations</a></li>
+            </ul>
+        </div>
+
+        <h2 id="account-operations">Account Operations</h2>
+		<div class="endpoint">
+            <h3><span class="method get">GET</span> Get Basic Info</h3>
+            <div class="url">/api/v1/getBasicInfo</div>
+            <div class="description">
+                Get basic information about the current customer.
+            </div>
+            
+            <div class="response">
+                <strong>Response:</strong>
+                <div class="json-example">
+{
+  "productVersion": "Beta Version 2025_1.58",
+  "userEmail": "johnsmith@gmail.com"
+}
+                </div>
+            </div>
+        </div>
+
+        <h2 id="file-operations">File Operations</h2>
+
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Upload File</h3>
+            <div class="url">/api/v1/uploadFile</div>
+            <div class="description">
+                Upload a file to the customer's account. Supports multipart/form-data with file and metadata.
+            </div>
+            
+            <div class="parameters">
+                <h4>Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">file</span> <span class="param-type">(MultipartFile)</span> <span class="param-required">*Required</span><br>
+                    The file to upload
+                </div>
+                <div class="parameter">
+                    <span class="param-name">metadata</span> <span class="param-type">(UploadFileDto)</span> <span class="param-required">*Required</span><br>
+                    JSON metadata containing:
+                    <div class="json-example">
+{
+  "customerDataEntryName": "string (0-100 chars)",
+  "password": "string (0-100 chars)",
+  "replacedFileId": "string (0-32 chars)",
+  "imageHash": "string (0-32 chars)"
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> JSON string containing customer data entry names
+            </div>
+
+            <div class="note">
+                <strong>Note:</strong> This endpoint is used for uploading documents like tax forms, receipts, and other financial documents.
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method get">GET</span> Get Files Info</h3>
+            <div class="url">/api/v1/getFilesInfo</div>
+            <div class="description">
+                Get information about files associated with a specific customer data entry.
+            </div>
+            
+            <div class="parameters">
+                <h4>Query Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">customerDataEntryName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the customer data entry (0-100 characters)
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> JSON string containing file information
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Parse File</h3>
+            <div class="url">/api/v1/parseFile</div>
+            <div class="description">
+                Parse a file and extract form data from it.
+            </div>
+            
+            <div class="parameters">
+                <h4>Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">file</span> <span class="param-type">(MultipartFile)</span> <span class="param-required">*Required</span><br>
+                    The file to parse
+                </div>
+                <div class="parameter">
+                    <span class="param-name">metadata</span> <span class="param-type">(UploadFileDto)</span> <span class="param-required">Optional</span><br>
+                    JSON metadata containing password for encrypted files
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> The form of the parsed file in the form of a JSON string
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method get">GET</span> Download Results File</h3>
+            <div class="url">/api/v1/downloadResultsFile</div>
+            <div class="description">
+                Download a results file for a specific customer data entry.
+            </div>
+            
+            <div class="parameters">
+                <h4>Query Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">fileName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the file to download (0-100 characters)
+                </div>
+                <div class="parameter">
+                    <span class="param-name">customerDataEntryName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the customer data entry (0-100 characters)
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> The specified results file of the given customer
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method delete">DELETE</span> Delete Form</h3>
+            <div class="url">/api/v1/deleteForm</div>
+            <div class="description">
+                Delete a specific form from the customer's account.
+            </div>
+            
+            <div class="parameters">
+                <h4>Query Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">fileId</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    ID of the file to delete (0-100 characters)
+                </div>
+                <div class="parameter">
+                    <span class="param-name">customerDataEntryName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the customer data entry (0-100 characters)
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> "Form deleted successfully"
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method delete">DELETE</span> Delete All Forms</h3>
+            <div class="url">/api/v1/deleteAllForms</div>
+            <div class="description">
+                Delete all forms from a specific customer data entry.
+            </div>
+            
+            <div class="parameters">
+                <h4>Query Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">customerDataEntryName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the customer data entry (0-100 characters)
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> "All forms deleted successfully"
+            </div>
+        </div>
+
+        <h2 id="form-operations">Form Operations</h2>
+
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Create Form</h3>
+            <div class="url">/api/v1/createForm</div>
+            <div class="description">
+                Create a new form for the customer.
+            </div>
+            
+            <div class="parameters">
+                <h4>Request Body:</h4>
+                <div class="json-example">
+{
+  "customerDataEntryName": "string (0-100 chars)",
+  "formType": "string",
+  "identificationNumber": "string"
+}
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> The form as a JSON string
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Update Form</h3>
+            <div class="url">/api/v1/updateForm</div>
+            <div class="description">
+                Update an existing form or create a new one if fileId is empty/null.
+            </div>
+            
+            <div class="parameters">
+                <h4>Request Body:</h4>
+                <div class="json-example">
+{
+  "customerDataEntryName": "string (0-100 chars)",
+  "formAsJSON": {
+    // JSON object representing the form data
+  }
+}
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> The form as a JSON string
+            </div>
+        </div>
+
+        <h2 id="customer-operations">Customer Operations</h2>
+
+        <div class="endpoint">
+            <h3><span class="method get">GET</span> Get Customer Data Entry Names</h3>
+            <div class="url">/api/v1/getCustomerDataEntryNames</div>
+            <div class="description">
+                Get all customer data entry names for the current user.
+            </div>
+            
+            <div class="response">
+                <strong>Response:</strong> JSON string containing customer data entry names
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Change Customer Data Entry Name</h3>
+            <div class="url">/api/v1/changeCustomerDataEntryName</div>
+            <div class="description">
+                Change the name of a customer data entry or create a new one if fromCustomerDataEntryName is empty.
+            </div>
+            
+            <div class="parameters">
+                <h4>Request Body:</h4>
+                <div class="json-example">
+{
+  "fromCustomerDataEntryName": "string (0-100 chars)",
+  "toCustomerDataEntryName": "string (1-100 chars)"
+}
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> JSON string containing customer data entry names
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Duplicate Customer Data Entry</h3>
+            <div class="url">/api/v1/duplicateCustomerDataEntry</div>
+            <div class="description">
+                Duplicate an existing customer data entry with a new name.
+            </div>
+            
+            <div class="parameters">
+                <h4>Request Body:</h4>
+                <div class="json-example">
+{
+  "fromCustomerDataEntryName": "string (1-100 chars)",
+  "toCustomerDataEntryName": "string (1-100 chars)"
+}
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> JSON string containing customer data entry names
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method delete">DELETE</span> Delete Customer</h3>
+            <div class="url">/api/v1/deleteCustomer</div>
+            <div class="description">
+                Delete a customer's data entry and all associated files.
+            </div>
+            
+            <div class="parameters">
+                <h4>Query Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">customerDataEntryName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the customer data entry to delete (0-100 characters)
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> JSON string containing customer data entry names
+            </div>
+        </div>
+
+        <h2 id="tax-operations">Tax Operations</h2>
+
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Process Files</h3>
+            <div class="url">/api/v1/processFiles</div>
+            <div class="description">
+                Process uploaded files for tax calculation.
+            </div>
+            
+            <div class="parameters">
+                <h4>Request Body:</h4>
+                <div class="json-example">
+{
+  "customerDataEntryName": "string (0-100 chars)"
+}
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> A JSON string containing all messages generated during processing
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method get">GET</span> Get Results Info</h3>
+            <div class="url">/api/v1/getResultsInfo</div>
+            <div class="description">
+                Get information about processing results for a customer data entry.
+            </div>
+            
+            <div class="parameters">
+                <h4>Query Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">customerDataEntryName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the customer data entry (0-100 characters)
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> JSON string containing results information
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Calculate Tax</h3>
+            <div class="url">/api/v1/calculateTax</div>
+            <div class="description">
+                Calculate tax for a specific tax year and customer data entry.
+            </div>
+            
+            <div class="parameters">
+                <h4>Request Body:</h4>
+                <div class="json-example">
+{
+  "customerDataEntryName": "string (0-100 chars)",
+  "taxYear": 2024
+}
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> JSON string containing tax calculation results
+            </div>
+        </div>
+
+        <h2>Error Handling</h2>
+        <div class="note">
+            <strong>Error Responses:</strong> All endpoints return appropriate HTTP status codes:
+            <ul>
+                <li><strong>200 OK:</strong> Successful operation</li>
+                <li><strong>400 Bad Request:</strong> Invalid request parameters</li>
+                <li><strong>401 Unauthorized:</strong> Authentication required</li>
+                <li><strong>403 Forbidden:</strong> Insufficient permissions</li>
+                <li><strong>500 Internal Server Error:</strong> Server error</li>
+            </ul>
+        </div>
+
+        <h2>Rate Limiting</h2>
+        <div class="note">
+            <strong>Rate Limits:</strong> API endpoints may be subject to rate limiting to ensure fair usage and system stability.
+        </div>
+
+        <h2>Base URL</h2>
+        <div class="note">
+            <strong>Production:</strong> https://srv.taxesil.top:443/api/v1
+        </div>
+
+        <footer style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; text-align: center;">
+			<div style="text-align: center; margin-top: 40px; padding-top: 10px; border-top: 1px">
+				<a href="index.html" class="stnd-link">לדף הבית</a>
+			</div>
+        </footer>
+    </div>
+	<script>
+		nl_pos = "br";
+		nl_compact = "1";
+	  </script>
+	  <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+</body>
+</html>
