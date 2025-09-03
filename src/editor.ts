@@ -2,7 +2,19 @@ import { configurationData, addMessage, handleResponse, updateButtons, fileModif
 import { selectedCustomerDataEntryName } from "./authService.js";
 
 import { API_BASE_URL } from "./env.js";
-import { debug, is106TypeForm, getFriendlyName, getFriendlyOptions, getFriendlyOptionName, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
+import {
+  debug,
+  is106TypeForm,
+  getFriendlyName,
+  getFriendlyOptions,
+  getFriendlyOptionName,
+  isCurrencyField,
+  isExceptionalIntegerField,
+  isFieldValidForTaxYear,
+  dummyName,
+  dummyIdNumber,
+  NO_YEAR,
+} from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 
 function makeUniqueId() {
@@ -253,7 +265,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     console.error('Element with id "expandableAreaUploadFiles" not found!');
     return;
   }
-  let showAllVFields: boolean = isNewlyUploadedFile;
 
   expandableArea.innerHTML = "";
   expandableArea.style.display = "block";
@@ -418,16 +429,14 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         toggleFieldsView(toggleLink);
       }
 
+	  let showAllVFields: boolean = false;
       // For a form with variable fields we show a toggle link for displaying all fields
       if (fileData.fields && configurationData) {
         // If the configuration data shows that the form has less than five variable field types we will show
-        // them all.
-        if (!showAllVFields) {
-          const formType = configurationData.formTypes.find((form) => form.formType === fileData.type);
-          if (formType?.fieldTypes && formType.fieldTypes.length < 5) {
-            showAllVFields = true;
-          }
-        }
+        // them all. Also if it is a new upload (which is the last file in the list) that has fields we show all variable fields.
+        const formType = configurationData.formTypes.find((form) => form.formType === fileData.type);
+        showAllVFields = (isNewlyUploadedFile && fileData.fileId === lastFile.fileId) || (formType?.fieldTypes ? formType.fieldTypes.length < 5 : false);
+
         const toggleLinkContainer = document.createElement("div") as HTMLDivElement;
         toggleLinkContainer.className = "fields-toggle";
         const fieldsToggleLink = document.createElement("a") as HTMLAnchorElement;
@@ -443,7 +452,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           toggleFieldsView(fieldsToggleLink);
         }
       }
-      if (!showAllVFields || !fileData.fields) {
+      if (!showAllVFields) {
         // For a form without variable fields or showAllFields is false. If showAllFields is true and it is
         // the last file in the year (probaly a new upload), we render the fields.
         renderFields(fileData, accordianBody, isNewlyUploadedFile || fileData.fileId === lastFile.fileId);
@@ -1518,12 +1527,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             const updatedBackupData = updateFormAllFields(backupAllFilesData, fileData.fileId, fileData.type, updatedData[formIndex], withAllFields);
             if (updatedBackupData) {
               // Replace the form in the allFilesData array with the form in the backupAllFilesData array
-              //backupAllFilesData[backupFormIndex] = updatedBackupData[backupFormIndex];
-			  backupAllFilesData = updatedBackupData;
+              backupAllFilesData[backupFormIndex] = updatedBackupData[backupFormIndex];
             }
             // Update the display
             renderFields(backupAllFilesData[backupFormIndex], accordianBody, withAllFields);
-            //displayFileInfoInExpandableArea(updatedData, backupAllFilesData, false);
           }
         }
         clearChanged(accordianBody);

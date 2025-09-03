@@ -148,7 +148,8 @@ self.addEventListener("fetch", (event: any) => {
             return modifiedResponse;
           } catch (bodyError: any) {
             console.error(
-              "Service Worker: Could not read request body, letting request proceed- bodyError: " + bodyError,
+              "Service Worker: Could not read request body, letting request proceed- bodyError: " +
+                bodyError,
               bodyError
             );
 
@@ -174,6 +175,18 @@ self.addEventListener("fetch", (event: any) => {
 
   // Handle GET requests for caching (only if not already handled)
   if (event.request.method === "GET") {
+    // Don't intercept API calls - let them go directly to the network
+    if (
+      event.request.url.includes("/auth/") ||
+      event.request.url.includes("/api/")
+    ) {
+      console.log(
+        "Service Worker: API request detected, letting pass through:",
+        event.request.url
+      );
+      return; // Let the request pass through without interception
+    }
+
     event.respondWith(
       caches
         .match(event.request)

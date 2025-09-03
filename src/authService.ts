@@ -5,7 +5,7 @@ import { cookieUtils } from "./cookieUtils.js";
 // Authentication state
 export let UserEmailValue = "";
 export let SignedIn = false;
-export let UIVersion = "1.26";
+export let UIVersion = "1.27";
 export let ServerVersion = "";
 
 // Customer management
@@ -651,7 +651,7 @@ async function registerServiceWorker() {
 document.addEventListener("DOMContentLoaded", async () => {
   debug("AuthServiceDOMContentLoaded");
 
-  await registerServiceWorker();
+//   await registerServiceWorker();
 
   // Get and display version number
   try {
@@ -685,8 +685,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const shared = urlParams.get("shared");
-
-  console.log("Share handler: Shared parameter:", shared);
+  if (shared) {
+    console.log("Share handler: Shared parameter:", shared);
+  }
 
 //   if (shared) {
 //     window.location.href = "/share-handler.html";
