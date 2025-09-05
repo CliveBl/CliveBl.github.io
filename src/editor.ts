@@ -1189,9 +1189,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     const headerCaptions = [
       { text: "", width: "40px" },
       //{ text: "שנה", width: "100px" },
-      { text: "סוג מסמך", width: "150px" },
-      { text: "שם האירגון", width: "180px" },
-      { text: "שם הלקוח", width: "180px" },
+      { text: "סוג מסמך", width: "190px" },
+      { text: "שם האירגון", width: "200px" },
+      { text: "שם", width: "200px" },
       { text: "מספר זיהוי", width: "150px" },
       //{ text: "שם הקובץ", width: "200px" },
     ];
@@ -1236,13 +1236,13 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     const fieldsWrapper = document.createElement("div");
     fieldsWrapper.className = "header-fields-wrapper"; // Used for layout styling
 
-    function createHeaderInput(value: any, fieldName: string, labelText: string, isEditable = true) {
+    function createHeaderInput(value: any, fieldName: string, isEditable = true) {
       const fieldContainer = document.createElement("div") as HTMLDivElement;
       fieldContainer.className = "field-container"; // Used for mobile layout
 
       // Create label (only visible on mobile)
       const headerFieldlabel = document.createElement("label");
-      headerFieldlabel.textContent = labelText;
+      headerFieldlabel.textContent = getFriendlyName(fieldName);
       headerFieldlabel.className = "headerfield-label";
 
       // Create input field
@@ -1275,10 +1275,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     }
 
     // Append fields to the wrapper
-    fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", "סוג מסמך", false));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", "שם הארגון", true));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", "שם הלקוח", true));
-    fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", "מספר זיהוי", true));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", false)); // Read only
+    fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", true));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", true));
+    fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", true));
 
     // Append the wrapper to the container
     headerFieldsContainer.appendChild(fieldsWrapper);

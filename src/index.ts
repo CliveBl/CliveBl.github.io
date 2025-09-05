@@ -1,8 +1,7 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR, ANONYMOUS_EMAIL } from "./constants.js";
 import { signInAnonymous, showInfoModal, showWarningModal, handleAuthResponse, SignedIn, UIVersion, ServerVersion, UserEmailValue, selectedCustomerDataEntryName, on } from "./authService.js";
-import { debug } from "./constants.js";
+import { debug, DEFAULT_CLIENT_ID_NUMBER } from "./constants.js";
 
-const DEFAULT_CLIENT_ID_NUMBER = "000000000";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
 interface FormType {

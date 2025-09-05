@@ -129,6 +129,8 @@ const friendlyNames = {
   blindOrDisabledAndReceivingBenefitsBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה ומקבל גמלה ממשרד הבטחון/פעולות איבה"
 };
 
+export const DEFAULT_CLIENT_ID_NUMBER = "000000000";
+
 export function getFriendlyName(key: string) {
   const friendly = friendlyNames[key as keyof typeof friendlyNames];
   if (friendly === undefined) {
@@ -194,8 +196,8 @@ export function dummyName(name: string) {
 
 export function dummyIdNumber(idNumber: string) {
   if (hideIdentity) {
-	if(idNumber === "000000000"){
-		return "000000000";
+	if(idNumber === "DEFAULT_CLIENT_ID_NUMBER"){
+		return "DEFAULT_CLIENT_ID_NUMBER";
 	}
     if (idNumber.includes("05239")) {
       return "123456789";
