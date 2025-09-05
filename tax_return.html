@@ -267,7 +267,33 @@
                   <label for="disability-documents-count" id="disability-documents-missing" class="doc-status"></label>
                 </div>
               </div>
-              <div class="doc-item" data-doc-type="unsupported" data-doc-typename="לא נתמך">
+              <div class="doc-item" data-doc-type="pension-fund-tax" data-doc-typename="אישור מס עבור קרן פנסיה חדשה" style="display: none;">
+                <div class="doc-details">
+                  <h3>אישור מס עבור קרן פנסיה חדשה</h3>
+                  <span class="doc-icon">🏦</span>
+                  <p>מסמך זה נדרש עבור קרנות פנסיה חדשות</p>
+                  <a href="help.html#pension-fund" class="more-info-link">
+                    <span>מידע נוסף</span>
+                  </a>
+                </div>
+                <div class="doc-controls">
+                  <select name="pension-fund-tax-count" id="pension-fund-tax-count">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select>
+                </div>
+                <label for="pension-fund-tax-count" id="pension-fund-tax-missing" class="doc-status"></label>
+              </div>
+				<div class="doc-item" data-doc-type="unsupported" data-doc-typename="לא נתמך">
                 <div class="doc-details">
                   <h3>מסמכים ומצבים לא נתמכים</h3>
                   <span class="doc-icon">⚠️</span>
