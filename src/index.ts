@@ -45,6 +45,7 @@ setupEventListeners();
 checkForSharedFiles();
 
 async function initializeUserSession() {
+  clearTaxResults();
   await loadExistingFiles();
   await loadResults(false);
   restoreSelectedDocTypes();
@@ -90,37 +91,36 @@ function shouldSuppressRetryButton(reasonText: string): boolean {
 async function checkForSharedFiles(): Promise<void> {
   try {
     // Check if we're on the tax return page
-    if (!window.location.pathname.includes('tax_return.html')) {
+    if (!window.location.pathname.includes("tax_return.html")) {
       return;
     }
 
     // Debug logging
-    console.log('checkForSharedFiles: pathname =', window.location.pathname);
-    console.log('checkForSharedFiles: search =', window.location.search);
+    console.log("checkForSharedFiles: pathname =", window.location.pathname);
+    console.log("checkForSharedFiles: search =", window.location.search);
 
     // Check if this page was loaded with shared files parameter
-    if (window.location.search.includes('shared=true') && 
-        window.location.search.includes('source=share')) {
-      console.log('Detected shared files via PWA share target');
-      
+    if (window.location.search.includes("shared=true") && window.location.search.includes("source=share")) {
+      console.log("Detected shared files via PWA share target");
+
       // Try to get shared files from various sources
       const sharedFiles = await getSharedFilesFromMultipleSources();
-      
+
       if (sharedFiles && sharedFiles.length > 0) {
         console.log(`Processing ${sharedFiles.length} shared files`);
-        
+
         // Process shared files using existing upload logic
         await uploadFilesListener(sharedFiles, null);
-        
+
         // Show success message
         showInfoModal(`הקבצים הועברו בהצלחה! התקבלו ${sharedFiles.length} קבצים באמצעות שיתוף. הקבצים עובדים כעת.`);
-        
+
         // Clean up shared files
         await clearSharedFilesFromSession();
       }
     }
   } catch (error) {
-    console.error('Error checking for shared files:', error);
+    console.error("Error checking for shared files:", error);
   }
 }
 
@@ -128,61 +128,63 @@ async function checkForSharedFiles(): Promise<void> {
 async function getSharedFilesFromMultipleSources(): Promise<File[] | null> {
   try {
     // Check session storage for shared files
-    const sharedFilesData = sessionStorage.getItem('sharedFiles');
+    const sharedFilesData = sessionStorage.getItem("sharedFiles");
     if (sharedFilesData) {
       const filesData = JSON.parse(sharedFilesData);
-      console.log('Found shared files in sessionStorage:', filesData.length);
-      
+      console.log("Found shared files in sessionStorage:", filesData.length);
+
       // Convert base64 data back to File objects
-      const files = await Promise.all(filesData.map(async (fileInfo: any) => {
-        try {
-          if (fileInfo.data && fileInfo.data.startsWith('data:')) {
-            // Convert base64 data URL back to File object
-            const response = await fetch(fileInfo.data);
-            const blob = await response.blob();
-            return new File([blob], fileInfo.name, { 
-              type: fileInfo.type, 
-              lastModified: fileInfo.lastModified || Date.now() 
-            });
-          } else {
-            // Fallback: create a basic File object if data is missing
-            console.warn('File data missing for:', fileInfo.name);
-            return new File([], fileInfo.name, { 
-              type: fileInfo.type, 
-              lastModified: fileInfo.lastModified || Date.now() 
+      const files = await Promise.all(
+        filesData.map(async (fileInfo: any) => {
+          try {
+            if (fileInfo.data && fileInfo.data.startsWith("data:")) {
+              // Convert base64 data URL back to File object
+              const response = await fetch(fileInfo.data);
+              const blob = await response.blob();
+              return new File([blob], fileInfo.name, {
+                type: fileInfo.type,
+                lastModified: fileInfo.lastModified || Date.now(),
+              });
+            } else {
+              // Fallback: create a basic File object if data is missing
+              console.warn("File data missing for:", fileInfo.name);
+              return new File([], fileInfo.name, {
+                type: fileInfo.type,
+                lastModified: fileInfo.lastModified || Date.now(),
+              });
+            }
+          } catch (fileError) {
+            console.error("Error reconstructing file:", fileInfo.name, fileError);
+            // Return a placeholder file to maintain the count
+            return new File([], fileInfo.name, {
+              type: fileInfo.type,
+              lastModified: fileInfo.lastModified || Date.now(),
             });
           }
-        } catch (fileError) {
-          console.error('Error reconstructing file:', fileInfo.name, fileError);
-          // Return a placeholder file to maintain the count
-          return new File([], fileInfo.name, { 
-            type: fileInfo.type, 
-            lastModified: fileInfo.lastModified || Date.now() 
-          });
-        }
-      }));
-      
+        })
+      );
+
       console.log(`Successfully reconstructed ${files.length} shared files`);
       return files;
     }
-    
+
     // Check if we have files in the current page context
     // This would be set by the service worker or other means
     const currentPageFiles = (window as any).sharedFiles;
     if (currentPageFiles && Array.isArray(currentPageFiles)) {
       return currentPageFiles;
     }
-    
+
     // Try to get files from service worker cache as final fallback
     const cachedFiles = await getSharedFilesFromCache();
     if (cachedFiles && cachedFiles.length > 0) {
       console.log(`Retrieved ${cachedFiles.length} files from service worker cache`);
       return cachedFiles;
     }
-    
+
     return null;
   } catch (error) {
-    console.error('Error getting shared files from multiple sources:', error);
+    console.error("Error getting shared files from multiple sources:", error);
     return null;
   }
 }
@@ -195,11 +197,11 @@ async function getSharedFilesFromSession(): Promise<File[] | null> {
 // Get shared files from service worker cache as fallback
 async function getSharedFilesFromCache(): Promise<File[] | null> {
   try {
-    if ('caches' in window) {
-      const cache = await caches.open('shared-files');
+    if ("caches" in window) {
+      const cache = await caches.open("shared-files");
       const keys = await cache.keys();
-      const sharedFileKeys = keys.filter(key => key.url.includes('/shared/'));
-      
+      const sharedFileKeys = keys.filter((key) => key.url.includes("/shared/"));
+
       if (sharedFileKeys.length > 0) {
         console.log(`Found ${sharedFileKeys.length} shared files in cache`);
         const files = await Promise.all(
@@ -207,21 +209,21 @@ async function getSharedFilesFromCache(): Promise<File[] | null> {
             const response = await cache.match(key);
             if (response) {
               const blob = await response.blob();
-              const fileName = key.url.split('/').pop() || 'shared-file';
+              const fileName = key.url.split("/").pop() || "shared-file";
               return new File([blob], fileName, { type: blob.type });
             }
             return null;
           })
         );
-        
-        const validFiles = files.filter(f => f !== null) as File[];
+
+        const validFiles = files.filter((f) => f !== null) as File[];
         console.log(`Retrieved ${validFiles.length} valid files from cache`);
         return validFiles;
       }
     }
     return null;
   } catch (error) {
-    console.error('Error getting shared files from cache:', error);
+    console.error("Error getting shared files from cache:", error);
     return null;
   }
 }
@@ -230,37 +232,37 @@ async function getSharedFilesFromCache(): Promise<File[] | null> {
 async function clearSharedFilesFromSession(): Promise<void> {
   try {
     // Clear session storage
-    sessionStorage.removeItem('sharedFiles');
-    
+    sessionStorage.removeItem("sharedFiles");
+
     // Clear service worker cache
-    if ('caches' in window) {
-      const cache = await caches.open('shared-files');
+    if ("caches" in window) {
+      const cache = await caches.open("shared-files");
       const keys = await cache.keys();
-      const sharedFileKeys = keys.filter(key => key.url.includes('/shared/'));
-      
+      const sharedFileKeys = keys.filter((key) => key.url.includes("/shared/"));
+
       if (sharedFileKeys.length > 0) {
         console.log(`Clearing ${sharedFileKeys.length} shared files from cache`);
-        await Promise.all(sharedFileKeys.map(key => cache.delete(key)));
+        await Promise.all(sharedFileKeys.map((key) => cache.delete(key)));
       }
     }
-    
-    console.log('Cleared shared files from all storage locations');
+
+    console.log("Cleared shared files from all storage locations");
   } catch (error) {
-    console.error('Error clearing shared files from storage:', error);
+    console.error("Error clearing shared files from storage:", error);
   }
 }
 
 // Test function to simulate shared files via service worker message
 export async function testSharedFilesViaMessage(files: File[]): Promise<boolean> {
   try {
-    if (!('serviceWorker' in navigator)) {
-      console.error('Service Worker not supported');
+    if (!("serviceWorker" in navigator)) {
+      console.error("Service Worker not supported");
       return false;
     }
 
     const registration = await navigator.serviceWorker.ready;
     if (!registration.active) {
-      console.error('Service Worker not active');
+      console.error("Service Worker not active");
       return false;
     }
 
@@ -268,29 +270,31 @@ export async function testSharedFilesViaMessage(files: File[]): Promise<boolean>
 
     // Create a message channel for response
     const messageChannel = new MessageChannel();
-    
+
     return new Promise((resolve) => {
       messageChannel.port1.onmessage = (event) => {
         if (event.data.success) {
-          console.log('Service Worker response:', event.data.message);
+          console.log("Service Worker response:", event.data.message);
           resolve(true);
         } else {
-          console.error('Service Worker error:', event.data.error);
+          console.error("Service Worker error:", event.data.error);
           resolve(false);
         }
       };
 
       // Send files to service worker
-      registration.active!.postMessage({
-        action: 'share-target',
-        title: 'Test Shared Tax Documents',
-        text: 'Simulated share from test',
-        files: files
-      }, [messageChannel.port2]);
+      registration.active!.postMessage(
+        {
+          action: "share-target",
+          title: "Test Shared Tax Documents",
+          text: "Simulated share from test",
+          files: files,
+        },
+        [messageChannel.port2]
+      );
     });
-
   } catch (error) {
-    console.error('Error testing shared files via message:', error);
+    console.error("Error testing shared files via message:", error);
     return false;
   }
 }
@@ -315,6 +319,8 @@ const feedbackEmail = document.getElementById("feedbackEmail") as HTMLInputEleme
 const privacyCheckbox = document.getElementById("privacyAgreement") as HTMLInputElement;
 const sendFeedbackButton = document.getElementById("sendFeedbackButton") as HTMLButtonElement;
 const feedbackMessage = document.getElementById("feedbackMessage") as HTMLTextAreaElement;
+const resultsContainer = document.getElementById("resultsContainer") as HTMLDivElement;
+const resultsList = document.getElementById("resultsList") as HTMLUListElement;
 
 export function updateButtons(hasEntries: boolean) {
   processButton.disabled = !hasEntries;
@@ -350,7 +356,6 @@ function updateBorderStyles(hasEntries: boolean) {
 
 function updateFileListP(fileInfoList: FileInfo[], isNewUpload = false) {
   if (editableFileList) {
-
     displayFileInfoInExpandableArea(fileInfoList, structuredClone(fileInfoList), isNewUpload);
     updateButtons(editableFileListHasEntries());
   } else {
@@ -1360,8 +1365,6 @@ function descriptionFromFileName(fileName: string) {
 }
 
 function displayResults(results: { file: { fileName: string } }[]) {
-  const resultsContainer = document.getElementById("resultsContainer") as HTMLDivElement;
-  const resultsList = document.getElementById("resultsList") as HTMLUListElement;
   resultsList.innerHTML = ""; // Clear existing results
 
   // If there are no results, hide the results container.
@@ -1406,7 +1409,7 @@ function displayResults(results: { file: { fileName: string } }[]) {
         const taxCalculateButton = document.createElement("button");
         taxCalculateButton.className = "action-button tax-calculate-button";
         taxCalculateButton.innerHTML = "💰 חשב מס";
-		taxCalculateButton.title = "חשב את המס לתשלום או להחזר עבור שנת המס של הקובץ";
+        taxCalculateButton.title = "חשב את המס לתשלום או להחזר עבור שנת המס של הקובץ";
         taxCalculateButton.addEventListener("click", () => {
           calculateTax(result.file.fileName);
         });
@@ -1574,8 +1577,6 @@ function clearTaxResults() {
 }
 
 function clearResultsControls() {
-  const resultsContainer = document.getElementById("resultsContainer") as HTMLDivElement;
-  const resultsList = document.getElementById("resultsList") as HTMLUListElement;
   clearTaxResults();
   // Hide containers
   resultsContainer.classList.remove("active");
@@ -2024,14 +2025,14 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
   debug("displayTaxCalculation");
   const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
   taxCalculationContent.innerHTML = ""; // Clear existing results
-  
+
   // Update title with year
   const taxResultsTitle = document.getElementById("taxResultsTitle") as HTMLHeadingElement;
   const titleSpan = taxResultsTitle.querySelector("span");
   if (titleSpan) {
     titleSpan.textContent = `תוצאות חישוב מס עבור שנה ${year}`;
   }
-  
+
   // Add event listener for copy button
   const copyButton = document.getElementById("copyTaxResultsBtn");
   if (copyButton) {
@@ -2103,23 +2104,23 @@ async function copyTaxResults() {
     if (taxResultsContainer) {
       // Copy the entire tax results container for complete context
       const htmlContent = taxResultsContainer.innerHTML;
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      
+      const blob = new Blob([htmlContent], { type: "text/html" });
+
       // Use clipboard API with blob for rich HTML copying
       await navigator.clipboard.write([
         new ClipboardItem({
-          'text/html': blob,
-          'text/plain': blob
-        })
+          "text/html": blob,
+          "text/plain": blob,
+        }),
       ]);
-      
+
       // Show visual feedback
       const copyButton = document.getElementById("copyTaxResultsBtn");
       if (copyButton) {
         const originalText = copyButton.innerHTML;
         copyButton.innerHTML = "הועתק!";
         copyButton.title = "הועתק ללוח";
-        
+
         // Reset button after 2 seconds
         setTimeout(() => {
           copyButton.innerHTML = "העתק";
@@ -2139,14 +2140,14 @@ async function copyTaxResults() {
         textarea.select();
         document.execCommand("copy");
         document.body.removeChild(textarea);
-        
+
         // Show visual feedback
         const copyButton = document.getElementById("copyTaxResultsBtn");
         if (copyButton) {
           const originalText = copyButton.innerHTML;
           copyButton.innerHTML = "הועתק!";
           copyButton.title = "הועתק ללוח";
-          
+
           // Reset button after 2 seconds
           setTimeout(() => {
             copyButton.innerHTML = "העתק";
