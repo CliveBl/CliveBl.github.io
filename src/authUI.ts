@@ -1,4 +1,5 @@
 import {
+  UserRole,
   UserEmailValue,
   SignedIn,
   selectedCustomerDataEntryName,
@@ -63,6 +64,7 @@ const resetEmailDisplay = document.getElementById("resetEmailDisplay") as HTMLSp
 const sendResetButton = document.getElementById("sendResetButton") as HTMLButtonElement;
 const createApiKeyButton = document.getElementById("createApiKeyButton") as HTMLButtonElement;
 const revokeApiKeyButton = document.getElementById("revokeApiKeyButton") as HTMLButtonElement;
+const apiSection = document.getElementById("apiSection") as HTMLDivElement;
 const apiKeyDisplayModal = document.getElementById("apiKeyDisplayModal") as HTMLDivElement;
 const apiKeyDisplay = document.getElementById("apiKeyDisplay") as HTMLInputElement;
 const copyApiKeyButton = document.getElementById("copyApiKeyButton") as HTMLButtonElement;
@@ -568,11 +570,34 @@ export function updateSignInUI(): void {
     userEmail.textContent = UserEmailValue;
     userEmail.title = UserEmailValue;
     signOutButton.disabled = false;
-    // Show customer button for logged in users
+    
+    // Show/hide customer button based on user role
     if (customerButton) {
-      customerButton.style.display = "inline-block";
-      customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
+      if (UserRole === "ROLE_USER") {
+        // Hide customer button for ROLE_USER
+        customerButton.style.display = "none";
+      } else {
+        // Show customer button for other roles
+        customerButton.style.display = "inline-block";
+        customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
+      }
     }
+    
+    // Enable/disable API section based on user role
+    if (apiSection) {
+      if (UserRole === "ROLE_API") {
+        // Enable API section for ROLE_API
+        apiSection.style.opacity = "1";
+        if (createApiKeyButton) createApiKeyButton.disabled = false;
+        if (revokeApiKeyButton) revokeApiKeyButton.disabled = false;
+      } else {
+        // Disable API section for other roles (keep panel interactive for tooltips)
+        apiSection.style.opacity = "0.5";
+        if (createApiKeyButton) createApiKeyButton.disabled = true;
+        if (revokeApiKeyButton) revokeApiKeyButton.disabled = true;
+      }
+    }
+    
     // Enable account management button for signed in users
     accountManagementButton.disabled = false;
   } else if (UserEmailValue === ANONYMOUS_EMAIL) {
@@ -584,6 +609,12 @@ export function updateSignInUI(): void {
     // Hide customer button for anonymous users
     if (customerButton) {
       customerButton.style.display = "none";
+    }
+    // Disable API section for anonymous users
+    if (apiSection) {
+      apiSection.style.opacity = "0.5";
+      if (createApiKeyButton) createApiKeyButton.disabled = true;
+      if (revokeApiKeyButton) revokeApiKeyButton.disabled = true;
     }
     // Disable account management button for anonymous users
     accountManagementButton.disabled = true;
@@ -597,6 +628,12 @@ export function updateSignInUI(): void {
     // Hide customer button for logged out users
     if (customerButton) {
       customerButton.style.display = "none";
+    }
+    // Disable API section for logged out users
+    if (apiSection) {
+      apiSection.style.opacity = "0.5";
+      if (createApiKeyButton) createApiKeyButton.disabled = true;
+      if (revokeApiKeyButton) revokeApiKeyButton.disabled = true;
     }
     // Disable account management button for logged out users
     accountManagementButton.disabled = true;

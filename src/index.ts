@@ -411,7 +411,7 @@ function getDocTypes() {
 async function loadExistingFiles() {
   try {
     debug("loadExistingFiles");
-    const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=${selectedCustomerDataEntryName}`, {
+    const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -1269,7 +1269,7 @@ let isAnonymousConversion = false;
 
 async function loadResults(scrollToMessageSection = true) {
   try {
-    const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=${selectedCustomerDataEntryName}`, {
+    const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -1446,7 +1446,7 @@ function displayResults(results: { file: { fileName: string } }[]) {
 
 async function downloadResult(fileName: string) {
   try {
-    const response = await fetch(`${API_BASE_URL}/downloadResultsFile?fileName=${encodeURIComponent(fileName)}&customerDataEntryName=${selectedCustomerDataEntryName}`, {
+    const response = await fetch(`${API_BASE_URL}/downloadResultsFile?fileName=${encodeURIComponent(fileName)}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
       method: "GET",
       credentials: "include",
       ...fetchConfig,
@@ -1486,7 +1486,7 @@ deleteAllButton.addEventListener("click", async () => {
     const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את כל המסמכים שהוזנו?");
     if (!confirmed) return;
 
-    const response = await fetch(`${API_BASE_URL}/deleteAllForms?customerDataEntryName=${selectedCustomerDataEntryName}`, {
+    const response = await fetch(`${API_BASE_URL}/deleteAllForms?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
       method: "DELETE",
       credentials: "include",
       ...fetchConfig,
@@ -1615,7 +1615,7 @@ function formatNumber(key: string, value: any) {
 export function addFileToList(fileInfo: any) {
   async function deleteFile(fileId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/deleteForm?fileId=${fileId}&customerDataEntryName=${selectedCustomerDataEntryName}`, {
+      const response = await fetch(`${API_BASE_URL}/deleteForm?fileId=${fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
         method: "DELETE",
         headers: {},
         credentials: "include",
@@ -1648,7 +1648,7 @@ export function addFileToList(fileInfo: any) {
 
   async function deleteFileQuietly(fileId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/deleteForm?fileId=${fileId}&customerDataEntryName=${selectedCustomerDataEntryName}`, {
+      const response = await fetch(`${API_BASE_URL}/deleteForm?fileId=${fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
         method: "DELETE",
         headers: {},
         credentials: "include",
@@ -1962,7 +1962,7 @@ async function calculateTax(fileName: string) {
       showCancelButton: false,
     });
 
-    const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=${selectedCustomerDataEntryName}`, {
+    const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -4,8 +4,9 @@ import { cookieUtils } from "./cookieUtils.js";
 
 // Authentication state
 export let UserEmailValue = "";
+export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.27";
+export let UIVersion = "1.28";
 export let ServerVersion = "";
 
 // Customer management
@@ -308,7 +309,7 @@ export async function updateCustomerName(oldCustomerName: string, newCustomerNam
 // Delete a customer and all its files. The caller must call updateSelectedCustomer() after this function returns.
 export async function deleteCustomer(newCustomerName: string): Promise<void> {
   try {
-    const response = await fetch(`${API_BASE_URL}/deleteCustomer?customerDataEntryName=${newCustomerName}`, {
+    const response = await fetch(`${API_BASE_URL}/deleteCustomer?customerDataEntryName=${encodeURIComponent(newCustomerName)}`, {
       method: "DELETE",
       credentials: "include",
       ...fetchConfig,
@@ -661,6 +662,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (basicInfo) {
       ServerVersion = basicInfo.productVersion;
       UserEmailValue = basicInfo.userEmail;
+	  if(basicInfo.userRole)
+	  {
+		UserRole = basicInfo.userRole;
+	  }
+	  else
+	  {
+		UserRole = "ROLE_USER";
+	  }
       SignedIn = true;
 
       debug("Successfully got BasicInfo");
