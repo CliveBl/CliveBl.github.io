@@ -69,6 +69,7 @@ const apiKeyDisplayModal = document.getElementById("apiKeyDisplayModal") as HTML
 const apiKeyDisplay = document.getElementById("apiKeyDisplay") as HTMLInputElement;
 const copyApiKeyButton = document.getElementById("copyApiKeyButton") as HTMLButtonElement;
 const closeApiKeyDisplay = document.getElementById("closeApiKeyDisplay") as HTMLButtonElement;
+const userRoleSpan = document.getElementById("userRole") as HTMLSpanElement;
 
 // Initialize customer data
 initializeCustomerData();
@@ -197,6 +198,18 @@ function setupEventListeners(): void {
         accountOverlay.classList.add("active");
         deleteConfirmationInput.value = "";
         deleteAccountButton.disabled = true;
+		userRoleSpan.textContent = "פרופיל: ";
+        if (UserRole === "ROLE_ADMIN") {
+          userRoleSpan.textContent += "מנהל";
+        } else if (UserRole === "ROLE_USER") {
+          userRoleSpan.textContent += "סטנדרטי";
+        } else if (UserRole === "ROLE_API") {
+          userRoleSpan.textContent += "מפתח API";
+        } else if (UserRole === "ROLE_PRO") {
+          userRoleSpan.textContent += "מקצועי";
+        } else {
+          userRoleSpan.textContent += "לא ידוע";
+        }
       }
     });
   }
@@ -523,7 +536,7 @@ async function handleCopyApiKey(): Promise<void> {
   if (apiKeyDisplay && copyApiKeyButton) {
     try {
       // Use modern clipboard API
-      await navigator.clipboard.writeText(apiKeyDisplay.value || apiKeyDisplay.textContent || '');
+      await navigator.clipboard.writeText(apiKeyDisplay.value || apiKeyDisplay.textContent || "");
 
       // Show visual feedback
       const originalText = copyApiKeyButton.textContent;
@@ -543,7 +556,7 @@ async function handleCopyApiKey(): Promise<void> {
         apiKeyDisplay.select();
         apiKeyDisplay.setSelectionRange(0, 99999); // For mobile devices
         document.execCommand("copy");
-        
+
         // Show visual feedback
         const originalText = copyApiKeyButton.textContent;
         copyApiKeyButton.textContent = "הועתק!";
@@ -570,7 +583,7 @@ export function updateSignInUI(): void {
     userEmail.textContent = UserEmailValue;
     userEmail.title = UserEmailValue;
     signOutButton.disabled = false;
-    
+
     // Show/hide customer button based on user role
     if (customerButton) {
       if (UserRole === "ROLE_USER") {
@@ -582,7 +595,7 @@ export function updateSignInUI(): void {
         customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
       }
     }
-    
+
     // Enable/disable API section based on user role
     if (apiSection) {
       if (UserRole === "ROLE_API") {
@@ -597,7 +610,7 @@ export function updateSignInUI(): void {
         if (revokeApiKeyButton) revokeApiKeyButton.disabled = true;
       }
     }
-    
+
     // Enable account management button for signed in users
     accountManagementButton.disabled = false;
   } else if (UserEmailValue === ANONYMOUS_EMAIL) {
@@ -744,15 +757,15 @@ if (usernameParam) {
 }
 
 function updateLoginButtonState(): void {
-    const termsAccepted = isTermsAccepted();
-    loginButton.disabled = !termsAccepted;
+  const termsAccepted = isTermsAccepted();
+  loginButton.disabled = !termsAccepted;
 
-    // Set tooltip text based on terms acceptance
-    if (termsAccepted) {
-      loginButton.title = "התחבר או צור חשבון";
-    } else {
-      loginButton.title = "אנא הסכם לתנאי השימוש תחילה";
-    }
+  // Set tooltip text based on terms acceptance
+  if (termsAccepted) {
+    loginButton.title = "התחבר או צור חשבון";
+  } else {
+    loginButton.title = "אנא הסכם לתנאי השימוש תחילה";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
