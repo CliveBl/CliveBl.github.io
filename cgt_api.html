@@ -107,11 +107,10 @@
         }
         .json-example {
             color: var(--text-color);
-            padding: 15px;
             border-radius: 5px;
             font-family: 'Courier New', monospace;
             overflow-x: auto;
-            margin: 10px 0;
+            white-space: pre-wrap;
         }
         .note {
             background: var(--warning-bg);
@@ -170,7 +169,11 @@
         <h1>CGT API Documentation</h1>
         
         <div class="auth-info">
-            <strong>Authentication:</strong> All endpoints require an API key to be set in the X-API-Key header. The API key can be obtained in the account settings menu.
+            <strong>Authentication:</strong> All endpoints require an API key to be set in the X-API-Key header. The API key can be obtained in the account settings menu. It is available to users with the API developer account profile.
+        </div>
+
+        <div class="note">
+            <strong>URL Encoding:</strong> All parameters should be properly URL encoded when making API requests. Special characters, spaces, and non-ASCII characters must be encoded according to URL encoding standards.
         </div>
 
         <div class="toc">
@@ -189,7 +192,7 @@
             <h3><span class="method get">GET</span> Get Basic Info</h3>
             <div class="url">/api/v1/getBasicInfo</div>
             <div class="description">
-                Get basic information about the current customer.
+                Get basic information about the current software version and the user.
             </div>
             
             <div class="response">
@@ -197,7 +200,8 @@
                 <div class="json-example">
 {
   "productVersion": "Beta Version 2025_1.58",
-  "userEmail": "johnsmith@gmail.com"
+  "userEmail": "johnsmith@gmail.com",
+  "userRole": "ROLE_API"
 }
                 </div>
             </div>
@@ -233,7 +237,8 @@
             </div>
 
             <div class="response">
-                <strong>Response:</strong> JSON string containing customer data entry names
+                <strong>Response:</strong> A JSON string with all the data of all forms<br>
+                <a href="cgt_api_formjson.html" class="stnd-link">View examples of JSON structure</a>
             </div>
 
             <div class="note">
@@ -257,7 +262,8 @@
             </div>
 
             <div class="response">
-                <strong>Response:</strong> JSON string containing file information
+                <strong>Response:</strong> JSON string containing file information<br>
+                <a href="cgt_api_formjson.html" class="stnd-link">View examples of JSON structure</a>
             </div>
         </div>
 
@@ -265,7 +271,7 @@
             <h3><span class="method post">POST</span> Parse File</h3>
             <div class="url">/api/v1/parseFile</div>
             <div class="description">
-                Parse a file and extract form data from it.
+                Parse a file and extract form data from it. Does not save the data to the account.
             </div>
             
             <div class="parameters">
@@ -281,31 +287,8 @@
             </div>
 
             <div class="response">
-                <strong>Response:</strong> The form of the parsed file in the form of a JSON string
-            </div>
-        </div>
-
-        <div class="endpoint">
-            <h3><span class="method get">GET</span> Download Results File</h3>
-            <div class="url">/api/v1/downloadResultsFile</div>
-            <div class="description">
-                Download a results file for a specific customer data entry.
-            </div>
-            
-            <div class="parameters">
-                <h4>Query Parameters:</h4>
-                <div class="parameter">
-                    <span class="param-name">fileName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
-                    Name of the file to download (0-100 characters)
-                </div>
-                <div class="parameter">
-                    <span class="param-name">customerDataEntryName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
-                    Name of the customer data entry (0-100 characters)
-                </div>
-            </div>
-
-            <div class="response">
-                <strong>Response:</strong> The specified results file of the given customer
+                <strong>Response:</strong> The form of the parsed file in the form of a JSON string<br>
+                <a href="cgt_api_formjson.html" class="stnd-link">View examples of JSON structure</a>
             </div>
         </div>
 
@@ -359,7 +342,7 @@
             <h3><span class="method post">POST</span> Create Form</h3>
             <div class="url">/api/v1/createForm</div>
             <div class="description">
-                Create a new form for the customer.
+                Create a new empty form for the given customer.
             </div>
             
             <div class="parameters">
@@ -374,7 +357,8 @@
             </div>
 
             <div class="response">
-                <strong>Response:</strong> The form as a JSON string
+                <strong>Response:</strong> The updated list of forms as a JSON string<br>
+                <a href="cgt_api_formjson.html" class="stnd-link">View examples of JSON structure</a>
             </div>
         </div>
 
@@ -382,7 +366,7 @@
             <h3><span class="method post">POST</span> Update Form</h3>
             <div class="url">/api/v1/updateForm</div>
             <div class="description">
-                Update an existing form or create a new one if fileId is empty/null.
+                Update the form of a customer data entry or create a new one. A form is created if fileId in the form data is empty/null or missing. The formAsJSON is a JSON string of the form.
             </div>
             
             <div class="parameters">
@@ -398,7 +382,8 @@
             </div>
 
             <div class="response">
-                <strong>Response:</strong> The form as a JSON string
+                <strong>Response:</strong> The updated list of forms as a JSON string<br>
+                <a href="cgt_api_formjson.html" class="stnd-link">View examples of JSON structure</a>
             </div>
         </div>
 
@@ -412,7 +397,18 @@
             </div>
             
             <div class="response">
-                <strong>Response:</strong> JSON string containing customer data entry names
+                <strong>Response:</strong> A JSON string of all customer data entry names
+                <div class="json-example">
+[
+  {
+    "name": "שמוליק כהן",
+    "modified": {
+      "$date": "2025-09-05T17:20:36.208Z"
+    },
+    "dbver": 8
+  }
+]
+                </div>
             </div>
         </div>
 
@@ -434,7 +430,18 @@
             </div>
 
             <div class="response">
-                <strong>Response:</strong> JSON string containing customer data entry names
+                <strong>Response:</strong> A JSON string of all customer data entry names
+                <div class="json-example">
+[
+  {
+    "name": "שמוליק כהן",
+    "modified": {
+      "$date": "2025-09-05T17:20:36.208Z"
+    },
+    "dbver": 8
+  }
+]
+                </div>
             </div>
         </div>
 
@@ -456,7 +463,18 @@
             </div>
 
             <div class="response">
-                <strong>Response:</strong> JSON string containing customer data entry names
+                <strong>Response:</strong> A JSON string of all customer data entry names
+                <div class="json-example">
+[
+  {
+    "name": "שמוליק כהן",
+    "modified": {
+      "$date": "2025-09-05T17:20:36.208Z"
+    },
+    "dbver": 8
+  }
+]
+                </div>
             </div>
         </div>
 
@@ -464,7 +482,7 @@
             <h3><span class="method delete">DELETE</span> Delete Customer</h3>
             <div class="url">/api/v1/deleteCustomer</div>
             <div class="description">
-                Delete a customer's data entry and all associated files.
+                Delete a customer data entry and all associated forms.
             </div>
             
             <div class="parameters">
@@ -476,7 +494,18 @@
             </div>
 
             <div class="response">
-                <strong>Response:</strong> JSON string containing customer data entry names
+                <strong>Response:</strong> A JSON string listing all the customer data entry names
+                <div class="json-example">
+[
+  {
+    "name": "שמוליק כהן",
+    "modified": {
+      "$date": "2025-09-05T17:20:36.208Z"
+    },
+    "dbver": 8
+  }
+]
+                </div>
             </div>
         </div>
 
@@ -500,6 +529,17 @@
 
             <div class="response">
                 <strong>Response:</strong> A JSON string containing all messages generated during processing
+                <div class="json-example">
+{
+  "processingWarnings": [
+    "^LossesTransferred הפסדים של 3790 לשנה 2023 יכולים להיות מועברים לשנה הבאה. חשוב להגיש את טופס 1344.\n\n"
+  ],
+  "processingInformation": [
+    "^TotalChildren סך כל הילדים לפי תעודת זהות שמואל קלייב לשנת מס 2023: 0. נא לבדוק.\n\n",
+    "^TotalChildren סך כל הילדים לפי תעודת זהות שמואל קלייב לשנת מס 2024: 0. נא לבדוק.\n\n"
+  ]
+}
+                </div>
             </div>
         </div>
 
@@ -520,6 +560,70 @@
 
             <div class="response">
                 <strong>Response:</strong> JSON string containing results information
+                <div class="json-example">
+[
+  {
+    "file": {
+      "fileName": "1301_2024.dat",
+      "fileId": "68bd3510788a34ac0ed1ef51"
+    }
+  },
+  {
+    "file": {
+      "fileName": "1322_2024_filled.pdf",
+      "fileId": "68bd3510788a34ac0ed1ef53"
+    }
+  },
+  {
+    "file": {
+      "fileName": "1344_2024_filled.pdf",
+      "fileId": "68bd3510788a34ac0ed1ef55"
+    }
+  },
+  {
+    "file": {
+      "fileName": "TaxAnalysis_2024.xlsx",
+      "fileId": "68bd3510788a34ac0ed1ef57"
+    }
+  },
+  {
+    "messages": {
+      "processingWarnings": [
+        "^LossesTransferred הפסדים של 3790 לשנה 2023 יכולים להיות מועברים לשנה הבאה. חשוב להגיש את טופס 1344.\n\n"
+      ],
+      "processingInformation": [
+        "^TotalChildren סך כל הילדים לפי תעודת זהות שמואל קלייב לשנת מס 2023: 0. נא לבדוק.\n\n",
+        "^TotalChildren סך כל הילדים לפי תעודת זהות שמואל קלייב לשנת מס 2024: 0. נא לבדוק.\n\n"
+      ]
+    }
+  }
+]
+                </div>
+            </div>
+        </div>
+
+		<div class="endpoint">
+            <h3><span class="method get">GET</span> Download Results File</h3>
+            <div class="url">/api/v1/downloadResultsFile</div>
+            <div class="description">
+                Download a results file for a specific customer data entry.
+				The list of files available to down load can be obtained from getResultsInfo.
+            </div>
+            
+            <div class="parameters">
+                <h4>Query Parameters:</h4>
+                <div class="parameter">
+                    <span class="param-name">fileName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the file to download (0-100 characters)
+                </div>
+                <div class="parameter">
+                    <span class="param-name">customerDataEntryName</span> <span class="param-type">(String)</span> <span class="param-required">*Required</span><br>
+                    Name of the customer data entry (0-100 characters)
+                </div>
+            </div>
+
+            <div class="response">
+                <strong>Response:</strong> The specified results file of the given customer
             </div>
         </div>
 
@@ -527,7 +631,7 @@
             <h3><span class="method post">POST</span> Calculate Tax</h3>
             <div class="url">/api/v1/calculateTax</div>
             <div class="description">
-                Calculate tax for a specific tax year and customer data entry.
+                Calculate tax for a specific tax year and customer data entry. This API call can take around 10 seconds to complete. It may not be available in the future.
             </div>
             
             <div class="parameters">
@@ -542,6 +646,94 @@
 
             <div class="response">
                 <strong>Response:</strong> JSON string containing tax calculation results
+                <div class="json-example">
+[
+  {
+    "spouse": "5,233",
+    "registered": "298,373",
+    "total": "303,606",
+    "title": "סה\"כ הכנסות"
+  },
+  {
+    "spouse": " ",
+    "registered": " ",
+    "total": " ",
+    "title": "סה''כ ניכויים"
+  },
+  {
+    "spouse": "5,233",
+    "registered": "298,373",
+    "total": "303,606",
+    "title": "הכנסה חייבת"
+  },
+  {
+    "spouse": "523",
+    "registered": "44,515",
+    "total": "45,038",
+    "title": "מס ברוטו"
+  },
+  {
+    "spouse": "-6,534               ",
+    "registered": "-6,534               ",
+    "total": "                ",
+    "title": "זיכוי תושב               "
+  },
+  {
+    "spouse": "-1,452               ",
+    "registered": "                ",
+    "total": "                ",
+    "title": "זיכוי אישה               "
+  },
+  {
+    "spouse": "-96               ",
+    "registered": "                ",
+    "total": "                ",
+    "title": "זיכוי 45.א               "
+  },
+  {
+    "spouse": "                ",
+    "registered": "-105               ",
+    "total": "                ",
+    "title": "זיכוי תרומה סעיף 46               "
+  },
+  {
+    "spouse": "-366               ",
+    "registered": "-5,454               ",
+    "total": "                ",
+    "title": "זיכוי ספר               "
+  },
+  {
+    "spouse": "                ",
+    "registered": "-4,331               ",
+    "total": "                ",
+    "title": "זיכוי גיל 60               "
+  },
+  {
+    "spouse": "-8,448",
+    "registered": "-16,424",
+    "total": " ",
+    "title": "סה''כ זיכויים"
+  },
+  {
+    "spouse": " ",
+    "registered": "28,091",
+    "total": "28,091",
+    "title": "מס מגיע"
+  },
+  {
+    "spouse": " ",
+    "registered": " ",
+    "total": "-38,127",
+    "title": "ניכויים במקור"
+  },
+  {
+    "spouse": " ",
+    "registered": " ",
+    "total": "-10,036",
+    "title": "מס לאחר ניכוי במקור"
+  }
+]
+                </div>
             </div>
         </div>
 

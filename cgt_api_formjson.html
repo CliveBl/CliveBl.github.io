@@ -1,0 +1,876 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGT Form JSON Data</title>
+    <meta name="description" content="CGT Form JSON Data Examples" />
+    <link rel="canonical" href="https://www.taxesil.top/cgt_api_formjson.html" />
+    <link rel="icon" type="image/x-icon" href="tax-day.ico" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
+    <link rel="stylesheet" href="css/index.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--item-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px var(--modal-shadow);
+            border: 1px solid var(--border-color);
+        }
+        h1 {
+            color: var(--tax-blue);
+            border-bottom: 3px solid var(--button-color);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        .json-container {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .note {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 3px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .note strong {
+            color: var(--warning-text);
+        }
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--message-text);
+            text-align: center;
+        }
+        /* Override external CSS for this page */
+        body {
+            direction: ltr !important;
+            text-align: left !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CGT Form JSON Data Examples</h1>
+        
+        <div class="note">
+            <strong>Note:</strong> This page contains example JSON data showing the structure of form data returned by the CGT API.
+        </div>
+
+        <div class="json-container">
+            <pre>[
+	{
+		"fileId": "68b7f9183c568aebad5ad355",
+		"fileName": "2023/63acb62d-cf34-406e-9e1a-d0e3e4b4ea28.pdf",
+		"type": "IsraelTax106",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "שרה כהן",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "מעביד",
+		"fields": {
+			"Salary_172_158": "1353.0"
+		},
+		"genericFields": [],
+		"employerTaxFileNumber": "111111111",
+		"monthsOfEmploymentInteger": "2",
+		"documentType": "טופס 106 מעביד"
+	},
+	{
+		"fileId": "68b7f91a3c568aebad5ad356",
+		"fileName": "2023/BankDiscount_867_2023.pdf",
+		"type": "BankDiscount867",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "כהן דוד משה",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק דיסקונט",
+		"fields": {
+			"DividendIncomeTaxedAtPercent15": "100.0",
+			"InterestIncomeTaxedAtPercent15": "266.51",
+			"DepositIncomeTaxedAtPercent15_078": "750.0",
+			"OffsetableLosses": "3418.1",
+			"NumberOfDealsInteger": "20.0",
+			"TaxDeductedAtSourceDividend_040": "0.02",
+			"DepositCurrentAccountIncomeTaxedAtPercent15_078": "0.48",
+			"ProfitIncomeTaxedAtPercent25": "1189.47",
+			"TaxDeductedAtSourceDeposit_043": "112.58",
+			"TotalSales_256": "172483.47",
+			"InterestIncomeTaxedAtPercent25": "336.14",
+			"DividendIncomeTaxedAtPercent25": "1472.88"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "100",
+		"accountNumber": " 0001234567",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f91b3c568aebad5ad357",
+		"fileName": "2023/BituachLeumiSarit2023.pdf",
+		"type": "BituachLeumiUnemployment",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "גב' שרה בלוסטון",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "ביטוח לאומי",
+		"fields": {
+			"ReceivedFromNI_196_194": "3248.0"
+		},
+		"genericFields": [],
+		"employerTaxFileNumber": "222222222",
+		"monthsOfEmploymentInteger": "0",
+		"documentType": "אישור ביטוח לאומי"
+	},
+	{
+		"fileId": "68b7f91c3c568aebad5ad358",
+		"fileName": "2023/David_106_2023.pdf",
+		"type": "Hilan106",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "כהןדוד",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "מעביד",
+		"fields": {
+			"EducationFund_219_218": "95529.0",
+			"IncomeTaxDeduction_042": "65928.0",
+			"Salary_172_158": "221083.0",
+			"InsuredIncome_245_244": "202540.0",
+			"EmployerKupatGemel_249_248": "28194.0",
+			"LeavingBonus_272_258": "54636.0",
+			"TaxFreeLeavingBonus_209": "77364.0",
+			"PersonalDeductionFundMember_086_045": "12139.0",
+			"SettlementDiscount_327_287": "120207.0"
+		},
+		"genericFields": [],
+		"employerTaxFileNumber": "333333333",
+		"monthsOfEmploymentInteger": "7",
+		"documentType": "טופס 106 מעביד"
+	},
+	{
+		"fileId": "68b7f9263c568aebad5ad359",
+		"fileName": "DonationBenIshChai_2023.jpg",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2023",
+		"clientName": "חרומה ושות",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בית כנסת ובית מדרש \"בן איש חי\"",
+		"explanationText": "קבלה תרומה",
+		"value": "2000.00",
+		"receiptInteger": "12407",
+		"matchTag": "46",
+		"donationDate": "14/09/2023",
+		"nonProfitTaxFileNumber": "555555555",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f9273c568aebad5ad35a",
+		"fileName": "2023/eff35087-7b8d-44f0-b26f-9e6627223364.pdf",
+		"type": "IsraelTax106",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "שרית כהן",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "מעביד",
+		"fields": {
+			"Salary_172_158": "2231.0",
+			"InsuredIncome_245_244": "130.0",
+			"EmployerKupatGemel_249_248": "19.0",
+			"PersonalDeductionFundMember_086_045": "7.0"
+		},
+		"genericFields": [],
+		"employerTaxFileNumber": "444444444",
+		"monthsOfEmploymentInteger": "5",
+		"documentType": "טופס 106 מעביד"
+	},
+	{
+		"fileId": "68b7f9283c568aebad5ad35b",
+		"fileName": "2023/Hpoalim867_2023.pdf",
+		"type": "FormError",
+		"reasonText": "2023 הריני לאשר כי לא חלו אירועי מס בחשבון 12345 - 600 בשנת",
+		"noteText": "",
+		"documentType": "שגיאה"
+	},
+	{
+		"fileId": "68b7f9293c568aebad5ad35c",
+		"fileName": "2023/IBI_Order4337339.pdf",
+		"type": "IBIStockPurchaseCommission",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "David COHEN",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "אי.בי.אי. תגמול הוני ונאמנויות",
+		"explanationText": "(USD22.04 * 3.6386 + NIS15.00) עמלת רכישת מניות",
+		"value": "95.194744",
+		"receiptInteger": "0",
+		"matchTag": "ESPP7202",
+		"documentType": "עמלת רכישת מניות"
+	},
+	{
+		"fileId": "68b7f9293c568aebad5ad35d",
+		"fileName": "2023/IBICapital.pdf",
+		"type": "IBICapitalBrokerLetter",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "987654321 , ת.זכהן דוד מר",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "אי.בי.אי. תגמול הוני ונאמנויות",
+		"fields": {
+			"TotalSales_256": "18570.356249999997"
+		},
+		"matchTag": "ESPP7202",
+		"genericFields": [
+			{
+				"field867Type": "OffsetableLosses",
+				"explanationText": "129*((3.15*54.95) - (3.715*38.75))",
+				"value": "3758.5762500000023"
+			}
+		],
+		"branchCode": "",
+		"accountNumber": "",
+		"documentType": "מכתב ברוקר"
+	},
+	{
+		"fileId": "68b7f92a3c568aebad5ad35e",
+		"fileName": "2023/MizrachiBank2023.pdf",
+		"type": "BankMizrachi867",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "כהן דוד משה",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק מזרחי-טפחות בע\"מ",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "3130.0",
+			"TaxDeductedAtSourceDeposit_043": "469.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "200",
+		"accountNumber": "123456",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f92b3c568aebad5ad35f",
+		"fileName": "2023/Pepper867David2023.pdf",
+		"type": "BankPepper867",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "דוד משה כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק לאומי",
+		"fields": {
+			"OffsetableLosses": "25.0",
+			"NumberOfDealsInteger": "1.0",
+			"TaxDeductedAtSourceDividend_040": "22.0",
+			"DividendFXIncomeTaxedAtPercent25": "30.0",
+			"TotalSales_256": "407.0",
+			"DividendIncomeTaxedAtPercent25": "142.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "300",
+		"accountNumber": "601123456",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f92c3c568aebad5ad360",
+		"fileName": "2023/Pepper867Sarit.pdf",
+		"type": "BankPepper867",
+		"noteText": "",
+		"taxYear": "2023",
+		"clientName": "שרה כהן",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "בנק לאומי",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "16.0",
+			"TaxDeductedAtSourceDeposit_043": "2.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "300",
+		"accountNumber": "601234567",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f92d3c568aebad5ad361",
+		"fileName": "2023/אישור תושב David2023.pdf",
+		"type": "SettlementCertificate",
+		"noteText": "עבור עיריית כרמיאל בשנה 2024, יש הנחה של 7% עד 146640 שח למשך 12 חודשים",
+		"taxYear": "2024",
+		"clientName": "דוד משה כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "עיריית כרמיאל",
+		"movedHereDuringYearBoolean": false,
+		"startDate": "28/09/1993",
+		"endDate": "31/12/2024",
+		"documentType": "אישור תושב"
+	},
+	{
+		"fileId": "68b7f92d3c568aebad5ad362",
+		"fileName": "2023/אישור תושב Sarit2023.pdf",
+		"type": "SettlementCertificate",
+		"noteText": "עבור עיריית כרמיאל בשנה 2024, יש הנחה של 7% עד 146640 שח למשך 12 חודשים",
+		"taxYear": "2024",
+		"clientName": "שרה כהן",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "עיריית כרמיאל",
+		"movedHereDuringYearBoolean": false,
+		"startDate": "28/09/1993",
+		"endDate": "31/12/2024",
+		"documentType": "אישור תושב"
+	},
+	{
+		"fileId": "68b7f9353c568aebad5ad363",
+		"fileName": "2024/3VFRSD2OL5.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.00",
+		"receiptInteger": "621884",
+		"matchTag": "987654321",
+		"donationDate": "27/06/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f93d3c568aebad5ad364",
+		"fileName": "2024/79KOB9S5NN.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.0",
+		"receiptInteger": "586960",
+		"matchTag": "111222333",
+		"donationDate": "27/03/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f94a3c568aebad5ad365",
+		"fileName": "2024/7SPZ895UCR.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.00",
+		"receiptInteger": "661128",
+		"matchTag": "תרומה ללובי 99",
+		"donationDate": "27/09/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f9523c568aebad5ad366",
+		"fileName": "2024/BACH1LTP3H.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.00",
+		"receiptInteger": "598419",
+		"matchTag": "111222333",
+		"donationDate": "27/04/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f9533c568aebad5ad367",
+		"fileName": "2024/David_IBI_2024.pdf",
+		"type": "BrokerIBI867",
+		"noteText": "",
+		"taxYear": "2024",
+		"clientName": "דוד משה כהן                               ",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "אי.בי.אי. שרותי בורסה והשקעות",
+		"fields": {
+			"TaxDeductedAtSourceInterest_040": "655.0",
+			"DividendIncomeTaxedAtPercent15": "75.0",
+			"InterestIncomeTaxedAtPercent15": "473.0",
+			"DividendIncomeTaxedAtPercent20": "125.0",
+			"OffsetableLosses": "15.0",
+			"NumberOfDealsInteger": "1.0",
+			"TaxDeductedAtSourceDividend_040": "71.0",
+			"TaxDeductedAtSourceProfit_040": "39.0",
+			"ProfitIncomeTaxedAtPercent25": "173.0",
+			"TotalSales_256": "5809.0",
+			"DividendIncomeTaxedAtPercent25": "2193.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "500",
+		"accountNumber": "101234",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f9543c568aebad5ad368",
+		"fileName": "2024/DavidPepper867_2024.pdf",
+		"type": "BankPepper867",
+		"noteText": "",
+		"taxYear": "2024",
+		"clientName": "דוד משה כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק לאומי",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "142601.0",
+			"OffsetableLosses": "191.0",
+			"NumberOfDealsInteger": "7.0",
+			"TaxDeductedAtSourceDividend_040": "4.0",
+			"DividendFXIncomeTaxedAtPercent25": "22.0",
+			"TaxDeductedAtSourceProfit_040": "774.0",
+			"TaxDeductedAtSourceDeposit_043": "21391.0",
+			"ProfitIncomeTaxedAtPercent25": "3268.0",
+			"TotalSales_256": "7071.0",
+			"DividendIncomeTaxedAtPercent25": "56.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "300",
+		"accountNumber": "601123456",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f9543c568aebad5ad369",
+		"fileName": "2024/Davidאישור תושב לשנת 2025.pdf",
+		"type": "SettlementCertificate",
+		"noteText": "עבור עיריית כרמיאל בשנה 2024, יש הנחה של 7% עד 146640 שח למשך 12 חודשים",
+		"taxYear": "2024",
+		"clientName": "דוד משה כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "עיריית כרמיאל",
+		"movedHereDuringYearBoolean": false,
+		"startDate": "28/09/1993",
+		"endDate": "31/12/2025",
+		"documentType": "אישור תושב"
+	},
+	{
+		"fileId": "68b7f9553c568aebad5ad36a",
+		"fileName": "2024/CUX4C3S7R4.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.0",
+		"receiptInteger": "647425",
+		"matchTag": "444555666",
+		"donationDate": "27/08/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f9563c568aebad5ad36b",
+		"fileName": "2024/Donation_Receipt_903141.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע״מ (חל״צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.0",
+		"receiptInteger": "903141",
+		"matchTag": "777888999",
+		"donationDate": "27/11/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f95d3c568aebad5ad36c",
+		"fileName": "2024/Donation_Receipt_917382.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.00",
+		"receiptInteger": "917382",
+		"matchTag": "99",
+		"donationDate": "27/12/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f9643c568aebad5ad36d",
+		"fileName": "2024/G99VVPAW2O.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.0",
+		"receiptInteger": "575573",
+		"matchTag": "111222333",
+		"donationDate": "27/02/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f9703c568aebad5ad36e",
+		"fileName": "2024/idDavid.pdf",
+		"type": "PersonalIdentity",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד משה",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "מדינת ישראל",
+		"registeredTaxpayerBoolean": true,
+		"familyName": "כהן",
+		"maritalStatusOptions": "נשוי",
+		"genderOptions": "זכר",
+		"birthDate": "13/03/1962",
+		"newImmigrantArrivalDate": "",
+		"returningResidentReturnDate": "",
+		"children": [
+			{
+				"birthDate": "15/11/1989",
+				"caringForBoolean": true,
+				"noSecondParentBoolean": false,
+				"requestDelayOfPointsBoolean": false,
+				"requestUsePointsFromLastYearBoolean": false
+			},
+			{
+				"birthDate": "16/03/1990",
+				"caringForBoolean": true,
+				"noSecondParentBoolean": false,
+				"requestDelayOfPointsBoolean": false,
+				"requestUsePointsFromLastYearBoolean": false
+			},
+			{
+				"birthDate": "21/01/1997",
+				"caringForBoolean": true,
+				"noSecondParentBoolean": false,
+				"requestDelayOfPointsBoolean": false,
+				"requestUsePointsFromLastYearBoolean": false
+			}
+		],
+		"documentType": "תעודת זהות"
+	},
+	{
+		"fileId": "68b7f9713c568aebad5ad36f",
+		"fileName": "2024/idSarit.json",
+		"type": "PersonalIdentity",
+		"noteText": "s",
+		"taxYear": "2024",
+		"clientName": "שרה כהן",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "מדינת ישראל",
+		"registeredTaxpayerBoolean": false,
+		"familyName": "כהן",
+		"maritalStatusOptions": "נשוי",
+		"genderOptions": "נקבה",
+		"birthDate": "15/07/1969",
+		"newImmigrantArrivalDate": "",
+		"returningResidentReturnDate": "",
+		"children": [],
+		"documentType": "תעודת זהות"
+	},
+	{
+		"fileId": "68b7f9783c568aebad5ad370",
+		"fileName": "2024/IHFAY485SJ.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.00",
+		"receiptInteger": "564236",
+		"matchTag": "תרומה ללובי 99",
+		"donationDate": "27/01/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f9793c568aebad5ad371",
+		"fileName": "2024/JerusalemBankשמואל בלוסטון.json",
+		"type": "BankLeumi867",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את התוצאה",
+		"taxYear": "2024",
+		"clientName": "דוד משה כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק ירודשלים",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "8879.0",
+			"TaxDeductedAtSourceDeposit_043": "1332.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "400",
+		"accountNumber": "600123456",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f97a3c568aebad5ad372",
+		"fileName": "2024/JerusalemBankשמואל בלוסטון.pdf",
+		"type": "BankLeumi867",
+		"noteText": "מספר הזיהוי 123456789 אינו חוקי. המסמך לא יעבור עיבוד",
+		"taxYear": "2023",
+		"clientName": "מר דוד מ כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק ירושליים",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "8079.00",
+			"TaxDeductedAtSourceDeposit_043": "1332.00",
+			"NumberOfDealsInteger": "0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "400",
+		"accountNumber": "999",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f97b3c568aebad5ad373",
+		"fileName": "2024/mizrachi_897_2024.pdf",
+		"type": "BankMizrachi867",
+		"noteText": "",
+		"taxYear": "2024",
+		"clientName": "כהן דוד משה",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק מזרחי-טפחות בע\"מ",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "10043.0",
+			"TaxDeductedAtSourceDeposit_043": "1506.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "200",
+		"accountNumber": "123456",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f9833c568aebad5ad374",
+		"fileName": "2024/MVFP267H5X.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.00",
+		"receiptInteger": "634052",
+		"matchTag": "תרומה ללובי 99",
+		"donationDate": "27/07/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f98b3c568aebad5ad375",
+		"fileName": "2024/QUE5U06S2H.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.00",
+		"receiptInteger": "609990",
+		"matchTag": "111222333",
+		"donationDate": "27/05/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f98c3c568aebad5ad376",
+		"fileName": "2024/sarit_106_2024.pdf",
+		"type": "IsraelTax106",
+		"noteText": "",
+		"taxYear": "2024",
+		"clientName": "שרית כהן",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "מעביד",
+		"fields": {
+			"Salary_172_158": "5233.0",
+			"InsuredIncome_245_244": "4608.0",
+			"EmployerKupatGemel_249_248": "575.0",
+			"PersonalDeductionFundMember_086_045": "276.0"
+		},
+		"genericFields": [],
+		"employerTaxFileNumber": "444444444",
+		"monthsOfEmploymentInteger": "6",
+		"documentType": "טופס 106 מעביד"
+	},
+	{
+		"fileId": "68b7f98d3c568aebad5ad377",
+		"fileName": "2024/SaritPepper867_2024.pdf",
+		"type": "BankPepper867",
+		"noteText": "",
+		"taxYear": "2024",
+		"clientName": "שרה כהן",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "בנק לאומי",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "6169.0",
+			"TaxDeductedAtSourceDeposit_043": "926.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "300",
+		"accountNumber": "601234567",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f9933c568aebad5ad378",
+		"fileName": "2024/SWUUF8Y26D.pdf",
+		"type": "DonationReceipt",
+		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את ההתאמה למסמך",
+		"taxYear": "2024",
+		"clientName": "דוד כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "לובי 99 בע\"מ (חל\"צ)",
+		"explanationText": "קבלה תרומה",
+		"value": "25.00",
+		"receiptInteger": "674917",
+		"matchTag": "99",
+		"donationDate": "27/10/2024",
+		"nonProfitTaxFileNumber": "666666666",
+		"documentType": "קבלה תרומה"
+	},
+	{
+		"fileId": "68b7f9943c568aebad5ad379",
+		"fileName": "2024/Tax_Certification_20.03.2025_10.35.51.pdf",
+		"type": "BankHapoalim867",
+		"noteText": "",
+		"taxYear": "2024",
+		"clientName": "כהן דוד משה",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק הפועלים בע\"מ ",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "15153.0",
+			"TotalExemptInterestAndIndexLinkageDifference_209": "9388.0",
+			"TaxDeductedAtSourceDeposit_043": "8851.0",
+			"DepositIncomeTaxedAtPercent25_142": "33750.0"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": " 600",
+		"accountNumber": " 12345",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f9953c568aebad5ad37a",
+		"fileName": "2024/YEARLY_TAX_CONFIRMATION_STOCKS_19032025_2046-1.pdf",
+		"type": "BankDiscount867",
+		"noteText": "",
+		"taxYear": "2024",
+		"clientName": "כהן דוד משה",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "בנק דיסקונט",
+		"fields": {
+			"DepositIncomeTaxedAtPercent15_078": "453.33",
+			"ProfitIncomeTaxedAtPercent15": "10.0",
+			"OffsetableLosses": "2721.81",
+			"NumberOfDealsInteger": "20.0",
+			"TaxDeductedAtSourceDividend_040": "121.59",
+			"TaxDeductedAtSourceProfit_040": "170.23",
+			"DepositCurrentAccountIncomeTaxedAtPercent15_078": "0.29",
+			"ProfitIncomeTaxedAtPercent25": "3396.74",
+			"TaxDeductedAtSourceDeposit_043": "68.05",
+			"TotalSales_256": "92107.68",
+			"DividendIncomeTaxedAtPercent25": "486.36"
+		},
+		"matchTag": null,
+		"genericFields": [],
+		"branchCode": "100",
+		"accountNumber": " 0001234567",
+		"documentType": "טופס 867"
+	},
+	{
+		"fileId": "68b7f9963c568aebad5ad37b",
+		"fileName": "2024/אישור שנתי למס הכנסה לשנת 2024.pdf",
+		"type": "BituachLeumiUnemployment",
+		"noteText": "",
+		"taxYear": "2024",
+		"clientName": "מר דוד מ כהן",
+		"clientIdentificationNumber": "987654321",
+		"organizationName": "ביטוח לאומי",
+		"fields": {
+			"ReceivedFromNI_196_194": "77916.0",
+			"NationalInsuranceIncomeTaxDeduction_040": "2219.0"
+		},
+		"genericFields": [],
+		"employerTaxFileNumber": "222222222",
+		"monthsOfEmploymentInteger": "0",
+		"documentType": "אישור ביטוח לאומי"
+	},
+	{
+		"fileId": "68b7f9973c568aebad5ad37c",
+		"fileName": "2024/אישור תושב לשנת 2025 Sarit.pdf",
+		"type": "SettlementCertificate",
+		"noteText": "עבור עיריית כרמיאל בשנה 2024, יש הנחה של 7% עד 146640 שח למשך 12 חודשים",
+		"taxYear": "2024",
+		"clientName": "שרה כהן",
+		"clientIdentificationNumber": "123456789",
+		"organizationName": "עיריית כרמיאל",
+		"movedHereDuringYearBoolean": false,
+		"startDate": "28/09/1993",
+		"endDate": "31/12/2025",
+		"documentType": "אישור תושב"
+	}
+]</pre>
+        </div>
+
+        <footer>
+            <div style="text-align: center; margin-top: 40px; padding-top: 10px; border-top: 1px">
+                <a href="index.html" class="stnd-link">לדף הבית</a>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        nl_pos = "br";
+        nl_compact = "1";
+    </script>
+    <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+</body>
+</html>
