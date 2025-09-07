@@ -157,9 +157,6 @@ button {
 button:hover {
   background-color: var(--button-color-hover);
 }
-.loginout-button.logged-in {
-  background-color: var(--button-red);
-}
 
 h1 {
   color: var(--tax-blue);
@@ -3045,6 +3042,7 @@ a:not(.submit-instructions-button):visited {
 .update-customer-button {
   cursor: pointer;
   transition: background-color 0.3s ease;
+  color: var(--button-text);
 }
 
 .update-customer-button:hover:not(:disabled) {

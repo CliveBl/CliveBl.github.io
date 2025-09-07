@@ -48,7 +48,7 @@ const closeButton = document.querySelector(".close-button") as HTMLButtonElement
 const loginForm = document.querySelector(".login-form") as HTMLFormElement;
 const toggleButtons = document.querySelectorAll(".toggle-button") as NodeListOf<HTMLButtonElement>;
 const modalTitle = document.getElementById("modalTitle") as HTMLHeadingElement;
-const submitButton = document.getElementById("submitButton") as HTMLButtonElement;
+const loginSubmitButton = document.getElementById("loginSubmitButton") as HTMLButtonElement;
 const googleButtonText = document.getElementById("googleButtonText") as HTMLSpanElement;
 const githubButtonText = document.getElementById("githubButtonText") as HTMLSpanElement;
 const customerOverlay = document.getElementById("customerOverlay") as HTMLDivElement;
@@ -337,9 +337,9 @@ async function handleLoginFormSubmit(e: Event): Promise<void> {
   }
 
   try {
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = "מתחבר...";
+    if (loginSubmitButton) {
+      loginSubmitButton.disabled = true;
+      loginSubmitButton.textContent = "מתחבר...";
     }
 
     if (isSignup) {
@@ -364,9 +364,9 @@ async function handleLoginFormSubmit(e: Event): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : String(error);
     showErrorModal(translateError(errorMessage));
   } finally {
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.textContent = "התחבר";
+    if (loginSubmitButton) {
+      loginSubmitButton.disabled = false;
+      loginSubmitButton.textContent = "התחבר";
     }
   }
 }
@@ -661,18 +661,18 @@ function switchMode(mode: string): void {
   }
 
   // Update modal title and form
-  if (mode === "signup" && modalTitle && submitButton && googleButtonText && githubButtonText) {
+  if (mode === "signup" && modalTitle && loginSubmitButton && googleButtonText && githubButtonText) {
     modalTitle.textContent = "הרשמה";
     fullNameField.style.display = "block";
     fullNameInput.required = true;
-    submitButton.textContent = "הרשם";
+    loginSubmitButton.textContent = "הרשם";
     googleButtonText.textContent = "הירשם עם Google";
     githubButtonText.textContent = "הירשם עם GitHub";
-  } else if (modalTitle && submitButton && googleButtonText && githubButtonText) {
+  } else if (modalTitle && loginSubmitButton && googleButtonText && githubButtonText) {
     modalTitle.textContent = "התחברות";
     fullNameField.style.display = "none";
     fullNameInput.required = false;
-    submitButton.textContent = "התחבר";
+    loginSubmitButton.textContent = "התחבר";
     googleButtonText.textContent = "התחבר עם Google";
     githubButtonText.textContent = "התחבר עם GitHub";
   }
