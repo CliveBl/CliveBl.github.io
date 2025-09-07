@@ -1,0 +1,892 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>CGT Form JSON Data</title>
+	<meta name="description" content="CGT Configuration JSON Data Examples" />
+	<link rel="canonical" href="https://www.taxesil.top/cgt_api_configjson.html" />
+	<link rel="icon" type="image/x-icon" href="tax-day.ico" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
+	<link rel="stylesheet" href="css/index.css">
+	<style>
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 20px;
+			background: var(--bg-color);
+			color: var(--text-color);
+		}
+
+		.container {
+			max-width: 1400px;
+			margin: 0 auto;
+			background: var(--item-bg);
+			padding: 30px;
+			border-radius: 8px;
+			box-shadow: 0 2px 10px var(--modal-shadow);
+			border: 1px solid var(--border-color);
+		}
+
+		h1 {
+			color: var(--tax-blue);
+			border-bottom: 3px solid var(--button-color);
+			padding-bottom: 10px;
+			text-align: center;
+		}
+
+		.json-container {
+			background: var(--bg-color);
+			border: 1px solid var(--border-color);
+			border-radius: 5px;
+			padding: 20px;
+			margin: 20px 0;
+			overflow-x: auto;
+		}
+
+		pre {
+			margin: 0;
+			white-space: pre-wrap;
+			word-wrap: break-word;
+			font-family: 'Courier New', monospace;
+			font-size: 12px;
+			line-height: 1.4;
+		}
+
+		.note {
+			background: var(--warning-bg);
+			border: 1px solid var(--warning-border);
+			border-radius: 3px;
+			padding: 15px;
+			margin: 20px 0;
+		}
+
+		.note strong {
+			color: var(--warning-text);
+		}
+
+		footer {
+			margin-top: 10px;
+			padding-top: 10px;
+			border-top: 1px solid var(--border-color);
+			color: var(--message-text);
+			text-align: center;
+		}
+
+		/* Override external CSS for this page */
+		body {
+			direction: ltr !important;
+			text-align: left !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>CGT Form JSON Data Examples</h1>
+
+		<div class="note">
+			<strong>Note:</strong> This page contains example JSON data showing the structure of form data returned by
+			the CGT API.
+		</div>
+
+		<div class="json-container">
+			<pre>
+{
+	"supportedTaxYears": [
+		2024,
+		2023,
+		2022,
+		2021,
+		2020,
+		2019,
+		2018
+	],
+	"formTypes": [
+		{
+			"formType": "ServiceReleaseCertificate",
+			"formName": "תעודת שחרור/תעודת סיום שירות",
+			"userCanAdd": true,
+			"fieldTypes": []
+		},
+		{
+			"formType": "SettlementCertificate",
+			"formName": "אישור תושב",
+			"userCanAdd": true,
+			"fieldTypes": []
+		},
+		{
+			"formType": "EducationCertificate",
+			"formName": "אישור זכאות לתואר",
+			"userCanAdd": true,
+			"fieldTypes": []
+		},
+		{
+			"formType": "PersonalIdentity",
+			"formName": "תעודת זהות",
+			"userCanAdd": true,
+			"fieldTypes": []
+		},
+		{
+			"formType": "DisabilityCertificate",
+			"formName": "אישור נכה/עיוור",
+			"userCanAdd": true,
+			"fieldTypes": []
+		},
+		{
+			"formType": "DonationReceipt",
+			"formName": "קבלה תרומה",
+			"userCanAdd": true,
+			"fieldTypes": []
+		},
+		{
+			"formType": "StockPurchaseCommission",
+			"formName": "עמלת רכישת מניות",
+			"userCanAdd": false,
+			"fieldTypes": []
+		},
+		{
+			"formType": "BankMizrachi867",
+			"formName": "טופס 867",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "Generic867",
+			"formName": "טופס 867",
+			"userCanAdd": true,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "BrokerIBI867",
+			"formName": "טופס 867",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "BankDiscount867",
+			"formName": "טופס 867",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "BankHapoalim867",
+			"formName": "טופס 867",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "BankPepper867",
+			"formName": "טופס 867",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "IBICapital",
+			"formName": "מכתב ברוקר",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "BankLeumi867",
+			"formName": "טופס 867",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "IBICapitalBrokerLetter",
+			"formName": "מכתב ברוקר",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"DepositCurrentAccountIncomeTaxedAtPercent10_076",
+				"DepositCurrentAccountIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent10_076",
+				"DepositIncomeTaxedAtPercent15_078",
+				"DepositIncomeTaxedAtPercent20_126",
+				"DepositIncomeTaxedAtPercent23_232",
+				"DepositIncomeTaxedAtPercent25_142",
+				"DepositIncomeTaxedAtPercent35_053",
+				"DepositFXIncomeTaxedAtPercent15_078",
+				"DepositFXIncomeTaxedAtPercent20_126",
+				"DepositFXIncomeTaxedAtPercent25_142",
+				"DepositFXIncomeTaxedAtPercent23_232",
+				"DepositFXIncomeTaxedAtPercent35_053",
+				"ProfitIncomeTaxedAtPercent0",
+				"ProfitIncomeTaxedAtPercent15",
+				"ProfitIncomeTaxedAtPercent20",
+				"ProfitIncomeTaxedAtPercent25",
+				"ProfitIncomeTaxedAtPercent23",
+				"ProfitIncomeTaxedAtPercent30",
+				"ProfitIncomeTaxedAtPercent35",
+				"OffsetableLosses",
+				"TotalSales_256",
+				"NumberOfDealsInteger",
+				"TaxDeductedAtSourceProfit_040",
+				"DividendFXIncomeTaxedAtPercent0",
+				"DividendFXIncomeTaxedAtPercent4",
+				"DividendFXIncomeTaxedAtPercent15",
+				"DividendFXIncomeTaxedAtPercent20",
+				"DividendFXIncomeTaxedAtPercent25",
+				"DividendFXIncomeTaxedAtPercent23",
+				"DividendIncomeTaxedAtPercent0",
+				"DividendIncomeTaxedAtPercent4",
+				"DividendIncomeTaxedAtPercent15",
+				"DividendIncomeTaxedAtPercent20",
+				"DividendIncomeTaxedAtPercent25",
+				"DividendIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent0",
+				"InterestIncomeTaxedAtPercent10",
+				"InterestIncomeTaxedAtPercent15",
+				"InterestIncomeTaxedAtPercent20",
+				"InterestIncomeTaxedAtPercent25",
+				"InterestIncomeTaxedAtPercent23",
+				"InterestIncomeTaxedAtPercent35",
+				"TaxDeductedAtSourceDeposit_043",
+				"TaxDeductedAtSourceDividend_040",
+				"TaxDeductedAtSourceInterest_040",
+				"TotalExemptInterestAndIndexLinkageDifference_209",
+				"LossesTransferredFromPreviousYear"
+			]
+		},
+		{
+			"formType": "FormNewPensionFund",
+			"formName": "אישור מס עבור קרן פנסיה חדשה",
+			"userCanAdd": true,
+			"fieldTypes": [
+				"DepositToNewPensionFund_180_135",
+				"PersonalDeductionFundMember_086_045",
+				"EmployerKupatGemel_249_248"
+			]
+		},
+		{
+			"formType": "IBIStockPurchaseCommission",
+			"formName": "עמלת רכישת מניות",
+			"userCanAdd": false,
+			"fieldTypes": []
+		},
+		{
+			"formType": "IsraelTax106",
+			"formName": "טופס 106 מעביד",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"ReceivedFromNI_196_194",
+				"Salary_172_158",
+				"LeavingBonus_272_258",
+				"TaxFreeLeavingBonus_209",
+				"EducationFund_219_218",
+				"EmployerKupatGemel_249_248",
+				"InsuredIncome_245_244",
+				"IncomeTaxDeduction_042",
+				"Donations_237_037",
+				"PersonalDeductionFundMember_086_045",
+				"SettlementDiscount_327_287",
+				"ShiftAllowance_069_068",
+				"DepositToNewPensionFund_180_135",
+				"TemporarySalaryReductionRecuperationFund_012_011",
+				"SoldiersSalary_198_197",
+				"TaxFreeSalary_309_109"
+			]
+		},
+		{
+			"formType": "Mikpal106",
+			"formName": "טופס 106 מעביד",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"ReceivedFromNI_196_194",
+				"Salary_172_158",
+				"LeavingBonus_272_258",
+				"TaxFreeLeavingBonus_209",
+				"EducationFund_219_218",
+				"EmployerKupatGemel_249_248",
+				"InsuredIncome_245_244",
+				"IncomeTaxDeduction_042",
+				"Donations_237_037",
+				"PersonalDeductionFundMember_086_045",
+				"SettlementDiscount_327_287",
+				"ShiftAllowance_069_068",
+				"DepositToNewPensionFund_180_135",
+				"TemporarySalaryReductionRecuperationFund_012_011",
+				"SoldiersSalary_198_197",
+				"TaxFreeSalary_309_109"
+			]
+		},
+		{
+			"formType": "Simple106",
+			"formName": "טופס 106 מעביד",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"ReceivedFromNI_196_194",
+				"Salary_172_158",
+				"LeavingBonus_272_258",
+				"TaxFreeLeavingBonus_209",
+				"EducationFund_219_218",
+				"EmployerKupatGemel_249_248",
+				"InsuredIncome_245_244",
+				"IncomeTaxDeduction_042",
+				"Donations_237_037",
+				"PersonalDeductionFundMember_086_045",
+				"SettlementDiscount_327_287",
+				"ShiftAllowance_069_068",
+				"DepositToNewPensionFund_180_135",
+				"TemporarySalaryReductionRecuperationFund_012_011",
+				"SoldiersSalary_198_197",
+				"TaxFreeSalary_309_109"
+			]
+		},
+		{
+			"formType": "Generic106",
+			"formName": "טופס 106 מעביד",
+			"userCanAdd": true,
+			"fieldTypes": [
+				"NONE",
+				"ReceivedFromNI_196_194",
+				"Salary_172_158",
+				"LeavingBonus_272_258",
+				"TaxFreeLeavingBonus_209",
+				"EducationFund_219_218",
+				"EmployerKupatGemel_249_248",
+				"InsuredIncome_245_244",
+				"IncomeTaxDeduction_042",
+				"Donations_237_037",
+				"PersonalDeductionFundMember_086_045",
+				"SettlementDiscount_327_287",
+				"ShiftAllowance_069_068",
+				"DepositToNewPensionFund_180_135",
+				"TemporarySalaryReductionRecuperationFund_012_011",
+				"SoldiersSalary_198_197",
+				"TaxFreeSalary_309_109"
+			]
+		},
+		{
+			"formType": "HilanPre2023_106",
+			"formName": "טופס 106 מעביד",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"ReceivedFromNI_196_194",
+				"Salary_172_158",
+				"LeavingBonus_272_258",
+				"TaxFreeLeavingBonus_209",
+				"EducationFund_219_218",
+				"EmployerKupatGemel_249_248",
+				"InsuredIncome_245_244",
+				"IncomeTaxDeduction_042",
+				"Donations_237_037",
+				"PersonalDeductionFundMember_086_045",
+				"SettlementDiscount_327_287",
+				"ShiftAllowance_069_068",
+				"DepositToNewPensionFund_180_135",
+				"TemporarySalaryReductionRecuperationFund_012_011",
+				"SoldiersSalary_198_197",
+				"TaxFreeSalary_309_109"
+			]
+		},
+		{
+			"formType": "Hilan106",
+			"formName": "טופס 106 מעביד",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"ReceivedFromNI_196_194",
+				"Salary_172_158",
+				"LeavingBonus_272_258",
+				"TaxFreeLeavingBonus_209",
+				"EducationFund_219_218",
+				"EmployerKupatGemel_249_248",
+				"InsuredIncome_245_244",
+				"IncomeTaxDeduction_042",
+				"Donations_237_037",
+				"PersonalDeductionFundMember_086_045",
+				"SettlementDiscount_327_287",
+				"ShiftAllowance_069_068",
+				"DepositToNewPensionFund_180_135",
+				"TemporarySalaryReductionRecuperationFund_012_011",
+				"SoldiersSalary_198_197",
+				"TaxFreeSalary_309_109"
+			]
+		},
+		{
+			"formType": "Malam106",
+			"formName": "טופס 106 מעביד",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"ReceivedFromNI_196_194",
+				"Salary_172_158",
+				"LeavingBonus_272_258",
+				"TaxFreeLeavingBonus_209",
+				"EducationFund_219_218",
+				"EmployerKupatGemel_249_248",
+				"InsuredIncome_245_244",
+				"IncomeTaxDeduction_042",
+				"Donations_237_037",
+				"PersonalDeductionFundMember_086_045",
+				"SettlementDiscount_327_287",
+				"ShiftAllowance_069_068",
+				"DepositToNewPensionFund_180_135",
+				"TemporarySalaryReductionRecuperationFund_012_011",
+				"SoldiersSalary_198_197",
+				"TaxFreeSalary_309_109"
+			]
+		},
+		{
+			"formType": "Hilan2024_106",
+			"formName": "טופס 106 מעביד",
+			"userCanAdd": false,
+			"fieldTypes": [
+				"NONE",
+				"ReceivedFromNI_196_194",
+				"Salary_172_158",
+				"LeavingBonus_272_258",
+				"TaxFreeLeavingBonus_209",
+				"EducationFund_219_218",
+				"EmployerKupatGemel_249_248",
+				"InsuredIncome_245_244",
+				"IncomeTaxDeduction_042",
+				"Donations_237_037",
+				"PersonalDeductionFundMember_086_045",
+				"SettlementDiscount_327_287",
+				"ShiftAllowance_069_068",
+				"DepositToNewPensionFund_180_135",
+				"TemporarySalaryReductionRecuperationFund_012_011",
+				"SoldiersSalary_198_197",
+				"TaxFreeSalary_309_109"
+			]
+		},
+		{
+			"formType": "BituachLeumiUnemployment",
+			"formName": "אישור ביטוח לאומי",
+			"userCanAdd": true,
+			"fieldTypes": [
+				"ReceivedFromNI_196_194",
+				"NationalInsuranceIncomeTaxDeduction_040"
+			]
+		}
+	]
+}        
+</pre>
+		</div>
+
+		<footer>
+			<div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px">
+				<a href="index.html" class="stnd-link">לדף הבית</a>
+			</div>
+		</footer>
+	</div>
+
+	<script>
+		nl_pos = "br";
+		nl_compact = "1";
+	</script>
+	<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+</body>
+
+</html>
