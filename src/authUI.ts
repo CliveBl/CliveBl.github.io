@@ -152,10 +152,8 @@ function setupEventListeners(): void {
       customerOverlay.classList.add("active");
       loadCustomerList().then((customerList) => {
         populateCustomerSelect(customerList);
-        if (customerList.length == 0) {
-          updateCustomerButton.innerHTML = "צור";
-          updateCustomerButton.disabled = true;
-        }
+        updateCustomerButton.innerHTML = "צור";
+        updateCustomerButton.disabled = true;
         customerNameInput.disabled = false;
         customerNameInput.value = "";
       });
@@ -198,7 +196,7 @@ function setupEventListeners(): void {
         accountOverlay.classList.add("active");
         deleteConfirmationInput.value = "";
         deleteAccountButton.disabled = true;
-		userRoleSpan.textContent = "פרופיל: ";
+        userRoleSpan.textContent = "פרופיל: ";
         if (UserRole === "ROLE_ADMIN") {
           userRoleSpan.textContent += "מנהל";
         } else if (UserRole === "ROLE_USER") {
@@ -398,15 +396,13 @@ function handleCustomerSelectChange(): void {
     customerNameInput.value = customerSelect.value;
     updateCustomerButton.disabled = customerNameInput.value === selectedCustomerDataEntryName;
     customerNameInput.disabled = false;
+    updateCustomerButton.innerHTML = "עדכן";
     // If selecting an existing customer, switch to it immediately
     if (customerSelect.value !== selectedCustomerDataEntryName) {
       updateSelectedCustomer(customerSelect.value);
-      // Update the UI
-      //customerButton.textContent = translateCustomerDataEntryName(customerSelect.value);
       // Dismiss the customer overlay
       customerOverlay.classList.remove("active");
     }
-    updateCustomerButton.innerHTML = "עדכן";
   }
 }
 

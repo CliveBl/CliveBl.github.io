@@ -50,6 +50,8 @@ async function initializeUserSession() {
   await loadResults(false);
   restoreSelectedDocTypes();
   updateMissingDocuments();
+  // Pre-fill feedback email if user is logged in
+  feedbackEmail.value = SignedIn ? UserEmailValue : "";
 }
 
 // Update UI to show logged out state
@@ -2114,7 +2116,6 @@ async function copyTaxResults() {
         }),
       ]);
 
-      // Show visual feedback
       const copyButton = document.getElementById("copyTaxResultsBtn");
       if (copyButton) {
         const originalText = copyButton.innerHTML;
@@ -2141,7 +2142,6 @@ async function copyTaxResults() {
         document.execCommand("copy");
         document.body.removeChild(textarea);
 
-        // Show visual feedback
         const copyButton = document.getElementById("copyTaxResultsBtn");
         if (copyButton) {
           const originalText = copyButton.innerHTML;
@@ -2185,10 +2185,8 @@ async function initialize() {
   }
 
   // Pre-fill feedback email if user is logged in
-  if (SignedIn) {
-    feedbackEmail.value = UserEmailValue;
-    updateFeedbackButtonState();
-  }
+  feedbackEmail.value = SignedIn ? UserEmailValue : "";
+  updateFeedbackButtonState();
 
   // Add event listeners for document count selects
   document.querySelectorAll('select[id$="-count"]').forEach((select) => {
@@ -2346,7 +2344,7 @@ function isValidEmail(email: string) {
 
 // Function to update feedback button state
 function updateFeedbackButtonState() {
-  sendFeedbackButton.disabled = !isValidEmail(feedbackEmail.value) || !privacyCheckbox.checked;
+  sendFeedbackButton.disabled = !SignedIn || !isValidEmail(feedbackEmail.value) || !privacyCheckbox.checked;
 }
 
 // Add event listeners for both email input and privacy checkbox
