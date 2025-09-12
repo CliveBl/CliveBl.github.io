@@ -5,6 +5,7 @@ import { API_BASE_URL } from "./env.js";
 import {
   debug,
   is106TypeForm,
+  getTitle,
   getFriendlyName,
   getFriendlyOptions,
   getFriendlyOptionName,
@@ -67,17 +68,15 @@ const Generic106Item = {
 const saveAllButton = document.getElementById("saveAllButton") as HTMLButtonElement;
 
 function getEnabledSaveButtons() {
-	return Array.from(document.querySelectorAll('.form-action-button'))
-		.filter(button => {
-			const htmlButton = button as HTMLButtonElement;
-			return !htmlButton.disabled && htmlButton.textContent?.includes('שמור');
-		}) as HTMLButtonElement[];
+  return Array.from(document.querySelectorAll(".form-action-button")).filter((button) => {
+    const htmlButton = button as HTMLButtonElement;
+    return !htmlButton.disabled && htmlButton.textContent?.includes("שמור");
+  }) as HTMLButtonElement[];
 }
 
 export function hasUnsavedChanges() {
-	return getEnabledSaveButtons().length > 0;
+  return getEnabledSaveButtons().length > 0;
 }
-
 
 function customerMessageModal({
   title,
@@ -251,20 +250,19 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
     const itemArrayName: string = itemTitle.getAttribute("name") || "";
     // Get all item containers with the name attribute matching itemArrayName.
     const itemContainers = Array.from(accordionBody.querySelectorAll(".item-container") as NodeListOf<HTMLElement>).filter((container) => container.getAttribute("name") === itemArrayName);
-      updatedData[itemArrayName] = [];
-      // Iterate over all item containers and update the item data.
-      for (let i = 0; i < itemContainers.length; i++) {
-        const container = itemContainers[i];
-        const item: any = {};
-        const htmlElements: HTMLElement[] = Array.from(container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]"));
-        // Iterate over all html elements and populate an item with the field names and values from the controls.
-        for (const htmlElement of htmlElements) {
-          const fieldName = htmlElement.getAttribute("data-field-name") as string;
-          // Use the part of the field name after the /
-          item[fieldName.split("/")[1]] = getControlValue(htmlElement, fieldName);
-        }
-        updatedData[itemArrayName].push(item);
-      
+    updatedData[itemArrayName] = [];
+    // Iterate over all item containers and update the item data.
+    for (let i = 0; i < itemContainers.length; i++) {
+      const container = itemContainers[i];
+      const item: any = {};
+      const htmlElements: HTMLElement[] = Array.from(container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]"));
+      // Iterate over all html elements and populate an item with the field names and values from the controls.
+      for (const htmlElement of htmlElements) {
+        const fieldName = htmlElement.getAttribute("data-field-name") as string;
+        // Use the part of the field name after the /
+        item[fieldName.split("/")[1]] = getControlValue(htmlElement, fieldName);
+      }
+      updatedData[itemArrayName].push(item);
     }
   }
 
@@ -366,7 +364,6 @@ function setFieldNotChanged(field: HTMLElement) {
   }
 }
 
-
 // Helper functions for form operations
 async function updateForm(fileId: string, payload: any) {
   if (payload.fields) {
@@ -464,38 +461,6 @@ async function updateFormAPI(fileId: string, payload: any) {
   }
 }
 
-// function renderFields(fileData: any, accordianBody: HTMLDivElement, withAllFields = false) {
-//   // This is a simplified version - the full implementation is in the displayFileInfoInExpandableArea function
-//   // For now, we'll just clear and re-render the basic structure
-//   accordianBody.innerHTML = "";
-  
-//   // Create a simple container for the form fields
-//   const fieldsContainer = document.createElement("div");
-//   fieldsContainer.className = "form-fields-container";
-//   accordianBody.appendChild(fieldsContainer);
-  
-//   // Add action buttons
-//   const actionButtonsContainer = document.createElement("div");
-//   actionButtonsContainer.className = "action-buttons-container";
-  
-//   // Create simple save and cancel buttons
-//   const saveButton = document.createElement("button") as HTMLButtonElement;
-//   saveButton.type = "button";
-//   saveButton.className = "form-action-button";
-//   saveButton.disabled = true;
-//   saveButton.textContent = "שמור שינויים";
-  
-//   const cancelButton = document.createElement("button") as HTMLButtonElement;
-//   cancelButton.type = "button";
-//   cancelButton.className = "form-action-button";
-//   cancelButton.disabled = true;
-//   cancelButton.textContent = "ביטול שינויים";
-  
-//   actionButtonsContainer.appendChild(saveButton);
-//   actionButtonsContainer.appendChild(cancelButton);
-//   accordianBody.appendChild(actionButtonsContainer);
-// }
-
 function clearAllChanged(accordianBody: HTMLDivElement) {
   // Collect all inputs and controls
   const allElements = [
@@ -519,7 +484,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   // Store global variables for saveAllChanges function
   globalAllFilesData = allFilesData;
   globalBackupAllFilesData = backupAllFilesData;
-  
+
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLDivElement;
   if (!expandableArea) {
     console.error('Element with id "expandableAreaUploadFiles" not found!');
@@ -693,7 +658,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         toggleFieldsView(toggleLink);
       }
 
-	  let showAllVFields: boolean = false;
+      let showAllVFields: boolean = false;
       // For a form with variable fields we show a toggle link for displaying all fields
       if (fileData.fields && configurationData) {
         // If the configuration data shows that the form has less than five variable field types we will show
@@ -712,8 +677,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         accordianBody.appendChild(toggleLinkContainer);
         // For a new upload that has fields we show all variable fields.
         if (showAllVFields) {
-			debug("showAllVFields 1", showAllVFields);
-			// Store the withAllFields value for this file for use in saveAllChanges
+          debug("showAllVFields 1", showAllVFields);
+          // Store the withAllFields value for this file for use in saveAllChanges
           globalWithAllFieldsMap.set(fileData.fileId, true);
           // This will render, so skip it later to avoid doing it twice.
           toggleFieldsView(fieldsToggleLink);
@@ -753,7 +718,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
     }
   });
-
 
   function formatCurrencyWithSymbol(value: number) {
     let parts = value.toFixed(2).split(".");
@@ -968,6 +932,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       let fieldLabel = document.createElement("label") as HTMLLabelElement;
       fieldLabel.textContent = getFriendlyName(key);
+      const title = getTitle(key);
+      if (title) {
+        fieldLabel.title = title;
+      }
       fieldLabel.className = "field-labelx";
       fieldRow.appendChild(fieldLabel);
 
@@ -1023,8 +991,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         dropdown.appendChild(document.createTextNode(fieldValue.value));
         // Add options to the dropdown from the configuration data with NONE as the first option
         const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
-		// Create a copy of fieldTypes array and add NONE to the beginning
-		const fieldTypesWithNone = formDetails.fieldTypes ? ["NONE", ...formDetails.fieldTypes] : ["NONE"];
+        // Create a copy of fieldTypes array and add NONE to the beginning
+        const fieldTypesWithNone = formDetails.fieldTypes ? ["NONE", ...formDetails.fieldTypes] : ["NONE"];
 
         fieldTypesWithNone.forEach((option: string) => {
           const optionElement = document.createElement("option") as HTMLOptionElement;
@@ -1335,23 +1303,23 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   }
 
   // Called to clear the effect of the change handler
-//   function clearChanged(accordianBody: HTMLDivElement) {
-//     // Collect all inputs and controls
-//     const allElements = [
-//       ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
-//       ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
-//       ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || []),
-//     ];
-//     // Clear changed class from all inputs and controls
-//     allElements.forEach((element) => {
-//       element.classList.remove("changed");
-//       element.classList.remove("error");
-//     });
-//     // Disable save and cancel buttons
-//     accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
-//       (button as HTMLButtonElement).disabled = true;
-//     });
-//   }
+  //   function clearChanged(accordianBody: HTMLDivElement) {
+  //     // Collect all inputs and controls
+  //     const allElements = [
+  //       ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
+  //       ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
+  //       ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || []),
+  //     ];
+  //     // Clear changed class from all inputs and controls
+  //     allElements.forEach((element) => {
+  //       element.classList.remove("changed");
+  //       element.classList.remove("error");
+  //     });
+  //     // Disable save and cancel buttons
+  //     accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
+  //       (button as HTMLButtonElement).disabled = true;
+  //     });
+  //   }
   /* **************** display header for file info ******************** */
 
   function displayFileInfoHeader(expandableArea: HTMLDivElement, data: any) {
@@ -1510,7 +1478,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     };
   }
 
-
   async function displayFileInfoButtons(actionButtonsContainer: HTMLDivElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any, withAllFields: boolean) {
     // Create the save button
     const saveButton = document.createElement("button") as HTMLButtonElement;
@@ -1662,37 +1629,37 @@ export async function saveAllChanges() {
     let successCount = 0;
     let errorCount = 0;
 
-	// Display success modal
-	await customerMessageModal({
-		title: "שמירת נתונים",
-		message: `הנתונים נשמרו בהצלחה`,
-		button1Text: "",
-		button2Text: "",
-		});
+    // Display success modal
+    await customerMessageModal({
+      title: "שמירת נתונים",
+      message: `הנתונים נשמרו בהצלחה`,
+      button1Text: "",
+      button2Text: "",
+    });
     // Process each enabled save button
     for (const saveButton of enabledSaveButtons) {
       try {
         // Find the accordion body containing this save button
-        const accordianBody = saveButton.closest('.accordian-body') as HTMLDivElement;
+        const accordianBody = saveButton.closest(".accordian-body") as HTMLDivElement;
         if (!accordianBody) {
-          console.warn('Could not find accordion body for save button');
+          console.warn("Could not find accordion body for save button");
           errorCount++;
           continue;
         }
 
         // Find the accordion container to get fileData
-        const accordionContainer = accordianBody.closest('#accordionContainer') as HTMLDivElement;
+        const accordionContainer = accordianBody.closest("#accordionContainer") as HTMLDivElement;
         if (!accordionContainer) {
-          console.warn('Could not find accordion container for save button');
+          console.warn("Could not find accordion container for save button");
           errorCount++;
           continue;
         }
 
         // Get fileData from the accordion container's data attributes
-        const fileId = accordionContainer.getAttribute('data-file-id');
-        
+        const fileId = accordionContainer.getAttribute("data-file-id");
+
         if (!fileId) {
-          console.warn('Could not find fileId for accordion container');
+          console.warn("Could not find fileId for accordion container");
           errorCount++;
           continue;
         }
@@ -1710,13 +1677,13 @@ export async function saveAllChanges() {
 
         // Get form data from controls (same as line 1511)
         const formData = getDataFromControls(accordianBody, fileData);
-        
+
         // Update the form (same as line 1512)
         const updatedData = await updateForm(fileData.fileId, formData);
-        
+
         if (updatedData && Array.isArray(updatedData)) {
           successCount++;
-          
+
           // Update the backup data (similar to lines 1522-1535)
           const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
           if (formIndex !== -1) {
@@ -1730,34 +1697,31 @@ export async function saveAllChanges() {
               //renderFields(globalBackupAllFilesData[backupFormIndex], accordianBody, withAllFields);
             }
           }
-          
+
           // Clear changed state and update UI
           clearAllChanged(accordianBody);
         } else {
           errorCount++;
         }
       } catch (error) {
-        console.error('Error saving form:', error);
+        console.error("Error saving form:", error);
         errorCount++;
       }
     }
 
     // Update UI and show results
     fileModifiedActions(editableFileListHasEntries());
-    
+
     if (successCount > 0 && errorCount === 0) {
-		clearMessages();
-		addMessage(`כל השינויים נשמרו בהצלחה (${successCount} טפסים)`, "success");
+      clearMessages();
+      addMessage(`כל השינויים נשמרו בהצלחה (${successCount} טפסים)`, "success");
     } else if (successCount > 0 && errorCount > 0) {
       addMessage(`נשמרו ${successCount} טפסים, ${errorCount} שגיאות`, "warning");
     } else {
       addMessage("שגיאה בשמירת השינויים", "error");
     }
-
   } catch (error) {
-    console.error('Error in saveAllChanges:', error);
+    console.error("Error in saveAllChanges:", error);
     addMessage("שגיאה כללית בשמירת השינויים", "error");
   }
 }
-
-

@@ -132,7 +132,16 @@ const friendlyNames = {
   blindOrDisabledAndReceivingBenefitsBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה ומקבל גמלה ממשרד הבטחון/פעולות איבה"
 };
 
+const titles = {
+	registeredTaxpayerBoolean: "בדרך כלל זהו בן הזוג בעל השכר הגבוה ביותר. ניתן לבדוק ולשנות זאת בעת בקשה להגיש דו״ח לרשות המסים."
+};
+
 export const DEFAULT_CLIENT_ID_NUMBER = "000000000";
+
+export function getTitle(key: string) {
+	const title = titles[key as keyof typeof titles];
+	return title;
+}
 
 export function getFriendlyName(key: string) {
   const friendly = friendlyNames[key as keyof typeof friendlyNames];

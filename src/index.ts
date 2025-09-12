@@ -306,7 +306,6 @@ export async function testSharedFilesViaMessage(files: File[]): Promise<boolean>
   }
 }
 
-
 let editableFileList = sessionStorage.getItem("editableFileList") === "true";
 
 // Get references to DOM elements
@@ -1229,7 +1228,12 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
 
         // Open all files with their respective properties
         fileNames.forEach((fileName, index) => {
-          const property = properties[index] || null;
+          let property = null;
+          if (properties.length == 1) {
+            property = properties[0];
+          } else {
+            property = properties[index] || null;
+          }
           const shouldScrollTo = index === 0; // Only scroll to the first one
           openFileListEntryP(fileName, property, shouldScrollTo);
         });
@@ -1489,7 +1493,7 @@ saveAllButton.addEventListener("click", async () => {
       debug("no auth token");
       return;
     }
-	await saveAllChanges();
+    await saveAllChanges();
   } catch (error: unknown) {
     console.error("Save all failed:", error);
     addMessage("שגיאה בשמירת הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -1820,7 +1824,7 @@ export function addFileToList(fileInfo: any) {
                 if (itemKey.endsWith("Type")) {
                   itemField.innerHTML = formatNumber(itemKey, getFriendlyName(String(itemValue)));
                 } else if (itemKey.endsWith("Boolean")) {
-                  itemField.innerHTML = `<strong>${getFriendlyName(itemKey)}:</strong> ${itemValue ? "כן" : "לא"}`;
+                  itemField.innerHTML = `<strong>${getFriendlyName(itemKey)}:</strong> ${itemValue === "true" ? "כן" : "לא"}`;
                 } else {
                   itemField.innerHTML = formatNumber(itemKey, itemValue);
                 }
@@ -1855,7 +1859,7 @@ export function addFileToList(fileInfo: any) {
         } else if (key.endsWith("IdentificationNumber")) {
           field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${dummyIdNumber(String(value))}`;
         } else if (key.endsWith("Boolean")) {
-          field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value ? "כן" : "לא"}`;
+          field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value === "true" ? "כן" : "לא"}`;
         } else {
           field.innerHTML = `<strong>${getFriendlyName(key)}:</strong> ${value}`;
         }
@@ -2610,7 +2614,7 @@ async function toggleFileListView() {
 
 function translateError(error: string): string {
   const tranlationTable: Record<string, string> = {
-    // "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
+    "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
     "HTTP error! status: Bad credentials 401": "שם משתמש או סיסמה שגויים",
   };
   debug("translateError:", error);

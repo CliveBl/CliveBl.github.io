@@ -2908,6 +2908,7 @@ a:not(.submit-instructions-button):visited {
 
 .custom-checkbox.error {
   outline: none;
+  border-color: var(--error-border);
   background-color: var(--error-bg) !important;
 }
 
