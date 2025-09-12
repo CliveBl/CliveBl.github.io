@@ -64,6 +64,114 @@ const Generic106Item = {
   explanationText: "",
 };
 
+const saveAllButton = document.getElementById("saveAllButton") as HTMLButtonElement;
+
+function getEnabledSaveButtons() {
+	return Array.from(document.querySelectorAll('.form-action-button'))
+		.filter(button => {
+			const htmlButton = button as HTMLButtonElement;
+			return !htmlButton.disabled && htmlButton.textContent?.includes('שמור');
+		}) as HTMLButtonElement[];
+}
+
+export function hasUnsavedChanges() {
+	return getEnabledSaveButtons().length > 0;
+}
+
+
+function customerMessageModal({
+  title,
+  message,
+  button1Text,
+  button2Text = null,
+  displayTimeInSeconds = 1,
+}: {
+  title: string;
+  message: string;
+  button1Text: string;
+  button2Text?: string | null;
+  displayTimeInSeconds?: number;
+}) {
+  return new Promise((resolve) => {
+    // Remove any existing modal
+    const existingModal = document.getElementById("customModal");
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Create modal container
+    const timeModal = document.createElement("div");
+    timeModal.id = "customModal";
+
+    const timeModalContent = document.createElement("div");
+    timeModalContent.className = "time-modal-content";
+
+    const timeModalTitle = document.createElement("h2");
+    timeModalTitle.textContent = title;
+    timeModalTitle.className = "time-modal-title";
+    timeModalContent.appendChild(timeModalTitle);
+
+    const timeModalMessage = document.createElement("p");
+    timeModalMessage.textContent = message;
+    timeModalMessage.className = "time-modal-message";
+    timeModalContent.appendChild(timeModalMessage);
+
+    const timeModalButtonContainer = document.createElement("div") as HTMLDivElement;
+    timeModalButtonContainer.className = "time-modal-button-container";
+    timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
+
+    const timeModalCountdownText = document.createElement("p");
+    timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
+    timeModalCountdownText.className = "time-modal-countdown";
+    timeModalContent.appendChild(timeModalCountdownText);
+
+    // If displayTimeInSeconds > 0, hide buttons and auto-close
+    if (displayTimeInSeconds > 0) {
+      // Countdown update every second
+      let remainingTime = displayTimeInSeconds;
+      const countdownInterval = setInterval(() => {
+        remainingTime--;
+        timeModalCountdownText.textContent = `Closing in ${remainingTime} seconds...`;
+
+        if (remainingTime <= 0) {
+          clearInterval(countdownInterval);
+          timeModal.remove();
+          resolve(0); // Return 0 when auto-closing
+        }
+      }, 1000);
+    } else {
+      // Button 1
+      const timeModalButton1 = document.createElement("button") as HTMLButtonElement;
+      timeModalButton1.type = "button";
+      timeModalButton1.textContent = button1Text;
+      timeModalButton1.className = "time-modal-button";
+      timeModalButton1.onclick = () => {
+        timeModal.remove(); // Close modal
+        resolve(1); // Return 1 for first button clicked
+      };
+      timeModalButtonContainer.appendChild(timeModalButton1);
+
+      // Button 2 (if provided)
+      if (button2Text) {
+        const timeModalButton2 = document.createElement("button") as HTMLButtonElement;
+        timeModalButton2.type = "button";
+        timeModalButton2.textContent = button2Text;
+        timeModalButton2.className = "time-modal-button";
+        timeModalButton2.onclick = () => {
+          timeModal.remove(); // Close modal
+          resolve(2); // Return 2 for second button clicked
+        };
+        timeModalButtonContainer.appendChild(timeModalButton2);
+      }
+
+      timeModalContent.appendChild(timeModalButtonContainer);
+    }
+
+    timeModal.appendChild(timeModalContent);
+    document.body.appendChild(timeModal);
+  });
+}
+
 function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
   const updatedData = { ...fileData }; // Clone original fileData
 
@@ -143,7 +251,6 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
     const itemArrayName: string = itemTitle.getAttribute("name") || "";
     // Get all item containers with the name attribute matching itemArrayName.
     const itemContainers = Array.from(accordionBody.querySelectorAll(".item-container") as NodeListOf<HTMLElement>).filter((container) => container.getAttribute("name") === itemArrayName);
-    if (itemContainers.length > 0) {
       updatedData[itemArrayName] = [];
       // Iterate over all item containers and update the item data.
       for (let i = 0; i < itemContainers.length; i++) {
@@ -157,7 +264,7 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
           item[fieldName.split("/")[1]] = getControlValue(htmlElement, fieldName);
         }
         updatedData[itemArrayName].push(item);
-      }
+      
     }
   }
 
@@ -259,7 +366,160 @@ function setFieldNotChanged(field: HTMLElement) {
   }
 }
 
+
+// Helper functions for form operations
+async function updateForm(fileId: string, payload: any) {
+  if (payload.fields) {
+    // Remove fields with value "0.00"
+    const filteredFields = Object.fromEntries(Object.entries(payload.fields).filter(([_, value]) => value !== "0.00"));
+    payload.fields = filteredFields;
+    payload.fileId = fileId; // Ensure fileId is included in the payload
+    //debug("filtered fields", filteredFields);
+  }
+  return updateFormAPI(fileId, payload);
+}
+
+// Returns a new list with the fileId item updated with the new file data.
+function updateFormAllFields(allFilesData: any, fileId: string, fileType: string, newFileData: any, withAllFields: boolean) {
+  // Find the formType details
+  const formDetails = configurationData.formTypes.find((form) => form.formType === fileType) as { fieldTypes?: string[] };
+  if (!formDetails) {
+    console.error(`Form type '${fileType}' not found in configuration data.`);
+    return;
+  }
+
+  //debug(`Found form details for '${fileType}':`, formDetails);
+
+  // Ensure fieldTypes exist before iterating
+  if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
+    console.warn(`No fieldTypes found for '${fileType}'.`);
+  }
+
+  // Deep copy existing fields from fileData (excluding the `fields` object)
+  const updatedFileData = structuredClone(newFileData);
+  //delete existingData.fields; // Ensure we don't mix fields with other properties
+
+  // Initialize fieldsData reference to existing fields from fileData.fields
+  const fieldsData = updatedFileData.fields || {};
+
+  if (formDetails.fieldTypes) {
+    if (withAllFields) {
+      // Fill missing fields from configuration with default values
+      formDetails.fieldTypes.forEach((field) => {
+        if (!(field in fieldsData)) {
+          fieldsData[field] = "0.00"; // Default placeholder value
+        }
+      });
+    } else {
+      // Remove any fields with 0 value
+      Object.keys(fieldsData).forEach((key) => {
+        if (fieldsData[key] === "0.00") {
+          delete fieldsData[key];
+        }
+      });
+    }
+  }
+  // Create a new list of objects.
+  let updatedAllFilesData: any[] = [];
+  // Now clone data, (which is an array of file objects), into updatedData item by item.
+  allFilesData.forEach((file: any) => {
+    if (file.fileId === fileId) {
+      updatedAllFilesData.push(updatedFileData);
+    } else {
+      // Deep clone the file object
+      updatedAllFilesData.push(structuredClone(file));
+    }
+  });
+  return updatedAllFilesData;
+}
+
+async function updateFormAPI(fileId: string, payload: any) {
+  try {
+    // Construct the API URL
+    const URL = API_BASE_URL + "/updateForm";
+
+    // Send the POST request
+    const response = await fetch(URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        customerDataEntryName: selectedCustomerDataEntryName,
+        formAsJSON: payload,
+      }),
+    });
+
+    if (!(await handleResponse(response, "Failed to update form"))) {
+      return;
+    }
+
+    // Parse and handle the response
+    const responseData = await response.json();
+    return responseData;
+  } catch (error: any) {
+    clearMessages();
+    addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
+  }
+}
+
+// function renderFields(fileData: any, accordianBody: HTMLDivElement, withAllFields = false) {
+//   // This is a simplified version - the full implementation is in the displayFileInfoInExpandableArea function
+//   // For now, we'll just clear and re-render the basic structure
+//   accordianBody.innerHTML = "";
+  
+//   // Create a simple container for the form fields
+//   const fieldsContainer = document.createElement("div");
+//   fieldsContainer.className = "form-fields-container";
+//   accordianBody.appendChild(fieldsContainer);
+  
+//   // Add action buttons
+//   const actionButtonsContainer = document.createElement("div");
+//   actionButtonsContainer.className = "action-buttons-container";
+  
+//   // Create simple save and cancel buttons
+//   const saveButton = document.createElement("button") as HTMLButtonElement;
+//   saveButton.type = "button";
+//   saveButton.className = "form-action-button";
+//   saveButton.disabled = true;
+//   saveButton.textContent = "שמור שינויים";
+  
+//   const cancelButton = document.createElement("button") as HTMLButtonElement;
+//   cancelButton.type = "button";
+//   cancelButton.className = "form-action-button";
+//   cancelButton.disabled = true;
+//   cancelButton.textContent = "ביטול שינויים";
+  
+//   actionButtonsContainer.appendChild(saveButton);
+//   actionButtonsContainer.appendChild(cancelButton);
+//   accordianBody.appendChild(actionButtonsContainer);
+// }
+
+function clearAllChanged(accordianBody: HTMLDivElement) {
+  // Collect all inputs and controls
+  const allElements = [
+    ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
+    ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
+    ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || []),
+  ];
+  // Clear changed class from all inputs and controls
+  allElements.forEach((element) => {
+    element.classList.remove("changed");
+    element.classList.remove("error");
+  });
+  // Disable save and cancel buttons
+  accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
+    (button as HTMLButtonElement).disabled = true;
+  });
+  saveAllButton.disabled = true;
+}
+
 export async function displayFileInfoInExpandableArea(allFilesData: any, backupAllFilesData: any, isNewlyUploadedFile = false) {
+  // Store global variables for saveAllChanges function
+  globalAllFilesData = allFilesData;
+  globalBackupAllFilesData = backupAllFilesData;
+  
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLDivElement;
   if (!expandableArea) {
     console.error('Element with id "expandableAreaUploadFiles" not found!');
@@ -368,6 +628,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       accordionContainer.id = "accordionContainer";
       accordionContainer.className = "accordion-container";
       accordionContainer.setAttribute("data-doc-typename", fileData.documentType);
+      accordionContainer.setAttribute("data-file-id", fileData.fileId);
 
       const accordianheader = document.createElement("div") as HTMLDivElement;
       accordianheader.className = "accordion-header";
@@ -410,6 +671,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           toggleLink.textContent = addFieldsText;
         }
 
+        // Store the withAllFields value for this file for use in saveAllChanges
+        globalWithAllFieldsMap.set(fileData.fileId, showAllFields);
+
         // Render the new form with the data from the controls of the current form.
         const updatedData = updateFormAllFields(allFilesData, fileData.fileId, fileData.type, getDataFromControls(accordianBody, fileData), showAllFields);
         if (updatedData) {
@@ -448,6 +712,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         accordianBody.appendChild(toggleLinkContainer);
         // For a new upload that has fields we show all variable fields.
         if (showAllVFields) {
+			debug("showAllVFields 1", showAllVFields);
+			// Store the withAllFields value for this file for use in saveAllChanges
+          globalWithAllFieldsMap.set(fileData.fileId, true);
           // This will render, so skip it later to avoid doing it twice.
           toggleFieldsView(fieldsToggleLink);
         }
@@ -455,8 +722,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       if (!showAllVFields) {
         // For a form without variable fields or showAllFields is false. If showAllFields is true and it is
         // the last file in the year (probaly a new upload), we render the fields.
-        renderFields(fileData, accordianBody, isNewlyUploadedFile || fileData.fileId === lastFile.fileId);
-        debug("renderFields");
+        const withAllFields = isNewlyUploadedFile && fileData.fileId === lastFile.fileId;
+        // Store the withAllFields value for this file for use in saveAllChanges
+        globalWithAllFieldsMap.set(fileData.fileId, withAllFields);
+        renderFields(fileData, accordianBody, withAllFields);
       }
       accordionContainer.appendChild(accordianBody);
       yearBody.appendChild(accordionContainer);
@@ -485,103 +754,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     }
   });
 
-  async function updateForm(fileId: string, payload: any) {
-    if (payload.fields) {
-      // Remove fields with value "0.00"
-      const filteredFields = Object.fromEntries(Object.entries(payload.fields).filter(([_, value]) => value !== "0.00"));
-      payload.fields = filteredFields;
-      payload.fileId = fileId; // Ensure fileId is included in the payload
-      //debug("filtered fields", filteredFields);
-    }
-    return updateFormAPI(fileId, payload);
-  }
-
-  // Returns a new list with the fileId item updated with the new file data.
-  function updateFormAllFields(allFilesData: any, fileId: string, fileType: string, newFileData: any, withAllFields: boolean) {
-    // Find the formType details
-    const formDetails = configurationData.formTypes.find((form) => form.formType === fileType) as { fieldTypes?: string[] };
-    if (!formDetails) {
-      console.error(`Form type '${fileType}' not found in configuration data.`);
-      return;
-    }
-
-    //debug(`Found form details for '${fileType}':`, formDetails);
-
-    // Ensure fieldTypes exist before iterating
-    if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
-      console.warn(`No fieldTypes found for '${fileType}'.`);
-    }
-
-    // Deep copy existing fields from fileData (excluding the `fields` object)
-    const updatedFileData = structuredClone(newFileData);
-    //delete existingData.fields; // Ensure we don't mix fields with other properties
-
-    // Initialize fieldsData reference to existing fields from fileData.fields
-    const fieldsData = updatedFileData.fields || {};
-
-    if (formDetails.fieldTypes) {
-      if (withAllFields) {
-        // Fill missing fields from configuration with default values
-        formDetails.fieldTypes.forEach((field) => {
-          if (!(field in fieldsData)) {
-            fieldsData[field] = "0.00"; // Default placeholder value
-          }
-        });
-      } else {
-        // Remove any fields with 0 value
-        Object.keys(fieldsData).forEach((key) => {
-          if (fieldsData[key] === "0.00") {
-            delete fieldsData[key];
-          }
-        });
-      }
-    }
-    // Create a new list of objects.
-    let updatedAllFilesData: any[] = [];
-    // Now clone data, (which is an array of file objects), into updatedData item by item.
-    allFilesData.forEach((file: any) => {
-      if (file.fileId === fileId) {
-        updatedAllFilesData.push(updatedFileData);
-        // Replace the file in the backupAllFilesData array with the updated file data.
-        backupAllFilesData[backupAllFilesData.findIndex((form: any) => form.fileId === fileId)] = updatedFileData;
-      } else {
-        // Deep clone the file object
-        updatedAllFilesData.push(structuredClone(file));
-      }
-    });
-    return updatedAllFilesData;
-  }
-
-  async function updateFormAPI(fileId: string, payload: any) {
-    try {
-      // Construct the API URL
-      const URL = API_BASE_URL + "/updateForm";
-
-      // Send the POST request
-      const response = await fetch(URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: selectedCustomerDataEntryName,
-          formAsJSON: payload,
-        }),
-      });
-
-      if (!(await handleResponse(response, "Failed to update form"))) {
-        return;
-      }
-
-      // Parse and handle the response
-      const responseData = await response.json();
-      return responseData;
-    } catch (error: any) {
-      clearMessages();
-      addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
-    }
-  }
 
   function formatCurrencyWithSymbol(value: number) {
     let parts = value.toFixed(2).split(".");
@@ -616,6 +788,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     buttonsArray.forEach((button: HTMLButtonElement) => {
       button.disabled = false;
     });
+    saveAllButton.disabled = false;
   }
 
   function formatInput(key: string, input: HTMLInputElement, fieldValue: Value) {
@@ -790,7 +963,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     function createFieldRow(container: HTMLElement, itemTitle: string, index: number, key: string, fieldValue: Value) {
       // Skip fields already displayed in the header
       if (excludedHeaderFields.includes(key)) return;
-
       const fieldRow = document.createElement("div") as HTMLDivElement;
       fieldRow.className = "field-row";
 
@@ -849,10 +1021,12 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         dropdown.textContent = key;
         dropdown.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         dropdown.appendChild(document.createTextNode(fieldValue.value));
-        // Add options to the dropdown from the configuration data
+        // Add options to the dropdown from the configuration data with NONE as the first option
         const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
+		// Create a copy of fieldTypes array and add NONE to the beginning
+		const fieldTypesWithNone = formDetails.fieldTypes ? ["NONE", ...formDetails.fieldTypes] : ["NONE"];
 
-        formDetails.fieldTypes?.forEach((option: string) => {
+        fieldTypesWithNone.forEach((option: string) => {
           const optionElement = document.createElement("option") as HTMLOptionElement;
           optionElement.value = option;
           const optionText = getOptionTextWithTaxCode(option);
@@ -1161,23 +1335,23 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   }
 
   // Called to clear the effect of the change handler
-  function clearChanged(accordianBody: HTMLDivElement) {
-    // Collect all inputs and controls
-    const allElements = [
-      ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
-      ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
-      ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || []),
-    ];
-    // Clear changed class from all inputs and controls
-    allElements.forEach((element) => {
-      element.classList.remove("changed");
-      element.classList.remove("error");
-    });
-    // Disable save and cancel buttons
-    accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
-      (button as HTMLButtonElement).disabled = true;
-    });
-  }
+//   function clearChanged(accordianBody: HTMLDivElement) {
+//     // Collect all inputs and controls
+//     const allElements = [
+//       ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
+//       ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
+//       ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || []),
+//     ];
+//     // Clear changed class from all inputs and controls
+//     allElements.forEach((element) => {
+//       element.classList.remove("changed");
+//       element.classList.remove("error");
+//     });
+//     // Disable save and cancel buttons
+//     accordianBody.querySelectorAll(".form-action-button").forEach((button) => {
+//       (button as HTMLButtonElement).disabled = true;
+//     });
+//   }
   /* **************** display header for file info ******************** */
 
   function displayFileInfoHeader(expandableArea: HTMLDivElement, data: any) {
@@ -1336,98 +1510,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     };
   }
 
-  function customerMessageModal({
-    title,
-    message,
-    button1Text,
-    button2Text = null,
-    displayTimeInSeconds = 1,
-  }: {
-    title: string;
-    message: string;
-    button1Text: string;
-    button2Text?: string | null;
-    displayTimeInSeconds?: number;
-  }) {
-    return new Promise((resolve) => {
-      // Remove any existing modal
-      const existingModal = document.getElementById("customModal");
-      if (existingModal) {
-        existingModal.remove();
-      }
-
-      // Create modal container
-      const timeModal = document.createElement("div");
-      timeModal.id = "customModal";
-
-      const timeModalContent = document.createElement("div");
-      timeModalContent.className = "time-modal-content";
-
-      const timeModalTitle = document.createElement("h2");
-      timeModalTitle.textContent = title;
-      timeModalTitle.className = "time-modal-title";
-      timeModalContent.appendChild(timeModalTitle);
-
-      const timeModalMessage = document.createElement("p");
-      timeModalMessage.textContent = message;
-      timeModalMessage.className = "time-modal-message";
-      timeModalContent.appendChild(timeModalMessage);
-
-      const timeModalButtonContainer = document.createElement("div") as HTMLDivElement;
-      timeModalButtonContainer.className = "time-modal-button-container";
-      timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
-
-      const timeModalCountdownText = document.createElement("p");
-      timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
-      timeModalCountdownText.className = "time-modal-countdown";
-      timeModalContent.appendChild(timeModalCountdownText);
-
-      // If displayTimeInSeconds > 0, hide buttons and auto-close
-      if (displayTimeInSeconds > 0) {
-        // Countdown update every second
-        let remainingTime = displayTimeInSeconds;
-        const countdownInterval = setInterval(() => {
-          remainingTime--;
-          timeModalCountdownText.textContent = `Closing in ${remainingTime} seconds...`;
-
-          if (remainingTime <= 0) {
-            clearInterval(countdownInterval);
-            timeModal.remove();
-            resolve(0); // Return 0 when auto-closing
-          }
-        }, 1000);
-      } else {
-        // Button 1
-        const timeModalButton1 = document.createElement("button") as HTMLButtonElement;
-        timeModalButton1.type = "button";
-        timeModalButton1.textContent = button1Text;
-        timeModalButton1.className = "time-modal-button";
-        timeModalButton1.onclick = () => {
-          timeModal.remove(); // Close modal
-          resolve(1); // Return 1 for first button clicked
-        };
-        timeModalButtonContainer.appendChild(timeModalButton1);
-
-        // Button 2 (if provided)
-        if (button2Text) {
-          const timeModalButton2 = document.createElement("button") as HTMLButtonElement;
-          timeModalButton2.type = "button";
-          timeModalButton2.textContent = button2Text;
-          timeModalButton2.className = "time-modal-button";
-          timeModalButton2.onclick = () => {
-            timeModal.remove(); // Close modal
-            resolve(2); // Return 2 for second button clicked
-          };
-          timeModalButtonContainer.appendChild(timeModalButton2);
-        }
-
-        timeModalContent.appendChild(timeModalButtonContainer);
-      }
-
-      timeModal.appendChild(timeModalContent);
-      document.body.appendChild(timeModal);
-    });
-  }
 
   async function displayFileInfoButtons(actionButtonsContainer: HTMLDivElement, fileData: any, accordianBody: HTMLDivElement, allFilesData: any, withAllFields: boolean) {
     // Create the save button
@@ -1455,7 +1537,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       if (backupFormIndex !== -1) {
         // Replace the form in the allFilesData array with the form in the backupAllFilesData array
         renderFields(backupAllFilesData[backupFormIndex], accordianBody, withAllFields);
-        clearChanged(accordianBody);
+        clearAllChanged(accordianBody);
       }
     };
 
@@ -1533,7 +1615,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             renderFields(backupAllFilesData[backupFormIndex], accordianBody, withAllFields);
           }
         }
-        clearChanged(accordianBody);
+        clearAllChanged(accordianBody);
         fileModifiedActions(editableFileListHasEntries());
         clearMessages();
         addMessage("נתונים נשמרו בהצלחה", "success");
@@ -1555,3 +1637,127 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     addMessage("קובץ JSON נשמר בהצלחה", "success");
   }
 }
+
+// Global variables to store data for saveAllChanges function
+let globalAllFilesData: any = null;
+let globalBackupAllFilesData: any = null;
+let globalWithAllFieldsMap: Map<string, boolean> = new Map();
+
+export async function saveAllChanges() {
+  try {
+    // Check if we have the required data
+    if (!globalAllFilesData || !globalBackupAllFilesData) {
+      addMessage("נתונים לא זמינים לשמירה", "error");
+      return;
+    }
+
+    // Find all enabled save buttons
+    const enabledSaveButtons = getEnabledSaveButtons();
+
+    if (enabledSaveButtons.length === 0) {
+      addMessage("אין שינויים לשמירה", "info");
+      return;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+
+	// Display success modal
+	await customerMessageModal({
+		title: "שמירת נתונים",
+		message: `הנתונים נשמרו בהצלחה`,
+		button1Text: "",
+		button2Text: "",
+		});
+    // Process each enabled save button
+    for (const saveButton of enabledSaveButtons) {
+      try {
+        // Find the accordion body containing this save button
+        const accordianBody = saveButton.closest('.accordian-body') as HTMLDivElement;
+        if (!accordianBody) {
+          console.warn('Could not find accordion body for save button');
+          errorCount++;
+          continue;
+        }
+
+        // Find the accordion container to get fileData
+        const accordionContainer = accordianBody.closest('#accordionContainer') as HTMLDivElement;
+        if (!accordionContainer) {
+          console.warn('Could not find accordion container for save button');
+          errorCount++;
+          continue;
+        }
+
+        // Get fileData from the accordion container's data attributes
+        const fileId = accordionContainer.getAttribute('data-file-id');
+        
+        if (!fileId) {
+          console.warn('Could not find fileId for accordion container');
+          errorCount++;
+          continue;
+        }
+
+        // Find the fileData object from allFilesData
+        const fileData = globalAllFilesData.find((file: any) => file.fileId === fileId);
+        if (!fileData) {
+          console.warn(`Could not find fileData for fileId: ${fileId}`);
+          errorCount++;
+          continue;
+        }
+
+        // Get the withAllFields value for this file
+        const withAllFields = globalWithAllFieldsMap.get(fileId) || false;
+
+        // Get form data from controls (same as line 1511)
+        const formData = getDataFromControls(accordianBody, fileData);
+        
+        // Update the form (same as line 1512)
+        const updatedData = await updateForm(fileData.fileId, formData);
+        
+        if (updatedData && Array.isArray(updatedData)) {
+          successCount++;
+          
+          // Update the backup data (similar to lines 1522-1535)
+          const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
+          if (formIndex !== -1) {
+            const backupFormIndex = globalBackupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
+            if (backupFormIndex !== -1) {
+              const updatedBackupData = updateFormAllFields(globalBackupAllFilesData, fileData.fileId, fileData.type, updatedData[formIndex], withAllFields);
+              if (updatedBackupData) {
+                globalBackupAllFilesData[backupFormIndex] = updatedBackupData[backupFormIndex];
+              }
+              // Update the display
+              //renderFields(globalBackupAllFilesData[backupFormIndex], accordianBody, withAllFields);
+            }
+          }
+          
+          // Clear changed state and update UI
+          clearAllChanged(accordianBody);
+        } else {
+          errorCount++;
+        }
+      } catch (error) {
+        console.error('Error saving form:', error);
+        errorCount++;
+      }
+    }
+
+    // Update UI and show results
+    fileModifiedActions(editableFileListHasEntries());
+    
+    if (successCount > 0 && errorCount === 0) {
+		clearMessages();
+		addMessage(`כל השינויים נשמרו בהצלחה (${successCount} טפסים)`, "success");
+    } else if (successCount > 0 && errorCount > 0) {
+      addMessage(`נשמרו ${successCount} טפסים, ${errorCount} שגיאות`, "warning");
+    } else {
+      addMessage("שגיאה בשמירת השינויים", "error");
+    }
+
+  } catch (error) {
+    console.error('Error in saveAllChanges:', error);
+    addMessage("שגיאה כללית בשמירת השינויים", "error");
+  }
+}
+
+

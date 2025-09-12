@@ -1,6 +1,11 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR, ANONYMOUS_EMAIL } from "./constants.js";
 import { signInAnonymous, showInfoModal, showWarningModal, handleAuthResponse, SignedIn, UIVersion, ServerVersion, UserEmailValue, selectedCustomerDataEntryName, on } from "./authService.js";
 import { debug, DEFAULT_CLIENT_ID_NUMBER } from "./constants.js";
+// Import image utilities
+import { convertImageToBWAndResize } from "./imageUtils.js";
+import { cookieUtils } from "./cookieUtils.js";
+import { hasUnsavedChanges, saveAllChanges, displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from "./editor.js";
+import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
@@ -301,11 +306,6 @@ export async function testSharedFilesViaMessage(files: File[]): Promise<boolean>
   }
 }
 
-// Import image utilities
-import { convertImageToBWAndResize } from "./imageUtils.js";
-import { cookieUtils } from "./cookieUtils.js";
-import { displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from "./editor.js";
-import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
 
 let editableFileList = sessionStorage.getItem("editableFileList") === "true";
 
@@ -315,6 +315,7 @@ const fileList = document.getElementById("fileList") as HTMLUListElement;
 const folderInput = document.getElementById("folderInput") as HTMLInputElement;
 const processButton = document.getElementById("processButton") as HTMLButtonElement;
 const deleteAllButton = document.getElementById("deleteAllButton") as HTMLButtonElement;
+const saveAllButton = document.getElementById("saveAllButton") as HTMLButtonElement;
 const messageContainer = document.getElementById("messageContainer") as HTMLDivElement;
 const createFormSelect = document.getElementById("createFormSelect") as HTMLSelectElement;
 const feedbackEmail = document.getElementById("feedbackEmail") as HTMLInputElement;
@@ -327,6 +328,7 @@ const resultsList = document.getElementById("resultsList") as HTMLUListElement;
 export function updateButtons(hasEntries: boolean) {
   processButton.disabled = !hasEntries;
   deleteAllButton.disabled = !hasEntries;
+  saveAllButton.disabled = !hasEntries || !hasUnsavedChanges();
   updateBorderStyles(hasEntries);
 }
 
@@ -1480,6 +1482,19 @@ async function downloadResult(fileName: string) {
     addMessage("שגיאה בהורדת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
   }
 }
+
+saveAllButton.addEventListener("click", async () => {
+  try {
+    if (!SignedIn) {
+      debug("no auth token");
+      return;
+    }
+	await saveAllChanges();
+  } catch (error: unknown) {
+    console.error("Save all failed:", error);
+    addMessage("שגיאה בשמירת הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
+  }
+});
 
 // Update delete all handler - remove confirmation dialog
 deleteAllButton.addEventListener("click", async () => {

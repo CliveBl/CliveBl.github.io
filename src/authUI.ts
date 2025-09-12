@@ -686,9 +686,9 @@ export function populateCustomerSelect(customerData: { name: string; modified: n
   customerSelect.innerHTML = '<option value="">טוען...</option>';
 
   if (customerData && customerData.length > 0) {
-    customerSelect.innerHTML = '<option value="new">צור לקוח חדש</option>';
-    customerSelect.innerHTML += '<option value="duplicate">שכפל לקוח</option>';
-    customerSelect.innerHTML += '<option value="delete">מחק לקוח</option>';
+    customerSelect.innerHTML = '<option value="new">➕ צור לקוח חדש</option>';
+    customerSelect.innerHTML += '<option value="duplicate">&#128111; שכפל לקוח</option>';
+    customerSelect.innerHTML += '<option value="delete">🗑️ מחק לקוח</option>';
 
     customerData.forEach((customer) => {
       const option = document.createElement("option");

@@ -49,7 +49,10 @@ const friendlyNames = {
   Donations_237_037: "תרומות",
   NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
   TemporarySalaryReductionRecuperationFund_012_011: "השתתפות זמנית הפחתת דמי הבראה",
-  TaxFreeSalary_309_109: "שכר פטור ממס לאנשים עם מגבלות של 100%",
+  TaxFreeSalary_309_109: "שכרn פטור ממס לאנשים עם מגבלות של 100%",
+  SalaryForWhichNationalInsuranceisOwed: "שכר חייב בדמי ביטוח ",
+  NationalInsurancePaidForNoneWorkIncome_089_030: "דמי ביטוח לא מעבודה",
+  DeductionForLifeInsurance_081_036: "ניכוי לביטוח חיים",
   PersonalDeductionFundMember_086_045: "ניכוי אישי חבר קרן",
   SettlementDiscount_327_287: "הנחה ישוב",
   ShiftAllowance_069_068: "תוספת משמרות",
@@ -212,5 +215,5 @@ export const NO_YEAR = "ללא שנה";
 export const ANONYMOUS_EMAIL = "AnonymousEmail";
 
 export function is106TypeForm(fileData: any) {
-	return fileData.documentType === "טופס 106" || fileData.type === "FormNewPensionFund";
+	return fileData.documentType === "טופס 106 מעביד" || fileData.documentType === "אישור מס עבור קרן פנסיה חדשה" || fileData.type === "FormNewPensionFund";
 }

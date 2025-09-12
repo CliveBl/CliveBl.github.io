@@ -2906,6 +2906,11 @@ a:not(.submit-instructions-button):visited {
   margin: 0 4px 0 0;
 }
 
+.custom-checkbox.error {
+  outline: none;
+  background-color: var(--error-bg) !important;
+}
+
 .custom-radio {
   -webkit-appearance: none;
   -moz-appearance: none;
