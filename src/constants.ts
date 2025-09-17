@@ -129,11 +129,23 @@ const friendlyNames = {
   },
   genderOptions: { name: "מין", options: ["זכר", "נקבה"] },
   blindOrDisabledBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה",
-  blindOrDisabledAndReceivingBenefitsBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה ומקבל גמלה ממשרד הבטחון/פעולות איבה"
+  blindOrDisabledAndReceivingBenefitsBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה ומקבל גמלה ממשרד הבטחון/פעולות איבה",
+  disabledRelativeIdentificationNumber: "מספר זיהוי קרוב נטול יכולת",
+  disabledRelativeName: "שם קרוב נטול יכולת",
+  disabledRelativeBirthDate: "תאריך לידה קרוב נטול יכולת",
+  relationshipToDisabledText: "קשר לקרוב נטול יכולת",
+  paragraph44or45Options: { name: "מבקש זיכוי על פי סעיף לפקודה", options: ["סעיף 44", "סעיף 45"] },
+  totalInstitutionExpenses: "הוצאות מוסד סה״כ",
+  numberOfInstitutionReceiptsInteger: "מספר קבלות מוסד",
+  dependantIdentificationNumber: "מספר זיהוי בן המשפחה הנכה",
+  paymentDate: "תאריך תשלום"
 };
 
 const titles = {
-	registeredTaxpayerBoolean: "בדרך כלל זהו בן הזוג בעל השכר הגבוה ביותר. ניתן לבדוק ולשנות זאת בעת בקשה להגיש דו״ח לרשות המסים."
+	registeredTaxpayerBoolean: "בדרך כלל זהו בן הזוג בעל השכר הגבוה ביותר. ניתן לבדוק ולשנות זאת בעת בקשה להגיש דו״ח לרשות המסים.",
+	paragraph44or45Options: "סעיף 44 הוא לניכוי הוצאות ששולמו למוסד עבור קרוב נטול יכולת. סעיף 45 הוא לנקודת זיכוי מס.",
+	totalInstitutionExpenses: "רלוונטי רק לסעיף 44.",
+	numberOfInstitutionReceiptsInteger: "רלוונטי רק לסעיף 44."
 };
 
 export const DEFAULT_CLIENT_ID_NUMBER = "000000000";
