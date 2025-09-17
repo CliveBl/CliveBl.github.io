@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.30";
+export let UIVersion = "1.31";
 export let ServerVersion = "";
 
 // Customer management
@@ -503,12 +503,20 @@ export function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
-export function translateError(error: string): string {
-  const translationTable: Record<string, string> = {
+const tranlationTable: Record<string, string> = {
+    "NetworkError when attempting to fetch resource.": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
     "HTTP error! status: Bad credentials 401": "שם משתמש או סיסמה שגויים",
   };
-  debug("translateError:", error);
-  return translationTable[error] || error;
+  
+export function translateError(error: string): string {
+// Only translate the text after the : in the error message. Result should include the prefix of the error message.
+  const errorParts = error.split(":");
+  const errorMessage = errorParts.length > 1 ? errorParts[1].trim() : error.trim();
+  const errorPrefix = errorParts.length > 1 ? errorParts[0].trim() : "";
+  debug("translateError:", errorMessage);
+  debug("tranlationTable[errorMessage]:", tranlationTable[errorMessage]);
+  const translatedMessage = tranlationTable[errorMessage] || errorMessage;
+  return errorPrefix ? errorPrefix + ": " + translatedMessage : translatedMessage;
 }
 
 // Initialize customer data from storage

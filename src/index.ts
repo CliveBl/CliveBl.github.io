@@ -1,5 +1,5 @@
 import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR, ANONYMOUS_EMAIL } from "./constants.js";
-import { signInAnonymous, showInfoModal, showWarningModal, handleAuthResponse, SignedIn, UIVersion, ServerVersion, UserEmailValue, selectedCustomerDataEntryName, on } from "./authService.js";
+import { translateError,signInAnonymous, showInfoModal, showWarningModal, handleAuthResponse, SignedIn, UIVersion, ServerVersion, UserEmailValue, selectedCustomerDataEntryName, on } from "./authService.js";
 import { debug, DEFAULT_CLIENT_ID_NUMBER } from "./constants.js";
 // Import image utilities
 import { convertImageToBWAndResize } from "./imageUtils.js";
@@ -1166,57 +1166,56 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   const errorCodeToHelpId = {
     "^No106": "form106",
   };
-  const messageDiv = document.createElement("div");
+  const messageDiv : HTMLDivElement = document.createElement("div");
   messageDiv.className = "message-item";
   if (type) {
     messageDiv.classList.add(type);
   }
 
-  text = translateError(text);
-
-  const messageText = document.createElement("span");
-  messageText.className = "message-text";
+  let displayedText = text;
+  const messageTextSpan : HTMLSpanElement = document.createElement("span");
+  messageTextSpan.className = "message-text";
   // ^<message code> indicates a message code
   const messageCode = getMessageCode(text);
   if (messageCode) {
     // Eliminate the message code from the text
-    text = text.replace(`^${messageCode} `, "");
+    displayedText = displayedText.replace(`^${messageCode} `, "");
   }
-  messageText.textContent = text;
 
-  const dismissButton = document.createElement("button");
+  const dismissButton : HTMLButtonElement = document.createElement("button");
   dismissButton.className = "dismiss-button";
   dismissButton.textContent = "✕";
   dismissButton.addEventListener("click", () => {
     messageContainer.removeChild(messageDiv);
   });
 
-  messageDiv.appendChild(messageText);
+  messageDiv.appendChild(messageTextSpan);
   messageDiv.appendChild(dismissButton);
   messageContainer.appendChild(messageDiv);
 
   // If the message contains fileName= then make messageDiv a clickable link to the entry for that file in the filelist
-  if (text.includes("fileName=")) {
+  if (displayedText.includes("fileName=")) {
     // Extract all fileName= and property= pairs from the message
-    const fileNameMatches = text.match(/fileName=[^,]+/g);
-    const propertyMatches = text.match(/property=[^,]+/g);
+    const fileNameMatches = displayedText.match(/fileName=[^,]+/g);
+    const propertyMatches = displayedText.match(/property=[^,]+/g);
 
     if (fileNameMatches && fileNameMatches.length > 0) {
       // Clean up the display text by removing all fileName= and property= patterns
-      let cleanText = text;
+      let cleanText = displayedText;
       fileNameMatches.forEach((match) => {
         cleanText = cleanText.replace(match + ",", "").replace(match, "");
       });
       propertyMatches?.forEach((match) => {
         cleanText = cleanText.replace(match + ",", "").replace(match, "");
       });
-      messageText.textContent = cleanText;
+	  displayedText = cleanText;
+      messageTextSpan.textContent = displayedText;
 
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
 
       // Make the messageDiv a clickable link to open all files
-      messageText.addEventListener("click", async () => {
+      messageTextSpan.addEventListener("click", async () => {
         if (!editableFileList) {
           // switch to the editable file list view
           await toggleFileListView();
@@ -1247,22 +1246,23 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     if (faqId) {
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
-      messageText.className = "message-text-help";
+      messageTextSpan.className = "message-text-help";
       // Make the messageDiv a clickable link to the FAQ
-      messageText.addEventListener("click", () => {
+      messageTextSpan.addEventListener("click", () => {
         window.location.href = `faq.html#${faqId}`;
       });
     } else if (helpId) {
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
-      messageText.className = "message-text-help";
+      messageTextSpan.className = "message-text-help";
       // Make the messageDiv a clickable link to the help page
-      messageText.addEventListener("click", () => {
+      messageTextSpan.addEventListener("click", () => {
         window.location.href = `help.html#${helpId}`;
       });
     }
   }
-
+  const translatedText = translateError(displayedText);
+  messageTextSpan.textContent = translatedText;
   // Scroll to the bottom of the page if type is not "success" or "info"
   if (type !== "success" && type !== "info" && scrollToMessageSection) {
     window.scrollTo({
@@ -1270,7 +1270,6 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       behavior: "smooth",
     });
   }
-
   // If the message type is "error", append it to the feedbackMessage in the feedback section
   if (type === "error") {
     const timestamp = new Date().toLocaleTimeString();
@@ -2610,13 +2609,4 @@ async function toggleFileListView() {
   sessionStorage.setItem("editableFileList", editableFileList.toString());
   updateFileListView();
   await loadExistingFiles();
-}
-
-function translateError(error: string): string {
-  const tranlationTable: Record<string, string> = {
-    "NetworkError when attempting to fetch resource": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
-    "HTTP error! status: Bad credentials 401": "שם משתמש או סיסמה שגויים",
-  };
-  debug("translateError:", error);
-  return tranlationTable[error] || error;
 }
