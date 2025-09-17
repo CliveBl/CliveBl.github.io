@@ -1166,14 +1166,14 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   const errorCodeToHelpId = {
     "^No106": "form106",
   };
-  const messageDiv : HTMLDivElement = document.createElement("div");
+  const messageDiv: HTMLDivElement = document.createElement("div");
   messageDiv.className = "message-item";
   if (type) {
     messageDiv.classList.add(type);
   }
 
   let displayedText = text;
-  const messageTextSpan : HTMLSpanElement = document.createElement("span");
+  const messageTextSpan: HTMLSpanElement = document.createElement("span");
   messageTextSpan.className = "message-text";
   // ^<message code> indicates a message code
   const messageCode = getMessageCode(text);
@@ -1182,7 +1182,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     displayedText = displayedText.replace(`^${messageCode} `, "");
   }
 
-  const dismissButton : HTMLButtonElement = document.createElement("button");
+  const dismissButton: HTMLButtonElement = document.createElement("button");
   dismissButton.className = "dismiss-button";
   dismissButton.textContent = "✕";
   dismissButton.addEventListener("click", () => {
@@ -1208,7 +1208,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       propertyMatches?.forEach((match) => {
         cleanText = cleanText.replace(match + ",", "").replace(match, "");
       });
-	  displayedText = cleanText;
+      displayedText = cleanText;
       messageTextSpan.textContent = displayedText;
 
       // Add clickable class to show it's interactive
@@ -2473,10 +2473,15 @@ function restoreSelectedDocTypes() {
     }
 
     const fileInfoList = await response.json();
+    if (!editableFileList) {
+      // switch to the editable file list view without loading the existing files becaue we already have them in fileInfoList
+      await toggleFileListView(false);
+    }
     updateFileListP(fileInfoList, true); // true = new form creation
     updateMissingDocuments();
     clearResultsControls();
     clearMessages();
+
     // Jump to the last file in the file list
     openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName, null, true);
 
@@ -2604,9 +2609,11 @@ function updateFileListView() {
 }
 
 // If we are doing something after this we should await it.
-async function toggleFileListView() {
+async function toggleFileListView(loadExistingFilesBoolean = true) {
   editableFileList = !editableFileList;
   sessionStorage.setItem("editableFileList", editableFileList.toString());
   updateFileListView();
-  await loadExistingFiles();
+  if (loadExistingFilesBoolean) {
+    await loadExistingFiles();
+  }
 }
