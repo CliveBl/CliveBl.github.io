@@ -872,7 +872,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     } else if (key.endsWith("documentType")) {
       input.type = "text";
       input.value = fieldValue.value;
-      // Deal with this later
+	  if(fieldValue.value.length > 15) {
+		input.title = fieldValue.value;
+	  }     // Deal with this later
     } else {
       // 🟢 **Default: Currency Field (if no other condition matched)**
       input.type = "text";
