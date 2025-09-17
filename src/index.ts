@@ -2183,6 +2183,17 @@ async function copyTaxResults() {
 async function initialize() {
   const versionNumberElement = document.getElementById("versionNumber") as HTMLSpanElement;
   debug("initialize");
+  
+  // Check if user is on tax_return.html and redirect if privacy agreement not accepted
+  if (window.location.pathname.includes("tax_return.html")) {
+    const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
+    if (!disclaimerAccepted) {
+      console.log("Privacy agreement not accepted, redirecting to index.html");
+      window.location.href = "index.html";
+      return;
+    }
+  }
+  
   try {
     await loadConfiguration();
     versionNumberElement.textContent = `גרסה ${UIVersion}`;
