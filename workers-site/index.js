@@ -57,6 +57,27 @@ async function handleEvent(event) {
   //   return req
   // }
 
+  // Set cache control based on file type
+  if (url.pathname.endsWith('.html')) {
+    // HTML files: 4 hours (dynamic content)
+    options.cacheControl = {
+      browserTTL: 4 * 60 * 60, // 4 hours in seconds
+      edgeTTL: 4 * 60 * 60     // 4 hours in seconds
+    }
+  } else if (url.pathname.match(/\.(js|css)$/)) {
+    // JS/CSS files: 1 week (versioned/static assets)
+    options.cacheControl = {
+      browserTTL: 7 * 24 * 60 * 60, // 1 week in seconds
+      edgeTTL: 7 * 24 * 60 * 60     // 1 week in seconds
+    }
+  } else if (url.pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico)$/)) {
+    // Images: 1 month (rarely change)
+    options.cacheControl = {
+      browserTTL: 30 * 24 * 60 * 60, // 1 month in seconds
+      edgeTTL: 30 * 24 * 60 * 60     // 1 month in seconds
+    }
+  }
+
   try {
     if (DEBUG) {
       // customize caching
