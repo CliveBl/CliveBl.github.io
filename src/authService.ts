@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.31";
+export let UIVersion = "1.32";
 export let ServerVersion = "";
 
 // Customer management
@@ -156,11 +156,11 @@ export async function signIn(email: string, password: string): Promise<void> {
       throw new Error("Empty response from server");
     }
 
+    // Clear basic info cache since user state has changed
+    clearUserSession();
+
     const result = JSON.parse(text);
     UserEmailValue = result.email;
-
-    // Clear basic info cache since user state has changed
-    clearBasicInfoCache();
 
     updateSignInState(true);
     return;
@@ -504,12 +504,12 @@ export function isValidEmail(email: string): boolean {
 }
 
 const tranlationTable: Record<string, string> = {
-    "NetworkError when attempting to fetch resource.": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
-    "HTTP error! status: Bad credentials 401": "שם משתמש או סיסמה שגויים",
-  };
-  
+  "NetworkError when attempting to fetch resource.": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
+  "HTTP error! status: Bad credentials 401": "שם משתמש או סיסמה שגויים",
+};
+
 export function translateError(error: string): string {
-// Only translate the text after the : in the error message. Result should include the prefix of the error message.
+  // Only translate the text after the : in the error message. Result should include the prefix of the error message.
   const errorParts = error.split(":");
   const errorMessage = errorParts.length > 1 ? errorParts[1].trim() : error.trim();
   const errorPrefix = errorParts.length > 1 ? errorParts[0].trim() : "";
@@ -660,7 +660,7 @@ async function registerServiceWorker() {
 document.addEventListener("DOMContentLoaded", async () => {
   debug("AuthServiceDOMContentLoaded");
 
-//   await registerServiceWorker();
+  //   await registerServiceWorker();
 
   // Get and display version number
   try {
@@ -670,14 +670,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (basicInfo) {
       ServerVersion = basicInfo.productVersion;
       UserEmailValue = basicInfo.userEmail;
-	  if(basicInfo.userRole)
-	  {
-		UserRole = basicInfo.userRole;
-	  }
-	  else
-	  {
-		UserRole = "ROLE_USER";
-	  }
+      if (basicInfo.userRole) {
+        UserRole = basicInfo.userRole;
+      } else {
+        UserRole = "ROLE_USER";
+      }
       SignedIn = true;
 
       debug("Successfully got BasicInfo");
@@ -706,9 +703,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Share handler: Shared parameter:", shared);
   }
 
-//   if (shared) {
-//     window.location.href = "/share-handler.html";
-//   }
+  //   if (shared) {
+  //     window.location.href = "/share-handler.html";
+  //   }
 });
 
 // Basic info caching with session storage
