@@ -551,11 +551,34 @@ async function processFolderFiles(files: File[], button: HTMLInputElement, relat
       return true;
     });
 
-  if (validFiles.length === 0) {
+  // Helper function to generate a key for a file based solely on its base name (up to the first dot).
+  const getBaseFileNameKey = (file: File): string => {
+    const fileName = file.name;
+    const lastDotIndex = fileName.lastIndexOf('.');
+    return lastDotIndex !== -1 ? fileName.substring(0, lastDotIndex) : fileName;
+  };
+
+  // Identify all base file names that have a corresponding .json file within the validFiles list
+  const jsonBaseNameKeys = new Set<string>();
+  validFiles.forEach(file => {
+    if (file.name.endsWith(".json")) {
+      jsonBaseNameKeys.add(getBaseFileNameKey(file));
+    }
+  });
+
+  // Filter the files: keep .json files, or non-.json files that don't have a .json counterpart
+  // based on their base name (ignoring path).
+  const validFiles2 = validFiles.filter((file) => {
+    const fileKey = getBaseFileNameKey(file);
+    // Keep the file if it's a JSON file, OR if its base name does not have a corresponding JSON file.
+    return file.name.endsWith(".json") || !jsonBaseNameKeys.has(fileKey);
+  });
+
+  if (validFiles2.length === 0) {
     return;
   }
 
-  await uploadFilesWithProgress(validFiles);
+  await uploadFilesWithProgress(validFiles2);
 }
 
 // Add this function to update the file list from server response
