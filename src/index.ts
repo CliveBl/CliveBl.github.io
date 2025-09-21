@@ -554,13 +554,13 @@ async function processFolderFiles(files: File[], button: HTMLInputElement, relat
   // Helper function to generate a key for a file based solely on its base name (up to the first dot).
   const getBaseFileNameKey = (file: File): string => {
     const fileName = file.name;
-    const lastDotIndex = fileName.lastIndexOf('.');
+    const lastDotIndex = fileName.lastIndexOf(".");
     return lastDotIndex !== -1 ? fileName.substring(0, lastDotIndex) : fileName;
   };
 
   // Identify all base file names that have a corresponding .json file within the validFiles list
   const jsonBaseNameKeys = new Set<string>();
-  validFiles.forEach(file => {
+  validFiles.forEach((file) => {
     if (file.name.endsWith(".json")) {
       jsonBaseNameKeys.add(getBaseFileNameKey(file));
     }
@@ -2021,6 +2021,7 @@ async function calculateTax(fileName: string) {
     });
 
     if (!(await handleResponse(response, "Calculate tax failed"))) {
+      clearTaxResults();
       return;
     }
 
@@ -2031,11 +2032,12 @@ async function calculateTax(fileName: string) {
 
     // Store and display results with scroll
     displayTaxCalculation(result, taxCalcTaxYear, true);
-    // Add this function to store tax results
+    // Store tax results
     localStorage.setItem("taxResultsYear", taxCalcTaxYear);
     localStorage.setItem("taxResults", JSON.stringify(result));
   } catch (error: unknown) {
     console.error("Calculate tax failed:", error);
+    clearTaxResults();
     addMessage("שגיאה בחישוב המס: " + (error instanceof Error ? error.message : String(error)), "error");
   } finally {
     hideLoadingOverlay();
@@ -2206,7 +2208,7 @@ async function copyTaxResults() {
 async function initialize() {
   const versionNumberElement = document.getElementById("versionNumber") as HTMLSpanElement;
   debug("initialize");
-  
+
   // Check if user is on tax_return.html and redirect if privacy agreement not accepted
   if (window.location.pathname.includes("tax_return.html")) {
     const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
@@ -2216,7 +2218,7 @@ async function initialize() {
       return;
     }
   }
-  
+
   try {
     await loadConfiguration();
     versionNumberElement.textContent = `גרסה ${UIVersion}`;
