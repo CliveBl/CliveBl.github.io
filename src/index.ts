@@ -876,6 +876,18 @@ processButton.addEventListener("click", async () => {
     if (!SignedIn) {
       await signInAnonymous();
     }
+
+	if (hasUnsavedChanges()) {
+		// show a modal to the user to save the changes use the warning modal function
+		const confirmed = await showWarningModal("יש שינויים שלא נשמרו. האם ברצונך לשמור את השינויים?");
+		if (!confirmed) {
+			return;
+		}
+		else {
+			await saveAllChanges();
+		}
+    }
+
     showLoadingOverlay("מעבדת מסמכים...", {
       total: 30,
       unit: "שניות",

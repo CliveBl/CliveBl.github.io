@@ -39,7 +39,7 @@ const friendlyNames = {
   monthsOfEmploymentInteger: "חודשי עבודה",
   ReceivedFromNI_196_194: "התקבל מהמוסד לביטוח לאומי",
   Salary_172_158: "שכר עבודה",
-  LeavingBonus_272_258: "מענק פרישה",
+  LeavingBonus_272_258: "קצבאות ומענקי פרישה",
   TaxFreeLeavingBonus_209: "מענק פרישה פטור ממס",
   EducationFund_219_218: "השכר לקרן השתלמות",
   EmployerKupatGemel_249_248: "קופת גמל מעסיק",
