@@ -755,6 +755,41 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     saveAllButton.disabled = false;
   }
 
+  function isDateFormatValid(dateString: string): boolean {
+    const parsedDate = new Date(dateString);
+
+    // Check if the date is a valid date
+    return !isNaN(parsedDate.getTime());
+  }
+
+  function isDateValid(dateString: string): boolean {
+    const parsedDate = new Date(dateString);
+
+    const currentDate = new Date();
+    // Normalize current date to start of day for comparison
+    currentDate.setHours(0, 0, 0, 0);
+
+    // Normalize parsed date to start of day for comparison
+    parsedDate.setHours(0, 0, 0, 0);
+
+    // Check that it is not more than the current date (i.e., not in the future)
+    if (parsedDate > currentDate) {
+      return false;
+    }
+
+    // Check that it is not more than 100 years old
+    const hundredYearsAgo = new Date();
+    hundredYearsAgo.setFullYear(currentDate.getFullYear() - 100);
+    // Normalize hundredYearsAgo to start of day for comparison
+    hundredYearsAgo.setHours(0, 0, 0, 0);
+
+    if (parsedDate < hundredYearsAgo) {
+      return false;
+    }
+
+    return true;
+  }
+
   function formatInput(key: string, input: HTMLInputElement, fieldValue: Value) {
     if (key.endsWith("Name")) {
       if (!input.className) input.className = "field-text-input";
@@ -828,10 +863,16 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
       input.onblur = () => {
         if (input.value != "") {
-          const isValidDate = !isNaN(new Date(input.value).getTime());
-          if (!isValidDate) {
-            alert("Invalid date format " + input.value);
+          const isValidDateFormat: boolean = isDateFormatValid(input.value);
+          if (!isValidDateFormat) {
+            alert("פורמט תאריך לא חוקי. חייב להיות בפורמט dd/mm/yyyy " + input.value);
             input.value = "";
+          } else {
+            const isValidDate: boolean = isDateValid(input.value);
+            if (!isValidDate) {
+              alert("טווח תאריכים לא חוקי. מעל 100 שנים או בעתיד. " + input.value);
+              input.value = "";
+            }
           }
         }
       };
@@ -872,9 +913,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     } else if (key.endsWith("documentType")) {
       input.type = "text";
       input.value = fieldValue.value;
-	  if(fieldValue.value.length > 15) {
-		input.title = fieldValue.value;
-	  }     // Deal with this later
+      if (fieldValue.value.length > 15) {
+        input.title = fieldValue.value;
+      } // Deal with this later
     } else {
       // 🟢 **Default: Currency Field (if no other condition matched)**
       input.type = "text";
