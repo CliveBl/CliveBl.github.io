@@ -1197,6 +1197,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     "^NoIdentity": "faq-personal-details",
     "^LossesTransferred": "faq-calculations",
     "^TotalChildren": "faq-common-mistakes",
+    "^TaxCalc": "faq-calculation-failure"
   };
   const errorCodeToHelpId = {
     "^No106": "form106",
