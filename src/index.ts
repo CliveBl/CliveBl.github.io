@@ -1190,6 +1190,14 @@ function getMessageCode(text: string) {
   return text.match(/\^([^ ]+)/)?.[1];
 }
 
+function convertToHtml(text: string) {
+  // Convert newlines to <br> tags
+  text = text.replace(/\n/g, "<br>");
+  // Convert single-quoted text to bold
+  text = text.replace(/'([^']+)'/g, "<b>$1</b>");
+  return text;
+}
+
 // Update addMessage function to handle message types
 export function addMessage(text: string, type = "info", scrollToMessageSection = true) {
   // Map of error codes to faq ids
@@ -1241,11 +1249,11 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       fileNameMatches.forEach((match) => {
         cleanText = cleanText.replace(match + ",", "").replace(match, "");
       });
-      propertyMatches?.forEach((match) => {
-        cleanText = cleanText.replace(match + ",", "").replace(match, "");
+      propertyMatches?.forEach((match, index) => {
+        // Replace the property match with optional comma in one operation
+        cleanText = cleanText.replace(new RegExp(match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ',?', 'g'), "");
       });
       displayedText = cleanText;
-      messageTextSpan.textContent = displayedText;
 
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
@@ -1298,7 +1306,8 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     }
   }
   const translatedText = translateError(displayedText);
-  messageTextSpan.textContent = translatedText;
+  const translatedTextWithHtml = convertToHtml(translatedText);
+  messageTextSpan.innerHTML = translatedTextWithHtml;
   // Scroll to the bottom of the page if type is not "success" or "info"
   if (type !== "success" && type !== "info" && scrollToMessageSection) {
     window.scrollTo({
