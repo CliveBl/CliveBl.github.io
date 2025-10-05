@@ -579,12 +579,8 @@ ul {
 
 .forgot-password-link a {
   color: var(--link-color);
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.forgot-password-link a:hover {
   text-decoration: underline;
+  font-size: 14px;
 }
 
 .login-submit {
@@ -1991,10 +1987,6 @@ input#feedbackEmail {
   display: flex;
   align-items: center;
   gap: 4px;
-  text-decoration: none;
-}
-
-.more-info-link:hover {
   text-decoration: underline;
 }
 
@@ -2552,9 +2544,6 @@ a:not(.submit-instructions-button):visited {
   font-size: 14px;
   cursor: pointer;
   transition: color 0.3s ease;
-}
-
-.file-list-toggle-link:hover {
   text-decoration: underline;
 }
 
@@ -2568,14 +2557,11 @@ a:not(.submit-instructions-button):visited {
   font-size: 14px;
   cursor: pointer;
   transition: color 0.3s ease;
+  text-decoration: underline;
 }
 
 .fields-toggle-link:visited {
   color: var(--link-color-visited);
-}
-
-.fields-toggle-link:hover {
-  text-decoration: underline;
 }
 
 .read-only-field-value {
@@ -2981,15 +2967,10 @@ a:not(.submit-instructions-button):visited {
 .stnd-link,
 .help-link {
   color: var(--link-color);
-  text-decoration: none;
+  text-decoration: underline;
   transition: color 0.3s ease;
   margin-right: auto;
   margin-left: 10px;
-}
-
-.stnd-link:hover,
-.help-link:hover {
-  text-decoration: underline;
 }
 
 .stnd-link:visited,
