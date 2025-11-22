@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.40";
+export let UIVersion = "1.41";
 export let ServerVersion = "";
 
 // Customer management
@@ -103,7 +103,7 @@ export async function signInAnonymous(): Promise<void> {
     if (!response.ok) {
       const errorData = await response.json();
       debug(errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
+      throw new Error(`${errorData.detail} ${response.status}`);
     }
 
     const result = await response.json();
@@ -148,7 +148,7 @@ export async function signIn(email: string, password: string): Promise<void> {
     if (!response.ok) {
       const errorData = await response.json();
       debug("Sign in error response:", errorData);
-      throw new Error(`HTTP error! status: ${errorData.detail} ${response.status}`);
+      throw new Error(`${errorData.detail} ${response.status}`);
     }
 
     const text = await response.text();
@@ -257,7 +257,7 @@ export async function loadCustomerList(forceRefresh = false): Promise<{ name: st
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`${response.status}`);
     }
 
     const customerData = await response.json();
@@ -505,7 +505,7 @@ export function isValidEmail(email: string): boolean {
 
 const tranlationTable: Record<string, string> = {
   "NetworkError when attempting to fetch resource.": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
-  "HTTP error! status: Bad credentials 401": "שם משתמש או סיסמה שגויים",
+  "Bad credentials 401": "שם משתמש או סיסמה שגויים",
 };
 
 export function translateError(error: string): string {
@@ -527,8 +527,9 @@ export function initializeCustomerData(): void {
 // Return true if the response is ok, false if we signed out otherwise throw an exception..
 export async function handleAuthResponse(response: any, errorMessage: string) {
   if (!response.ok) {
+    // Can throw an exception here if there is no data to parse.
+    debug("handleAuthResponse:", errorMessage, response);
     const errorData = await response.json();
-    debug(errorData);
 
     if (errorData.detail.includes("JWT")) {
       signOut();
@@ -666,7 +667,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     UserEmailValue = "";
 
-    const basicInfo = await getBasicInfo();
+    const basicInfo = await getBasicInfo(true);
     if (basicInfo) {
       ServerVersion = basicInfo.productVersion;
       UserEmailValue = basicInfo.userEmail;
@@ -739,27 +740,27 @@ export async function getBasicInfo(forceRefresh = false): Promise<any> {
       ...fetchConfig,
     });
 
-    if (response.ok) {
-      const data = await response.json();
-
-      // Cache the data
-      sessionStorage.setItem(BASIC_INFO_CACHE_KEY, JSON.stringify(data));
-      sessionStorage.setItem(BASIC_INFO_TIMESTAMP_KEY, Date.now().toString());
-
-      //debug("Successfully cached basic info");
-      return data;
-    } else {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (!(await handleAuthResponse(response, "Failed to fetch basic info"))) {
+      return null;
     }
+
+    const data = await response.json();
+
+    // Cache the data
+    sessionStorage.setItem(BASIC_INFO_CACHE_KEY, JSON.stringify(data));
+    sessionStorage.setItem(BASIC_INFO_TIMESTAMP_KEY, Date.now().toString());
+
+    //debug("Successfully cached basic info");
+    return data;
   } catch (error) {
-    console.error("Failed to fetch basic info:", error);
+    console.error("Failed to fetch basic info errror:", error);
 
     // Return cached data if available, even if stale
-    const cached = sessionStorage.getItem(BASIC_INFO_CACHE_KEY);
-    if (cached) {
-      debug("Returning stale cached basic info due to fetch error");
-      return JSON.parse(cached);
-    }
+    // const cached = sessionStorage.getItem(BASIC_INFO_CACHE_KEY);
+    // if (cached) {
+    //   debug("Returning stale cached basic info due to fetch error");
+    //   return JSON.parse(cached);
+    // }
 
     throw error;
   }

@@ -677,7 +677,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         accordianBody.appendChild(toggleLinkContainer);
         // For a new upload that has fields we show all variable fields.
         if (showAllVFields) {
-          debug("showAllVFields 1", showAllVFields);
           // Store the withAllFields value for this file for use in saveAllChanges
           globalWithAllFieldsMap.set(fileData.fileId, true);
           // This will render, so skip it later to avoid doing it twice.

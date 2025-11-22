@@ -49,6 +49,7 @@ const loginForm = document.querySelector(".login-form") as HTMLFormElement;
 const toggleButtons = document.querySelectorAll(".toggle-button") as NodeListOf<HTMLButtonElement>;
 const modalTitle = document.getElementById("modalTitle") as HTMLHeadingElement;
 const loginSubmitButton = document.getElementById("loginSubmitButton") as HTMLButtonElement;
+const loginPasswordVisibleToggleButton = document.getElementById("loginPasswordVisibleToggleButton") as HTMLButtonElement;
 const googleButtonText = document.getElementById("googleButtonText") as HTMLSpanElement;
 const githubButtonText = document.getElementById("githubButtonText") as HTMLSpanElement;
 const customerOverlay = document.getElementById("customerOverlay") as HTMLDivElement;
@@ -121,6 +122,11 @@ function setupEventListeners(): void {
       });
     });
   }
+
+  loginPasswordVisibleToggleButton.addEventListener("click", () => {
+    const passwordInput = document.getElementById("loginPassword") as HTMLInputElement;
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+  });
 
   on("signInChanged", () => {
     updateSignInUI();

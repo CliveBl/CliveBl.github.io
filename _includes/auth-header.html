@@ -35,7 +35,10 @@
         <div id="fullNameField" style="display: none">
           <input type="text" id="fullName" autocomplete="name" placeholder="שם מלא" />
         </div>
-        <input type="password" id="loginPassword" autocomplete="current-password" placeholder="סיסמה" required />
+        <div class="password-input-group">
+          <input type="password" id="loginPassword" autocomplete="current-password" placeholder="סיסמה" required />
+          <button type="button" id="loginPasswordVisibleToggleButton" class="login-password-toggle" title="הצג/הסתר סיסמה">👁️</button>
+        </div>
         <button type="submit" id="loginSubmitButton" class="loginout-button">התחבר</button>
         <div class="forgot-password-link">
           <a href="#" id="forgotPasswordLink" class="stnd-link">שכחתי סיסמה</a>
@@ -197,6 +200,7 @@
       <form class="login-form" id="passwordForm">
         <label for="passwordInput" id="passwordMessage"></label>
         <input type="password" id="passwordInput" placeholder="הכנס סיסמה" />
+        <button type="button" id="passwordVisibletoggleButton" class="password-toggle" title="הצג/הסתר סיסמה">👁️</button>
       </form>
     </div>
     <div class="modal-footer">

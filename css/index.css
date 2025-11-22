@@ -2707,6 +2707,31 @@ a:not(.submit-instructions-button):visited {
 }
 
 /* Password toggle button styles */
+.password-input-group {
+	position: relative;
+}
+
+
+.login-password-toggle {
+	position: absolute;
+	/* right: 10px; */
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 16px;
+	padding: 5px;
+	border-radius: 3px;
+	transition: background-color 0.2s ease;
+	z-index: 10;
+}
+  
+  .login-password-toggle:hover {
+	background-color: var(--hover-overlay);
+  }
+
+/* Password toggle button styles */
 .password-toggle {
   position: absolute;
   right: 10px;

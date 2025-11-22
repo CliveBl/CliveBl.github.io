@@ -1003,26 +1003,11 @@ function showPasswordModal(fileName: string) {
     const modal = document.getElementById("passwordModal") as HTMLDivElement;
     const passwordInput = document.getElementById("passwordInput") as HTMLInputElement;
 
-    // Create password toggle button if it doesn't exist
-    let toggleButton = modal.querySelector(".password-toggle") as HTMLButtonElement;
-    if (!toggleButton) {
-      toggleButton = document.createElement("button");
-      toggleButton.type = "button";
-      toggleButton.className = "password-toggle";
-      toggleButton.innerHTML = "👁️"; // Eye icon
-      toggleButton.title = "הצג/הסתר סיסמה";
-
-      // Insert the toggle button after the password input
-      const passwordContainer = passwordInput.parentElement;
-      if (passwordContainer) {
-        passwordContainer.style.position = "relative";
-        passwordContainer.appendChild(toggleButton);
-      }
-    }
+    const passwordVisibletoggleButton = document.getElementById("passwordVisibletoggleButton") as HTMLButtonElement;
 
     // Add toggle functionality
     let isPasswordVisible = false;
-    toggleButton.onclick = () => {
+    passwordVisibletoggleButton.onclick = () => {
       isPasswordVisible = !isPasswordVisible;
       passwordInput.type = isPasswordVisible ? "text" : "password";
       //toggleButton.innerHTML = isPasswordVisible ? "👁️" : "👁️"; // Change icon based on state
