@@ -587,9 +587,6 @@ function updateFileList(fileInfoList: FileInfo[], isNewUpload = false) {
   // Store the latest fileInfoList for later reference
   latestFileInfoList = fileInfoList;
 
-  const fileList = document.getElementById("fileList");
-  if (!fileList) return;
-
   // Clear existing list
   fileList.innerHTML = "";
 
@@ -2630,10 +2627,9 @@ function initializeDocumentIcons() {
 
 function updateFileListView() {
   const toggleLink = document.getElementById("toggleFileListView") as HTMLAnchorElement;
-  const fileList = document.getElementById("fileList") as HTMLElement;
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLElement;
 
-  if (!toggleLink || !fileList || !expandableArea) {
+  if (!toggleLink || !expandableArea) {
     console.error("Required elements not found");
     return;
   }
