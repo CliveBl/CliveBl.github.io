@@ -1,3 +1,16 @@
-User-agent: *
+Sitemap: https://taxesil.top/sitemap.xml
+# Block Google's generative AI training
+User-agent: Google-Extended
 Disallow: /tax_return.html
-Sitemap: /sitemap.xml
+
+# Block OpenAI's GPT models
+User-agent: GPTBot
+Disallow: /tax_return.html
+
+# Block Anthropic's Claude models
+User-agent: ClaudeBot
+Disallow: /tax_return.html
+
+# Block Common Crawl (data used by many AI models)
+User-agent: CCBot
+Disallow: /tax_return.html
