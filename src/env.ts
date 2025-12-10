@@ -1,7 +1,7 @@
 const ENV = {
 	development: {
-	  API_BASE_URL: "https://localhost:8443/api/v1",
-	  AUTH_BASE_URL: "https://localhost:8443/auth",
+	  API_BASE_URL: "https://localhost:443/api/v1",
+	  AUTH_BASE_URL: "https://localhost:443/auth",
 	},
 	production: {
 	  API_BASE_URL: "https://srv.taxesil.top:8443/api/v1",
