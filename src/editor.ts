@@ -807,6 +807,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.placeholder = getFriendlyName(key);
       if (fieldValue.value) {
         input.value = fieldValue.value;
+		input.title = fieldValue.value;
         input.classList.add("value");
       }
     } else if (key.endsWith("IdentificationNumber")) {
