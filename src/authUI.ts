@@ -581,36 +581,33 @@ export function updateSignInUI(): void {
   // Check if user is signed in by checking if userEmailValue is not empty and not anonymous
   const isUserSignedIn = UserEmailValue && UserEmailValue !== ANONYMOUS_EMAIL;
 
+  accountOverlay.classList.remove("active");
   if (isUserSignedIn) {
     userEmail.textContent = UserEmailValue;
     userEmail.title = UserEmailValue;
     signOutButton.disabled = false;
 
     // Show/hide customer button based on user role
-    if (customerButton) {
-      if (UserRole === "ROLE_USER") {
-        // Hide customer button for ROLE_USER
-        customerButton.style.display = "none";
-      } else {
-        // Show customer button for other roles
-        customerButton.style.display = "inline-block";
-        customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
-      }
+    if (UserRole === "ROLE_USER") {
+      // Hide customer button for ROLE_USER
+      customerButton.style.display = "none";
+    } else {
+      // Show customer button for other roles
+      customerButton.style.display = "inline-block";
+      customerButton.textContent = translateCustomerDataEntryName(selectedCustomerDataEntryName);
     }
 
     // Enable/disable API section based on user role
-    if (apiSection) {
-      if (UserRole === "ROLE_API") {
-        // Enable API section for ROLE_API
-        apiSection.style.opacity = "1";
-        if (createApiKeyButton) createApiKeyButton.disabled = false;
-        if (revokeApiKeyButton) revokeApiKeyButton.disabled = false;
-      } else {
-        // Disable API section for other roles (keep panel interactive for tooltips)
-        apiSection.style.opacity = "0.5";
-        if (createApiKeyButton) createApiKeyButton.disabled = true;
-        if (revokeApiKeyButton) revokeApiKeyButton.disabled = true;
-      }
+    if (UserRole === "ROLE_API") {
+      // Enable API section for ROLE_API
+      apiSection.style.opacity = "1";
+      if (createApiKeyButton) createApiKeyButton.disabled = false;
+      if (revokeApiKeyButton) revokeApiKeyButton.disabled = false;
+    } else {
+      // Disable API section for other roles (keep panel interactive for tooltips)
+      apiSection.style.opacity = "0.5";
+      if (createApiKeyButton) createApiKeyButton.disabled = true;
+      if (revokeApiKeyButton) revokeApiKeyButton.disabled = true;
     }
 
     // Enable account management button for signed in users

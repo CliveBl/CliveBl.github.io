@@ -414,9 +414,26 @@ ul {
   opacity: 0.6;
 }
 
+/* Customer button styles */
+.customer-button {
+  color: var(--button-text);
+  transition: background-color 0.3s ease;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.customer-button:hover {
+  background-color: var(--button-color-hover);
+}
+
 /* Desktop-only larger login buttons */
 @media (min-width: 769px) {
   .loginout-button {
+    padding: 6px 6px;
+    font-size: 14px;
+  }
+  .customer-button {
     padding: 6px 6px;
     font-size: 14px;
   }
@@ -431,7 +448,6 @@ ul {
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-right: 6px;
 }
 
 .account-management-button:hover {
@@ -2708,28 +2724,27 @@ a:not(.submit-instructions-button):visited {
 
 /* Password toggle button styles */
 .password-input-group {
-	position: relative;
+  position: relative;
 }
-
 
 .login-password-toggle {
-	position: absolute;
-	/* right: 10px; */
-	top: 50%;
-	transform: translateY(-50%);
-	background: none;
-	border: none;
-	cursor: pointer;
-	font-size: 16px;
-	padding: 5px;
-	border-radius: 3px;
-	transition: background-color 0.2s ease;
-	z-index: 10;
+  position: absolute;
+  /* right: 10px; */
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+  z-index: 10;
 }
-  
-  .login-password-toggle:hover {
-	background-color: var(--hover-overlay);
-  }
+
+.login-password-toggle:hover {
+  background-color: var(--hover-overlay);
+}
 
 /* Password toggle button styles */
 .password-toggle {
@@ -3066,24 +3081,6 @@ a:not(.submit-instructions-button):visited {
   cursor: not-allowed;
 }
 
-/* Customer button styles */
-.customer-button {
-  color: var(--button-text);
-  transition: background-color 0.3s ease;
-  margin-left: 10px;
-}
-
-.customer-button:hover {
-  background-color: var(--button-color-hover);
-}
-
-/* Hide customer button on mobile devices */
-@media (max-width: 768px) {
-  .customer-button {
-    display: none !important;
-  }
-}
-
 /* Customer modal styles */
 .customer-overlay {
   display: none;
@@ -3227,7 +3224,7 @@ a:not(.submit-instructions-button):visited {
 }
 
 .delete-account-button {
-	color: var(--button-text);
+  color: var(--button-text);
 }
 /* Responsive design for API key buttons */
 @media (max-width: 768px) {
@@ -3235,7 +3232,7 @@ a:not(.submit-instructions-button):visited {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .create-api-key-button,
   .revoke-api-key-button {
     min-width: auto;
@@ -3251,22 +3248,22 @@ a:not(.submit-instructions-button):visited {
     width: 100%;
     align-items: stretch;
   }
-  
+
   .delete-confirmation-label {
     margin-right: 0;
     text-align: center;
   }
-  
+
   .delete-confirmation-input {
     min-width: auto;
     width: 100%;
   }
-  
+
   .delete-account-button {
     width: 100%;
-	/* color: var(--button-text); */
+    /* color: var(--button-text); */
   }
-  
+
   .delete-confirmation-help {
     text-align: center;
   }
@@ -3394,7 +3391,7 @@ a:not(.submit-instructions-button):visited {
   .pwa-install-button {
     display: none !important;
   }
-  
+
   body {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
@@ -3557,11 +3554,11 @@ a:not(.submit-instructions-button):visited {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .copy-button {
     width: 100%;
   }
-  
+
   #apiKeyDisplay {
     font-size: 12px;
   }

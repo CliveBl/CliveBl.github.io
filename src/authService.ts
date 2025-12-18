@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.41";
+export let UIVersion = "1.42";
 export let ServerVersion = "";
 
 // Customer management
@@ -161,6 +161,7 @@ export async function signIn(email: string, password: string): Promise<void> {
 
     const result = JSON.parse(text);
     UserEmailValue = result.email;
+    UserRole = result.userRole;
 
     updateSignInState(true);
     return;
@@ -227,6 +228,7 @@ export function signOut(): void {
 
 export function clearUserSession(): void {
   UserEmailValue = "";
+  UserRole = "";
   updateSignInState(false);
 
   // Reset customer selection to default
