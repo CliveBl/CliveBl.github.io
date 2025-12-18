@@ -105,6 +105,8 @@ const friendlyNames = {
   TaxDeductedAtSourceInterest_040: "מס שנוכה במקור (ריבית)",
   TotalExemptInterestAndIndexLinkageDifference_209: "ריבית פטורה והפרש הצמדה",
   LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת",
+  TaxPaidAbroadThatIsAllowedAsADeductionOrCredit: "מס ששולם בחו״ל הותׁר בניכוי או בזיכוי",
+  TaxPaidAbroadThatIsNotAllowedAsADeductionOrCredit: "מס ששולם בחו״ל שלא הותׁר בניכוי או בזיכוי",
   registeredTaxpayerBoolean: "בן/בת זוג רשום",
   birthDate: "תאריך לידה",
   children: "ילדים",
