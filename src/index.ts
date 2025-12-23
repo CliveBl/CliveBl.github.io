@@ -2002,7 +2002,7 @@ async function calculateTax(fileName: string) {
     // Extract <name>_<year>.dat
     const taxCalcTaxYear = fileName.split("_")[1].split(".")[0];
 
-    clearMessages();
+    //clearMessages();
 
     showLoadingOverlay("מחשב מס...", {
       total: 30,

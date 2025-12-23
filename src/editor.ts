@@ -648,7 +648,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             // Render the new form with the data from the controls of the current form.
             renderFields(updatedData[formIndex], accordianBody, showAllFields);
           }
-          fileModifiedActions(editableFileListHasEntries());
+          //fileModifiedActions(editableFileListHasEntries());
         }
       }
 
