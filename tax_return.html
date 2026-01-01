@@ -41,11 +41,9 @@
   <script type="module" src="js/pwa-installer.js"></script>
 
   <body>
-
-  	<div class="scrollable-content">
-
-	  <div class="tax-return-main-container">
-      {% include auth-header.html %}
+    <div class="scrollable-content">
+      <div class="tax-return-main-container">
+        {% include auth-header.html %}
         <div class="info-section">
           <div class="info-section-header">
             <button class="info-section-toggle" id="infoSectionToggle" title="הצג/הסתר מידע">
@@ -76,7 +74,7 @@
                   <label for="identity-document-count" id="identity-document-missing" class="doc-status"></label>
                 </div>
               </div>
-              <div class="doc-item" data-doc-type="form106" data-doc-typename="טופס 106">
+              <div class="doc-item" data-doc-type="form106" data-doc-typename="טופס 106 מעביד">
                 <div class="doc-details">
                   <h3>טופס 106</h3>
                   <span class="doc-icon">📄</span>
@@ -95,6 +93,9 @@
                       <option value="3">3</option>
                       <option value="4">4</option>
                       <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
                     </select></label
                   >
                   <label for="form106-count" id="form106-missing" class="doc-status"></label>
@@ -124,6 +125,16 @@
                       <option value="8">8</option>
                       <option value="9">9</option>
                       <option value="10">10</option>
+                      <option value="11">11</option>
+                      <option value="12">12</option>
+                      <option value="13">13</option>
+                      <option value="14">14</option>
+                      <option value="15">15</option>
+                      <option value="16">16</option>
+                      <option value="17">17</option>
+                      <option value="18">18</option>
+                      <option value="19">19</option>
+                      <option value="20">20</option>
                     </select></label
                   >
                   <label for="capital-gains-count" id="capital-gains-missing" class="doc-status"></label>
@@ -176,8 +187,15 @@
                       <option value="10">10</option>
                       <option value="11">11</option>
                       <option value="12">12</option>
-                    </select></label
-                  >
+                      <option value="13">13</option>
+                      <option value="14">14</option>
+                      <option value="15">15</option>
+                      <option value="16">16</option>
+                      <option value="17">17</option>
+                      <option value="18">18</option>
+                      <option value="19">19</option>
+                      <option value="20">20</option>
+                    </select></label>
                   <label for="donations-count" id="donations-missing" class="doc-status"></label>
                 </div>
               </div>
@@ -314,7 +332,7 @@
                 </div>
                 <label for="pension-fund-tax-count" id="pension-fund-tax-missing" class="doc-status"></label>
               </div>
-				<div class="doc-item" data-doc-type="unsupported" data-doc-typename="לא נתמך">
+              <div class="doc-item" data-doc-type="unsupported" data-doc-typename="לא נתמך">
                 <div class="doc-details">
                   <h3>מסמכים ומצבים לא נתמכים</h3>
                   <span class="doc-icon">⚠️</span>
@@ -395,13 +413,13 @@
           </div>
         </div>
 
-                 <!-- Add new tax results container -->
-         <div id="taxResultsContainer" class="tax-results-container">
-           <div id="taxResultsTitle" class="tax-results-title">
-			<span>תוצאות חישוב מס</span>
+        <!-- Add new tax results container -->
+        <div id="taxResultsContainer" class="tax-results-container">
+          <div id="taxResultsTitle" class="tax-results-title">
+            <span>תוצאות חישוב מס</span>
             <button id="copyTaxResultsBtn" class="copy-tax-results-button" title="העתק תוצאות מס">העתק</button>
-            </div>
-		  <div id="taxResultsWarning">חישובים אלו הם סימולציה בלבד וייתכן שאינם מדויקים.</div>
+          </div>
+          <div id="taxResultsWarning">חישובים אלו הם סימולציה בלבד וייתכן שאינם מדויקים.</div>
           <div id="taxCalculationContent"></div>
         </div>
 
@@ -1008,11 +1026,10 @@
         </div>
       </fieldset>
     </div>
- 
- </body>
- <script>
-	nl_pos = "br";
-	nl_compact = "1";
+  </body>
+  <script>
+    nl_pos = "br";
+    nl_compact = "1";
   </script>
   <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
 </html>
