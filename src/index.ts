@@ -1,5 +1,18 @@
-import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR, ANONYMOUS_EMAIL } from "./constants.js";
-import { translateError,signInAnonymous, showInfoModal, showWarningModal, handleAuthResponse, SignedIn, UIVersion, ServerVersion, UserEmailValue, selectedCustomerDataEntryName, on } from "./authService.js";
+import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
+import {
+  translateError,
+  signInAnonymous,
+  isAnonymous,
+  showInfoModal,
+  showWarningModal,
+  handleAuthResponse,
+  SignedIn,
+  UIVersion,
+  ServerVersion,
+  UserEmailValue,
+  selectedCustomerDataEntryName,
+  on,
+} from "./authService.js";
 import { debug, DEFAULT_CLIENT_ID_NUMBER } from "./constants.js";
 // Import image utilities
 import { convertImageToBWAndResize } from "./imageUtils.js";
@@ -8,7 +21,61 @@ import { hasUnsavedChanges, saveAllChanges, displayFileInfoInExpandableArea, edi
 import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+const LOCAL_DB_VERSION = 1;
 
+// Cached DB connection for this page context. Use short-lived transactions for operations.
+let cachedDb: IDBDatabase | null = null;
+const dbBroadcast = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("LocalTaxFormFiles-channel") : null;
+
+if (dbBroadcast) {
+  dbBroadcast.onmessage = (ev) => {
+    try {
+      if (ev.data && ev.data.type === "close-db") {
+        cachedDb?.close();
+        cachedDb = null;
+      }
+    } catch (e) {
+      // ignore
+    }
+  };
+}
+
+async function openDb(): Promise<IDBDatabase> {
+  if (cachedDb) return cachedDb;
+  return new Promise((resolve, reject) => {
+    const req = window.indexedDB.open("LocalTaxFormFiles", LOCAL_DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      try {
+        globalOnupgradeneeded(e as IDBVersionChangeEvent);
+      } catch (err) {}
+    };
+    req.onsuccess = () => {
+      try {
+        cachedDb = req.result;
+        cachedDb.onversionchange = () => {
+          try {
+            cachedDb?.close();
+          } catch (e) {}
+          cachedDb = null;
+        };
+        resolve(cachedDb);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function closeAndNotifyOtherContexts() {
+  try {
+    cachedDb?.close();
+  } catch (e) {}
+  cachedDb = null;
+  try {
+    dbBroadcast?.postMessage({ type: "close-db" });
+  } catch (e) {}
+}
 interface FormType {
   formType: string;
   formName: string;
@@ -419,20 +486,25 @@ function getDocTypes() {
 async function loadExistingFiles() {
   try {
     debug("loadExistingFiles");
-    const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      credentials: "include",
-      ...fetchConfig,
-    });
+    let fileInfoList: FileInfo[] = [];
+    if (isAnonymous()) {
+      fileInfoList = await fileInfoListFromLocalStorage();
+    } else {
+      const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        credentials: "include",
+        ...fetchConfig,
+      });
 
-    if (!(await handleResponse(response, "Load existing files failed"))) {
-      return;
+      if (!(await handleResponse(response, "Load existing files failed"))) {
+        return;
+      }
+
+      fileInfoList = await response.json();
     }
-
-    const fileInfoList = await response.json();
     updateFileListP(fileInfoList);
 
     // Enable all buttons after successful file info retrieval
@@ -874,15 +946,14 @@ processButton.addEventListener("click", async () => {
       await signInAnonymous();
     }
 
-	if (hasUnsavedChanges()) {
-		// show a modal to the user to save the changes use the warning modal function
-		const confirmed = await showWarningModal("יש שינויים שלא נשמרו. האם ברצונך לשמור את השינויים?");
-		if (!confirmed) {
-			return;
-		}
-		else {
-			await saveAllChanges();
-		}
+    if (hasUnsavedChanges()) {
+      // show a modal to the user to save the changes use the warning modal function
+      const confirmed = await showWarningModal("יש שינויים שלא נשמרו. האם ברצונך לשמור את השינויים?");
+      if (!confirmed) {
+        return;
+      } else {
+        await saveAllChanges();
+      }
     }
 
     showLoadingOverlay("מעבדת מסמכים...", {
@@ -898,16 +969,32 @@ processButton.addEventListener("click", async () => {
     // Show initial processing message
     addMessage("מתחיל בעיבוד המסמכים...", "info");
 
-    const response = await fetch(`${API_BASE_URL}/processFiles`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        customerDataEntryName: selectedCustomerDataEntryName,
-      }),
-    });
+    let response = null;
+    if (isAnonymous()) {
+      const localFileInfoList = await fileInfoListFromLocalStorage();
+      response = await fetch(`${API_BASE_URL}/processForms`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          customerDataEntryName: selectedCustomerDataEntryName,
+          formAsJSON: localFileInfoList,
+        }),
+      });
+    } else {
+      response = await fetch(`${API_BASE_URL}/processFiles`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          customerDataEntryName: selectedCustomerDataEntryName,
+        }),
+      });
+    }
 
     if (!(await handleResponse(response, "Process files failed"))) {
       return;
@@ -935,9 +1022,55 @@ processButton.addEventListener("click", async () => {
 
     // If no fatal errors, load results
     if (!result.fatalProcessingError) {
-      // Wait a moment for processing to complete on server
-      //   await new Promise((resolve) => setTimeout(resolve, 1000));
-      await loadResults();
+      if (isAnonymous() && result.fileMap) {
+        try {
+          // Open (or create) IndexedDB called "LocalTaxFormFiles" version 2
+          const dbRequest = window.indexedDB.open("LocalTaxFormFiles", LOCAL_DB_VERSION);
+          dbRequest.onupgradeneeded = (event) => {
+            globalOnupgradeneeded(event);
+          };
+
+          dbRequest.onsuccess = () => {
+            const db = dbRequest.result;
+            const transaction = db.transaction(["resultFiles"], "readwrite");
+            const store = transaction.objectStore("resultFiles");
+            // Clear existing entries first
+            store.clear();
+            // Store each file in the map (assuming result.fileMap is an object with keys as ids and values as file blobs/data)
+            for (const [key, fileValue] of Object.entries(result.fileMap)) {
+              store.put({ fileName: key, value: fileValue });
+            }
+            const messageTransaction = db.transaction(["messages"], "readwrite");
+            const messageStore = messageTransaction.objectStore("messages");
+            // Clear existing messages first
+            messageStore.clear();
+            // Store messages as well under messages store
+            if (result.fatalProcessingError) messageStore.put(result.fatalProcessingError || [], "fatalProcessingError");
+            else messageStore.put("", "fatalProcessingError");
+            if (result.processingWarnings) messageStore.put(result.processingWarnings || [], "processingWarnings");
+            else messageStore.put([], "processingWarnings");
+            if (result.processingInformation) messageStore.put(result.processingInformation || [], "processingInformation");
+            else messageStore.put([], "processingInformation");
+
+            transaction.oncomplete = () => {
+              console.log("resultFiles added to IndexedDB successfully.");
+              // Load results only when they have been written.
+              loadResults(true); // scroll to message section.
+            };
+            transaction.onerror = (err) => {
+              console.error("Transaction error on adding files to IndexedDB:", err);
+            };
+          };
+
+          dbRequest.onerror = (event) => {
+            console.error("IndexedDB open failed:", dbRequest.error);
+          };
+        } catch (e) {
+          console.error("Failed to add files to IndexedDB:", e);
+        }
+      } else {
+        await loadResults(true); // scroll to message section.
+      }
       addMessage("העיבוד הושלם", "info");
     }
   } catch (error: unknown) {
@@ -1103,19 +1236,46 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
         );
 
         try {
-          const response = await fetch(`${API_BASE_URL}/uploadFile`, {
-            method: "POST",
-            headers: {},
-            credentials: "include",
-            body: formData,
-            ...fetchConfig,
-          });
+          let response: Response;
+          if (isAnonymous()) {
+            // Call parseFile endpoint when LOCAL_FORM_STORAGE is true
+            response = await fetch(`${API_BASE_URL}/parseFile`, {
+              method: "POST",
+              headers: {},
+              credentials: "include",
+              body: formData,
+              ...fetchConfig,
+            });
+          } else {
+            // Call uploadFile endpoint when LOCAL_FORM_STORAGE is false
+            response = await fetch(`${API_BASE_URL}/uploadFile`, {
+              method: "POST",
+              headers: {},
+              credentials: "include",
+              body: formData,
+              ...fetchConfig,
+            });
+          }
 
-          if (!(await handleResponse(response, "Upload file failed"))) {
+          if (!(await handleResponse(response, isAnonymous() ? "Parse file failed" : "Upload file failed"))) {
             return false;
           }
 
-          fileInfoList = await response.json();
+          if (isAnonymous()) {
+            // Get forms array from parseFile response (normalize to array)
+            const formsRaw = await response.json();
+            const forms = Array.isArray(formsRaw) ? formsRaw : [formsRaw];
+            console.debug("parseFile returned forms count:", forms.length);
+
+            // Store each parsed form with a generated fileId into IndexedDB
+            await addFormsToLocalStorage(forms);
+
+            // Read all stored forms from IndexedDB to build fileInfoList
+            fileInfoList = await fileInfoListFromLocalStorage();
+          } else {
+            fileInfoList = await response.json();
+          }
+
           updateFileListP(fileInfoList, true); // true = new upload
           updateMissingDocuments();
           uploadSuccess = true;
@@ -1168,6 +1328,91 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
   return true;
 }
 
+async function addFormsToLocalStorage(forms: any[]) {
+  const db = await openDb();
+  return new Promise<void>((resolve, reject) => {
+    try {
+      const transaction = db.transaction(["forms"], "readwrite");
+      const store = transaction.objectStore("forms");
+      for (const form of forms) {
+        const ts = Date.now();
+        const uniquePart = crypto && (crypto as any).randomUUID ? (crypto as any).randomUUID() : Math.random().toString(36).substr(2, 9);
+        const fileId = `${ts}-${uniquePart}`;
+        const formWithId = { ...form, fileId };
+        store.put(formWithId);
+      }
+      console.debug("Stored parsed forms into IndexedDB (forms store)");
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(new Error(`Failed to store forms: ${transaction.error}`));
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+export async function updateFormInLocalStorage(fileId: string, payload: any): Promise<boolean> {
+  try {
+    const db = await openDb();
+    return await new Promise<boolean>((resolve, reject) => {
+      try {
+        const tx = db.transaction(["forms"], "readwrite");
+        const store = tx.objectStore("forms");
+        payload.fileId = fileId;
+        const putRequest = store.put(payload);
+        putRequest.onsuccess = () => {
+          tx.oncomplete = () => resolve(true);
+        };
+        putRequest.onerror = () => reject(new Error(String(putRequest.error)));
+      } catch (e) {
+        reject(e);
+      }
+    });
+  } catch (e) {
+    console.error("updateFormInLocalStorage error:", e);
+    throw e;
+  }
+}
+
+export async function fileInfoListFromLocalStorage() {
+  const db = await openDb();
+  return await new Promise<any[]>((resolve, reject) => {
+    try {
+      const transaction = db.transaction(["forms"], "readonly");
+      const store = transaction.objectStore("forms");
+      const getAllRequest = store.getAll();
+      getAllRequest.onsuccess = () => {
+        const res = getAllRequest.result;
+        if (Array.isArray(res)) {
+          console.debug("IndexedDB returned forms count:", res.length);
+          resolve(res as any[]);
+        } else if (res == null) {
+          console.debug("IndexedDB returned no forms");
+          resolve([]);
+        } else {
+          console.debug("IndexedDB returned single form object");
+          resolve([res] as any[]);
+        }
+      };
+      getAllRequest.onerror = () => reject(new Error(`Failed to read forms: ${getAllRequest.error}`));
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+export function globalOnupgradeneeded(event: IDBVersionChangeEvent) {
+  const db = (event.target as IDBOpenDBRequest).result;
+  if (!db.objectStoreNames.contains("resultFiles")) {
+    db.createObjectStore("resultFiles", { keyPath: "id", autoIncrement: true });
+  }
+  if (!db.objectStoreNames.contains("forms")) {
+    db.createObjectStore("forms", { keyPath: "fileId" });
+  }
+  if (!db.objectStoreNames.contains("messages")) {
+    db.createObjectStore("messages");
+  }
+}
+
 function getMessageCode(text: string) {
   return text.match(/\^([^ ]+)/)?.[1];
 }
@@ -1187,7 +1432,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     "^NoIdentity": "faq-personal-details",
     "^LossesTransferred": "faq-calculations",
     "^TotalChildren": "faq-common-mistakes",
-    "^TaxCalc": "faq-calculation-failure"
+    "^TaxCalc": "faq-calculation-failure",
   };
   const errorCodeToHelpId = {
     "^No106": "form106",
@@ -1233,7 +1478,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
       });
       propertyMatches?.forEach((match, index) => {
         // Replace the property match with optional comma in one operation
-        cleanText = cleanText.replace(new RegExp(match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ',?', 'g'), "");
+        cleanText = cleanText.replace(new RegExp(match.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ",?", "g"), "");
       });
       displayedText = cleanText;
 
@@ -1306,52 +1551,82 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
 
 let isAnonymousConversion = false;
 
-async function loadResults(scrollToMessageSection = true) {
+async function loadResults(scrollToMessageSection: boolean) {
   try {
-    const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      credentials: "include",
-      ...fetchConfig,
-    });
+    let results = null;
+    if (isAnonymous()) {
+      // Load results and messages from IndexedDB and build a results array
+      results = await (async () => {
+        try {
+          const db = await openDb();
+          return await new Promise<any[]>((resolve, reject) => {
+            try {
+              const transaction = db.transaction(["resultFiles", "messages"], "readonly");
 
-    if (!(await handleResponse(response, "Load results failed"))) {
-      return;
+              const resultStore = transaction.objectStore("resultFiles");
+              const getAllResults = resultStore.getAll();
+
+              const messagesStore = transaction.objectStore("messages");
+              const getFatal = messagesStore.get("fatalProcessingError");
+              const getWarnings = messagesStore.get("processingWarnings");
+              const getInfo = messagesStore.get("processingInformation");
+
+              getAllResults.onerror = () => reject(getAllResults.error);
+              getFatal.onerror = () => reject(getFatal.error);
+              getWarnings.onerror = () => reject(getWarnings.error);
+              getInfo.onerror = () => reject(getInfo.error);
+
+              transaction.oncomplete = () => {
+                try {
+                  const files = getAllResults.result || [];
+
+                  const fatal = getFatal.result || null;
+                  const warnings = getWarnings.result || [];
+                  const information = getInfo.result || [];
+
+                  const resultsArray: any[] = [];
+
+                  if (fatal || (Array.isArray(warnings) && warnings.length > 0) || (Array.isArray(information) && information.length > 0)) {
+                    resultsArray.push({ messages: { fatalProcessingError: fatal, processingWarnings: warnings, processingInformation: information } });
+                  }
+
+                  for (const entry of files) {
+                    const fileName = entry.fileName || null;
+                    const id = entry.id || null;
+                    if (fileName && id) resultsArray.push({ file: { fileName, id } });
+                  }
+
+                  resolve(resultsArray);
+                } catch (e) {
+                  reject(e);
+                }
+              };
+            } catch (e) {
+              reject(e);
+            }
+          });
+        } catch (e) {
+          throw e;
+        }
+      })();
+    } else {
+      const response = await fetch(`${API_BASE_URL}/getResultsInfo?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        credentials: "include",
+        ...fetchConfig,
+      });
+
+      if (!(await handleResponse(response, "Load results failed"))) {
+        return;
+      }
+
+      results = await response.json();
     }
 
-    const results = await response.json();
-
-    // Clear previous messages
-    clearMessages();
-
-    // Handle messages if present
-    results.forEach((result: { messages: { fatalProcessingError: string; processingWarnings: string[]; processingInformation: string[] } }) => {
-      if (result.messages) {
-        // Handle fatal error if present
-        if (result.messages.fatalProcessingError) {
-          addMessage("שגיאה: " + result.messages.fatalProcessingError, "error", scrollToMessageSection);
-        }
-
-        // Handle warnings if present
-        if (result.messages.processingWarnings && result.messages.processingWarnings.length > 0) {
-          result.messages.processingWarnings.forEach((warning) => {
-            addMessage("אזהרה: " + warning, "warning", scrollToMessageSection);
-          });
-        }
-
-        // Handle information if present
-        if (result.messages.processingInformation && result.messages.processingInformation.length > 0) {
-          result.messages.processingInformation.forEach((information) => {
-            addMessage("מידע: " + information, "info", scrollToMessageSection);
-          });
-        }
-      }
-    });
-
-    // Display result files
-    displayResults(results);
+    displayMessagesAndResultFiles(results, scrollToMessageSection);
   } catch (error: unknown) {
     console.error("Failed to load results:", error);
     // Only show error if it's not an auth error
@@ -1359,6 +1634,38 @@ async function loadResults(scrollToMessageSection = true) {
       addMessage("שגיאה בטעינת התוצאות: " + error.message, "error");
     }
   }
+}
+
+function displayMessagesAndResultFiles(results: any, scrollToMessageSection: boolean) {
+  // Clear previous messages
+  clearMessages();
+
+  // Handle messages if present
+  results.forEach((result: { messages: { fatalProcessingError: string; processingWarnings: string[]; processingInformation: string[] } }) => {
+    if (result.messages) {
+      // Handle fatal error if present
+      if (result.messages.fatalProcessingError) {
+        addMessage("שגיאה: " + result.messages.fatalProcessingError, "error", scrollToMessageSection);
+      }
+
+      // Handle warnings if present
+      if (result.messages.processingWarnings && result.messages.processingWarnings.length > 0) {
+        result.messages.processingWarnings.forEach((warning) => {
+          addMessage("אזהרה: " + warning, "warning", scrollToMessageSection);
+        });
+      }
+
+      // Handle information if present
+      if (result.messages.processingInformation && result.messages.processingInformation.length > 0) {
+        result.messages.processingInformation.forEach((information) => {
+          addMessage("מידע: " + information, "info", scrollToMessageSection);
+        });
+      }
+    }
+  });
+
+  // Display result files
+  displayResults(results);
 }
 
 export function clearMessages() {
@@ -1375,6 +1682,7 @@ function descriptionFromFileName(fileName: string) {
   // 1301_2023.dat should return 2023: Data file for uploading to the tax authority
 
   // Split the file name into its components
+  console.debug("Generating description for file:", fileName);
   const parts = fileName.split("_");
   const name = parts[0];
   const year = parts[1].split(".")[0];
@@ -1398,7 +1706,7 @@ function descriptionFromFileName(fileName: string) {
   return description;
 }
 
-function displayResults(results: { file: { fileName: string } }[]) {
+function displayResults(results: { file: { fileName: string; id: string } }[]) {
   resultsList.innerHTML = ""; // Clear existing results
 
   // If there are no results, hide the results container.
@@ -1409,7 +1717,7 @@ function displayResults(results: { file: { fileName: string } }[]) {
 
   let hasFiles = false;
 
-  results.forEach((result: { file: { fileName: string } }) => {
+  results.forEach((result: { file: { fileName: string; id: string } }) => {
     if (result.file) {
       hasFiles = true;
       const li = document.createElement("li");
@@ -1464,7 +1772,7 @@ function displayResults(results: { file: { fileName: string } }[]) {
 
       downloadButton.appendChild(textSpan);
       downloadButton.appendChild(iconSpan);
-      downloadButton.addEventListener("click", () => downloadResult(result.file.fileName));
+      downloadButton.addEventListener("click", () => downloadResult(result.file));
 
       buttonContainer.appendChild(downloadButton);
 
@@ -1481,32 +1789,86 @@ function displayResults(results: { file: { fileName: string } }[]) {
   }
 }
 
-async function downloadResult(fileName: string) {
+async function downloadResult(file: { fileName: string; id: string }) {
   try {
-    const response = await fetch(`${API_BASE_URL}/downloadResultsFile?fileName=${encodeURIComponent(fileName)}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
-      method: "GET",
-      credentials: "include",
-      ...fetchConfig,
-    });
+    let blob: Blob;
 
-    if (!(await handleResponse(response, "Download result failed"))) {
-      return;
+    if (isAnonymous()) {
+      // Get file from IndexedDB
+      const fileData = await (async () => {
+        try {
+          const db = await openDb();
+          return await new Promise<any>((resolve, reject) => {
+            try {
+              const transaction = db.transaction(["resultFiles"], "readonly");
+              const store = transaction.objectStore("resultFiles");
+              const getRequest = store.get(file.id);
+              getRequest.onsuccess = () => {
+                if (getRequest.result && getRequest.result.value) resolve(getRequest.result.value);
+                else reject(new Error(`File ${file.fileName} id ${file.id} not found in IndexedDB`));
+              };
+              getRequest.onerror = () => reject(new Error(`Failed to retrieve file from IndexedDB: ${getRequest.error}`));
+            } catch (e) {
+              reject(e);
+            }
+          });
+        } catch (e) {
+          throw e;
+        }
+      })();
+
+      // Convert file data to Blob
+      // If value is already a Blob, use it directly
+      if (fileData instanceof Blob) {
+        blob = fileData;
+      }
+      // If it's a base64 data URL (starts with "data:")
+      else if (typeof fileData === "string" && fileData.startsWith("data:")) {
+        const response = await fetch(fileData);
+        blob = await response.blob();
+      }
+      // If it's a base64 string (not a data URL)
+      else if (typeof fileData === "string") {
+        // Decode base64 to binary string
+        const binaryString = atob(fileData);
+        // Convert binary string to Uint8Array
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        // Create Blob from Uint8Array
+        blob = new Blob([bytes]);
+      }
+      // Fallback: try to create Blob directly
+      else {
+        blob = new Blob([fileData]);
+      }
+    } else {
+      // Get file from server
+      const response = await fetch(`${API_BASE_URL}/downloadResultsFile?fileName=${encodeURIComponent(file.fileName)}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
+        method: "GET",
+        credentials: "include",
+        ...fetchConfig,
+      });
+
+      if (!(await handleResponse(response, "Download result failed"))) {
+        return;
+      }
+
+      blob = await response.blob();
     }
-
-    // Create blob from response
-    const blob = await response.blob();
 
     // Create download link
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName;
+    a.download = file.fileName;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
-    addMessage(`הקובץ ${fileName} הורד בהצלחה`);
+    addMessage(`הקובץ ${file.fileName} הורד בהצלחה`);
   } catch (error: unknown) {
     console.error("Download failed:", error);
     addMessage("שגיאה בהורדת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -1536,14 +1898,22 @@ deleteAllButton.addEventListener("click", async () => {
     const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את כל המסמכים שהוזנו?");
     if (!confirmed) return;
 
-    const response = await fetch(`${API_BASE_URL}/deleteAllForms?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
-      method: "DELETE",
-      credentials: "include",
-      ...fetchConfig,
-    });
+    if (isAnonymous()) {
+      // Clear all forms from IndexedDB
+      const deleted = await clearAllFilesFromLocalStorage();
+      if (!deleted) {
+        return;
+      }
+    } else {
+      const response = await fetch(`${API_BASE_URL}/deleteAllForms?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
+        method: "DELETE",
+        credentials: "include",
+        ...fetchConfig,
+      });
 
-    if (!(await handleResponse(response, "Delete all files failed"))) {
-      return;
+      if (!(await handleResponse(response, "Delete all files failed"))) {
+        return;
+      }
     }
 
     removeFileList();
@@ -1663,17 +2033,25 @@ function formatNumber(key: string, value: any) {
 export function addFileToList(fileInfo: any) {
   async function deleteFile(fileId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/deleteForm?fileId=${fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
-        method: "DELETE",
-        headers: {},
-        credentials: "include",
-        ...fetchConfig,
-      });
+      if (isAnonymous()) {
+        // Delete from IndexedDB
+        const deleted = await deleteFileFromLocalStorage(fileId);
+        if (!deleted) {
+          // If deletion failed, abort further UI changes
+          return;
+        }
+      } else {
+        const response = await fetch(`${API_BASE_URL}/deleteForm?fileId=${fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
+          method: "DELETE",
+          headers: {},
+          credentials: "include",
+          ...fetchConfig,
+        });
 
-      if (!(await handleResponse(response, "Delete failed"))) {
-        return;
+        if (!(await handleResponse(response, "Delete failed"))) {
+          return;
+        }
       }
-
       // Find the year accordion container that contains this file
       const yearContainer = li.closest(".date-accordion-container");
       if (yearContainer) {
@@ -1978,6 +2356,68 @@ export function addFileToList(fileInfo: any) {
   return li;
 }
 
+export async function deleteFileFromLocalStorage(fileId: string): Promise<boolean> {
+  try {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      try {
+        const transaction = db.transaction(["forms", "resultFiles"], "readwrite");
+        const formsStore = transaction.objectStore("forms");
+        const resultsStore = transaction.objectStore("resultFiles");
+
+        const deleteFormRequest = formsStore.delete(fileId);
+        deleteFormRequest.onerror = () => reject(new Error(`Failed to delete form from IndexedDB: ${deleteFormRequest.error}`));
+
+        try {
+          const clearRequest = resultsStore.clear();
+          clearRequest.onerror = () => console.warn("Failed to clear resultFiles store:", clearRequest.error);
+        } catch (e) {
+          console.warn("Clearing resultFiles failed:", e);
+        }
+
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(new Error(`Transaction failed: ${String(transaction.error)}`));
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    return true;
+  } catch (error) {
+    console.error("deleteFileFromLocalStorage failed:", error);
+    return false;
+  }
+}
+
+export async function clearAllFilesFromLocalStorage(): Promise<boolean> {
+  try {
+    // Close our connection and notify other contexts to close theirs
+    closeAndNotifyOtherContexts();
+    // Small delay to allow other contexts to react
+    await new Promise((r) => setTimeout(r, 250));
+    return await new Promise<boolean>((resolve) => {
+      try {
+        const deleteRequest = window.indexedDB.deleteDatabase("LocalTaxFormFiles");
+        deleteRequest.onsuccess = () => resolve(true);
+        deleteRequest.onerror = () => {
+          console.error("Failed to delete IndexedDB LocalTaxFormFiles:", deleteRequest.error);
+          resolve(false);
+        };
+        deleteRequest.onblocked = () => {
+          console.warn("DeleteDatabase blocked for LocalTaxFormFiles");
+          resolve(false);
+        };
+      } catch (e) {
+        console.error("clearAllFilesFromLocalStorage error:", e);
+        resolve(false);
+      }
+    });
+  } catch (e) {
+    console.error("clearAllFilesFromLocalStorage error:", e);
+    return false;
+  }
+}
+
 export function fileModifiedActions(hasEntries: boolean) {
   updateButtons(hasEntries);
   updateMissingDocuments();
@@ -2010,26 +2450,44 @@ async function calculateTax(fileName: string) {
       showCancelButton: false,
     });
 
-    const response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        customerDataEntryName: selectedCustomerDataEntryName,
-        taxYear: taxCalcTaxYear,
-      }),
-      ...fetchConfig,
-    });
-
+    let result = null;
+    let response = null;
+    if (isAnonymous()) {
+      const localFileInfoList = await fileInfoListFromLocalStorage();
+      response = await fetch(`${API_BASE_URL}/calculateTaxFromForms`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          taxYear: taxCalcTaxYear,
+          formAsJSON: localFileInfoList,
+        }),
+        ...fetchConfig,
+      });
+    } else {
+      response = await fetch(`${API_BASE_URL}/calculateTax?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          customerDataEntryName: selectedCustomerDataEntryName,
+          taxYear: taxCalcTaxYear,
+        }),
+        ...fetchConfig,
+      });
+    }
     if (!(await handleResponse(response, "Calculate tax failed"))) {
       clearTaxResults();
       return;
     }
 
-    const result = await response.json();
+    result = await response.json();
 
     // Show success message
     addMessage("חישוב המס הושלם בהצלחה", "info");
@@ -2494,25 +2952,52 @@ function restoreSelectedDocTypes() {
   const identificationNumber = DEFAULT_CLIENT_ID_NUMBER;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/createForm`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        customerDataEntryName: selectedCustomerDataEntryName,
-        formType: formType,
-        identificationNumber: identificationNumber,
-      }),
-      ...fetchConfig,
-    });
+    let fileInfoList = null;
+    if (isAnonymous()) {
+      const response = await fetch(`${API_BASE_URL}/createFormAsJson`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          formType: formType,
+          identificationNumber: identificationNumber,
+        }),
+        ...fetchConfig,
+      });
 
-    if (!(await handleResponse(response, "Create form failed"))) {
-      return;
+      if (!(await handleResponse(response, "createFormAsJson form failed"))) {
+        return;
+      }
+
+      //Result to array of forms
+      const newForm = await response.json();
+      const formsArray = Array.isArray(newForm) ? newForm : [newForm];
+      // Store each parsed form with a generated fileId into IndexedDB
+      await addFormsToLocalStorage(formsArray);
+      fileInfoList = await fileInfoListFromLocalStorage();
+    } else {
+      const response = await fetch(`${API_BASE_URL}/createForm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          customerDataEntryName: selectedCustomerDataEntryName,
+          formType: formType,
+          identificationNumber: identificationNumber,
+        }),
+        ...fetchConfig,
+      });
+
+      if (!(await handleResponse(response, "Create form failed"))) {
+        return;
+      }
+
+      fileInfoList = await response.json();
     }
-
-    const fileInfoList = await response.json();
     if (!editableFileList) {
       // switch to the editable file list view without loading the existing files becaue we already have them in fileInfoList
       await toggleFileListView(false);
