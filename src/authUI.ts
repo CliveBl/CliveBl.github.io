@@ -30,6 +30,7 @@ import {
   customerListCacheLength,
   createAPIKey,
   revokeAPIKey,
+  isAnonymous,
 } from "./authService.js";
 
 import { ANONYMOUS_EMAIL, debug } from "./constants.js";
@@ -579,7 +580,7 @@ async function handleCopyApiKey(): Promise<void> {
 // UI update functions
 export function updateSignInUI(): void {
   // Check if user is signed in by checking if userEmailValue is not empty and not anonymous
-  const isUserSignedIn = UserEmailValue && UserEmailValue !== ANONYMOUS_EMAIL;
+  const isUserSignedIn = UserEmailValue && !isAnonymous();
 
   accountOverlay.classList.remove("active");
   if (isUserSignedIn) {
@@ -612,7 +613,7 @@ export function updateSignInUI(): void {
 
     // Enable account management button for signed in users
     accountManagementButton.disabled = false;
-  } else if (UserEmailValue === ANONYMOUS_EMAIL) {
+  } else if (isAnonymous()) {
     // Anonymous user
     userEmail.textContent = UserEmailValue;
     signOutButton.disabled = true;

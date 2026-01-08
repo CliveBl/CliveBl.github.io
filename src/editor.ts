@@ -1,5 +1,16 @@
-import { configurationData, addMessage, handleResponse, updateButtons, fileModifiedActions, clearMessages, addFileToList } from "./index.js";
-import { selectedCustomerDataEntryName } from "./authService.js";
+import {
+  configurationData,
+  addMessage,
+  handleResponse,
+  updateButtons,
+  fileModifiedActions,
+  clearMessages,
+  addFileToList,
+  deleteFileFromLocalStorage,
+  fileInfoListFromLocalStorage,
+  updateFormInLocalStorage,
+} from "./index.js";
+import { selectedCustomerDataEntryName, isAnonymous } from "./authService.js";
 
 import { API_BASE_URL } from "./env.js";
 import {
@@ -432,29 +443,35 @@ function updateFormAllFields(allFilesData: any, fileId: string, fileType: string
 
 async function updateFormAPI(fileId: string, payload: any) {
   try {
-    // Construct the API URL
-    const URL = API_BASE_URL + "/updateForm";
+    if (isAnonymous()) {
+      // Update form in IndexedDB
+      await updateFormInLocalStorage(fileId, payload);
+      return fileInfoListFromLocalStorage();
+    } else {
+      // Construct the API URL
+      const URL = API_BASE_URL + "/updateForm";
 
-    // Send the POST request
-    const response = await fetch(URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        customerDataEntryName: selectedCustomerDataEntryName,
-        formAsJSON: payload,
-      }),
-    });
+      // Send the POST request
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          customerDataEntryName: selectedCustomerDataEntryName,
+          formAsJSON: payload,
+        }),
+      });
 
-    if (!(await handleResponse(response, "Failed to update form"))) {
-      return;
+      if (!(await handleResponse(response, "Failed to update form"))) {
+        return;
+      }
+
+      // Parse and handle the response
+      const responseData = await response.json();
+      return responseData;
     }
-
-    // Parse and handle the response
-    const responseData = await response.json();
-    return responseData;
   } catch (error: any) {
     clearMessages();
     addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -807,7 +824,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.placeholder = getFriendlyName(key);
       if (fieldValue.value) {
         input.value = fieldValue.value;
-		input.title = fieldValue.value;
+        input.title = fieldValue.value;
         input.classList.add("value");
       }
     } else if (key.endsWith("IdentificationNumber")) {
@@ -1475,49 +1492,56 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     editorDeleteButton.textContent = "🗑️";
     editorDeleteButton.className = "delete-button";
 
-    editorDeleteButton.onclick = () => {
-      const deleteUrl = `${API_BASE_URL}/deleteForm?fileId=${fileData.fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`;
-      fetch(deleteUrl, {
-        method: "DELETE",
-        credentials: "include",
-        ...fetchConfig,
-      })
-        .then((response) => {
-          if (response.ok) {
-            clearMessages();
-            addMessage("מסמך נמחק בהצלחה!", "success");
-            // Remove the accordion container
-            // Check if the year container (parent) now only has the header left
-            const yearContainer = accordionContainer.closest(".date-accordion-container");
-            if (yearContainer) {
-              const yearBody = yearContainer.querySelector(".date-accordion-body");
-              /* 1 for the last file and 1 the captions row. */
-              if (yearBody && yearBody.children.length === 2) {
-                yearContainer.remove();
-              } else {
-                accordionContainer.remove();
-              }
-            }
+    editorDeleteButton.onclick = async () => {
+      // Helper performing the common UI updates after a successful delete
+      function handleDeleteSuccess() {
+        clearMessages();
+        addMessage("מסמך נמחק בהצלחה!", "success");
 
-            // Remove the file from the backupAllFilesData array
-            const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
-            if (backupFormIndex !== -1) {
-              backupAllFilesData.splice(backupFormIndex, 1);
-            }
-
-            // Check if there are any files left
-            const hasEntries = editableFileListHasEntries();
-
-            updateButtons(hasEntries);
-            fileModifiedActions(hasEntries);
+        const yearContainer = accordionContainer.closest(".date-accordion-container");
+        if (yearContainer) {
+          const yearBody = yearContainer.querySelector(".date-accordion-body");
+          /* 1 for the last file and 1 the captions row. */
+          if (yearBody && yearBody.children.length === 2) {
+            yearContainer.remove();
           } else {
-            addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
+            accordionContainer.remove();
           }
-        })
-        .catch((error) => {
+        }
+
+        const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
+        if (backupFormIndex !== -1) {
+          backupAllFilesData.splice(backupFormIndex, 1);
+        }
+
+        const hasEntries = editableFileListHasEntries();
+
+        updateButtons(hasEntries);
+        fileModifiedActions(hasEntries);
+      }
+
+      try {
+        let deleted = false;
+        if (isAnonymous()) {
+          deleted = await deleteFileFromLocalStorage(fileData.fileId);
+         } else {
+          const deleteUrl = `${API_BASE_URL}/deleteForm?fileId=${fileData.fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`;
+          const response = await fetch(deleteUrl, {
+            method: "DELETE",
+            credentials: "include",
+            ...fetchConfig,
+          });
+          deleted = response.ok;
+        }
+        if (deleted) {
+          handleDeleteSuccess();
+        } else {
           addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
-          console.error("Delete error:", error);
-        });
+        }
+      } catch (error) {
+        addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
+        console.error("Delete error:", error);
+      }
     };
   }
 

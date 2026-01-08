@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.42";
+export let UIVersion = "1.43";
 export let ServerVersion = "";
 
 // Customer management
@@ -22,6 +22,10 @@ const fetchConfig = { mode: "cors" as RequestMode };
 
 type EventCallback = () => void;
 const listeners: Record<string, EventCallback[]> = {};
+
+export function isAnonymous(): boolean {
+  return UserEmailValue === ANONYMOUS_EMAIL;
+}
 
 export function on(eventName: string, callback: EventCallback): void {
   if (!listeners[eventName]) {
@@ -541,7 +545,7 @@ export async function handleAuthResponse(response: any, errorMessage: string) {
     }
     if (errorData.detail.includes("User not found")) {
       // If we have an Anonymous account inform the user that his data has been deleted with a modal warning:
-      if (UserEmailValue == ANONYMOUS_EMAIL) {
+      if (isAnonymous()) {
         showInfoModal("חשבון אנונימי נמחק אוטומטית אחרי 30 יום, יחד עם כל הנתונים שלו. אתה יכול להשתמש בחשבון אנונימי חדש או ליצור משתמש קבוע על ידי הרישמה.");
       }
       clearUserSession();
