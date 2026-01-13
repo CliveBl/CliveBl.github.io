@@ -1008,21 +1008,20 @@ processButton.addEventListener("click", async () => {
     }
 
     // Handle warnings if present
-    if (result.processingWarnings && result.processingWarnings.length > 0) {
+    if (result.processingWarnings) {
       result.processingWarnings.forEach((warning: string) => {
         addMessage("אזהרה: " + warning, "warning");
       });
     }
     // Handle information if present
-    if (result.processingInformation && result.processingInformation.length > 0) {
+    if (result.processingInformation) {
       result.processingInformation.forEach((information: string) => {
         addMessage("מידע: " + information, "info");
       });
     }
 
-    // If no fatal errors, load results
-    if (!result.fatalProcessingError) {
-      if (isAnonymous() && result.fileMap) {
+      if (isAnonymous()) {
+        // Local IndexedDB storage
         try {
           // Open (or create) IndexedDB called "LocalTaxFormFiles" version 2
           const dbRequest = window.indexedDB.open("LocalTaxFormFiles", LOCAL_DB_VERSION);
@@ -1036,10 +1035,13 @@ processButton.addEventListener("click", async () => {
             const store = transaction.objectStore("resultFiles");
             // Clear existing entries first
             store.clear();
-            // Store each file in the map (assuming result.fileMap is an object with keys as ids and values as file blobs/data)
-            for (const [key, fileValue] of Object.entries(result.fileMap)) {
-              store.put({ fileName: key, value: fileValue });
-            }
+            if(result.fileMap)
+            {
+              // Store each file in the map (assuming result.fileMap is an object with keys as ids and values as file blobs/data)
+              for (const [key, fileValue] of Object.entries(result.fileMap)) {
+                store.put({ fileName: key, value: fileValue });
+              }
+           } 
             const messageTransaction = db.transaction(["messages"], "readwrite");
             const messageStore = messageTransaction.objectStore("messages");
             // Clear existing messages first
@@ -1069,10 +1071,10 @@ processButton.addEventListener("click", async () => {
           console.error("Failed to add files to IndexedDB:", e);
         }
       } else {
+        // Server storage
         await loadResults(true); // scroll to message section.
       }
       addMessage("העיבוד הושלם", "info");
-    }
   } catch (error: unknown) {
     console.error("Processing failed:", error);
     addMessage("שגיאה בעיבוד הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
