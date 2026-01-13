@@ -140,7 +140,23 @@ const friendlyNames = {
   totalInstitutionExpenses: "הוצאות מוסד סה״כ",
   numberOfInstitutionReceiptsInteger: "מספר קבלות מוסד",
   dependantIdentificationNumber: "מספר זיהוי בן המשפחה הנכה",
-  paymentDate: "תאריך תשלום"
+  paymentDate: "תאריך תשלום",
+  singleDwellingOwnerBoolean: "דירה יחידה",
+	inheritanceOrYearBeforeMarriageBoolean: "ירושה/שנה לפני נישואים",
+	rentalGrossIncome: "הכנסה ברוטו",
+	totalRentalExpensesForHousing: "הוצאות מגורים (עד 90,000)",
+	taxableIncome: "הכנסה חייבת",
+	propertyDecriptionText: "תיאור נכס",
+  propertyPurchaseDate: "תאריך רכישת נכס",
+	propertyAddressText: "כתובת נכס",
+	propertyCityName: "עיר",
+	propertyGushInteger: "גוש",
+	propertyHelkaInteger: "חלקה",
+	propertyGeneratesIncomeSinceDate: "הפקת הכנסה מ",
+	propertyGeneratesIncomeUptoDate: "הפקת הכנסה עד",
+	propertyRentedSinceDate: "מושכר מ",
+	rentersName: "שם שוכר",
+	rentersIdentificationNumber: "ת.ז/ח.פ של השוכר"
 };
 
 const titles = {
