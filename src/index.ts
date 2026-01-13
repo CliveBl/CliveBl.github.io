@@ -1020,61 +1020,60 @@ processButton.addEventListener("click", async () => {
       });
     }
 
-      if (isAnonymous()) {
-        // Local IndexedDB storage
-        try {
-          // Open (or create) IndexedDB called "LocalTaxFormFiles" version 2
-          const dbRequest = window.indexedDB.open("LocalTaxFormFiles", LOCAL_DB_VERSION);
-          dbRequest.onupgradeneeded = (event) => {
-            globalOnupgradeneeded(event);
-          };
+    if (isAnonymous()) {
+      // Local IndexedDB storage
+      try {
+        // Open (or create) IndexedDB called "LocalTaxFormFiles" version 2
+        const dbRequest = window.indexedDB.open("LocalTaxFormFiles", LOCAL_DB_VERSION);
+        dbRequest.onupgradeneeded = (event) => {
+          globalOnupgradeneeded(event);
+        };
 
-          dbRequest.onsuccess = () => {
-            const db = dbRequest.result;
-            const transaction = db.transaction(["resultFiles"], "readwrite");
-            const store = transaction.objectStore("resultFiles");
-            // Clear existing entries first
-            store.clear();
-            if(result.fileMap)
-            {
-              // Store each file in the map (assuming result.fileMap is an object with keys as ids and values as file blobs/data)
-              for (const [key, fileValue] of Object.entries(result.fileMap)) {
-                store.put({ fileName: key, value: fileValue });
-              }
-           } 
-            const messageTransaction = db.transaction(["messages"], "readwrite");
-            const messageStore = messageTransaction.objectStore("messages");
-            // Clear existing messages first
-            messageStore.clear();
-            // Store messages as well under messages store
-            if (result.fatalProcessingError) messageStore.put(result.fatalProcessingError || [], "fatalProcessingError");
-            else messageStore.put("", "fatalProcessingError");
-            if (result.processingWarnings) messageStore.put(result.processingWarnings || [], "processingWarnings");
-            else messageStore.put([], "processingWarnings");
-            if (result.processingInformation) messageStore.put(result.processingInformation || [], "processingInformation");
-            else messageStore.put([], "processingInformation");
+        dbRequest.onsuccess = () => {
+          const db = dbRequest.result;
+          const transaction = db.transaction(["resultFiles"], "readwrite");
+          const store = transaction.objectStore("resultFiles");
+          // Clear existing entries first
+          store.clear();
+          if (result.fileMap) {
+            // Store each file in the map (assuming result.fileMap is an object with keys as ids and values as file blobs/data)
+            for (const [key, fileValue] of Object.entries(result.fileMap)) {
+              store.put({ fileName: key, value: fileValue });
+            }
+          }
+          const messageTransaction = db.transaction(["messages"], "readwrite");
+          const messageStore = messageTransaction.objectStore("messages");
+          // Clear existing messages first
+          messageStore.clear();
+          // Store messages as well under messages store
+          if (result.fatalProcessingError) messageStore.put(result.fatalProcessingError || [], "fatalProcessingError");
+          else messageStore.put("", "fatalProcessingError");
+          if (result.processingWarnings) messageStore.put(result.processingWarnings || [], "processingWarnings");
+          else messageStore.put([], "processingWarnings");
+          if (result.processingInformation) messageStore.put(result.processingInformation || [], "processingInformation");
+          else messageStore.put([], "processingInformation");
 
-            transaction.oncomplete = () => {
-              console.log("resultFiles added to IndexedDB successfully.");
-              // Load results only when they have been written.
-              loadResults(true); // scroll to message section.
-            };
-            transaction.onerror = (err) => {
-              console.error("Transaction error on adding files to IndexedDB:", err);
-            };
+          transaction.oncomplete = () => {
+            console.log("resultFiles added to IndexedDB successfully.");
+            // Load results only when they have been written.
+            loadResults(true); // scroll to message section.
           };
+          transaction.onerror = (err) => {
+            console.error("Transaction error on adding files to IndexedDB:", err);
+          };
+        };
 
-          dbRequest.onerror = (event) => {
-            console.error("IndexedDB open failed:", dbRequest.error);
-          };
-        } catch (e) {
-          console.error("Failed to add files to IndexedDB:", e);
-        }
-      } else {
-        // Server storage
-        await loadResults(true); // scroll to message section.
+        dbRequest.onerror = (event) => {
+          console.error("IndexedDB open failed:", dbRequest.error);
+        };
+      } catch (e) {
+        console.error("Failed to add files to IndexedDB:", e);
       }
-      addMessage("העיבוד הושלם", "info");
+    } else {
+      // Server storage
+      await loadResults(true); // scroll to message section.
+    }
+    addMessage("העיבוד הושלם", "info");
   } catch (error: unknown) {
     console.error("Processing failed:", error);
     addMessage("שגיאה בעיבוד הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -1701,7 +1700,7 @@ function descriptionFromFileName(fileName: string) {
     description = `${year}: טופס 1344 - הפסדים מועברים`;
   } else if (name === "1321") {
     description = `${year}: טופס 1321 - שכירות 10% מס`;
-   } else if (name === "1301") {
+  } else if (name === "1301") {
     // Data file containing the annual data for uploading to the tax authority when filing the tax return
     description = `${year}: קובץ נתונים שנתיים להעלאה אתר מס הכנסה בזמן הגשת דו״ח שנתי`;
   } else {
