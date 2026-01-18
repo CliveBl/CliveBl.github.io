@@ -375,7 +375,7 @@ function setFieldNotChanged(field: HTMLElement) {
   }
 }
 
-// Helper functions for form operations
+// Returns a json list of forms with updated data.
 async function updateForm(fileId: string, payload: any) {
   if (payload.fields) {
     // Remove fields with value "0.00"
@@ -384,7 +384,12 @@ async function updateForm(fileId: string, payload: any) {
     payload.fileId = fileId; // Ensure fileId is included in the payload
     //debug("filtered fields", filteredFields);
   }
-  return updateFormAPI(fileId, payload);
+  
+  if (isAnonymous()) {
+    return validateFormAPI(fileId, payload);
+   }else {
+    return updateFormAPI(fileId, payload);
+  }
 }
 
 // Returns a new list with the fileId item updated with the new file data.
@@ -443,16 +448,8 @@ function updateFormAllFields(allFilesData: any, fileId: string, fileType: string
 
 async function updateFormAPI(fileId: string, payload: any) {
   try {
-    if (isAnonymous()) {
-      // Update form in IndexedDB
-      await updateFormInLocalStorage(fileId, payload);
-      return fileInfoListFromLocalStorage();
-    } else {
-      // Construct the API URL
-      const URL = API_BASE_URL + "/updateForm";
-
       // Send the POST request
-      const response = await fetch(URL, {
+      const response = await fetch(API_BASE_URL + "/updateForm", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -471,7 +468,33 @@ async function updateFormAPI(fileId: string, payload: any) {
       // Parse and handle the response
       const responseData = await response.json();
       return responseData;
-    }
+  } catch (error: any) {
+    clearMessages();
+    addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
+  }
+}
+
+async function validateFormAPI(fileId: string, payload: any) {
+  try {
+      // Send the POST request
+      const response = await fetch( API_BASE_URL + "/validateForm", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          customerDataEntryName: selectedCustomerDataEntryName,
+          formAsJSON: payload,
+        }),
+      });
+
+      if (!(await handleResponse(response, "Failed to validate form"))) {
+        return;
+      }
+      // Get the data from local storage.
+      updateFormInLocalStorage(fileId, payload);
+      return fileInfoListFromLocalStorage();
   } catch (error: any) {
     clearMessages();
     addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");

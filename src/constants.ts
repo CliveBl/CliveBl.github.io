@@ -146,7 +146,7 @@ const friendlyNames = {
 	rentalGrossIncome: "הכנסה ברוטו",
 	totalRentalExpensesForHousing: "הוצאות מגורים (עד 90,000)",
 	taxableIncome: "הכנסה חייבת",
-	propertyDecriptionText: "תיאור נכס",
+	propertyDescriptionText: "תיאור נכס",
   propertyPurchaseDate: "תאריך רכישת נכס",
 	propertyAddressText: "כתובת נכס",
 	propertyCityName: "עיר",
