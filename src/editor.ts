@@ -932,7 +932,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.inputMode = "numeric";
       input.value = Math.round(parseFloat(fieldValue.value)).toString();
       input.oninput = () => {
-        input.value = input.value.replace(/\D/g, "").slice(0, MAX_INTEGER_LENGTH);
+        const digits = input.value.replace(/\D/g, "").slice(0, MAX_INTEGER_LENGTH);
+        input.value = digits || "0"; // Mustat have at least "0"
       };
     } else if (key.endsWith("Boolean")) {
       input.type = "checkbox";
