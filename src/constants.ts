@@ -268,4 +268,13 @@ export const errorCodeToFaqId: Record<string, string> = {
 // Map of error codes to Help section IDs
 export const errorCodeToHelpId: Record<string, string> = {
   "^No106": "form106",
+  "^NoSalary": "form106",
+  "^DonationReceiptUnknownId": "donations",
+  "^SettlementDiscount_327_287": "residency",
+  "^SettlementStart": "residency",
+  "^Rent10TotalBelowDoubleExemption": "rental-income",
+  "^Rent10TotalBelowExemption": "rental-income",
+  "^Rent10NonJointFilingForPreMarriageOrInheritance": "rental-income",
+  "^NumberOfInstitutionReceiptsMismatch": "disabled-dependant-116a",
+  "^TotalInstitutionExpensesMismatch": "disabled-dependant-116a",
 };
