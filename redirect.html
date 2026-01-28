@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מפנה...</title>
+    <link rel="stylesheet" href="css/index.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .message {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="message">
+        <a href="index.html">
+            <img src="assets/taxesil/cgtLogo200Trans.webp" alt="CGT Logo" width="120" height="120">
+        </a>
+        <p id="status-redirecting">מפנה אותך לעמוד המתאים...</p>
+        <div id="status-no-code" style="display: none;">
+            <span class="error">לא נמצא קוד שגיאה בכתובת URL</span><br>
+            <a href="index.html">דף הבית</a>
+        </div>
+        <div id="status-unknown-code" style="display: none;">
+            <span class="error">קוד שגיאה לא מוכר: <span id="error-code-value"></span></span><br>
+            <a href="faq.html">שאלות נפוצות</a> |
+            <a href="help.html">עזרה</a> |
+            <a href="index.html">דף הבית</a>
+        </div>
+        <div id="status-error" style="display: none;">
+            <span class="error">שגיאה בעיבוד הבקשה</span><br>
+            <a href="index.html">דף הבית</a>
+        </div>
+    </div>
+
+    <script type="module" src="js/redirect.js"></script>
+</body>
+</html>

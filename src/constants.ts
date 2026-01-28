@@ -256,3 +256,16 @@ export const ANONYMOUS_EMAIL = "AnonymousEmail";
 export function is106TypeForm(fileData: any) {
 	return fileData.documentType === "טופס 106 מעביד" || fileData.documentType === "אישור מס עבור קרן פנסיה חדשה" || fileData.type === "FormNewPensionFund";
 }
+
+// Map of error codes to FAQ section IDs
+export const errorCodeToFaqId: Record<string, string> = {
+  "^NoIdentity": "faq-personal-details",
+  "^LossesTransferred": "faq-calculations",
+  "^TotalChildren": "faq-common-mistakes",
+  "^TaxCalc": "faq-calculation-failure",
+};
+
+// Map of error codes to Help section IDs
+export const errorCodeToHelpId: Record<string, string> = {
+  "^No106": "form106",
+};

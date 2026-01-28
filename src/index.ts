@@ -1,4 +1,4 @@
-import { getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
+import { debug, DEFAULT_CLIENT_ID_NUMBER, getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR, errorCodeToFaqId, errorCodeToHelpId } from "./constants.js";
 import {
   translateError,
   signInAnonymous,
@@ -13,7 +13,6 @@ import {
   selectedCustomerDataEntryName,
   on,
 } from "./authService.js";
-import { debug, DEFAULT_CLIENT_ID_NUMBER } from "./constants.js";
 // Import image utilities
 import { convertImageToBWAndResize } from "./imageUtils.js";
 import { cookieUtils } from "./cookieUtils.js";
@@ -1428,16 +1427,7 @@ function convertToHtml(text: string) {
 
 // Update addMessage function to handle message types
 export function addMessage(text: string, type = "info", scrollToMessageSection = true) {
-  // Map of error codes to faq ids
-  const errorCodeToFaqId = {
-    "^NoIdentity": "faq-personal-details",
-    "^LossesTransferred": "faq-calculations",
-    "^TotalChildren": "faq-common-mistakes",
-    "^TaxCalc": "faq-calculation-failure",
-  };
-  const errorCodeToHelpId = {
-    "^No106": "form106",
-  };
+  // Use imported error code mappings
   const messageDiv: HTMLDivElement = document.createElement("div");
   messageDiv.className = "message-item";
   if (type) {
