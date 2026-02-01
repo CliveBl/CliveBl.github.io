@@ -108,6 +108,8 @@ jobs:
           SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
           if [ "$SUCCESS" != "true" ]; then
             echo "Error: Cache purge failed"
+            ERRORS=$(echo "$RESPONSE" | jq -r '.errors')
+            echo "Error details: $ERRORS"
             exit 1
           fi
           echo "Cache purge completed successfully"
@@ -184,6 +186,8 @@ jobs:
           SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
           if [ "$SUCCESS" != "true" ]; then
             echo "Error: Cache purge failed"
+            ERRORS=$(echo "$RESPONSE" | jq -r '.errors')
+            echo "Error details: $ERRORS"
             exit 1
           fi
           echo "Cache purge completed successfully"
