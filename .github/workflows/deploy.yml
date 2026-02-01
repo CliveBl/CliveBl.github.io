@@ -103,6 +103,13 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"purge_everything":true}')
           echo "Response: $RESPONSE"
+          
+          # Validate the response
+          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "Error: Cache purge failed"
+            exit 1
+          fi
           echo "Cache purge completed successfully"
 
   deploy-production:
@@ -172,4 +179,11 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"purge_everything":true}')
           echo "Response: $RESPONSE"
+          
+          # Validate the response
+          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "Error: Cache purge failed"
+            exit 1
+          fi
           echo "Cache purge completed successfully"
