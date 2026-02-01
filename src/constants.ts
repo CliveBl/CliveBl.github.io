@@ -147,7 +147,7 @@ const friendlyNames = {
 	totalRentalExpensesForHousing: "הוצאות מגורים (עד 90,000)",
 	taxableIncome: "הכנסה חייבת",
 	propertyDescriptionText: "תיאור נכס",
-  propertyPurchaseDate: "תאריך רכישת נכס",
+	propertyPurchaseDate: "תאריך רכישת נכס",
 	propertyAddressText: "כתובת נכס",
 	propertyCityName: "עיר",
 	propertyGushInteger: "גוש",
@@ -156,14 +156,16 @@ const friendlyNames = {
 	propertyGeneratesIncomeUptoDate: "הפקת הכנסה עד",
 	propertyRentedSinceDate: "מושכר מ",
 	rentersName: "שם שוכר",
-	rentersIdentificationNumber: "ת.ז/ח.פ של השוכר"
+	rentersIdentificationNumber: "ת.ז/ח.פ של השוכר",
+	lockedToClientIdBoolean: "מוקצה לת.ז. זה בלבד"
 };
 
 const titles = {
 	registeredTaxpayerBoolean: "בדרך כלל זהו בן הזוג בעל השכר הגבוה ביותר. ניתן לבדוק ולשנות זאת בעת בקשה להגיש דו״ח לרשות המסים.",
 	paragraph44or45Options: "סעיף 44 הוא לניכוי הוצאות ששולמו למוסד עבור קרוב נטול יכולת. סעיף 45 הוא לנקודת זיכוי מס.",
 	totalInstitutionExpenses: "רלוונטי רק לסעיף 44.",
-	numberOfInstitutionReceiptsInteger: "רלוונטי רק לסעיף 44."
+	numberOfInstitutionReceiptsInteger: "רלוונטי רק לסעיף 44.",
+	lockedToClientIdBoolean: "בדרך כלל אנחנו משייכים תרומות לבן זוג הרשום כדי לקבל את ההחזיר המקסמלי. יש מקרים בודדים שיותר טוב לשייך אותם לבת זוג או לחלק בן הזוג. אפשר לעשות את זה על ידי בחירה את הסימון הזה."
 };
 
 export const DEFAULT_CLIENT_ID_NUMBER = "000000000";

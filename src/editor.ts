@@ -386,7 +386,7 @@ async function updateForm(fileId: string, payload: any) {
   }
   
   if (isAnonymous()) {
-    return validateFormAPI(fileId, payload);
+    return validateAndUpdateFormLocalStorage(fileId, payload);
    }else {
     return updateFormAPI(fileId, payload);
   }
@@ -474,7 +474,7 @@ async function updateFormAPI(fileId: string, payload: any) {
   }
 }
 
-async function validateFormAPI(fileId: string, payload: any) {
+async function validateAndUpdateFormLocalStorage(fileId: string, payload: any) {
   try {
       // Send the POST request
       const response = await fetch( API_BASE_URL + "/validateForm", {
