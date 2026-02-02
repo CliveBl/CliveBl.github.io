@@ -93,11 +93,10 @@ jobs:
         run: wrangler deploy --config wrangler.jsonc
 
       - name: Purge Cloudflare Cache
-        uses: nathanvaughn/cloudflare-purge-action@v3
-        with:
-          cf_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          cf_auth_key: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          purge_everything: true
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   deploy-production:
     needs: build
@@ -156,8 +155,7 @@ jobs:
         run: wrangler deploy --config wrangler.prod.jsonc
 
       - name: Purge Cloudflare Cache
-        uses: nathanvaughn/cloudflare-purge-action@v3
-        with:
-          cf_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          cf_auth_key: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          purge_everything: true
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
