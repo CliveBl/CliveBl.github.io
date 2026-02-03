@@ -107,6 +107,7 @@ const friendlyNames = {
   LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת",
   TaxPaidAbroadThatIsAllowedAsADeductionOrCredit: "מס ששולם בחו״ל הותׁר בניכוי או בזיכוי",
   TaxPaidAbroadThatIsNotAllowedAsADeductionOrCredit: "מס ששולם בחו״ל שלא הותׁר בניכוי או בזיכוי",
+  TaxFreeIncome_332: "הכנסה פטורה ממס",
   registeredTaxpayerBoolean: "בן/בת זוג רשום",
   birthDate: "תאריך לידה",
   children: "ילדים",
