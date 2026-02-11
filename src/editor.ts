@@ -55,6 +55,7 @@ const fetchConfig = {
 interface Value {
   type: string;
   value: any;
+  currency: string;
 }
 
 const Child = {
@@ -89,6 +90,20 @@ export function hasUnsavedChanges() {
   return getEnabledSaveButtons().length > 0;
 }
 
+function getNumericValue(text: string) {
+  return text.replace(/[^\d.]/g, "");
+}
+function getCurrencySymbol(text: string) {
+  return text.replace(/[\d\.\,]/g, "");
+}
+
+function removeCustomerMessageModal() {
+  const existingModal = document.getElementById("customModal");
+  if (existingModal) {
+    existingModal.remove();
+  }
+}
+
 function customerMessageModal({
   title,
   message,
@@ -104,10 +119,7 @@ function customerMessageModal({
 }) {
   return new Promise((resolve) => {
     // Remove any existing modal
-    const existingModal = document.getElementById("customModal");
-    if (existingModal) {
-      existingModal.remove();
-    }
+    removeCustomerMessageModal();
 
     // Create modal container
     const timeModal = document.createElement("div");
@@ -206,7 +218,7 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
   function getControlValue(htmlElement: HTMLElement, fieldName: string) {
     let fieldValue: string = getElementValue(htmlElement);
     if (isCurrencyField(fieldName)) {
-      fieldValue = fieldValue.replace(/[₪,]/g, "");
+      fieldValue = getNumericValue(fieldValue);
       if (!isNaN(parseFloat(fieldValue)) && isFinite(parseFloat(fieldValue))) {
         fieldValue = parseFloat(fieldValue).toFixed(2);
       } else {
@@ -384,10 +396,10 @@ async function updateForm(fileId: string, payload: any) {
     payload.fileId = fileId; // Ensure fileId is included in the payload
     //debug("filtered fields", filteredFields);
   }
-  
+
   if (isAnonymous()) {
     return validateAndUpdateFormLocalStorage(fileId, payload);
-   }else {
+  } else {
     return updateFormAPI(fileId, payload);
   }
 }
@@ -404,7 +416,7 @@ function updateFormAllFields(allFilesData: any, fileId: string, fileType: string
   //debug(`Found form details for '${fileType}':`, formDetails);
 
   // Ensure fieldTypes exist before iterating
-  if (!formDetails.fieldTypes || formDetails.fieldTypes.length === 0) {
+  if (!formDetails.fieldTypes) {
     console.warn(`No fieldTypes found for '${fileType}'.`);
   }
 
@@ -448,26 +460,26 @@ function updateFormAllFields(allFilesData: any, fileId: string, fileType: string
 
 async function updateFormAPI(fileId: string, payload: any) {
   try {
-      // Send the POST request
-      const response = await fetch(API_BASE_URL + "/updateForm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: selectedCustomerDataEntryName,
-          formAsJSON: payload,
-        }),
-      });
+    // Send the POST request
+    const response = await fetch(API_BASE_URL + "/updateForm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        customerDataEntryName: selectedCustomerDataEntryName,
+        formAsJSON: payload,
+      }),
+    });
 
-      if (!(await handleResponse(response, "Failed to update form"))) {
-        return;
-      }
+    if (!(await handleResponse(response, "Failed to update form"))) {
+      return;
+    }
 
-      // Parse and handle the response
-      const responseData = await response.json();
-      return responseData;
+    // Parse and handle the response
+    const responseData = await response.json();
+    return responseData;
   } catch (error: any) {
     clearMessages();
     addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -476,25 +488,25 @@ async function updateFormAPI(fileId: string, payload: any) {
 
 async function validateAndUpdateFormLocalStorage(fileId: string, payload: any) {
   try {
-      // Send the POST request
-      const response = await fetch( API_BASE_URL + "/validateForm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: selectedCustomerDataEntryName,
-          formAsJSON: payload,
-        }),
-      });
+    // Send the POST request
+    const response = await fetch(API_BASE_URL + "/validateForm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        customerDataEntryName: selectedCustomerDataEntryName,
+        formAsJSON: payload,
+      }),
+    });
 
-      if (!(await handleResponse(response, "Failed to validate form"))) {
-        return;
-      }
-      // Get the data from local storage.
-      updateFormInLocalStorage(fileId, payload);
-      return fileInfoListFromLocalStorage();
+    if (!(await handleResponse(response, "Failed to validate form"))) {
+      return;
+    }
+    // Get the data from local storage.
+    updateFormInLocalStorage(fileId, payload);
+    return fileInfoListFromLocalStorage();
   } catch (error: any) {
     clearMessages();
     addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
@@ -758,14 +770,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     }
   });
 
-  function formatCurrencyWithSymbol(value: number) {
+  function formatCurrencyWithSymbol(value: number, currency: string) {
     let parts = value.toFixed(2).split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas for thousands
-    return `₪${parts.join(".")}`;
+    if (currency === "ILS") return `₪${parts.join(".")}`;
+    else return currency + `${parts.join(".")}`;
   }
 
   function currencyEventListener(input: HTMLInputElement) {
-    let rawValue = input.value.replace(/[^\d.]/g, "");
+    let rawValue = getNumericValue(input.value);
 
     if (rawValue.split(".").length > 2) {
       rawValue = rawValue.substring(0, rawValue.lastIndexOf("."));
@@ -966,8 +979,17 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       if (isNaN(numericValue)) {
         numericValue = 0.0;
       }
-      input.value = formatCurrencyWithSymbol(numericValue);
+      input.value = formatCurrencyWithSymbol(numericValue, fieldValue.currency);
 
+      let savedCurrencySymbol: string = "";
+      input.addEventListener("focus", (e) => {
+        // Save the currencySymbol and remove it from the control while we edit.
+        let rawValue = getNumericValue(input.value);
+        savedCurrencySymbol = getCurrencySymbol(input.value);
+        input.value = rawValue;
+
+        currencyEventListener(input);
+      });
       // **Restrict typing to valid numeric input**
       input.addEventListener("input", (e) => {
         currencyEventListener(input);
@@ -975,14 +997,12 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       // 🟢 **Format on Blur**
       input.addEventListener("blur", () => {
-        let rawValue = input.value.replace(/[^\d.]/g, "");
-        let parsedNum = parseFloat(rawValue);
-
+        let parsedNum = parseFloat(getNumericValue(input.value));
         if (isNaN(parsedNum)) {
           parsedNum = 0.0;
         }
-
-        input.value = formatCurrencyWithSymbol(parsedNum);
+        // Restore saved currency sumbol back to the control.
+        input.value = formatCurrencyWithSymbol(parsedNum, savedCurrencySymbol);
       });
     }
   }
@@ -1123,13 +1143,16 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
     }
 
+    let currentCurrency: any = "ILS";
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
       if (key !== "fields" && key !== "genericFields" && key !== "children") {
         const fieldValue: Value = {
           type: "any",
           value: value,
+          currency: key.includes("FXX") ? currentCurrency : "ILS",
         };
+        if (key === "currencyOptions") currentCurrency = value; // Will be used from now on
         createFieldRow(accordianBody, "", 0, key, fieldValue);
       }
     });
@@ -1144,6 +1167,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         const fieldValue: Value = {
           type: "any",
           value: value,
+          currency: "",
         };
         populateField(clone, key, fieldValue);
       });
@@ -1160,6 +1184,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         const fieldValue: Value = {
           type: "any",
           value: value,
+          currency: "",
         };
         createFieldRow(accordianBody, "", 0, key, fieldValue);
       });
@@ -1236,11 +1261,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           itemContainer.appendChild(deleteItemButton);
 
           accordianBody.appendChild(itemContainer);
+
+          let currentCurrency: any = "ILS";
           Object.entries(item).forEach(([key, value]) => {
             let fieldValue: Value = {
               type: "any",
               value: value,
+              currency: key.includes("FXX") ? currentCurrency : "ILS",
             };
+            if (key === "currencyOptions") currentCurrency = value;
             if (key === "value" && ((item.field867Type && isExceptionalIntegerField(item.field867Type)) || (item.field106Type && isExceptionalIntegerField(item.field106Type)))) {
               fieldValue.type = "Integer";
             }
@@ -1253,9 +1282,13 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     // Call the function for children
     renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
 
-    const template = is106TypeForm(fileData) ? Generic106Item : Generic867Item;
-    // Call the function for generic fields
-    renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה", template, withAllFields);
+    const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
+
+    if (formDetails.fieldTypes ? formDetails.fieldTypes.length > 0 : false) {
+      const itemTemplate = is106TypeForm(fileData) ? Generic106Item : Generic867Item;
+      // Call the function for generic fields only if there is at least one type.
+      renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה", itemTemplate, withAllFields);
+    }
 
     // Create a container for action buttons and help link
     const actionButtonsContainer = document.createElement("div") as HTMLDivElement;
@@ -1378,9 +1411,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       if (valueField) {
         if (isExceptionalIntegerField(selectedOption)) {
           // Format it as an integer
-          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "Integer", value: "0" });
+          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "Integer", value: "0", currency: "" });
         } else {
-          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "any", value: "0" });
+          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "any", value: "0", currency: "" });
         }
       }
     }
@@ -1490,6 +1523,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       const fieldValue: Value = {
         type: "any",
         value: value,
+        currency: "",
       };
       formatInput(fieldName, input, fieldValue);
       addChangeHandler(input, accordianBody);
@@ -1548,7 +1582,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         let deleted = false;
         if (isAnonymous()) {
           deleted = await deleteFileFromLocalStorage(fileData.fileId);
-         } else {
+        } else {
           const deleteUrl = `${API_BASE_URL}/deleteForm?fileId=${fileData.fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`;
           const response = await fetch(deleteUrl, {
             method: "DELETE",
@@ -1649,15 +1683,16 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       // Normal save behavior (existing code)
       const formData = getDataFromControls(accordianBody, fileData);
+      // Display  modal
+      customerMessageModal({
+        title: "שמירת נתונים",
+        message: `הנתונים נשמרו בהצלחה`,
+        button1Text: "",
+        button2Text: "",
+      });
       const updatedData = await updateForm(fileData.fileId, formData);
+      removeCustomerMessageModal();
       if (updatedData) {
-        // Display success modal
-        await customerMessageModal({
-          title: "שמירת נתונים",
-          message: `הנתונים נשמרו בהצלחה`,
-          button1Text: "",
-          button2Text: "",
-        });
         // Just update the backupAllFilesData with the updatedData
         const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
         if (formIndex !== -1) {

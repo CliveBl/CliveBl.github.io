@@ -3016,7 +3016,7 @@ function restoreSelectedDocTypes() {
 
 // Add this function to update missing document counts
 function updateMissingDocuments() {
-  debug("updateMissingDocuments");
+  //debug("updateMissingDocuments");
   // Get all documents from file list
   const fileListDocs = getDocTypes();
 

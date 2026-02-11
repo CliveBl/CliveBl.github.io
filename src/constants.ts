@@ -130,6 +130,10 @@ const friendlyNames = {
     name: "מצב משפחתי",
     options: ["רווק", "נשוי", "אלמן", "גרוש", "פרוד"],
   },
+  currencyOptions: {
+    name: "מטבע",
+    options: ["USD"]
+  },
   genderOptions: { name: "מין", options: ["זכר", "נקבה"] },
   blindOrDisabledBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה",
   blindOrDisabledAndReceivingBenefitsBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה ומקבל גמלה ממשרד הבטחון/פעולות איבה",
@@ -158,7 +162,11 @@ const friendlyNames = {
 	propertyRentedSinceDate: "מושכר מ",
 	rentersName: "שם שוכר",
 	rentersIdentificationNumber: "ת.ז/ח.פ של השוכר",
-	lockedToClientIdBoolean: "מוקצה לת.ז. זה בלבד"
+	lockedToClientIdBoolean: "מוקצה לת.ז. זה בלבד",
+	purchaseDate: "תאריך רכישה",
+	saleDate: "תאריך מכירה",
+	purchasePriceFXX: "מחיר רכישה",
+	salePriceFXX: "מחיר מכירה",
 };
 
 const titles = {

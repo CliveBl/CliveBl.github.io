@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.47";
+export let UIVersion = "1.48";
 export let ServerVersion = "";
 
 // Customer management
@@ -519,8 +519,8 @@ export function translateError(error: string): string {
   const colonIndex = error.indexOf(":");
   const errorMessage = colonIndex !== -1 ? error.substring(colonIndex + 1).trim() : error.trim();
   const errorPrefix = colonIndex !== -1 ? error.substring(0, colonIndex).trim() : "";
-  debug("translateError:", errorMessage);
-  debug("tranlationTable[errorMessage]:", tranlationTable[errorMessage]);
+//   debug("translateError:", errorMessage);
+//   debug("tranlationTable[errorMessage]:", tranlationTable[errorMessage]);
   const translatedMessage = tranlationTable[errorMessage] || errorMessage;
   return errorPrefix ? errorPrefix + ": " + translatedMessage : translatedMessage;
 }
