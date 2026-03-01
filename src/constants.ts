@@ -130,9 +130,9 @@ const friendlyNames = {
     name: "מצב משפחתי",
     options: ["רווק", "נשוי", "אלמן", "גרוש", "פרוד"],
   },
-  currencyOptions: {
+  currencySelect: {
     name: "מטבע",
-    options: ["USD"]
+    options: ["USD", "GBP", "EUR", "JPY", "ILS"],
   },
   genderOptions: { name: "מין", options: ["זכר", "נקבה"] },
   blindOrDisabledBoolean: "עיוור או נכה לפי סעיף 9(5)(א) או (א1) לפקודה",
@@ -147,41 +147,47 @@ const friendlyNames = {
   dependantIdentificationNumber: "מספר זיהוי בן המשפחה הנכה",
   paymentDate: "תאריך תשלום",
   singleDwellingOwnerBoolean: "דירה יחידה",
-	inheritanceOrYearBeforeMarriageBoolean: "ירושה/שנה לפני נישואים",
-	rentalGrossIncome: "הכנסה ברוטו",
-	totalRentalExpensesForHousing: "הוצאות מגורים (עד 90,000)",
-	taxableIncome: "הכנסה חייבת",
-	propertyDescriptionText: "תיאור נכס",
-	propertyPurchaseDate: "תאריך רכישת נכס",
-	propertyAddressText: "כתובת נכס",
-	propertyCityName: "עיר",
-	propertyGushInteger: "גוש",
-	propertyHelkaInteger: "חלקה",
-	propertyGeneratesIncomeSinceDate: "הפקת הכנסה מ",
-	propertyGeneratesIncomeUptoDate: "הפקת הכנסה עד",
-	propertyRentedSinceDate: "מושכר מ",
-	rentersName: "שם שוכר",
-	rentersIdentificationNumber: "ת.ז/ח.פ של השוכר",
-	lockedToClientIdBoolean: "מוקצה לת.ז. זה בלבד",
-	purchaseDate: "תאריך רכישה",
-	saleDate: "תאריך מכירה",
-	purchasePriceFXX: "מחיר רכישה",
-	salePriceFXX: "מחיר מכירה",
+  inheritanceOrYearBeforeMarriageBoolean: "ירושה/שנה לפני נישואים",
+  rentalGrossIncome: "הכנסה ברוטו",
+  totalRentalExpensesForHousing: "הוצאות מגורים (עד 90,000)",
+  taxableIncome: "הכנסה חייבת",
+  propertyDescriptionText: "תיאור נכס",
+  propertyPurchaseDate: "תאריך רכישת נכס",
+  propertyAddressText: "כתובת נכס",
+  propertyCityName: "עיר",
+  propertyGushInteger: "גוש",
+  propertyHelkaInteger: "חלקה",
+  propertyGeneratesIncomeSinceDate: "הפקת הכנסה מ",
+  propertyGeneratesIncomeUptoDate: "הפקת הכנסה עד",
+  propertyRentedSinceDate: "מושכר מ",
+  rentersName: "שם שוכר",
+  rentersIdentificationNumber: "ת.ז/ח.פ של השוכר",
+  lockedToClientIdBoolean: "מוקצה לת.ז. זה בלבד",
+  propertyName: "שם הנכס",
+  purchaseDate: "תאריך רכישה",
+  saleDate: "תאריך מכירה",
+  purchasePriceFXX: "מחיר רכישה",
+  salePriceFXX: "מחיר מכירה",
 };
 
 const titles = {
-	registeredTaxpayerBoolean: "בדרך כלל זהו בן הזוג בעל השכר הגבוה ביותר. ניתן לבדוק ולשנות זאת בעת בקשה להגיש דו״ח לרשות המסים.",
-	paragraph44or45Options: "סעיף 44 הוא לניכוי הוצאות ששולמו למוסד עבור קרוב נטול יכולת. סעיף 45 הוא לנקודת זיכוי מס.",
-	totalInstitutionExpenses: "רלוונטי רק לסעיף 44.",
-	numberOfInstitutionReceiptsInteger: "רלוונטי רק לסעיף 44.",
-	lockedToClientIdBoolean: "בדרך כלל אנחנו משייכים תרומות לבן זוג הרשום כדי לקבל את ההחזיר המקסמלי. יש מקרים בודדים שיותר טוב לשייך אותם לבת זוג או לחלק בן הזוג. אפשר לעשות את זה על ידי בחירה את הסימון הזה."
+  registeredTaxpayerBoolean: "בדרך כלל זהו בן הזוג בעל השכר הגבוה ביותר. ניתן לבדוק ולשנות זאת בעת בקשה להגיש דו״ח לרשות המסים.",
+  paragraph44or45Options: "סעיף 44 הוא לניכוי הוצאות ששולמו למוסד עבור קרוב נטול יכולת. סעיף 45 הוא לנקודת זיכוי מס.",
+  totalInstitutionExpenses: "רלוונטי רק לסעיף 44.",
+  numberOfInstitutionReceiptsInteger: "רלוונטי רק לסעיף 44.",
+  lockedToClientIdBoolean:
+    "בדרך כלל אנחנו משייכים תרומות לבן זוג הרשום כדי לקבל את ההחזיר המקסמלי. יש מקרים בודדים שיותר טוב לשייך אותם לבת זוג או לחלק בן הזוג. אפשר לעשות את זה על ידי בחירה את הסימון הזה.",
+  currencySelect: "שמור שינוים כדי לראות את השינוי",
+  purchasePriceFXX: "מחיר הרכישה במטבע המקורי של העסקה, בתוספת עמלות",
+  salePriceFXX: "מחיר המכירה במטבע המקורי של העסקה, פחות עמלות",
+  propertyName: "שם המניה או נכס אחר"
 };
 
 export const DEFAULT_CLIENT_ID_NUMBER = "000000000";
 
 export function getTitle(key: string) {
-	const title = titles[key as keyof typeof titles];
-	return title;
+  const title = titles[key as keyof typeof titles];
+  return title;
 }
 
 export function getFriendlyName(key: string) {
@@ -189,7 +195,7 @@ export function getFriendlyName(key: string) {
   if (friendly === undefined) {
     console.error(`Friendly name for ${key} not found`);
   }
-  return typeof friendly === "string" ? friendly : friendly?.name ?? "";
+  return typeof friendly === "string" ? friendly : (friendly?.name ?? "");
 }
 
 export function getFriendlyOptions(key: string) {
@@ -215,14 +221,12 @@ export function isCurrencyField(fieldName: string) {
     fieldName.endsWith("Code") ||
     fieldName.endsWith("Boolean") ||
     fieldName.endsWith("Options") ||
+    fieldName.endsWith("Select") ||
     fieldName.endsWith("Type")
   );
 }
 
-const exceptionalIntegerFieldNames = [
-  "SettlementDiscount_327_287",
-  "NumberOfDealsInteger"
-];
+const exceptionalIntegerFieldNames = ["SettlementDiscount_327_287", "NumberOfDealsInteger"];
 export function isExceptionalIntegerField(fieldName: string) {
   return exceptionalIntegerFieldNames.includes(fieldName);
 }
@@ -249,9 +253,9 @@ export function dummyName(name: string) {
 
 export function dummyIdNumber(idNumber: string) {
   if (hideIdentity) {
-	if(idNumber === "DEFAULT_CLIENT_ID_NUMBER"){
-		return "DEFAULT_CLIENT_ID_NUMBER";
-	}
+    if (idNumber === "DEFAULT_CLIENT_ID_NUMBER") {
+      return "DEFAULT_CLIENT_ID_NUMBER";
+    }
     if (idNumber.includes("05239")) {
       return "123456789";
     }
@@ -265,7 +269,7 @@ export const NO_YEAR = "ללא שנה";
 export const ANONYMOUS_EMAIL = "AnonymousEmail";
 
 export function is106TypeForm(fileData: any) {
-	return fileData.documentType === "טופס 106 מעביד" || fileData.documentType === "אישור מס עבור קרן פנסיה חדשה" || fileData.type === "FormNewPensionFund";
+  return fileData.documentType === "טופס 106 מעביד" || fileData.documentType === "אישור מס עבור קרן פנסיה חדשה" || fileData.type === "FormNewPensionFund";
 }
 
 // Map of error codes to FAQ section IDs

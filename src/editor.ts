@@ -960,7 +960,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           input.value = "false";
         }
       };
-    } else if (key.endsWith("Options")) {
+    } else if (key.endsWith("Options") || key.endsWith("Select")) {
       // Deal with this later
     } else if (key.endsWith("field867Type") || key.endsWith("field106Type")) {
       // Deal with this later
@@ -1061,7 +1061,29 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         return;
       }
 
-      if (key.endsWith("Options")) {
+      if (key.endsWith("Select")) {
+        // Create a dropdown with the options
+        const dropdown = document.createElement("select") as HTMLSelectElement;
+        dropdown.className = "editor-select";
+        dropdown.id = fieldId;
+        dropdown.name = key;
+        dropdown.textContent = key;
+        dropdown.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
+        dropdown.appendChild(document.createTextNode(fieldValue.value));
+
+        const options = getFriendlyOptions(key);
+        debug(options, fieldValue.value);
+        options.forEach((option: string) => {
+          const optionElement = document.createElement("option") as HTMLOptionElement;
+          optionElement.value = option;
+          optionElement.appendChild(document.createTextNode(option));
+          dropdown.appendChild(optionElement);
+        });
+        // Select the option that is currently selected
+        dropdown.value = fieldValue.value;
+        addChangeHandler(dropdown, accordianBody);
+        fieldRow.appendChild(dropdown);
+      } else if (key.endsWith("Options")) {
         const radioGroup = document.createElement("div") as HTMLDivElement;
         radioGroup.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         radioGroup.id = fieldId;
@@ -1143,7 +1165,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
     }
 
-    let currentCurrency: any = "ILS";
+    let currentCurrency: string = "ILS";
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
       if (key !== "fields" && key !== "genericFields" && key !== "children") {
@@ -1152,7 +1174,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           value: value,
           currency: key.includes("FXX") ? currentCurrency : "ILS",
         };
-        if (key === "currencyOptions") currentCurrency = value; // Will be used from now on
+        if (key === "currencySelect") 
+		{
+			// This sets the currency for all subsequent fields that have FXX in their name.
+			currentCurrency = value as string;
+		}
         createFieldRow(accordianBody, "", 0, key, fieldValue);
       }
     });
@@ -1262,14 +1288,18 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
           accordianBody.appendChild(itemContainer);
 
-          let currentCurrency: any = "ILS";
+          let currentCurrency: string = "ILS";
           Object.entries(item).forEach(([key, value]) => {
             let fieldValue: Value = {
               type: "any",
               value: value,
               currency: key.includes("FXX") ? currentCurrency : "ILS",
             };
-            if (key === "currencyOptions") currentCurrency = value;
+            if (key === "currencySelect")
+			{
+				// This sets the currency for all subsequent fields with FXX in the name of this item until another currencySelect field is encountered.
+				currentCurrency = value as string;
+			}
             if (key === "value" && ((item.field867Type && isExceptionalIntegerField(item.field867Type)) || (item.field106Type && isExceptionalIntegerField(item.field106Type)))) {
               fieldValue.type = "Integer";
             }

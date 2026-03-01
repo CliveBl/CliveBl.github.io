@@ -1688,6 +1688,8 @@ function descriptionFromFileName(fileName: string) {
     description = `${year}: טופס 1322 - רווח מהון מניירות ערך`;
   } else if (name === "1344") {
     description = `${year}: טופס 1344 - הפסדים מועברים`;
+  } else if (name === "1325") {
+    description = `${year}: טופס 1325 - רווח הון מניירות ערך סחירים`;
   } else if (name === "1321") {
     description = `${year}: טופס 1321 - שכירות 10% מס`;
   } else if (name === "1301") {
