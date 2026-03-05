@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.49";
+export let UIVersion = "1.50";
 export let ServerVersion = "";
 
 // Customer management
@@ -228,6 +228,7 @@ export function signOut(): void {
 
   // Update UI to show logged out state
   clearUserSession();
+  emit("signOut");
 }
 
 export function clearUserSession(): void {
@@ -682,7 +683,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         UserRole = "ROLE_USER";
       }
-      SignedIn = true;
+	  updateSignInState(true);
 
       debug("Successfully got BasicInfo");
     }

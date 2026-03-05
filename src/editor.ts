@@ -504,8 +504,9 @@ async function validateAndUpdateFormLocalStorage(fileId: string, payload: any) {
     if (!(await handleResponse(response, "Failed to validate form"))) {
       return;
     }
+    const formJson = await response.json();
     // Get the data from local storage.
-    updateFormInLocalStorage(fileId, payload);
+    updateFormInLocalStorage(fileId, payload, formJson);
     return fileInfoListFromLocalStorage();
   } catch (error: any) {
     clearMessages();
@@ -1072,7 +1073,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         dropdown.appendChild(document.createTextNode(fieldValue.value));
 
         const options = getFriendlyOptions(key);
-        debug(options, fieldValue.value);
         options.forEach((option: string) => {
           const optionElement = document.createElement("option") as HTMLOptionElement;
           optionElement.value = option;
@@ -1174,11 +1174,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           value: value,
           currency: key.includes("FXX") ? currentCurrency : "ILS",
         };
-        if (key === "currencySelect") 
-		{
-			// This sets the currency for all subsequent fields that have FXX in their name.
-			currentCurrency = value as string;
-		}
+        if (key === "currencySelect") {
+          // This sets the currency for all subsequent fields that have FXX in their name.
+          currentCurrency = value as string;
+        }
         createFieldRow(accordianBody, "", 0, key, fieldValue);
       }
     });
@@ -1295,11 +1294,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
               value: value,
               currency: key.includes("FXX") ? currentCurrency : "ILS",
             };
-            if (key === "currencySelect")
-			{
-				// This sets the currency for all subsequent fields with FXX in the name of this item until another currencySelect field is encountered.
-				currentCurrency = value as string;
-			}
+            if (key === "currencySelect") {
+              // This sets the currency for all subsequent fields with FXX in the name of this item until another currencySelect field is encountered.
+              currentCurrency = value as string;
+            }
             if (key === "value" && ((item.field867Type && isExceptionalIntegerField(item.field867Type)) || (item.field106Type && isExceptionalIntegerField(item.field106Type)))) {
               fieldValue.type = "Integer";
             }

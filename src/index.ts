@@ -109,6 +109,23 @@ const SUPPRESS_RETRY_PATTERNS = [
   // Add more patterns here as needed
 ];
 
+async function ensureAnonymousSignInIfLocalForms(): Promise<void> {
+  try {
+    if (SignedIn) {
+      return;
+    }
+    if (!window.location.pathname.includes("tax_return.html")) {
+      return;
+    }
+    const forms = await fileInfoListFromLocalStorage();
+    if (forms && forms.length > 0) {
+      await signInAnonymous();
+    }
+  } catch (e) {
+    console.error("ensureAnonymousSignInIfLocalForms error:", e);
+  }
+}
+
 // Set up event listeners
 setupEventListeners();
 
@@ -138,6 +155,9 @@ function clearUserSession() {
 function setupEventListeners() {
   on("authServiceInitialized", () => {
     initialize();
+    setTimeout(() => {
+      void ensureAnonymousSignInIfLocalForms();
+    }, 2000);
   });
   on("signInChanged", () => {
     if (SignedIn) {
@@ -151,6 +171,9 @@ function setupEventListeners() {
     if (SignedIn) {
       initializeUserSession();
     }
+  });
+  on("signOut", () => {
+    ensureAnonymousSignInIfLocalForms();
   });
   debug("setupEventListeners done");
 }
@@ -234,7 +257,7 @@ async function getSharedFilesFromMultipleSources(): Promise<File[] | null> {
               lastModified: fileInfo.lastModified || Date.now(),
             });
           }
-        })
+        }),
       );
 
       console.log(`Successfully reconstructed ${files.length} shared files`);
@@ -286,7 +309,7 @@ async function getSharedFilesFromCache(): Promise<File[] | null> {
               return new File([blob], fileName, { type: blob.type });
             }
             return null;
-          })
+          }),
         );
 
         const validFiles = files.filter((f) => f !== null) as File[];
@@ -363,7 +386,7 @@ export async function testSharedFilesViaMessage(files: File[]): Promise<boolean>
           text: "Simulated share from test",
           files: files,
         },
-        [messageChannel.port2]
+        [messageChannel.port2],
       );
     });
   } catch (error) {
@@ -372,7 +395,10 @@ export async function testSharedFilesViaMessage(files: File[]): Promise<boolean>
   }
 }
 
-let editableFileList = sessionStorage.getItem("editableFileList") === "true";
+if (sessionStorage.getItem("editableFileList") === null) {
+  sessionStorage.setItem("editableFileList", "true");
+}
+let editableFileList: boolean = sessionStorage.getItem("editableFileList") === "true";
 
 // Get references to DOM elements
 const fileInput = document.getElementById("fileInput") as HTMLInputElement;
@@ -485,6 +511,9 @@ function getDocTypes() {
 async function loadExistingFiles() {
   try {
     debug("loadExistingFiles");
+    await loadConfiguration();
+    debug("Configuration loaded in initialize", configurationData);
+
     let fileInfoList: FileInfo[] = [];
     if (isAnonymous()) {
       fileInfoList = await fileInfoListFromLocalStorage();
@@ -1232,7 +1261,7 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
           "metadata",
           new Blob([JSON.stringify(metadata)], {
             type: "application/json",
-          })
+          }),
         );
 
         try {
@@ -1265,7 +1294,7 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
             // Get forms array from parseFile response (normalize to array)
             const formsRaw = await response.json();
             const forms = Array.isArray(formsRaw) ? formsRaw : [formsRaw];
-            console.debug("parseFile returned forms count:", forms.length);
+            debug("parseFile returned forms count:", forms.length);
 
             // Store each parsed form with a generated fileId into IndexedDB
             await addFormsToLocalStorage(forms);
@@ -1341,7 +1370,7 @@ async function addFormsToLocalStorage(forms: any[]) {
         const formWithId = { ...form, fileId };
         store.put(formWithId);
       }
-      console.debug("Stored parsed forms into IndexedDB (forms store)");
+      debug("Stored parsed forms into IndexedDB (forms store)");
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(new Error(`Failed to store forms: ${transaction.error}`));
     } catch (e) {
@@ -1350,7 +1379,7 @@ async function addFormsToLocalStorage(forms: any[]) {
   });
 }
 
-export async function updateFormInLocalStorage(fileId: string, payload: any): Promise<boolean> {
+export async function updateFormInLocalStorage(fileId: string, payload: any, formJson: any): Promise<boolean> {
   try {
     const db = await openDb();
     return await new Promise<boolean>((resolve, reject) => {
@@ -1358,6 +1387,8 @@ export async function updateFormInLocalStorage(fileId: string, payload: any): Pr
         const tx = db.transaction(["forms"], "readwrite");
         const store = tx.objectStore("forms");
         payload.fileId = fileId;
+        payload.taxYear = formJson.taxYear;
+        payload.noteText = formJson.noteText;
         const putRequest = store.put(payload);
         putRequest.onsuccess = () => {
           tx.oncomplete = () => resolve(true);
@@ -1383,13 +1414,10 @@ export async function fileInfoListFromLocalStorage() {
       getAllRequest.onsuccess = () => {
         const res = getAllRequest.result;
         if (Array.isArray(res)) {
-          console.debug("IndexedDB returned forms count:", res.length);
           resolve(res as any[]);
         } else if (res == null) {
-          console.debug("IndexedDB returned no forms");
           resolve([]);
         } else {
-          console.debug("IndexedDB returned single form object");
           resolve([res] as any[]);
         }
       };
@@ -1673,11 +1701,9 @@ function descriptionFromFileName(fileName: string) {
   // 1301_2023.dat should return 2023: Data file for uploading to the tax authority
 
   // Split the file name into its components
-  console.debug("Generating description for file:", fileName);
   const parts = fileName.split("_");
   const name = parts[0];
   const year = parts[1].split(".")[0];
-  const type = parts[1].split(".")[1];
 
   // Build the description in Hebrew
   let description = "";
@@ -2067,22 +2093,6 @@ export function addFileToList(fileInfo: any) {
     }
   }
 
-  async function deleteFileQuietly(fileId: string) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/deleteForm?fileId=${fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
-        method: "DELETE",
-        headers: {},
-        credentials: "include",
-        ...fetchConfig,
-      });
-
-      if (!(await handleResponse(response, "Delete failed"))) {
-        return;
-      }
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
-  }
   let status;
   let statusMessage;
   const fileId = fileInfo.fileId;
@@ -2677,22 +2687,23 @@ async function initialize() {
   }
 
   try {
-    await loadConfiguration();
+    await loadConfiguration(); // For Create form select menu.
     versionNumberElement.textContent = `גרסה ${UIVersion}`;
 
+    if (!SignedIn) {
+      debug("Not signed in");
+      //	  	await signInAnonymous();
+    }
     if (SignedIn) {
       versionNumberElement.textContent = `גרסה ${ServerVersion} ${UIVersion}`;
 
       initializeDocumentIcons();
-      await loadExistingFiles();
-      await loadResults(false); // Dont scroll
-      debug("Successfully loaded files and results with existing token");
+      //await loadExistingFiles();
+      //await loadResults(false); // Dont scroll
+      //debug("Successfully loaded files and results with existing token");
     }
   } catch (error) {
     console.error("Exception fetching Basic Info:", error);
-  }
-  if (!SignedIn) {
-    debug("Not signed in");
   }
 
   // Pre-fill feedback email if user is logged in
@@ -2835,7 +2846,7 @@ async function initialize() {
   const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
   if (!disclaimerAccepted) {
     showInfoModal(
-      "אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש."
+      "אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.",
     );
     cookieUtils.set("disclaimerAccepted", "true", 365);
   }
@@ -3023,12 +3034,15 @@ function updateMissingDocuments() {
   const fileListDocs = getDocTypes();
 
   // Count documents by type
-  const docCounts = fileListDocs.reduce((acc: Record<string, number>, type: string | null) => {
-    if (type) {
-      acc[type] = (acc[type] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const docCounts = fileListDocs.reduce(
+    (acc: Record<string, number>, type: string | null) => {
+      if (type) {
+        acc[type] = (acc[type] || 0) + 1;
+      }
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const missingDocs: { name: string; count: number }[] = [];
   // const allDocsZero = Array.from(document.querySelectorAll('.doc-controls select'))
