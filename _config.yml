@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: דו״ח שנתי - עשה זאת בעצמך
+title: החזר מס - עשה זאת בעצמך
 email: cgtpersonaltaxil@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Yearly tax return preparation tool for Israeli taxpayers
