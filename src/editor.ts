@@ -47,6 +47,13 @@ const template867YearsMap = {
   2022: "template_867_2022",
   2023: "template_867_2022",
   2024: "template_867_2022",
+  2025: "template_867_2022",
+  2026: "template_867_2022",
+  2027: "template_867_2022",
+  2028: "template_867_2022",
+  2029: "template_867_2022",
+  2030: "template_867_2022",
+  2031: "template_867_2022",
 };
 const fetchConfig = {
   mode: "cors" as RequestMode,
