@@ -1014,6 +1014,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         input.value = rawValue;
 
         currencyEventListener(input);
+		// Cursor before decimal point.
+		const cursorPosition = input.value.length - 3;
+		input.setSelectionRange(cursorPosition,cursorPosition);
       });
       // **Restrict typing to valid numeric input**
       input.addEventListener("input", (e) => {
