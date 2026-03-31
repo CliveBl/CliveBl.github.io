@@ -872,17 +872,34 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         input.classList.add("value");
       }
     } else if (key.endsWith("IdentificationNumber")) {
+      // Format is ddddddddd or ddddddddd+ddddddddd
       input.type = "text";
-      input.maxLength = 9;
-      input.pattern = "\\d{9}";
-      input.inputMode = "numeric";
+      input.title = "תעודת זהות חוקי או שתים מופדים ב '+'";
+      input.maxLength = 19;
+      input.pattern = "^\\d{9}(\\+\\d{9})?$";
+      input.inputMode = "text";
       input.value = dummyIdNumber(fieldValue.value);
       input.placeholder = getFriendlyName(key);
       input.oninput = () => {
-        input.value = input.value.replace(/\D/g, "").slice(0, 9);
+        let value = input.value.replace(/[^0-9+]/g, "");
+        const hasPlus = value.includes("+");
+        const parts = value.split("+", 2);
+        const first = (parts[0] ?? "").replace(/\D/g, "").slice(0, 9);
+        const secondClean = (parts[1] ?? "").replace(/\D/g, "").slice(0, 9);
+        // Keep the '+' while the user is still typing the second block.
+        input.value = hasPlus ? (secondClean ? `${first}+${secondClean}` : `${first}+`) : first;
       };
       input.onblur = () => {
-        input.value = input.value.padStart(9, "0");
+        const parts = input.value.split("+", 2);
+        const pad = (s: string) => (s ? s.replace(/\D/g, "").padStart(9, "0").slice(-9) : "".padStart(9, "0"));
+        const first = pad(parts[0] ?? "");
+        const secondRaw = parts[1] ?? "";
+        if (secondRaw) {
+          const second = pad(secondRaw);
+          input.value = `${first}+${second}`;
+        } else {
+          input.value = first;
+        }
       };
     } else if (key.endsWith("Number")) {
       input.type = "text";
