@@ -103,6 +103,7 @@ const friendlyNames = {
   TaxDeductedAtSourceDeposit_043: "מס שנוכה במקור (פקדון)",
   TaxDeductedAtSourceDividend_040: "מס שנוכה במקור (דיבידנד)",
   TaxDeductedAtSourceInterest_040: "מס שנוכה במקור (ריבית)",
+  TaxDeductedAtSourceDividendAndInterest_040: "מס שנוכה במקור (דיבידנד/ריבית)",
   TotalExemptInterestAndIndexLinkageDifference_209: "ריבית פטורה והפרש הצמדה",
   LossesTransferredFromPreviousYear: "הפסדים שהועברו משנה קודמת",
   TaxPaidAbroadThatIsAllowedAsADeductionOrCredit: "מס ששולם בחו״ל הותׁר בניכוי או בזיכוי",
