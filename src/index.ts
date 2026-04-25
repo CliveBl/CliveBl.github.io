@@ -139,7 +139,7 @@ async function initializeUserSession() {
   restoreSelectedDocTypes();
   updateMissingDocuments();
   // Pre-fill feedback email if user is logged in
-  feedbackEmail.value = SignedIn ? UserEmailValue : "";
+  feedbackEmail.value = SignedIn && !isAnonymous() ? UserEmailValue : "";
 }
 
 // Update UI to show logged out state
@@ -2707,7 +2707,7 @@ async function initialize() {
   }
 
   // Pre-fill feedback email if user is logged in
-  feedbackEmail.value = SignedIn ? UserEmailValue : "";
+  feedbackEmail.value = SignedIn && !isAnonymous() ? UserEmailValue : "";
   updateFeedbackButtonState();
 
   // Add event listeners for document count selects
