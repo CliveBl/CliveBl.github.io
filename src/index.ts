@@ -1238,7 +1238,8 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
         try {
           newFile = (await convertImageToBWAndResize(file)) as File;
         } catch (error: unknown) {
-          addMessage("שגיאה בעיבוד התמונה: " + file.name + " " + (error instanceof Error ? error.message : String(error)), "error");
+		  debug(error);
+          addMessage("קובץ תמונה פגום: " + file.name, "error");
           continue;
         }
       }
@@ -1563,8 +1564,9 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   }
   // If the message type is "error", append it to the feedbackMessage in the feedback section
   if (type === "error") {
-    const timestamp = new Date().toLocaleTimeString();
-    feedbackMessage.textContent = `${timestamp}: ${text}`;
+	const date = new Date();
+    const timestamp = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    feedbackMessage.textContent += `${timestamp}\n${text}\n`;
   }
 }
 
