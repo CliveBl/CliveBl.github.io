@@ -39,6 +39,7 @@ const friendlyNames = {
   monthsOfEmploymentInteger: "חודשי עבודה",
   ReceivedFromNI_196_194: "התקבל מהמוסד לביטוח לאומי",
   Salary_172_158: "שכר עבודה",
+  NonSalaryIncome_170_150: "הכנסה מיגיעה אישית מעסק או משלח יד ",
   LeavingBonus_272_258: "קצבאות ומענקי פרישה",
   TaxFreeLeavingBonus_209: "תשלומים פטור ממס",
   EducationFund_219_218: "השכר לקרן השתלמות",
