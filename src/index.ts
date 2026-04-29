@@ -19,7 +19,7 @@ import { cookieUtils } from "./cookieUtils.js";
 import { hasUnsavedChanges, saveAllChanges, displayFileInfoInExpandableArea, editableFileListHasEntries, editableGetDocTypes, editableRemoveFileList, editableOpenFileListEntry } from "./editor.js";
 import { API_BASE_URL, AUTH_BASE_URL } from "./env.js";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+const MAX_FILE_SIZE = 14 * 1024 * 1024; // 14MB in bytes
 const LOCAL_DB_VERSION = 1;
 
 // Cached DB connection for this page context. Use short-lived transactions for operations.

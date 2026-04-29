@@ -83,6 +83,18 @@ const Generic106Item = {
   value: "0.00",
   explanationText: "",
 };
+const DistributionItem = {
+  distributiontaxYear: "",
+  distributionValue: "0.00",
+  prepaidTax: "0.00",
+};
+
+const collectionNamesSet = new Set([
+  "fields",
+  "genericFields",
+  "children",
+  "distributions"
+]);
 
 const saveAllButton = document.getElementById("saveAllButton") as HTMLButtonElement;
 
@@ -1195,7 +1207,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     let currentCurrency: string = "ILS";
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
-      if (key !== "fields" && key !== "genericFields" && key !== "children") {
+      if (!collectionNamesSet.has(key)) {
         const fieldValue: Value = {
           type: "any",
           value: value,
@@ -1345,6 +1357,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       renderItemArray(fileData.genericFields, accordianBody, "genericFields", "הוספת שדה", itemTemplate, withAllFields);
     }
 
+    renderItemArray(fileData.distributions, accordianBody, "distributions", "הוספת שדה", DistributionItem, withAllFields);
+	  
     // Create a container for action buttons and help link
     const actionButtonsContainer = document.createElement("div") as HTMLDivElement;
     actionButtonsContainer.className = "form-actions-container";

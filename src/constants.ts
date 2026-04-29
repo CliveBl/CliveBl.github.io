@@ -47,6 +47,7 @@ const friendlyNames = {
   InsuredIncome_245_244: "הכנסה מבוטחת",
   IncomeTaxDeduction_042: "מס הכנסה",
   NationalInsuranceIncomeTaxDeduction_040: "מס הכנסה מקצבה ביטוח לאומי",
+  NonSalaryIncomeTaxDeduction_040: "ניכוי מס הכנסה לא ממשכורת",
   Donations_237_037: "תרומות",
   NationalInsuranceNotIncludingHealthTaxDeduction: "ביטוח לאומי ללא ניכוי מס בריאות",
   TemporarySalaryReductionRecuperationFund_012_011: "השתתפות זמנית הפחתת דמי הבראה",
@@ -170,6 +171,10 @@ const friendlyNames = {
   saleDate: "תאריך מכירה",
   purchasePriceFXX: "מחיר רכישה",
   salePriceFXX: "מחיר מכירה",
+  distributions: "חלוקה",
+  distributiontaxYear: "שמת המס",
+  distributionValue: "חלק הכנסה שנפרס",
+  prepaidTax: "סכומ המקדמה"
 };
 
 const titles = {
