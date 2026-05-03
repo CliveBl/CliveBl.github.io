@@ -9,6 +9,9 @@ import {
   deleteFileFromLocalStorage,
   fileInfoListFromLocalStorage,
   updateFormInLocalStorage,
+  getFriendlyName,
+  getFriendlyOptions,
+  getFriendlyOptionName,
 } from "./index.js";
 import { selectedCustomerDataEntryName, isAnonymous } from "./authService.js";
 
@@ -17,9 +20,6 @@ import {
   debug,
   is106TypeForm,
   getTitle,
-  getFriendlyName,
-  getFriendlyOptions,
-  getFriendlyOptionName,
   isCurrencyField,
   isExceptionalIntegerField,
   isFieldValidForTaxYear,

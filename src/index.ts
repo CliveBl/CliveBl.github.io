@@ -1,4 +1,4 @@
-import { debug, DEFAULT_CLIENT_ID_NUMBER, getFriendlyName, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR, errorCodeToFaqId, errorCodeToHelpId } from "./constants.js";
+import { debug, DEFAULT_CLIENT_ID_NUMBER, isCurrencyField, dummyName, dummyIdNumber, NO_YEAR, errorCodeToFaqId, errorCodeToHelpId } from "./constants.js";
 import {
   translateError,
   signInAnonymous,
@@ -93,6 +93,7 @@ interface FileInfo {
 
 interface ConfigurationData {
   formTypes: FormType[];
+  friendlyNames: Record<string, string | Record<string, any>>;
 }
 
 export let configurationData: ConfigurationData;
@@ -3151,4 +3152,23 @@ async function toggleFileListView(loadExistingFilesBoolean = true) {
   if (loadExistingFilesBoolean) {
     await loadExistingFiles();
   }
+}
+
+export function getFriendlyName(key: string) {
+  const friendly = configurationData.friendlyNames[key as keyof typeof configurationData.friendlyNames];
+  if (friendly === undefined) {
+    console.error(`Friendly name for ${key} not found`);
+  }
+  return typeof friendly === "string" ? friendly : (friendly?.name ?? "");
+}
+
+export function getFriendlyOptions(key: string) {
+  const friendly = configurationData.friendlyNames[key as keyof typeof configurationData.friendlyNames];
+  return typeof friendly === "object" && "options" in friendly ? friendly.options : [];
+}
+
+export function getFriendlyOptionName(key: string) {
+  const friendly = configurationData.friendlyNames[key as keyof typeof configurationData.friendlyNames];
+  const name = typeof friendly === "object" && "name" in friendly ? friendly.name : "";
+  return name;
 }
