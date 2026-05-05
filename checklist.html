@@ -10,40 +10,49 @@
 	<link rel="canonical" href="https://www.taxesil.top/checklist.html" />
 	<link rel="icon" type="image/x-icon" href="tax-day2.ico" />
 	<title>מסמכים נדרשים לדו״ח שנתי</title>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
 	<link rel="stylesheet" href="css/index.css" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400&display=swap" rel="stylesheet">
 	<style>
 		body {
 			display: flex;
 		}
+
 		.help-header {
 			text-align: center;
 			margin-bottom: 40px;
 			/* padding-bottom: 20px; */
 			border-bottom: 2px solid var(--border-color);
 		}
+
 		.help-header h1 {
 			color: var(--tax-blue);
 			margin-bottom: 10px;
 		}
-
 	</style>
 </head>
-  <script type="module" src="js/index.js"></script>
+<script type="module" src="js/index.js"></script>
 
 <body>
 	{% include auth-header.html %}
 	<div class="main-container">
-			<a href="index.html" class="stnd-link">דף הבית</a>
+		<a href="index.html" class="stnd-link">דף הבית</a>
 		<div class="help-header">
 			<h1>מסמכים נדרשים לדו״ח שנתי</h1>
 		</div>
-		{% include checklist-content.html %}
+		<main role="main">
+			{% include checklist-content.html %}
+		</main>
 		<div style="text-align: center; margin-top: 20px; margin-bottom: 40px; padding-top: 20px; border-top: 1px">
 			<a href="index.html" class="stnd-link">דף הבית</a>
 			<a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
 			<a href="faq.html" class="stnd-link" style="margin-right: 10px;">שאלות נפוצות</a>
 		</div>
+		<!-- Add version footer -->
+		<footer class="version-footer">
+			<span id="versionNumber"></span>
+		</footer>
 	</div>
 </body>
 <script>

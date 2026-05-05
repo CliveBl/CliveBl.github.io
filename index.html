@@ -29,7 +29,9 @@
 	<link rel="apple-touch-icon" sizes="167x167" href="assets/taxesil/apple-touch-icon-167x167.png">
 	
 	<!-- CSS Styles -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans+Hebrew:wght@400&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="css/index.css" />
 
 <style>
@@ -73,7 +75,8 @@
 <body>
     {% include auth-header.html %}
     <div class="landing-container">
-        
+        <main role="main">
+
         <div class="slideshow-container">
             <div class="slideshow-arrows">
                 <button class="arrow prev">❮</button>
@@ -127,7 +130,7 @@
 			<a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
 			<a href="faq.html" class="stnd-link">שאלות נפוצות</a>
 		</p>    </div>
-
+		</main>
     <!-- <script type="module" src="js/index.js"></script> -->
     <script type="module" src="js/authService.js"></script>
     <script type="module" src="js/slideshow.js"></script>

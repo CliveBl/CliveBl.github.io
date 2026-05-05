@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export let UIVersion = "1.58";
+export let UIVersion = "1.59";
 export let ServerVersion = "";
 
 // Customer management

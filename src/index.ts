@@ -134,13 +134,15 @@ setupEventListeners();
 checkForSharedFiles();
 
 async function initializeUserSession() {
-  clearTaxResults();
-  await loadExistingFiles();
-  await loadResults(false);
+  if (feedbackEmail) {
+    // Pre-fill feedback email if user is logged in
+    feedbackEmail.value = SignedIn && !isAnonymous() ? UserEmailValue : "";
+    clearTaxResults();
+    await loadExistingFiles();
+    await loadResults(false);
+  }
   restoreSelectedDocTypes();
   updateMissingDocuments();
-  // Pre-fill feedback email if user is logged in
-  feedbackEmail.value = SignedIn && !isAnonymous() ? UserEmailValue : "";
 }
 
 // Update UI to show logged out state
@@ -416,6 +418,8 @@ const sendFeedbackButton = document.getElementById("sendFeedbackButton") as HTML
 const feedbackMessage = document.getElementById("feedbackMessage") as HTMLTextAreaElement;
 const resultsContainer = document.getElementById("resultsContainer") as HTMLDivElement;
 const resultsList = document.getElementById("resultsList") as HTMLUListElement;
+const taxResultsContainer = document.getElementById("taxResultsContainer") as HTMLDivElement;
+const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
 
 export function updateButtons(hasEntries: boolean) {
   processButton.disabled = !hasEntries;
@@ -460,13 +464,15 @@ function updateFileListP(fileInfoList: FileInfo[], isNewUpload = false) {
 }
 
 function removeFileList() {
-  if (editableFileList) {
-    editableRemoveFileList();
-  } else {
-    fileList.innerHTML = "";
+  if (fileList) {
+    if (editableFileList) {
+      editableRemoveFileList();
+    } else {
+      fileList.innerHTML = "";
+    }
+    // Update border styles when file list is cleared
+    updateBorderStyles(false);
   }
-  // Update border styles when file list is cleared
-  updateBorderStyles(false);
 }
 
 function openFileListEntryP(fileName: string, property: string | null, shouldScroll = true) {
@@ -820,15 +826,19 @@ async function uploadFilesListener(inputOrFiles: HTMLInputElement | File[], repl
 }
 
 // File upload handler
-fileInput.addEventListener("change", async () => {
-  await uploadFilesListener(fileInput, null);
-});
+if (fileInput) {
+  fileInput.addEventListener("change", async () => {
+    await uploadFilesListener(fileInput, null);
+  });
+}
 
 // Folder upload handler. Always use individual uploads
-folderInput.addEventListener("change", async () => {
-  const files = Array.from(folderInput.files || []);
-  await processFolderFiles(files, folderInput);
-});
+if (folderInput) {
+  folderInput.addEventListener("change", async () => {
+    const files = Array.from(folderInput.files || []);
+    await processFolderFiles(files, folderInput);
+  });
+}
 
 /**
  * Options for configuring loading progress display
@@ -969,153 +979,155 @@ function updateLoadingProgress(current: number) {
 }
 
 // Update the process button handler
-processButton.addEventListener("click", async () => {
-  try {
-    if (!SignedIn) {
-      await signInAnonymous();
-    }
+if (processButton) {
+  processButton.addEventListener("click", async () => {
+    try {
+      if (!SignedIn) {
+        await signInAnonymous();
+      }
 
-    if (hasUnsavedChanges()) {
-      // show a modal to the user to save the changes use the warning modal function
-      const confirmed = await showWarningModal("יש שינויים שלא נשמרו. האם ברצונך לשמור את השינויים?");
-      if (!confirmed) {
-        return;
+      if (hasUnsavedChanges()) {
+        // show a modal to the user to save the changes use the warning modal function
+        const confirmed = await showWarningModal("יש שינויים שלא נשמרו. האם ברצונך לשמור את השינויים?");
+        if (!confirmed) {
+          return;
+        } else {
+          await saveAllChanges();
+        }
+      }
+
+      showLoadingOverlay("מעבדת מסמכים...", {
+        total: 30,
+        unit: "שניות",
+        showCancelButton: false,
+      });
+      // Clear previous messages
+      clearMessages();
+      // Tax results may now be invalid
+      clearTaxResults();
+
+      // Show initial processing message
+      addMessage("מתחיל בעיבוד המסמכים...", "info");
+
+      let response = null;
+      if (isAnonymous()) {
+        const localFileInfoList = await fileInfoListFromLocalStorage();
+        response = await fetch(`${API_BASE_URL}/processForms`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            customerDataEntryName: selectedCustomerDataEntryName,
+            formAsJSON: localFileInfoList,
+          }),
+        });
       } else {
-        await saveAllChanges();
+        response = await fetch(`${API_BASE_URL}/processFiles`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            customerDataEntryName: selectedCustomerDataEntryName,
+          }),
+        });
       }
-    }
 
-    showLoadingOverlay("מעבדת מסמכים...", {
-      total: 30,
-      unit: "שניות",
-      showCancelButton: false,
-    });
-    // Clear previous messages
-    clearMessages();
-    // Tax results may now be invalid
-    clearTaxResults();
+      if (!(await handleResponse(response, "Process files failed"))) {
+        return;
+      }
 
-    // Show initial processing message
-    addMessage("מתחיל בעיבוד המסמכים...", "info");
+      const result = await response.json();
 
-    let response = null;
-    if (isAnonymous()) {
-      const localFileInfoList = await fileInfoListFromLocalStorage();
-      response = await fetch(`${API_BASE_URL}/processForms`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: selectedCustomerDataEntryName,
-          formAsJSON: localFileInfoList,
-        }),
-      });
-    } else {
-      response = await fetch(`${API_BASE_URL}/processFiles`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: selectedCustomerDataEntryName,
-        }),
-      });
-    }
+      // Handle fatal error if present
+      if (result.fatalProcessingError) {
+        addMessage("שגיאה: " + result.fatalProcessingError, "error");
+      }
 
-    if (!(await handleResponse(response, "Process files failed"))) {
-      return;
-    }
+      // Handle warnings if present
+      if (result.processingWarnings) {
+        result.processingWarnings.forEach((warning: string) => {
+          addMessage("אזהרה: " + warning, "warning");
+        });
+      }
+      // Handle information if present
+      if (result.processingInformation) {
+        result.processingInformation.forEach((information: string) => {
+          addMessage("מידע: " + information, "info");
+        });
+      }
 
-    const result = await response.json();
+      if (isAnonymous()) {
+        // Local IndexedDB storage
+        try {
+          // Open (or create) IndexedDB called "LocalTaxFormFiles" version 2
+          const dbRequest = window.indexedDB.open("LocalTaxFormFiles", LOCAL_DB_VERSION);
+          dbRequest.onupgradeneeded = (event) => {
+            globalOnupgradeneeded(event);
+          };
 
-    // Handle fatal error if present
-    if (result.fatalProcessingError) {
-      addMessage("שגיאה: " + result.fatalProcessingError, "error");
-    }
-
-    // Handle warnings if present
-    if (result.processingWarnings) {
-      result.processingWarnings.forEach((warning: string) => {
-        addMessage("אזהרה: " + warning, "warning");
-      });
-    }
-    // Handle information if present
-    if (result.processingInformation) {
-      result.processingInformation.forEach((information: string) => {
-        addMessage("מידע: " + information, "info");
-      });
-    }
-
-    if (isAnonymous()) {
-      // Local IndexedDB storage
-      try {
-        // Open (or create) IndexedDB called "LocalTaxFormFiles" version 2
-        const dbRequest = window.indexedDB.open("LocalTaxFormFiles", LOCAL_DB_VERSION);
-        dbRequest.onupgradeneeded = (event) => {
-          globalOnupgradeneeded(event);
-        };
-
-        dbRequest.onsuccess = () => {
-          const db = dbRequest.result;
-          const transaction = db.transaction(["resultFiles"], "readwrite");
-          const store = transaction.objectStore("resultFiles");
-          // Clear existing entries first
-          store.clear();
-          if (result.fileMap) {
-            // Store each file in the map (assuming result.fileMap is an object with keys as ids and values as file blobs/data)
-            for (const [key, fileValue] of Object.entries(result.fileMap)) {
-              store.put({ fileName: key, value: fileValue });
+          dbRequest.onsuccess = () => {
+            const db = dbRequest.result;
+            const transaction = db.transaction(["resultFiles"], "readwrite");
+            const store = transaction.objectStore("resultFiles");
+            // Clear existing entries first
+            store.clear();
+            if (result.fileMap) {
+              // Store each file in the map (assuming result.fileMap is an object with keys as ids and values as file blobs/data)
+              for (const [key, fileValue] of Object.entries(result.fileMap)) {
+                store.put({ fileName: key, value: fileValue });
+              }
             }
-          }
-          const messageTransaction = db.transaction(["messages"], "readwrite");
-          const messageStore = messageTransaction.objectStore("messages");
-          // Clear existing messages first
-          messageStore.clear();
-          // Store messages as well under messages store
-          if (result.fatalProcessingError) messageStore.put(result.fatalProcessingError || [], "fatalProcessingError");
-          else messageStore.put("", "fatalProcessingError");
-          if (result.processingWarnings) messageStore.put(result.processingWarnings || [], "processingWarnings");
-          else messageStore.put([], "processingWarnings");
-          if (result.processingInformation) messageStore.put(result.processingInformation || [], "processingInformation");
-          else messageStore.put([], "processingInformation");
+            const messageTransaction = db.transaction(["messages"], "readwrite");
+            const messageStore = messageTransaction.objectStore("messages");
+            // Clear existing messages first
+            messageStore.clear();
+            // Store messages as well under messages store
+            if (result.fatalProcessingError) messageStore.put(result.fatalProcessingError || [], "fatalProcessingError");
+            else messageStore.put("", "fatalProcessingError");
+            if (result.processingWarnings) messageStore.put(result.processingWarnings || [], "processingWarnings");
+            else messageStore.put([], "processingWarnings");
+            if (result.processingInformation) messageStore.put(result.processingInformation || [], "processingInformation");
+            else messageStore.put([], "processingInformation");
 
-          transaction.oncomplete = () => {
-            console.log("resultFiles added to IndexedDB successfully.");
-            // Load results only when they have been written.
-            loadResults(true); // scroll to message section.
+            transaction.oncomplete = () => {
+              console.log("resultFiles added to IndexedDB successfully.");
+              // Load results only when they have been written.
+              loadResults(true); // scroll to message section.
+            };
+            transaction.onerror = (err) => {
+              console.error("Transaction error on adding files to IndexedDB:", err);
+            };
           };
-          transaction.onerror = (err) => {
-            console.error("Transaction error on adding files to IndexedDB:", err);
-          };
-        };
 
-        dbRequest.onerror = (event) => {
-          console.error("IndexedDB open failed:", dbRequest.error);
-        };
-      } catch (e) {
-        console.error("Failed to add files to IndexedDB:", e);
+          dbRequest.onerror = (event) => {
+            console.error("IndexedDB open failed:", dbRequest.error);
+          };
+        } catch (e) {
+          console.error("Failed to add files to IndexedDB:", e);
+        }
+      } else {
+        // Server storage
+        await loadResults(true); // scroll to message section.
       }
-    } else {
-      // Server storage
-      await loadResults(true); // scroll to message section.
-    }
-    addMessage("העיבוד הושלם", "info");
-  } catch (error: unknown) {
-    console.error("Processing failed:", error);
-    addMessage("שגיאה בעיבוד הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
-  } finally {
-    hideLoadingOverlay();
+      addMessage("העיבוד הושלם", "info");
+    } catch (error: unknown) {
+      console.error("Processing failed:", error);
+      addMessage("שגיאה בעיבוד הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
+    } finally {
+      hideLoadingOverlay();
 
-    // Check if operation was cancelled
-    if (isCancelled) {
-      addMessage("הפעולה בוטלה על ידי המשתמש", "warning");
-      return;
+      // Check if operation was cancelled
+      if (isCancelled) {
+        addMessage("הפעולה בוטלה על ידי המשתמש", "warning");
+        return;
+      }
     }
-  }
-});
+  });
+}
 
 async function uploadFilesWithProgress(validFiles: File[], replacedFileId: string | null = null) {
   let success = false;
@@ -1239,7 +1251,7 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
         try {
           newFile = (await convertImageToBWAndResize(file)) as File;
         } catch (error: unknown) {
-		  debug(error);
+          debug(error);
           addMessage("קובץ תמונה פגום: " + file.name, "error");
           continue;
         }
@@ -1565,7 +1577,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   }
   // If the message type is "error", append it to the feedbackMessage in the feedback section
   if (type === "error") {
-	const date = new Date();
+    const date = new Date();
     const timestamp = date.toLocaleDateString() + " " + date.toLocaleTimeString();
     feedbackMessage.textContent += `${timestamp}\n${text}\n`;
   }
@@ -1899,57 +1911,60 @@ async function downloadResult(file: { fileName: string; id: string }) {
   }
 }
 
-saveAllButton.addEventListener("click", async () => {
-  try {
-    if (!SignedIn) {
-      debug("no auth token");
-      return;
+if (saveAllButton) {
+  saveAllButton.addEventListener("click", async () => {
+    try {
+      if (!SignedIn) {
+        debug("no auth token");
+        return;
+      }
+      await saveAllChanges();
+    } catch (error: unknown) {
+      console.error("Save all failed:", error);
+      addMessage("שגיאה בשמירת הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
     }
-    await saveAllChanges();
-  } catch (error: unknown) {
-    console.error("Save all failed:", error);
-    addMessage("שגיאה בשמירת הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
-  }
-});
+  });
+}
 
 // Update delete all handler - remove confirmation dialog
-deleteAllButton.addEventListener("click", async () => {
-  try {
-    if (!SignedIn) {
-      debug("no auth token");
-      return;
-    }
-    const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את כל המסמכים שהוזנו?");
-    if (!confirmed) return;
-
-    if (isAnonymous()) {
-      // Clear all forms from IndexedDB
-      const deleted = await clearAllFilesFromLocalStorage();
-      if (!deleted) {
+if (deleteAllButton) {
+  deleteAllButton.addEventListener("click", async () => {
+    try {
+      if (!SignedIn) {
+        debug("no auth token");
         return;
       }
-    } else {
-      const response = await fetch(`${API_BASE_URL}/deleteAllForms?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
-        method: "DELETE",
-        credentials: "include",
-        ...fetchConfig,
-      });
+      const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את כל המסמכים שהוזנו?");
+      if (!confirmed) return;
 
-      if (!(await handleResponse(response, "Delete all files failed"))) {
-        return;
+      if (isAnonymous()) {
+        // Clear all forms from IndexedDB
+        const deleted = await clearAllFilesFromLocalStorage();
+        if (!deleted) {
+          return;
+        }
+      } else {
+        const response = await fetch(`${API_BASE_URL}/deleteAllForms?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
+          method: "DELETE",
+          credentials: "include",
+          ...fetchConfig,
+        });
+
+        if (!(await handleResponse(response, "Delete all files failed"))) {
+          return;
+        }
       }
+
+      removeFileList();
+      fileModifiedActions(fileList.children.length > 0);
+      clearMessages();
+      addMessage("כל הקבצים נמחקו בהצלחה");
+    } catch (error: unknown) {
+      console.error("Delete all failed:", error);
+      addMessage("שגיאה במחיקת הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
     }
-
-    removeFileList();
-    fileModifiedActions(fileList.children.length > 0);
-    clearMessages();
-    addMessage("כל הקבצים נמחקו בהצלחה");
-  } catch (error: unknown) {
-    console.error("Delete all failed:", error);
-    addMessage("שגיאה במחיקת הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
-  }
-});
-
+  });
+}
 // DOMContentLoaded event for other initialization
 document.addEventListener("DOMContentLoaded", () => {
   debug("DOMContentLoaded 1");
@@ -2006,15 +2021,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function clearTaxResults() {
-  const taxResultsContainer = document.getElementById("taxResultsContainer") as HTMLDivElement;
-  const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
-  // Hide containers
-  taxResultsContainer.classList.remove("active");
-  // Clear content
-  taxCalculationContent.innerHTML = "";
-  // Clear stored results
-  localStorage.removeItem("taxResults");
-  localStorage.removeItem("taxResultsYear");
+  if (taxResultsContainer && taxCalculationContent) {
+    // Hide containers
+    taxResultsContainer.classList.remove("active");
+    // Clear content
+    taxCalculationContent.innerHTML = "";
+    // Clear stored results
+    localStorage.removeItem("taxResults");
+    localStorage.removeItem("taxResultsYear");
+  }
 }
 
 function clearResultsControls() {
@@ -2538,7 +2553,6 @@ function getValueColorClass(value: string): string {
 // Add this function to display tax results
 function displayTaxCalculation(result: any, year: string, shouldScroll = false) {
   debug("displayTaxCalculation");
-  const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
   taxCalculationContent.innerHTML = ""; // Clear existing results
 
   // Update title with year
@@ -2600,7 +2614,6 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
   table.appendChild(tbody);
 
   taxCalculationContent.appendChild(table);
-  const taxResultsContainer = document.getElementById("taxResultsContainer") as HTMLDivElement;
   taxResultsContainer.classList.add("active");
 
   // Only scroll if explicitly requested (i.e., after calculation)
@@ -2615,7 +2628,6 @@ function displayTaxCalculation(result: any, year: string, shouldScroll = false) 
 // Function to copy tax results to clipboard
 async function copyTaxResults() {
   try {
-    const taxResultsContainer = document.getElementById("taxResultsContainer");
     if (taxResultsContainer) {
       // Copy the entire tax results container for complete context
       const htmlContent = taxResultsContainer.innerHTML;
@@ -2645,7 +2657,6 @@ async function copyTaxResults() {
   } catch (error) {
     // Fallback for older browsers or when clipboard API is not available
     try {
-      const taxResultsContainer = document.getElementById("taxResultsContainer");
       if (taxResultsContainer) {
         // Create a temporary textarea to copy the entire container content
         const textarea = document.createElement("textarea");
@@ -2710,8 +2721,10 @@ async function initialize() {
   }
 
   // Pre-fill feedback email if user is logged in
-  feedbackEmail.value = SignedIn && !isAnonymous() ? UserEmailValue : "";
-  updateFeedbackButtonState();
+  if (feedbackEmail) {
+    feedbackEmail.value = SignedIn && !isAnonymous() ? UserEmailValue : "";
+    updateFeedbackButtonState();
+  }
 
   // Add event listeners for document count selects
   document.querySelectorAll('select[id$="-count"]').forEach((select) => {
@@ -2822,27 +2835,30 @@ async function initialize() {
   }
 
   // Update form creation select elements according to the form types
-  const createFormSelect = document.getElementById("createFormSelect") as HTMLSelectElement;
-  createFormSelect.innerHTML = `<option value="">צור מסמך חדש</option>`;
-  // Add the form types that the user can add only if the userCanAdd is true
-  if (configurationData != null) {
-    createFormSelect.innerHTML += configurationData.formTypes
-      .filter((formType) => formType.userCanAdd)
-      .map((formType) => {
-        const icon = documentIcons[formType.formName] || "📋";
-        return `<option value="${formType.formType}">${icon} ${formType.formName}</option>`;
-      })
-      .join("");
+  if (createFormSelect) {
+    createFormSelect.innerHTML = `<option value="">צור מסמך חדש</option>`;
+    // Add the form types that the user can add only if the userCanAdd is true
+    if (configurationData != null) {
+      createFormSelect.innerHTML += configurationData.formTypes
+        .filter((formType) => formType.userCanAdd)
+        .map((formType) => {
+          const icon = documentIcons[formType.formName] || "📋";
+          return `<option value="${formType.formType}">${icon} ${formType.formName}</option>`;
+        })
+        .join("");
+    }
   }
 
   const toggleLink = document.getElementById("toggleFileListView");
-  if (toggleLink) {
-    toggleLink.addEventListener("click", (e) => {
-      if (SignedIn) {
-        e.preventDefault();
-        toggleFileListView();
-      }
-    });
+  if (toggleFileListView) {
+    if (toggleLink) {
+      toggleLink.addEventListener("click", (e) => {
+        if (SignedIn) {
+          e.preventDefault();
+          toggleFileListView();
+        }
+      });
+    }
   }
 
   // Check if disclaimer has been accepted
@@ -2873,41 +2889,42 @@ function updateFeedbackButtonState() {
 }
 
 // Add event listeners for both email input and privacy checkbox
-feedbackEmail.addEventListener("input", updateFeedbackButtonState);
-privacyCheckbox.addEventListener("change", updateFeedbackButtonState);
+if (feedbackEmail && privacyCheckbox) {
+  feedbackEmail.addEventListener("input", updateFeedbackButtonState);
+  privacyCheckbox.addEventListener("change", updateFeedbackButtonState);
 
-// Add feedback submission handler
-sendFeedbackButton.addEventListener("click", async () => {
-  try {
-    const email = feedbackEmail.value;
-    const message = feedbackMessage.value;
+  // Add feedback submission handler
+  sendFeedbackButton.addEventListener("click", async () => {
+    try {
+      const email = feedbackEmail.value;
+      const message = feedbackMessage.value;
 
-    const response = await fetch(`${API_BASE_URL}/feedback`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        email: email,
-        message: message,
-      }),
-      ...fetchConfig,
-    });
+      const response = await fetch(`${API_BASE_URL}/feedback`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email,
+          message: message,
+        }),
+        ...fetchConfig,
+      });
 
-    if (!(await handleResponse(response, "Feedback submission failed"))) {
-      return;
+      if (!(await handleResponse(response, "Feedback submission failed"))) {
+        return;
+      }
+
+      addMessage("תודה על המשוב שלך!", "success");
+      // Clear the form
+      clearFeedbackForm();
+    } catch (error: unknown) {
+      console.error("Failed to submit feedback:", error);
+      addMessage("שגיאה בשליחת המשוב: " + (error instanceof Error ? error.message : String(error)), "error");
     }
-
-    addMessage("תודה על המשוב שלך!", "success");
-    // Clear the form
-    clearFeedbackForm();
-  } catch (error: unknown) {
-    console.error("Failed to submit feedback:", error);
-    addMessage("שגיאה בשליחת המשוב: " + (error instanceof Error ? error.message : String(error)), "error");
-  }
-});
-
+  });
+}
 function clearFeedbackForm() {
   feedbackEmail.value = "";
   feedbackMessage.value = "";
@@ -2951,85 +2968,86 @@ function restoreSelectedDocTypes() {
 }
 
 // Add change handler for form select
-(document.getElementById("createFormSelect") as HTMLSelectElement).addEventListener("change", async (e) => {
-  if (!SignedIn) {
-    await signInAnonymous();
-  }
-  const formType = (e.target as HTMLSelectElement).value as string;
-  if (!formType) return;
-
-  const identificationNumber = DEFAULT_CLIENT_ID_NUMBER;
-
-  try {
-    let fileInfoList = null;
-    if (isAnonymous()) {
-      const response = await fetch(`${API_BASE_URL}/createFormAsJson`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          formType: formType,
-          identificationNumber: identificationNumber,
-        }),
-        ...fetchConfig,
-      });
-
-      if (!(await handleResponse(response, "createFormAsJson form failed"))) {
-        return;
-      }
-
-      //Result to array of forms
-      const newForm = await response.json();
-      const formsArray = Array.isArray(newForm) ? newForm : [newForm];
-      // Store each parsed form with a generated fileId into IndexedDB
-      await addFormsToLocalStorage(formsArray);
-      fileInfoList = await fileInfoListFromLocalStorage();
-    } else {
-      const response = await fetch(`${API_BASE_URL}/createForm`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          customerDataEntryName: selectedCustomerDataEntryName,
-          formType: formType,
-          identificationNumber: identificationNumber,
-        }),
-        ...fetchConfig,
-      });
-
-      if (!(await handleResponse(response, "Create form failed"))) {
-        return;
-      }
-
-      fileInfoList = await response.json();
+if (createFormSelect) {
+  createFormSelect.addEventListener("change", async (e) => {
+    if (!SignedIn) {
+      await signInAnonymous();
     }
-    if (!editableFileList) {
-      // switch to the editable file list view without loading the existing files becaue we already have them in fileInfoList
-      await toggleFileListView(false);
+    const formType = (e.target as HTMLSelectElement).value as string;
+    if (!formType) return;
+
+    const identificationNumber = DEFAULT_CLIENT_ID_NUMBER;
+
+    try {
+      let fileInfoList = null;
+      if (isAnonymous()) {
+        const response = await fetch(`${API_BASE_URL}/createFormAsJson`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            formType: formType,
+            identificationNumber: identificationNumber,
+          }),
+          ...fetchConfig,
+        });
+
+        if (!(await handleResponse(response, "createFormAsJson form failed"))) {
+          return;
+        }
+
+        //Result to array of forms
+        const newForm = await response.json();
+        const formsArray = Array.isArray(newForm) ? newForm : [newForm];
+        // Store each parsed form with a generated fileId into IndexedDB
+        await addFormsToLocalStorage(formsArray);
+        fileInfoList = await fileInfoListFromLocalStorage();
+      } else {
+        const response = await fetch(`${API_BASE_URL}/createForm`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            customerDataEntryName: selectedCustomerDataEntryName,
+            formType: formType,
+            identificationNumber: identificationNumber,
+          }),
+          ...fetchConfig,
+        });
+
+        if (!(await handleResponse(response, "Create form failed"))) {
+          return;
+        }
+
+        fileInfoList = await response.json();
+      }
+      if (!editableFileList) {
+        // switch to the editable file list view without loading the existing files becaue we already have them in fileInfoList
+        await toggleFileListView(false);
+      }
+      updateFileListP(fileInfoList, true); // true = new form creation
+      updateMissingDocuments();
+      clearResultsControls();
+      clearMessages();
+
+      // Jump to the last file in the file list
+      openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName, null, true);
+
+      addMessage("הטופס נוצר בהצלחה", "success");
+      // Reset select to default option
+      (e.target as HTMLSelectElement).value = "";
+    } catch (error: unknown) {
+      console.error("Failed to create form:", error);
+      addMessage("שגיאה ביצירת הטופס: " + (error instanceof Error ? error.message : String(error)), "error");
     }
-    updateFileListP(fileInfoList, true); // true = new form creation
-    updateMissingDocuments();
-    clearResultsControls();
-    clearMessages();
-
-    // Jump to the last file in the file list
-    openFileListEntryP(fileInfoList[fileInfoList.length - 1].fileName, null, true);
-
-    addMessage("הטופס נוצר בהצלחה", "success");
-    // Reset select to default option
+    // return the control to its first option
     (e.target as HTMLSelectElement).value = "";
-  } catch (error: unknown) {
-    console.error("Failed to create form:", error);
-    addMessage("שגיאה ביצירת הטופס: " + (error instanceof Error ? error.message : String(error)), "error");
-  }
-  // return the control to its first option
-  (e.target as HTMLSelectElement).value = "";
-});
-
+  });
+}
 // Add this function to update missing document counts
 function updateMissingDocuments() {
   //debug("updateMissingDocuments");
@@ -3083,7 +3101,9 @@ function updateMissingDocuments() {
     warningSection.innerHTML = `<strong>שים לב!</strong> חסרים המסמכים הבאים: ${missingDocs.map((doc: { name: string }) => doc.name).join(", ")}`;
     const warningList = document.createElement("ul") as HTMLUListElement;
     warningList.className = "missing-docs-list";
+	warningList.innerHTML += '<ul>';
     warningList.innerHTML += missingDocs.map((doc: { name: string; count: number }) => `<li>${doc.name}: חסר ${doc.count}</li>`).join("");
+    warningList.innerHTML += '</ul>';
     warningSection.appendChild(warningList);
     warningSection.classList.add("visible");
     warningSection.classList.remove("success");
@@ -3104,7 +3124,7 @@ function updateMissingDocuments() {
         return `<li>${docName}: ${count} מסמכים</li>`;
       })
       .join("");
-    warningSection.innerHTML = `<strong>סיכום מסמכים:</strong>${summary}`;
+    warningSection.innerHTML = `<strong>סיכום מסמכים:</strong><ul>${summary}</ul>`;
   } else {
     warningSection.classList.remove("visible");
     warningSection.classList.remove("success");
@@ -3127,7 +3147,7 @@ function updateFileListView() {
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLElement;
 
   if (!toggleLink || !expandableArea) {
-    console.error("Required elements not found");
+    debug("No FilelistView");
     return;
   }
 
