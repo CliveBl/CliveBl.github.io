@@ -331,7 +331,9 @@ export function editableGetDocTypes() {
 
 export function editableRemoveFileList() {
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLElement;
-  expandableArea.innerHTML = "";
+  if(expandableArea){
+    expandableArea.innerHTML = "";
+  }
 }
 
 export function editableOpenFileListEntry(fileName: string, property: string | null, shouldScrollTo = true) {
@@ -559,7 +561,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLDivElement;
   if (!expandableArea) {
-    console.error('Element with id "expandableAreaUploadFiles" not found!');
+    debug('Element with id "expandableAreaUploadFiles" not found!');
     return;
   }
 
