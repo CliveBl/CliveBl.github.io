@@ -422,10 +422,13 @@ const taxResultsContainer = document.getElementById("taxResultsContainer") as HT
 const taxCalculationContent = document.getElementById("taxCalculationContent") as HTMLDivElement;
 
 export function updateButtons(hasEntries: boolean) {
-  processButton.disabled = !hasEntries;
-  deleteAllButton.disabled = !hasEntries;
-  saveAllButton.disabled = !hasEntries || !hasUnsavedChanges();
-  updateBorderStyles(hasEntries);
+  if (processButton) {
+    processButton.disabled = !hasEntries;
+    deleteAllButton.disabled = !hasEntries;
+    saveAllButton.disabled = !hasEntries || !hasUnsavedChanges();
+
+    updateBorderStyles(hasEntries);
+  }
 }
 
 // Function to update border styles based on file count
@@ -1703,7 +1706,9 @@ function displayMessagesAndResultFiles(results: any, scrollToMessageSection: boo
 }
 
 export function clearMessages() {
-  messageContainer.innerHTML = "";
+  if (messageContainer) {
+    messageContainer.innerHTML = "";
+  }
 }
 
 function descriptionFromFileName(fileName: string) {
@@ -2034,10 +2039,12 @@ function clearTaxResults() {
 
 function clearResultsControls() {
   clearTaxResults();
-  // Hide containers
-  resultsContainer.classList.remove("active");
-  // Clear content
-  resultsList.innerHTML = "";
+  if (resultsContainer) {
+    // Hide containers
+    resultsContainer.classList.remove("active");
+    // Clear content
+    resultsList.innerHTML = "";
+  }
 }
 
 async function loadConfiguration() {
@@ -2926,10 +2933,12 @@ if (feedbackEmail && privacyCheckbox) {
   });
 }
 function clearFeedbackForm() {
-  feedbackEmail.value = "";
-  feedbackMessage.value = "";
-  privacyCheckbox.checked = false;
-  updateFeedbackButtonState();
+  if (feedbackEmail) {
+    feedbackEmail.value = "";
+    feedbackMessage.value = "";
+    privacyCheckbox.checked = false;
+    updateFeedbackButtonState();
+  }
 }
 
 // Function to save selected doc types to localStorage
@@ -3101,9 +3110,9 @@ function updateMissingDocuments() {
     warningSection.innerHTML = `<strong>שים לב!</strong> חסרים המסמכים הבאים: ${missingDocs.map((doc: { name: string }) => doc.name).join(", ")}`;
     const warningList = document.createElement("ul") as HTMLUListElement;
     warningList.className = "missing-docs-list";
-	warningList.innerHTML += '<ul>';
+    warningList.innerHTML += "<ul>";
     warningList.innerHTML += missingDocs.map((doc: { name: string; count: number }) => `<li>${doc.name}: חסר ${doc.count}</li>`).join("");
-    warningList.innerHTML += '</ul>';
+    warningList.innerHTML += "</ul>";
     warningSection.appendChild(warningList);
     warningSection.classList.add("visible");
     warningSection.classList.remove("success");
