@@ -561,7 +561,7 @@ export async function handleAuthResponse(response: any, errorMessage: string) {
 export function showInfoModal(message: string) {
   return new Promise((resolve) => {
     const infoMessage = document.getElementById("infoMessage") as HTMLDivElement;
-    infoMessage.textContent = message;
+    infoMessage.innerHTML = message;
 
     const modal = document.getElementById("generalInfoModal") as HTMLDivElement;
     modal.style.display = "block";
