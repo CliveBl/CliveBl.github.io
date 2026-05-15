@@ -12,6 +12,7 @@ import {
   UserEmailValue,
   selectedCustomerDataEntryName,
   on,
+  WarningPopupMessage,
 } from "./authService.js";
 // Import image utilities
 import { convertImageToBWAndResize } from "./imageUtils.js";
@@ -2871,9 +2872,7 @@ async function initialize() {
   // Check if disclaimer has been accepted
   const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
   if (!disclaimerAccepted) {
-    showInfoModal(
-      'אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.<p class="general-warning-text">שים לב: האתר נמצא בשלב בדיקות בטא ואינו פתוח לקהל הרחב.</p>'
-    );
+    showInfoModal(WarningPopupMessage);
     cookieUtils.set("disclaimerAccepted", "true", 365);
   }
 

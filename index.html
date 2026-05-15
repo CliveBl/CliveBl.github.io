@@ -140,7 +140,7 @@
     <script type="module" src="js/pwa-installer.js"></script>
     <script type="module">
         import { cookieUtils } from './js/cookieUtils.js';
-        import { acceptTerms, declineTerms, isTermsAccepted, showInfoModal } from './js/authService.js';
+        import { acceptTerms, declineTerms, isTermsAccepted, showInfoModal, WarningPopupMessage } from './js/authService.js';
         
         const termsCheckbox = document.getElementById('termsCheckbox');
         const startButton = document.getElementById('startButton');
@@ -165,9 +165,7 @@
 		  // Check if disclaimer has been accepted
 		  const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
   if (!disclaimerAccepted) {
-    showInfoModal(
-      'אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.<p class="general-warning-text">שים לב: האתר נמצא בשלב בדיקות בטא ואינו פתוח לקהל הרחב.</p>'
-    );
+    showInfoModal(WarningPopupMessage);
     cookieUtils.set("disclaimerAccepted", "true", 365);
   }
 
