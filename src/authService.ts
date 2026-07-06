@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export const UIVersion = "1.64";
+export const UIVersion = "1.65";
 export let ServerVersion = "";
 
 export const WarningPopupMessage = 'אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.<p class="general-warning-text">שים לב: האתר נמצא בשלב בדיקות בטא  .</p>'
@@ -513,7 +513,7 @@ export function isValidEmail(email: string): boolean {
 }
 
 const tranlationTable: Record<string, string> = {
-  "NetworkError when attempting to fetch resource.": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה נמנית. תנסה שוב יותר מאוחר.",
+  "NetworkError when attempting to fetch resource.": "לא מצא את השרות. נא לבדוק את החיבור לאינטרנט.יתכן בעיה זמנית. תנסה שוב יותר מאוחר.",
   "Bad credentials 401": "שם משתמש או סיסמה שגויים",
 };
 

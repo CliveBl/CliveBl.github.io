@@ -19,7 +19,7 @@ import { API_BASE_URL } from "./env.js";
 import {
   debug,
   is106TypeForm,
-  getTitle,
+  getElementTitle,
   isCurrencyField,
   isExceptionalIntegerField,
   isFieldValidForTaxYear,
@@ -110,10 +110,13 @@ export function hasUnsavedChanges() {
 }
 
 function getNumericValue(text: string) {
-  return text.replace(/[^\d.]/g, "");
+  const numericText = text.replace(/[^\d.-]/g, "");
+  const isNegative = numericText.trim().startsWith("-");
+  const unsignedText = numericText.replace(/-/g, "");
+  return `${isNegative ? "-" : ""}${unsignedText}`;
 }
 function getCurrencySymbol(text: string) {
-  return text.replace(/[\d\.\,]/g, "");
+  return text.replace(/[\d\.\,-]/g, "");
 }
 
 function removeCustomerMessageModal() {
@@ -459,7 +462,7 @@ function updateFormAllFields(allFilesData: any, fileId: string, fileType: string
     } else {
       // Remove any fields with 0 value
       Object.keys(fieldsData).forEach((key) => {
-        if (fieldsData[key] === "0.00") {
+        if (fieldsData[key] === "0.00" || fieldsData[key] === "0") {
           delete fieldsData[key];
         }
       });
@@ -793,14 +796,18 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   });
 
   function formatCurrencyWithSymbol(value: number, currency: string) {
-    let parts = value.toFixed(2).split(".");
+    const isNegative = value < 0;
+    let parts = Math.abs(value).toFixed(2).split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); // Add commas for thousands
+    if (isNegative && currency === "ILS") return `-\u20AA${parts.join(".")}`;
     if (currency === "ILS") return `₪${parts.join(".")}`;
-    else return currency + `${parts.join(".")}`;
+    else return `${isNegative ? "-" : ""}${currency}${parts.join(".")}`;
   }
 
   function currencyEventListener(input: HTMLInputElement) {
     let rawValue = getNumericValue(input.value);
+    const isNegative = rawValue.startsWith("-");
+    rawValue = rawValue.replace(/-/g, "");
 
     if (rawValue.split(".").length > 2) {
       rawValue = rawValue.substring(0, rawValue.lastIndexOf("."));
@@ -817,7 +824,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       parts[1] = parts[1].slice(0, 2);
     }
 
-    input.value = parts.join(".");
+    input.value = `${isNegative ? "-" : ""}${parts.join(".")}`;
   }
 
   function enableFormActionButtons(accordianBody: HTMLDivElement) {
@@ -1012,7 +1019,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     } else {
       // 🟢 **Default: Currency Field (if no other condition matched)**
       input.type = "text";
-      input.inputMode = "numeric";
+      input.inputMode = "decimal";
+      input.pattern = "-?\\d*(\\.\\d{0,2})?";
+      input.dir = "ltr";
+      input.style.textAlign = "right";
 
       let numericValue = parseFloat(fieldValue.value);
       if (isNaN(numericValue)) {
@@ -1029,7 +1039,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
         currencyEventListener(input);
 		// Cursor before decimal point.
-		const cursorPosition = input.value.length - 3;
+		const cursorPosition = Math.max(input.value.length - 3, input.value.startsWith("-") ? 1 : 0);
 		input.setSelectionRange(cursorPosition,cursorPosition);
       });
       // **Restrict typing to valid numeric input**
@@ -1078,7 +1088,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
       let fieldLabel = document.createElement("label") as HTMLLabelElement;
       fieldLabel.textContent = getFriendlyName(key);
-      const title = getTitle(key);
+      const title = getElementTitle(key);
       if (title) {
         fieldLabel.title = title;
       }

@@ -9,7 +9,7 @@ export function debug(...args: unknown[]): void {
   }
 }
 
-const titles = {
+const elementTitles = {
   registeredTaxpayerBoolean: "בדרך כלל זהו בן הזוג בעל השכר הגבוה ביותר. ניתן לבדוק ולשנות זאת בעת בקשה להגיש דו״ח לרשות המסים.",
   paragraph44or45Options: "סעיף 44 הוא לניכוי הוצאות ששולמו למוסד עבור קרוב נטול יכולת. סעיף 45 הוא לנקודת זיכוי מס.",
   totalInstitutionExpenses: "רלוונטי רק לסעיף 44.",
@@ -19,13 +19,14 @@ const titles = {
   currencySelect: "שמור שינוים כדי לראות את השינוי",
   purchasePriceFXX: "מחיר הרכישה במטבע המקורי של העסקה, בתוספת עמלות",
   salePriceFXX: "מחיר המכירה במטבע המקורי של העסקה, פחות עמלות",
-  propertyName: "שם המניה או נכס אחר"
+  propertyName: "שם המניה או נכס אחר",
+  SettlementDiscount_327_287: " בטופס 106 השדה יכול להופיע כ193/093 בצורה מפורטת. כאן יש את הצורה מקודדת שמס הכנסה משתמש. מימים אחוז הנחה, קוד תקרה, מספר חודשי תושבות בשנת המס."
 };
 
 export const DEFAULT_CLIENT_ID_NUMBER = "000000000";
 
-export function getTitle(key: string) {
-  const title = titles[key as keyof typeof titles];
+export function getElementTitle(key: string) {
+  const title = elementTitles[key as keyof typeof elementTitles];
   return title;
 }
 
@@ -46,7 +47,8 @@ export function isCurrencyField(fieldName: string) {
   );
 }
 
-const exceptionalIntegerFieldNames = ["SettlementDiscount_327_287", "NumberOfDealsInteger"];
+// Some fields are integers but do not end with "Integer". We want to treat them as integers and not apply currency formatting to them.
+const exceptionalIntegerFieldNames = ["SettlementDiscount_327_287"];
 export function isExceptionalIntegerField(fieldName: string) {
   return exceptionalIntegerFieldNames.includes(fieldName);
 }
@@ -98,6 +100,7 @@ export const errorCodeToFaqId: Record<string, string> = {
   "^LossesTransferred": "faq-calculations",
   "^TotalChildren": "faq-common-mistakes",
   "^TaxCalc": "faq-calculation-failure",
+  "^NoSimulator": "faq-calculation-failure",
 };
 
 // Map of error codes to Help section IDs
