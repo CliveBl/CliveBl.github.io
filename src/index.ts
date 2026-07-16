@@ -527,7 +527,9 @@ async function loadExistingFiles() {
 
     let fileInfoList: FileInfo[] = [];
     if (isAnonymous()) {
+	  debug("fileInfoList bfore loading:", fileInfoList);
       fileInfoList = await fileInfoListFromLocalStorage();
+	  debug("Loaded fileInfoList from local storage:", fileInfoList);
     } else {
       const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
         method: "GET",
