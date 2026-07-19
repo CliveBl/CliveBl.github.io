@@ -52,6 +52,8 @@
   --success-color: var(--success-bg);
   --error-color: var(--error-bg);
   --text-muted-color: var(--message-text);
+  --critical-emphasis-color: #e74c3c; /* Red for critical emphasis */
+  
 }
 
 @media (prefers-color-scheme: dark) {
@@ -108,6 +110,7 @@
     --success-color: var(--success-bg);
     --error-color: var(--error-bg);
     --text-muted-color: var(--message-text);
+    --critical-emphasis-color: #e74c3c; /* Red for critical emphasis */
   }
 }
 
