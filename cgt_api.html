@@ -157,14 +157,15 @@
             text-align: center;
         }
         
-        /* Override external CSS for API documentation */
-        body {
+        /* Keep auth-header alignment intact; enforce LTR only for page content */
+        .container {
             direction: ltr !important;
             text-align: left !important;
         }
     </style>
 </head>
 <body>
+    {% include auth-header.html %}
     <div class="container">
         <h1>CGT API Documentation</h1>
         

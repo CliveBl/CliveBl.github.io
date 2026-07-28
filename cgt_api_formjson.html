@@ -68,14 +68,15 @@
             color: var(--message-text);
             text-align: center;
         }
-        /* Override external CSS for this page */
-        body {
-            direction: ltr !important;
-            text-align: left !important;
-        }
+		/* Keep auth-header alignment intact; enforce LTR only for page content */
+		.container {
+			direction: ltr !important;
+			text-align: left !important;
+		}
     </style>
 </head>
 <body>
+	{% include auth-header.html %}
     <div class="container">
         <h1>CGT Form JSON Data Examples</h1>
         
@@ -137,7 +138,7 @@
 		"type": "BituachLeumiUnemployment",
 		"noteText": "",
 		"taxYear": "2023",
-		"clientName": "גב' שרה בלוסטון",
+		"clientName": "גב' שרה לוי",
 		"clientIdentificationNumber": "123456789",
 		"organizationName": "ביטוח לאומי",
 		"fields": {
@@ -630,7 +631,7 @@
 	},
 	{
 		"fileId": "68b7f9793c568aebad5ad371",
-		"fileName": "2024/JerusalemBankשמואל בלוסטון.json",
+		"fileName": "2024/JerusalemBankשמואל לוי.json",
 		"type": "BankLeumi867",
 		"noteText": "זיהוי AI הוא מאפיין ניסיוני. אנא בדוק את התוצאה",
 		"taxYear": "2024",
@@ -649,7 +650,7 @@
 	},
 	{
 		"fileId": "68b7f97a3c568aebad5ad372",
-		"fileName": "2024/JerusalemBankשמואל בלוסטון.pdf",
+		"fileName": "2024/JerusalemBankשמואל לוי.pdf",
 		"type": "BankLeumi867",
 		"noteText": "מספר הזיהוי 123456789 אינו חוקי. המסמך לא יעבור עיבוד",
 		"taxYear": "2023",

@@ -76,8 +76,8 @@
 			text-align: center;
 		}
 
-		/* Override external CSS for this page */
-		body {
+		/* Keep auth-header alignment intact; enforce LTR only for page content */
+		.container {
 			direction: ltr !important;
 			text-align: left !important;
 		}
@@ -85,6 +85,7 @@
 </head>
 
 <body>
+	{% include auth-header.html %}
 	<div class="container">
 		<h1>CGT Form JSON Data Examples</h1>
 
