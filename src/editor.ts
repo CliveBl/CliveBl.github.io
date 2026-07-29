@@ -12,21 +12,13 @@ import {
   getFriendlyName,
   getFriendlyOptions,
   getFriendlyOptionName,
+  showProgressOverlay,
+  hideProgressOverlay,
 } from "./index.js";
 import { selectedCustomerDataEntryName, isAnonymous } from "./authService.js";
 
 import { API_BASE_URL } from "./env.js";
-import {
-  debug,
-  is106TypeForm,
-  getElementTitle,
-  isCurrencyField,
-  isExceptionalIntegerField,
-  isFieldValidForTaxYear,
-  dummyName,
-  dummyIdNumber,
-  NO_YEAR,
-} from "./constants.js";
+import { debug, is106TypeForm, getElementTitle, isCurrencyField, isExceptionalIntegerField, isFieldValidForTaxYear, dummyName, dummyIdNumber, NO_YEAR } from "./constants.js";
 /* ********************************************************** Generic modal ******************************************************************** */
 
 function makeUniqueId() {
@@ -89,12 +81,7 @@ const DistributionItem = {
   prepaidTax: "0.00",
 };
 
-const collectionNamesSet = new Set([
-  "fields",
-  "genericFields",
-  "children",
-  "distributions"
-]);
+const collectionNamesSet = new Set(["fields", "genericFields", "children", "distributions"]);
 
 const saveAllButton = document.getElementById("saveAllButton") as HTMLButtonElement;
 
@@ -117,103 +104,6 @@ function getNumericValue(text: string) {
 }
 function getCurrencySymbol(text: string) {
   return text.replace(/[\d\.\,-]/g, "");
-}
-
-function removeCustomerMessageModal() {
-  const existingModal = document.getElementById("customModal");
-  if (existingModal) {
-    existingModal.remove();
-  }
-}
-
-function customerMessageModal({
-  title,
-  message,
-  button1Text,
-  button2Text = null,
-  displayTimeInSeconds = 1,
-}: {
-  title: string;
-  message: string;
-  button1Text: string;
-  button2Text?: string | null;
-  displayTimeInSeconds?: number;
-}) {
-  return new Promise((resolve) => {
-    // Remove any existing modal
-    removeCustomerMessageModal();
-
-    // Create modal container
-    const timeModal = document.createElement("div");
-    timeModal.id = "customModal";
-
-    const timeModalContent = document.createElement("div");
-    timeModalContent.className = "time-modal-content";
-
-    const timeModalTitle = document.createElement("h2");
-    timeModalTitle.textContent = title;
-    timeModalTitle.className = "time-modal-title";
-    timeModalContent.appendChild(timeModalTitle);
-
-    const timeModalMessage = document.createElement("p");
-    timeModalMessage.textContent = message;
-    timeModalMessage.className = "time-modal-message";
-    timeModalContent.appendChild(timeModalMessage);
-
-    const timeModalButtonContainer = document.createElement("div") as HTMLDivElement;
-    timeModalButtonContainer.className = "time-modal-button-container";
-    timeModalButtonContainer.style.justifyContent = button2Text ? "space-between" : "center";
-
-    const timeModalCountdownText = document.createElement("p");
-    timeModalCountdownText.textContent = `Closing in ${displayTimeInSeconds} seconds...`;
-    timeModalCountdownText.className = "time-modal-countdown";
-    timeModalContent.appendChild(timeModalCountdownText);
-
-    // If displayTimeInSeconds > 0, hide buttons and auto-close
-    if (displayTimeInSeconds > 0) {
-      // Countdown update every second
-      let remainingTime = displayTimeInSeconds;
-      const countdownInterval = setInterval(() => {
-        remainingTime--;
-        timeModalCountdownText.textContent = `Closing in ${remainingTime} seconds...`;
-
-        if (remainingTime <= 0) {
-          clearInterval(countdownInterval);
-          timeModal.remove();
-          resolve(0); // Return 0 when auto-closing
-        }
-      }, 1000);
-    } else {
-      // Button 1
-      const timeModalButton1 = document.createElement("button") as HTMLButtonElement;
-      timeModalButton1.type = "button";
-      timeModalButton1.textContent = button1Text;
-      timeModalButton1.className = "time-modal-button";
-      timeModalButton1.onclick = () => {
-        timeModal.remove(); // Close modal
-        resolve(1); // Return 1 for first button clicked
-      };
-      timeModalButtonContainer.appendChild(timeModalButton1);
-
-      // Button 2 (if provided)
-      if (button2Text) {
-        const timeModalButton2 = document.createElement("button") as HTMLButtonElement;
-        timeModalButton2.type = "button";
-        timeModalButton2.textContent = button2Text;
-        timeModalButton2.className = "time-modal-button";
-        timeModalButton2.onclick = () => {
-          timeModal.remove(); // Close modal
-          resolve(2); // Return 2 for second button clicked
-        };
-        timeModalButtonContainer.appendChild(timeModalButton2);
-      }
-
-      timeModalContent.appendChild(timeModalButtonContainer);
-    }
-
-    timeModal.appendChild(timeModalContent);
-    document.body.appendChild(timeModal);
-  });
 }
 
 function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
@@ -334,7 +224,7 @@ export function editableGetDocTypes() {
 
 export function editableRemoveFileList() {
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLElement;
-  if(expandableArea){
+  if (expandableArea) {
     expandableArea.innerHTML = "";
   }
 }
@@ -1038,9 +928,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         input.value = rawValue;
 
         currencyEventListener(input);
-		// Cursor before decimal point.
-		const cursorPosition = Math.max(input.value.length - 3, input.value.startsWith("-") ? 1 : 0);
-		input.setSelectionRange(cursorPosition,cursorPosition);
+        // Cursor before decimal point.
+        const cursorPosition = Math.max(input.value.length - 3, input.value.startsWith("-") ? 1 : 0);
+        input.setSelectionRange(cursorPosition, cursorPosition);
       });
       // **Restrict typing to valid numeric input**
       input.addEventListener("input", (e) => {
@@ -1370,7 +1260,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     }
 
     renderItemArray(fileData.distributions, accordianBody, "distributions", "הוספת שדה", DistributionItem, withAllFields);
-	  
+
     // Create a container for action buttons and help link
     const actionButtonsContainer = document.createElement("div") as HTMLDivElement;
     actionButtonsContainer.className = "form-actions-container";
@@ -1660,9 +1550,13 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
 
       try {
-        let deleted = false;
+        showProgressOverlay("מוחק קובץ...", { showCancelButton: false });
         if (isAnonymous()) {
-          deleted = await deleteFileFromLocalStorage(fileData.fileId);
+          const deleted = await deleteFileFromLocalStorage(fileData.fileId);
+          if (!deleted) {
+            // If deletion failed, abort further UI changes
+            return;
+          }
         } else {
           const deleteUrl = `${API_BASE_URL}/deleteForm?fileId=${fileData.fileId}&customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`;
           const response = await fetch(deleteUrl, {
@@ -1670,16 +1564,16 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
             credentials: "include",
             ...fetchConfig,
           });
-          deleted = response.ok;
+          if (!(await handleResponse(response, "Delete failed"))) {
+            return;
+          }
         }
-        if (deleted) {
-          handleDeleteSuccess();
-        } else {
-          addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
-        }
+        handleDeleteSuccess();
       } catch (error) {
         addMessage("שגיאה במחיקת קובץ. אנא נסה שוב.", "error");
         console.error("Delete error:", error);
+      } finally {
+        hideProgressOverlay();
       }
     };
   }
@@ -1762,37 +1656,34 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         return;
       }
 
-      // Normal save behavior (existing code)
-      const formData = getDataFromControls(accordianBody, fileData);
-      // Display  modal
-      customerMessageModal({
-        title: "שמירת נתונים",
-        message: `הנתונים נשמרו בהצלחה`,
-        button1Text: "",
-        button2Text: "",
-      });
-      const updatedData = await updateForm(fileData.fileId, formData);
-      removeCustomerMessageModal();
-      if (updatedData) {
-        // Just update the backupAllFilesData with the updatedData
-        const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
-        if (formIndex !== -1) {
-          const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
-          if (backupFormIndex !== -1) {
-            // Create a new object from the updatedData that takes account of withAllFields.
-            const updatedBackupData = updateFormAllFields(backupAllFilesData, fileData.fileId, fileData.type, updatedData[formIndex], withAllFields);
-            if (updatedBackupData) {
-              // Replace the form in the allFilesData array with the form in the backupAllFilesData array
-              backupAllFilesData[backupFormIndex] = updatedBackupData[backupFormIndex];
+      try {
+        // Normal save behavior (existing code)
+        const formData = getDataFromControls(accordianBody, fileData);
+        showProgressOverlay("שמירת נתונים", { showCancelButton: false });
+        const updatedData = await updateForm(fileData.fileId, formData);
+        if (updatedData) {
+          // Just update the backupAllFilesData with the updatedData
+          const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
+          if (formIndex !== -1) {
+            const backupFormIndex = backupAllFilesData.findIndex((form: any) => form.fileId === fileData.fileId);
+            if (backupFormIndex !== -1) {
+              // Create a new object from the updatedData that takes account of withAllFields.
+              const updatedBackupData = updateFormAllFields(backupAllFilesData, fileData.fileId, fileData.type, updatedData[formIndex], withAllFields);
+              if (updatedBackupData) {
+                // Replace the form in the allFilesData array with the form in the backupAllFilesData array
+                backupAllFilesData[backupFormIndex] = updatedBackupData[backupFormIndex];
+              }
+              // Update the display
+              renderFields(backupAllFilesData[backupFormIndex], accordianBody, withAllFields);
             }
-            // Update the display
-            renderFields(backupAllFilesData[backupFormIndex], accordianBody, withAllFields);
           }
+          clearAllChanged(accordianBody);
+          fileModifiedActions(editableFileListHasEntries());
+          clearMessages();
+          addMessage("נתונים נשמרו בהצלחה", "success");
         }
-        clearAllChanged(accordianBody);
-        fileModifiedActions(editableFileListHasEntries());
-        clearMessages();
-        addMessage("נתונים נשמרו בהצלחה", "success");
+      } finally {
+        hideProgressOverlay();
       }
     };
   }
@@ -1836,13 +1727,7 @@ export async function saveAllChanges() {
     let successCount = 0;
     let errorCount = 0;
 
-    // Display success modal
-    await customerMessageModal({
-      title: "שמירת נתונים",
-      message: `הנתונים נשמרו בהצלחה`,
-      button1Text: "",
-      button2Text: "",
-    });
+    showProgressOverlay("שמירת נתונים", { showCancelButton: false });
     // Process each enabled save button
     for (const saveButton of enabledSaveButtons) {
       try {
@@ -1930,5 +1815,9 @@ export async function saveAllChanges() {
   } catch (error) {
     console.error("Error in saveAllChanges:", error);
     addMessage("שגיאה כללית בשמירת השינויים", "error");
+  } finally {
+    if (!isAnonymous()) {
+      hideProgressOverlay();
+    }
   }
 }

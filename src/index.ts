@@ -527,9 +527,9 @@ async function loadExistingFiles() {
 
     let fileInfoList: FileInfo[] = [];
     if (isAnonymous()) {
-	  debug("fileInfoList bfore loading:", fileInfoList);
+      //   debug("fileInfoList bfore loading:", fileInfoList);
       fileInfoList = await fileInfoListFromLocalStorage();
-	  debug("Loaded fileInfoList from local storage:", fileInfoList);
+      //   debug("Loaded fileInfoList from local storage:", fileInfoList);
     } else {
       const response = await fetch(`${API_BASE_URL}/getFilesInfo?customerDataEntryName=${encodeURIComponent(selectedCustomerDataEntryName)}`, {
         method: "GET",
@@ -881,7 +881,7 @@ interface LoadingProgressOptions {
 // Global variable to track the countdown timer
 let countdownTimer: number | null = null;
 
-function showLoadingOverlay(message: string, options: LoadingProgressOptions | boolean = false) {
+export function showProgressOverlay(message: string, options: LoadingProgressOptions | boolean = false) {
   const loadingMessage = document.getElementById("loadingMessage") as HTMLDivElement;
   const loadingOverlay = document.getElementById("loadingOverlay") as HTMLDivElement;
   const cancelButton = document.getElementById("cancelLoadingButton") as HTMLButtonElement;
@@ -930,7 +930,7 @@ function showLoadingOverlay(message: string, options: LoadingProgressOptions | b
       countdownTimer = window.setInterval(() => {
         currentSecond++;
         if (currentSecond <= total) {
-          updateLoadingProgress(currentSecond);
+          updateProgress(currentSecond);
         } else {
           // Stop the timer when we reach the total
           if (countdownTimer) {
@@ -948,12 +948,12 @@ function showLoadingOverlay(message: string, options: LoadingProgressOptions | b
   if (showCancelButton) {
     cancelButton.onclick = () => {
       isCancelled = true;
-      hideLoadingOverlay();
+      hideProgressOverlay();
     };
   }
 }
 
-function hideLoadingOverlay() {
+export function hideProgressOverlay() {
   const loadingOverlay = document.getElementById("loadingOverlay") as HTMLDivElement;
   loadingOverlay.classList.remove("active");
 
@@ -963,21 +963,20 @@ function hideLoadingOverlay() {
     countdownTimer = null;
   }
 }
-
 /**
  * Updates the current progress value in the loading overlay
  * @param current - The current progress value to display
  * @example
  * // Update progress for file upload (1-based indexing)
- * updateLoadingProgress(i + 1);
+ * updateProgress(i + 1);
  *
  * // Update progress for time-based operations
- * updateLoadingProgress(secondsElapsed);
+ * updateProgress(secondsElapsed);
  *
  * // Update progress for step-based operations
- * updateLoadingProgress(currentStep);
+ * updateProgress(currentStep);
  */
-function updateLoadingProgress(current: number) {
+function updateProgress(current: number) {
   const currentProgress = document.getElementById("currentProgress") as HTMLSpanElement;
   if (currentProgress) {
     currentProgress.textContent = current.toString();
@@ -1002,7 +1001,7 @@ if (processButton) {
         }
       }
 
-      showLoadingOverlay("מעבדת מסמכים...", {
+      showProgressOverlay("מעבדת מסמכים...", {
         total: 30,
         unit: "שניות",
         showCancelButton: false,
@@ -1124,7 +1123,7 @@ if (processButton) {
       console.error("Processing failed:", error);
       addMessage("שגיאה בעיבוד הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
     } finally {
-      hideLoadingOverlay();
+      hideProgressOverlay();
 
       // Check if operation was cancelled
       if (isCancelled) {
@@ -1139,7 +1138,7 @@ async function uploadFilesWithProgress(validFiles: File[], replacedFileId: strin
   let success = false;
 
   // Show modal progress overlay with cancel button for file uploads
-  showLoadingOverlay("מעלה קבצים...", {
+  showProgressOverlay("מעלה קבצים...", {
     showCancelButton: true,
     total: validFiles.length,
     unit: "קבצים",
@@ -1157,7 +1156,7 @@ async function uploadFilesWithProgress(validFiles: File[], replacedFileId: strin
     addMessage("שגיאה באימות: " + (error instanceof Error ? error.message : String(error)), "error");
   } finally {
     // Hide modal progress overlay
-    hideLoadingOverlay();
+    hideProgressOverlay();
 
     // Check if operation was cancelled
     if (isCancelled) {
@@ -1360,7 +1359,7 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
       return false;
     }
     // Update progress counter
-    updateLoadingProgress(uploadedFileCount + 1);
+    updateProgress(uploadedFileCount + 1);
   }
   // Count the error types in the fileInfoList
   if (fileInfoList) {
@@ -1945,6 +1944,9 @@ if (deleteAllButton) {
       const confirmed = await showWarningModal("האם אתה בטוח שברצונך למחוק את כל המסמכים שהוזנו?");
       if (!confirmed) return;
 
+      showProgressOverlay("מוחק קבצים...", {
+        showCancelButton: false,
+      });
       if (isAnonymous()) {
         // Clear all forms from IndexedDB
         const deleted = await clearAllFilesFromLocalStorage();
@@ -1970,6 +1972,8 @@ if (deleteAllButton) {
     } catch (error: unknown) {
       console.error("Delete all failed:", error);
       addMessage("שגיאה במחיקת הקבצים: " + (error instanceof Error ? error.message : String(error)), "error");
+    } finally {
+      hideProgressOverlay();
     }
   });
 }
@@ -2082,6 +2086,9 @@ function formatNumber(key: string, value: any) {
 export function addFileToList(fileInfo: any) {
   async function deleteFile(fileId: string) {
     try {
+      showProgressOverlay("מוחק קובץ...", {
+        showCancelButton: false,
+      });
       if (isAnonymous()) {
         // Delete from IndexedDB
         const deleted = await deleteFileFromLocalStorage(fileId);
@@ -2118,6 +2125,8 @@ export function addFileToList(fileInfo: any) {
     } catch (error: unknown) {
       console.error("Delete failed:", error);
       addMessage("שגיאה במחיקת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
+    } finally {
+      hideProgressOverlay();
     }
   }
 
@@ -2477,7 +2486,7 @@ async function calculateTax(fileName: string) {
 
     //clearMessages();
 
-    showLoadingOverlay("מחשב מס...", {
+    showProgressOverlay("מחשב מס...", {
       total: 30,
       unit: "שניות",
       showCancelButton: false,
@@ -2535,7 +2544,7 @@ async function calculateTax(fileName: string) {
     clearTaxResults();
     addMessage("שגיאה בחישוב המס: " + (error instanceof Error ? error.message : String(error)), "error");
   } finally {
-    hideLoadingOverlay();
+    hideProgressOverlay();
 
     // Check if operation was cancelled
     if (isCancelled) {
