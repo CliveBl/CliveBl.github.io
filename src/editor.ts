@@ -258,8 +258,8 @@ export function editableOpenFileListEntry(fileName: string, property: string | n
           toggleButton.click(); // This will trigger the accordion toggle
         }
         if (property) {
-          // Mark the field with the property as error. Search for the field by data
-          const field = container.querySelector(`input[data-field-name="${property}"]`) as HTMLInputElement;
+          // Mark the field with the property as error. Search for the field by data. It can also be a radioGroup.
+          const field = container.querySelector(`input[data-field-name="${property}"], div[data-field-name="${property}"]`) as HTMLInputElement | HTMLDivElement;
           setFieldError(field, !shouldScrollTo);
         }
 
@@ -1028,6 +1028,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         const radioGroup = document.createElement("div") as HTMLDivElement;
         radioGroup.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         radioGroup.id = fieldId;
+		radioGroup.className = "radio-group";
 
         const options = getFriendlyOptions(key);
         options.forEach((option: string) => {

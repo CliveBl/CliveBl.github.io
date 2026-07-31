@@ -2190,6 +2190,12 @@ a:not(.submit-instructions-button):visited {
   margin-right: 10px;
   font-size: 12px;
 }
+.radio-group {
+  background-color: var(--bg-color);
+}
+.radio-group.error {
+  background-color: var(--error-bg);
+}	
 .field-input {
   flex: 0 0 120px;
   padding: 2px;
