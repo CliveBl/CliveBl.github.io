@@ -59,8 +59,8 @@ interface Value {
 
 const Child = {
   birthDate: "",
-  noSecondParentBoolean: false,
   caringForBoolean: true,
+  noSecondParentBoolean: false,
   requestDelayOfPointsBoolean: false,
   requestUsePointsFromLastYearBoolean: false,
 };
