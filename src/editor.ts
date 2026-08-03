@@ -1106,57 +1106,6 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         addChangeHandler(field, accordianBody);
       }
     }
-
-    let currentCurrency: string = "ILS";
-    // Process main fields (thicker border)
-    Object.entries(fileData).forEach(([key, value]) => {
-      if (!collectionNamesSet.has(key)) {
-        const fieldValue: Value = {
-          type: "any",
-          value: value,
-          currency: key.includes("FXX") ? currentCurrency : "ILS",
-        };
-        if (key === "currencySelect") {
-          // This sets the currency for all subsequent fields that have FXX in their name.
-          currentCurrency = value as string;
-        }
-        createFieldRow(accordianBody, "", 0, key, fieldValue);
-      }
-    });
-    // If it is an 867 form and we are not on mobile we render according to the template
-    if (fileData.documentType === "טופס 867" && window.innerWidth > 768 && withAllFields) {
-      // Clone template_867_2022
-      const template = document.getElementById(template867YearsMap[fileData.taxYear as keyof typeof template867YearsMap]) as HTMLDivElement;
-      const clone = template.cloneNode(true) as HTMLDivElement;
-      clone.id = "";
-      // Populate the clone with the fileData
-      Object.entries(fileData.fields || {}).forEach(([key, value]) => {
-        const fieldValue: Value = {
-          type: "any",
-          value: value,
-          currency: "",
-        };
-        populateField(clone, key, fieldValue);
-      });
-      clone.removeAttribute("hidden");
-      accordianBody.appendChild(clone);
-    } else {
-      // Process nested fields inside `fileData.fields` (thinner border)
-      Object.entries(fileData.fields || {}).forEach(([key, value]) => {
-        const v = value || "";
-        if (!isFieldValidForTaxYear(key, fileData.taxYear) && v === "0.00") {
-          //debug("field " + key + " value " + v + " type " + (value as any).type + " is not valid for tax year " + fileData.taxYear);
-          return;
-        }
-        const fieldValue: Value = {
-          type: "any",
-          value: value,
-          currency: "",
-        };
-        createFieldRow(accordianBody, "", 0, key, fieldValue);
-      });
-    }
-
     function renderItemArray(itemArray: any, accordianBody: HTMLDivElement, title: string, addButtonLabel: string, itemTemplate: any, withAllFields: boolean) {
       if (itemArray) {
         // Title for the children or generic fields with a control button before the title, that adds a new item.
@@ -1249,8 +1198,58 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
     }
 
-    // Call the function for children
-    renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
+    let currentCurrency: string = "ILS";
+    // Process main fields (thicker border)
+    Object.entries(fileData).forEach(([key, value]) => {
+      if (!collectionNamesSet.has(key)) {
+        const fieldValue: Value = {
+          type: "any",
+          value: value,
+          currency: key.includes("FXX") ? currentCurrency : "ILS",
+        };
+        if (key === "currencySelect") {
+          // This sets the currency for all subsequent fields that have FXX in their name.
+          currentCurrency = value as string;
+        }
+        createFieldRow(accordianBody, "", 0, key, fieldValue);
+      }else if (key === "children")
+		{
+          renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
+        }
+    });
+    // If it is an 867 form and we are not on mobile we render according to the template
+    if (fileData.documentType === "טופס 867" && window.innerWidth > 768 && withAllFields) {
+      // Clone template_867_2022
+      const template = document.getElementById(template867YearsMap[fileData.taxYear as keyof typeof template867YearsMap]) as HTMLDivElement;
+      const clone = template.cloneNode(true) as HTMLDivElement;
+      clone.id = "";
+      // Populate the clone with the fileData
+      Object.entries(fileData.fields || {}).forEach(([key, value]) => {
+        const fieldValue: Value = {
+          type: "any",
+          value: value,
+          currency: "",
+        };
+        populateField(clone, key, fieldValue);
+      });
+      clone.removeAttribute("hidden");
+      accordianBody.appendChild(clone);
+    } else {
+      // Process nested fields inside `fileData.fields` (thinner border)
+      Object.entries(fileData.fields || {}).forEach(([key, value]) => {
+        const v = value || "";
+        if (!isFieldValidForTaxYear(key, fileData.taxYear) && v === "0.00") {
+          //debug("field " + key + " value " + v + " type " + (value as any).type + " is not valid for tax year " + fileData.taxYear);
+          return;
+        }
+        const fieldValue: Value = {
+          type: "any",
+          value: value,
+          currency: "",
+        };
+        createFieldRow(accordianBody, "", 0, key, fieldValue);
+      });
+    }
 
     const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
 
