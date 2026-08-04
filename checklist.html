@@ -32,7 +32,7 @@
 		}
 	</style>
 </head>
-<script type="module" src="js/index.js?v={{ site.js_cache_buster | default: site.time | date: '%Y%m%d%H%M%S' }}"></script>
+<script type="module" src="js/index.js?v={{ site.static_files | where: "path", "/js/index.js" | map: "modified_time" | first | date: "%s" }}"></script>
 
 <body>
 	{% include auth-header.html %}

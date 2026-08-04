@@ -53,4 +53,3 @@ plugins:
 #   - vendor/gems/
 #   - vendor/ruby/
 
-js_cache_buster: "now"
