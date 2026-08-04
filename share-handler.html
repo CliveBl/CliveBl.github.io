@@ -36,7 +36,7 @@
         }
     </style>
 </head>
-<script src="/js/authService.js"></script>
+<script src="/js/authService.js?v={{ site.js_cache_buster | default: site.time | date: '%Y%m%d%H%M%S' }}"></script>
 <body>
     <h1>מעבד קבצים משותפים</h1>
     <div class="loading">מעבד את הקבצים המשותפים...</div>

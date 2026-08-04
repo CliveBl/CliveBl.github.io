@@ -40,6 +40,6 @@
         </div>
     </div>
 
-    <script type="module" src="js/redirect.js"></script>
+    <script type="module" src="js/redirect.js?v={{ site.js_cache_buster | default: site.time | date: '%Y%m%d%H%M%S' }}"></script>
 </body>
 </html>
