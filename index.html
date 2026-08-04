@@ -133,12 +133,12 @@
 		</p>
 		</main>
 	</div>
-    <script type="module" src="js/authService.js"></script>
-    <script type="module" src="js/slideshow.js"></script>
-    <!-- <script type="module" src="js/pwa-installer.js"></script> -->
+    <script type="module" src="js/authService.js?v={{ site.static_files | where: "path", "/js/authService.js" | map: "modified_time" | first | date: "%s" }}"></script>
+    <script type="module" src="js/slideshow.js?v={{ site.static_files | where: "path", "/js/slideshow.js" | map: "modified_time" | first | date: "%s" }}"></script>
+    <!-- <script type="module" src="js/pwa-installer.js?v={{ site.static_files | where: "path", "/js/pwa-installer.js" | map: "modified_time" | first | date: "%s" }}"></script> -->
     <script type="module">
-        import { cookieUtils } from './js/cookieUtils.js';
-        import { acceptTerms, declineTerms, isTermsAccepted, showInfoModal, WarningPopupMessage } from './js/authService.js';
+        import { cookieUtils } from './js/cookieUtils.js?v={{ site.static_files | where: "path", "/js/cookieUtils.js" | map: "modified_time" | first | date: "%s" }}';
+        import { acceptTerms, declineTerms, isTermsAccepted, showInfoModal, WarningPopupMessage } from './js/authService.js?v={{ site.static_files | where: "path", "/js/authService.js" | map: "modified_time" | first | date: "%s" }}';
         
         const termsCheckbox = document.getElementById('termsCheckbox');
         const startButton = document.getElementById('startButton');

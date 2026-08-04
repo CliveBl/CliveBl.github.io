@@ -36,7 +36,7 @@
         }
     </style>
 </head>
-<script src="/js/authService.js"></script>
+<script src="/js/authService.js?v={{ site.static_files | where: "path", "/js/authService.js" | map: "modified_time" | first | date: "%s" }}"></script>
 <body>
     <h1>מעבד קבצים משותפים</h1>
     <div class="loading">מעבד את הקבצים המשותפים...</div>
