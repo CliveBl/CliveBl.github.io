@@ -1,0 +1,117 @@
+---
+---
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="tax-day2.ico">
+    <title>הסיפור שלי</title>
+    <meta name="description" content="הסיפור מאחורי מי אני ולמה בניתי את הכלי הזה">
+    <link rel="canonical" href="https://www.taxesil.top/my_story.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="css/index.css" />
+    <style>
+        body {
+            display: flex;
+        }
+        .story-container {
+            max-width: 750px;
+        }
+        .story-photo {
+            float: left;
+            margin: 0 0 20px 30px;
+            border-radius: 50%;
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border: 3px solid var(--border-color);
+            box-shadow: 0 4px 12px var(--modal-shadow);
+        }
+        .story-body {
+            overflow: hidden;
+        }
+        .story-body p {
+            line-height: 1.8;
+            font-size: 1.05em;
+            margin-bottom: 16px;
+        }
+        .story-body h2 {
+            margin-top: 30px;
+            color: var(--tax-blue);
+        }
+        @media (max-width: 480px) {
+            .story-photo {
+                float: none;
+                display: block;
+                margin: 0 auto 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include auth-header.html %}
+    <div class="main-container story-container">
+        <h1>הסיפור שלי</h1>
+
+        <div class="story-body">
+            <img src="face_bow.webp" alt="תמונה שלי" class="story-photo" />
+
+            <p>
+                שמי קלייב, מהנדס תוכנה עם ניסיון של עשרות שנים בפיתוח מערכות מורכבות.
+				ביולי 2023 פיטרו אותי מעבודה והחלטתי לקחת לעצמי שנת שבתון ממומן חלקי בהחזר מס. שמגיע לי בזכות שרק עבדתי חצי שנת מס.
+			</p>
+			<p>
+				שהגעתי לעשות את ההחזר גיליתי שצריך להרכיב מספר גדול של נתונים לפני שאפשר להכניס אותם לטופס המקוון של רשות המיסים.
+			 בנוסף, יש נתונים שלא ברור איזה שדה בטופס צריך לרשום אותם.
+			<p>
+			</p>
+				ידעתי שאפשר לשלם לכריש החזר מיסים לעשות את זה, אבל 15-20% פלוס מע״ם עבור השרות, לפחות במקרה שלי, זה המון כסף.
+            </p>
+			<p>
+				בכול זאת עשיתי את זה לבד ובתוך שבוע קיבלתי החזר של כ 30,000₪.
+			</p>
+
+            <p>
+                לאחר שעברתי בעצמי את התהליך, הבנתי עד כמה הוא יכול
+                להיות מייגע: ריכוז מסמכים ממקורות שונים, הבנת טפסים מסובכים, קיזוז הפסדים מול רווחים ועוד,  
+                שאלתי את עצמי — למה שלא יהיה כלי שמפשט את כל זה?
+            </p>
+			<p>
+				אז החלטתי לתרום כמה ימים בודדים מהשבתון שלי לעניין.
+			</p>
+			<p>
+		כעבור שנתיים, שעות רבות מול המסך, התייעצות רבות עם רואה חשבון, קורס מיסים א (לא הגשתי למבחן עדיין) הגשות דו״חות אמתיות, יש כלי שלמרות שהוא עדיין בבדיקות
+		יכול לסייר לאנשים כמוני שרוצים להגיש דו״ח שנתי\החזר לבד.
+			</p>
+
+			<p>
+				אני גם החלטתי לספק את הכלי ללא תמורה לכל אחד שרוצה להגיש דו״ח החזר לבד.
+			</p>
+            <p>
+                חשוב לי להדגיש: הכלי אינו מחליף ייעוץ מס מקצועי ולא רואה חשבון. בסוף אתה מגיש לבד ללא מייצג, והאחריות על הדו״ח הסופי
+                היא תמיד שלך. הוא נועד לחסוך לך זמן ולהפוך תהליך מורכב לנגיש יותר.
+            </p>
+
+            <h2>צור קשר</h2>
+            <p>
+                יש לך שאלה, הצעה, או פשוט רצית לשתף חוויה? אשמח לשמוע.
+                תוכל לפנות אליי לכתובת המייל: <a href="mailto:cgtpersonaltaxil@gmail.com">cgtpersonaltaxil@gmail.com</a>
+            </p>
+        </div>
+
+        <div style="clear: both;"></div>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+            <a href="index.html" class="stnd-link">לדף הבית</a>
+            <a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
+            <a href="faq.html" class="stnd-link" style="margin-right: 10px;">שאלות נפוצות</a>
+            <a href="blogs.html" class="stnd-link" style="margin-right: 10px;">בלוג</a>
+            <a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px;">הצהרת נגישות</a>
+        </div>
+    </div>
+</body>
+<script>nl_pos = "br";nl_compact = "1";</script>
+<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+</html>
