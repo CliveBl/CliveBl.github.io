@@ -589,6 +589,13 @@ function isValidFileType(file: File) {
       message: `גודל הקובץ גדול מדי - הקובץ חייב להיות קטן מ-5MB. שם הקובץ: ${file.name}`,
     };
   }
+  // Check ecluded file names
+  if (isFileExcluded(file)) {
+    return {
+      valid: false,
+      message: `שם הקובץ אסור: ${file.name}`,
+    };
+  }
 
   return { valid: true };
 }
@@ -636,6 +643,13 @@ async function getFileList(entry: any, files: File[], relativePathMap?: Map<File
   }
 }
 
+function isFileExcluded(file: File) {
+  return (
+    file.name.match(/TaxAnalysis_\d{4}\.xlsx/) || 
+    file.name.match(/13\d{2}_\d{4}_filled\.pdf/)
+  );
+}
+
 // Shared function to process folder files (used by both folder input and drag & drop)
 // Modified: Accepts a relativePathMap for reconstructed paths
 async function processFolderFiles(files: File[], button: HTMLInputElement, relativePathMap?: Map<File, string>) {
@@ -651,7 +665,8 @@ async function processFolderFiles(files: File[], button: HTMLInputElement, relat
     })
     .filter((file) => {
       const relPath = file.webkitRelativePath || (relativePathMap && relativePathMap.get(file)) || file.name;
-      if (isInGeneratedTaxFormsFolder(relPath) || file.name.match(/TaxAnalysis_\d{4}\.xlsx/)) {
+      if (isInGeneratedTaxFormsFolder(relPath))
+	  {
         return false;
       }
 

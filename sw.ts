@@ -2,7 +2,7 @@ console.log("Service Worker: Starting up...");
 console.log("Service Worker: Self location:", self.location.href);
 console.log("Service Worker: User agent:", navigator.userAgent);
 
-const CACHE_NAME = "cgt-tax-return-v3";
+const CACHE_NAME = "cgt-tax-return-v4";
 const urlsToCache = [
   "/",
   "/css/index.css",
