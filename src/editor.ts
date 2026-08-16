@@ -778,8 +778,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.maxLength = 100;
       input.placeholder = getFriendlyName(key);
       if (fieldValue.value) {
-        input.value = fieldValue.value;
-        input.title = fieldValue.value;
+		// Convert newline to backslash for display in the input field
+		const formattedValue: string = fieldValue.value.replace(/\n/g, "\\");
+        input.value = formattedValue;
+        input.title = formattedValue;
         input.classList.add("value");
       }
     } else if (key.endsWith("IdentificationNumber")) {
