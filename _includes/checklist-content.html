@@ -141,7 +141,7 @@
                   <label for="donations-count" id="donations-missing" class="doc-status"></label>
                 </div>
               </div>
-              <div class="doc-item" data-doc-type="national-insurance-uemployment" data-doc-typename="אישור מס אבטלה ביטוח לאומי">
+              <div class="doc-item" data-doc-type="national-insurance-unemployment" data-doc-typename="אישור מס אבטלה ביטוח לאומי">
                 <div class="doc-details">
                   <h3>ביטוח לאומי אבטלה</h3>
                   <span class="doc-icon">&#127981;&#128473;</span>
@@ -152,7 +152,7 @@
                 </div>
                 <div class="doc-controls">
                   <label>כמות</label>
-                    <select aria-label="כמות אישורי ביטוח לאומי" name="national-insurance-uemployment-count" id="national-insurance-uemployment-count">
+                    <select aria-label="כמות אישורי ביטוח לאומי" name="national-insurance-unemployment-count" id="national-insurance-unemployment-count">
                       <option value="0" selected>0</option>
                       <option value="1">1</option>
                       <option value="2">2</option>
@@ -160,7 +160,7 @@
                       <option value="4">4</option>
                     </select></label
                   >
-                  <label for="national-insurance-uemployment-count" id="national-insurance-uemployment-missing" class="doc-status"></label>
+                  <label for="national-insurance-unemployment-count" id="national-insurance-unemployment-missing" class="doc-status"></label>
                 </div>
               </div>
               <div class="doc-item" data-doc-type="national-insurance-mothers" data-doc-typename="אישור מס אמהות ביטוח לאומי">
@@ -443,7 +443,9 @@
                   <label for="unsupported-count" id="unsupported-missing" class="doc-status"></label>
                 </div>
               </div>
-              <div data-doc-type="tax-free-rental-income" data-doc-typename="הכנסה פטורה משכר דירה" hidden="true"></div>
+			<div class="doc-item" data-doc-type="offsetable-losses-to-transfer" data-doc-typename="הפסדי הון להעברה לשנה הבא" style="display: none;">
+				<span class="doc-icon" >📉</span>
+			</div>
             </div>
              <div class="missing-docs-warning" id="missingDocsWarning"></div>
           </div>

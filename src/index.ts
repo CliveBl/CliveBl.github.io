@@ -3171,8 +3171,10 @@ function initializeDocumentIcons() {
     const docType = item.getAttribute("data-doc-typename");
     const icon = item.querySelector(".doc-icon");
     if (docType && icon) {
-      documentIcons[docType] = icon.textContent;
-    }
+       documentIcons[docType] = icon.textContent;
+    } else {
+		debug("initializeDocumentIcons: Missing docType or icon for item:", item);
+	}
   });
 }
 
