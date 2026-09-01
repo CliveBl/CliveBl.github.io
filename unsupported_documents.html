@@ -1,43 +1,44 @@
 ---
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="מידע על מסמכים לא נתמכים במערכת דו״ח שנתי">
+    <meta name="description" content="מידע על מסמכים לא נתמכים במערכת דו״ח שנתי" />
     <link rel="canonical" href="https://www.taxesil.top/unsupported_documents.html" />
     <link rel="icon" type="image/x-icon" href="tax-day2.ico" />
     <title>מסמכים לא נתמכים - דו״ח שנתי</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Hebrew:wght@400&display=swap" rel="stylesheet"> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Hebrew:wght@400&display=swap" rel="stylesheet"> -->
     <link rel="stylesheet" href="css/index.css" />
     <style>
-		body {	
-			display: flex; 
-		 }
+      body {
+        display: flex;
+      }
       .info-container p {
         font-size: 17px;
       }
-      
+
       .info-container li {
         font-size: 17px;
       }
-      
+
       .info-container ul {
         font-size: 17px;
       }
-      
+
       .option-card p {
         font-size: 17px;
       }
-      
+
       .option-card li {
         font-size: 17px;
       }
-      
+
       .accountant-card p {
         font-size: 17px;
       }
@@ -47,68 +48,70 @@
   <body>
     {% include auth-header.html %}
     <div class="main-container">
-        <h1>מסמכים ומצבים לא נתמכים</h1>
-        <div class="controls">
-       </div>
+      <h1>מסמכים ומצבים לא נתמכים</h1>
+      <div class="controls"></div>
 
-        <div class="info-container">
-          <h2>מה הם מסמכים ומצבים לא נתמכים?</h2>
-          <p>אנו תומכים בכל רווחי הון ממוסדות ישראליים כי הם על פי חוק מנפיקים טופס 867 שאנחנו קוראים. רווחי הון אחרים יכולים להיות מוזנים על ידי יצירת טופס חדש באפליקציה. רווחי הון זרים אינם נתמכים כי הם צריכים להיות מדווחים בטופס (1324) שאנחנו לא תומכים בו כרגע.</p>
+      <div class="info-container">
+        <h2>מה הם מסמכים ומצבים לא נתמכים?</h2>
+        <p>
+          אנו תומכים בכל רווחי הון ממוסדות ישראליים כי הם על פי חוק מנפיקים טופס 867 שאנחנו קוראים. רווחי הון אחרים יכולים להיות מוזנים על ידי יצירת טופס חדש באפליקציה. רווחי הון זרים אינם נתמכים כי
+          הם צריכים להיות מדווחים בטופס (1324) שאנחנו לא תומכים בו כרגע.
+        </p>
 
-          <h2>סוגים לא נתמכים:</h2>
-          <ul>
-			<li><strong>מס שבח:</strong> רווח הון ממכירת נדל"ן</li>
-            <li><strong>מסחר בקריפטו:</strong> מסמכים הקשורים למסחר בביטקוין, אתריום וקריפטו-מטבעות אחרים</li>
-            <li><strong>ברוקרים זרים:</strong> דו״חות מברוקרים כמו , eToro, Robinhood ועוד</li>
-            <li><strong>נכסים בחו״ל:</strong> דירות, קרקעות, עסקים וחשבונות בנק בחו״ל</li>
-           </ul>
+        <h2>סוגים לא נתמכים:</h2>
+        <ul>
+          <li><strong>מס שבח:</strong> רווח הון ממכירת נדל"ן</li>
+          <li><strong>מסחר בקריפטו:</strong> מסמכים הקשורים למסחר בביטקוין, אתריום וקריפטו-מטבעות אחרים</li>
+          <li><strong>ברוקרים זרים:</strong> דו״חות מברוקרים כמו , eToro, Robinhood ועוד</li>
+          <li><strong>נכסים בחו״ל:</strong> דירות, קרקעות, עסקים וחשבונות בנק בחו״ל</li>
+        </ul>
 
-          <h3>מה לעשות עם מסמכים ומצבים לא נתמכים?</h3>
-          <p>יש לך שתי אפשרויות עיקריות:</p>
+        <h3>מה לעשות עם מסמכים ומצבים לא נתמכים?</h3>
+        <p>יש לך שתי אפשרויות עיקריות:</p>
 
-          <div class="options-container">
-            <div class="option-card">
-              <h4>🛠️ הוספה ידנית לדו״ח</h4>
-              <p>אנו מייצרים גיליון אלקטרוני עם כל הפרטים מהטפסים שהזנת. זהו סוג הגיליון שאתה בדרך כלל צריך לבנות בעצמך כדי לחשב את הערכים להזנה בעת מילוי הדו״ח השנתי.</p>
-              <p>הגיליון מתוכנן לחשב מחדש ערכים כאשר שורות חדשות נוספות במקומות המתאימים. אם אתה מבין מספיק כדי להוסיף לגיליון זה, תוכל לשנות אותו בעצמך. ייתכן גם שתצטרך למלא טפסים נוספים בהתאם לנסיבות.</p>
-              <p>עם זאת, הוא לא יעדכן את קובץ הנתונים שנוצר (1301_2024.dat) שאתה מעלה לרשות המס בעת הגשת טופס 1301. תצטרך לשנות בעצמך כל נתון שונה לאחר העלאת קובץ הנתונים.</p>
-            </div>
-
-            <div class="option-card">
-              <h4>👨‍💼 התייעצות עם מומחה</h4>
-              <p>מומלץ להתייעץ עם רואה חשבון או יועץ מס מקצועי:</p>
-              <ul>
-                <li>בדיקה מקצועית של המסמכים</li>
-                <li>חישוב מדויק של המס</li>
-                <li>ייעוץ לגבי הטבות מס אפשריות</li>
-                <li>ליווי בהגשת הדו״ח</li>
-              </ul>
-              <p><strong>שים לב:</strong> כרוך בתשלום</p>
-            </div>
+        <div class="options-container">
+          <div class="option-card">
+            <h4>🛠️ הוספה ידנית לדו״ח</h4>
+            <p>אנו מייצרים גיליון אלקטרוני עם כל הפרטים מהטפסים שהזנת. זהו סוג הגיליון שאתה בדרך כלל צריך לבנות בעצמך כדי לחשב את הערכים להזנה בעת מילוי הדו״ח השנתי.</p>
+            <p>
+              הגיליון מתוכנן לחשב מחדש ערכים כאשר שורות חדשות נוספות במקומות המתאימים. אם אתה מבין מספיק כדי להוסיף לגיליון זה, תוכל לשנות אותו בעצמך. ייתכן גם שתצטרך למלא טפסים נוספים בהתאם לנסיבות.
+            </p>
+            <p>עם זאת, הוא לא יעדכן את קובץ הנתונים שנוצר (1301_2024.dat) שאתה מעלה לרשות המס בעת הגשת טופס 1301. תצטרך לשנות בעצמך כל נתון שונה לאחר העלאת קובץ הנתונים.</p>
           </div>
 
-          <h2>רשימת רואי חשבון ויועצי מס</h2>
-          <p>להלן רשימה של רואי חשבון ויועצי מס :</p>
+          <div class="option-card">
+            <h4>👨‍💼 התייעצות עם מומחה</h4>
+            <p>מומלץ להתייעץ עם רואה חשבון או יועץ מס מקצועי:</p>
+            <ul>
+              <li>בדיקה מקצועית של המסמכים</li>
+              <li>חישוב מדויק של המס</li>
+              <li>ייעוץ לגבי הטבות מס אפשריות</li>
+              <li>ליווי בהגשת הדו״ח</li>
+            </ul>
+            <p><strong>שים לב:</strong> כרוך בתשלום</p>
+          </div>
+        </div>
 
-          <div class="accountants-list">
-            <div class="accountant-card">
-              <h4>משרד רואי חשבון כהן ושות׳</h4>
-              <p><strong>התמחות:</strong> מסחר בינלאומי, קריפטו, נכסים בחו״ל</p>
-              <p><strong>טלפון:</strong> <a href="tel:+972-3-1234567">03-1234567</a></p>
-              <p><strong>דוא״ל:</strong> <a href="mailto:info@cohenxyz-cpa.co.il">info@cohen-cpa.co.il</a></p>
-              <p><strong>כתובת:</strong> רחוב הרצל 123, תל אביב</p>
-            </div>
+        <h2>רשימת רואי חשבון ויועצי מס</h2>
+        <p>להלן רשימה של רואי חשבון ויועצי מס :</p>
 
-            <div class="accountant-card">
-            </div>
+        <div class="accountants-list">
+          <div class="accountant-card">
+            <h4>משרד רואי חשבון כהן ושות׳</h4>
+            <p><strong>התמחות:</strong> מסחר בינלאומי, קריפטו, נכסים בחו״ל</p>
+            <p><strong>טלפון:</strong> <a href="tel:+972-3-1234567">03-1234567</a></p>
+            <p><strong>דוא״ל:</strong> <a href="mailto:info@cohenxyz-cpa.co.il">info@cohen-cpa.co.il</a></p>
+            <p><strong>כתובת:</strong> רחוב הרצל 123, תל אביב</p>
+          </div>
+
+          <div class="accountant-card"></div>
 
           <div class="important-note">
             <h3>⚠️ הערה חשובה</h3>
             <p>הרשימה לעיל היא לצורך דוגמה בלבד. מומלץ לבצע מחקר אישי ולבחור רואה חשבון או יועץ מס המתאים לצרכים הספציפיים שלך. תמיד בדוק המלצות, ניסיון והתמחות לפני בחירת מומחה.</p>
           </div>
 
-            <div class="accountant-card">
-            </div>
+          <div class="accountant-card"></div>
 
           <h3>איך לבחור רואה חשבון או יועץ מס?</h3>
           <ul>
@@ -121,23 +124,20 @@
 
           <h3>תמיכה עתידית</h3>
           <p>אנו עובדים על הרחבת התמיכה במסמכים נוספים. אם יש לך מסמכים מסוג זה, אנא שלח לנו משוב כדי שנוכל לשפר את המערכת.</p>
-          
         </div>
       </div>
-	  <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
-		<a href="index.html" class="stnd-link">לדף הבית</a>
-		<a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
-		<a href="faq.html" class="stnd-link" style="margin-right: 10px;">שאלות נפוצות</a>
-		<a href="blogs.html" class="stnd-link" style="margin-right: 10px;">בלוג</a>
-		<a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px;">הצהרת נגישות</a>
-	</div>
-
+      <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
+        <a href="index.html" class="stnd-link">לדף הבית</a>
+        <a href="help.html" class="stnd-link" style="margin-right: 10px">עזרה</a>
+        <a href="faq.html" class="stnd-link" style="margin-right: 10px">שאלות נפוצות</a>
+        <a href="blogs.html" class="stnd-link" style="margin-right: 10px">בלוג</a>
+        <a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px">הצהרת נגישות</a>
+      </div>
     </div>
-
   </body>
   <script>
     nl_pos = "br";
     nl_compact = "1";
-</script>
-<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
-</html> 
+  </script>
+  <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+</html>

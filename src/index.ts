@@ -644,10 +644,7 @@ async function getFileList(entry: any, files: File[], relativePathMap?: Map<File
 }
 
 function isFileExcluded(file: File) {
-  return (
-    file.name.match(/TaxAnalysis_\d{4}\.xlsx/) || 
-    file.name.match(/13\d{2}_\d{4}_filled\.pdf/)
-  );
+  return file.name.match(/TaxAnalysis_\d{4}\.xlsx/) || file.name.match(/13\d{2}_\d{4}_filled\.pdf/);
 }
 
 // Shared function to process folder files (used by both folder input and drag & drop)
@@ -665,8 +662,7 @@ async function processFolderFiles(files: File[], button: HTMLInputElement, relat
     })
     .filter((file) => {
       const relPath = file.webkitRelativePath || (relativePathMap && relativePathMap.get(file)) || file.name;
-      if (isInGeneratedTaxFormsFolder(relPath))
-	  {
+      if (isInGeneratedTaxFormsFolder(relPath)) {
         return false;
       }
 
@@ -3171,10 +3167,10 @@ function initializeDocumentIcons() {
     const docType = item.getAttribute("data-doc-typename");
     const icon = item.querySelector(".doc-icon");
     if (docType && icon) {
-       documentIcons[docType] = icon.textContent;
+      documentIcons[docType] = icon.textContent;
     } else {
-		debug("initializeDocumentIcons: Missing docType or icon for item:", item);
-	}
+      debug("initializeDocumentIcons: Missing docType or icon for item:", item);
+    }
   });
 }
 

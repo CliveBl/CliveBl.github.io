@@ -1,91 +1,91 @@
 ---
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CGT Form JSON Data</title>
     <meta name="description" content="CGT Form JSON Data Examples" />
     <link rel="canonical" href="https://www.taxesil.top/cgt_api_formjson.html" />
     <link rel="icon" type="image/x-icon" href="tax-day2.ico" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/opensanshebrew.css" />
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/index.css" />
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background: var(--bg-color);
-            color: var(--text-color);
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: var(--item-bg);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px var(--modal-shadow);
-            border: 1px solid var(--border-color);
-        }
-        h1 {
-            color: var(--tax-blue);
-            border-bottom: 3px solid var(--button-color);
-            padding-bottom: 10px;
-            text-align: center;
-        }
-        .json-container {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            padding: 20px;
-            margin: 20px 0;
-            overflow-x: auto;
-        }
-        pre {
-            margin: 0;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-        .note {
-            background: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            border-radius: 3px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        .note strong {
-            color: var(--warning-text);
-        }
-        footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            color: var(--message-text);
-            text-align: center;
-        }
-		/* Keep auth-header alignment intact; enforce LTR only for page content */
-		.container {
-			direction: ltr !important;
-			text-align: left !important;
-		}
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background: var(--bg-color);
+        color: var(--text-color);
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: var(--item-bg);
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px var(--modal-shadow);
+        border: 1px solid var(--border-color);
+      }
+      h1 {
+        color: var(--tax-blue);
+        border-bottom: 3px solid var(--button-color);
+        padding-bottom: 10px;
+        text-align: center;
+      }
+      .json-container {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        padding: 20px;
+        margin: 20px 0;
+        overflow-x: auto;
+      }
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+      .note {
+        background: var(--warning-bg);
+        border: 1px solid var(--warning-border);
+        border-radius: 3px;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      .note strong {
+        color: var(--warning-text);
+      }
+      footer {
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+        color: var(--message-text);
+        text-align: center;
+      }
+      /* Keep auth-header alignment intact; enforce LTR only for page content */
+      .container {
+        direction: ltr !important;
+        text-align: left !important;
+      }
     </style>
-</head>
-<body>
-	{% include auth-header.html %}
+  </head>
+  <body>
+    {% include auth-header.html %}
     <div class="container">
-        <h1>CGT Form JSON Data Examples</h1>
-        
-        <div class="note">
-            <strong>Note:</strong> This page contains example JSON data showing the structure of form data returned by the CGT API.
-        </div>
+      <h1>CGT Form JSON Data Examples</h1>
 
-        <div class="json-container">
-            <pre>[
+      <div class="note"><strong>Note:</strong> This page contains example JSON data showing the structure of form data returned by the CGT API.</div>
+
+      <div class="json-container">
+        <pre>
+[
 	{
 		"fileId": "68b7f9183c568aebad5ad355",
 		"fileName": "2023/63acb62d-cf34-406e-9e1a-d0e3e4b4ea28.pdf",
@@ -858,24 +858,24 @@
 		"endDate": "31/12/2025",
 		"documentType": "אישור תושב"
 	}
-]</pre>
-        </div>
+]</pre
+        >
+      </div>
 
-        <footer>
-		<div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
-			<a href="index.html" class="stnd-link">לדף הבית</a>
-			<a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
-			<a href="faq.html" class="stnd-link" style="margin-right: 10px;">שאלות נפוצות</a>
-			<a href="blogs.html" class="stnd-link" style="margin-right: 10px;">בלוג</a>
-			<a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px;">הצהרת נגישות</a>
-		</div>
-        </footer>
+      <footer>
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
+          <a href="index.html" class="stnd-link">לדף הבית</a>
+          <a href="help.html" class="stnd-link" style="margin-right: 10px">עזרה</a>
+          <a href="faq.html" class="stnd-link" style="margin-right: 10px">שאלות נפוצות</a>
+          <a href="blogs.html" class="stnd-link" style="margin-right: 10px">בלוג</a>
+          <a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px">הצהרת נגישות</a>
+        </div>
+      </footer>
     </div>
-    
-</body>
-<script>
-	nl_pos = "br";
-	nl_compact = "1";
-</script>
-<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+  </body>
+  <script>
+    nl_pos = "br";
+    nl_compact = "1";
+  </script>
+  <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
 </html>

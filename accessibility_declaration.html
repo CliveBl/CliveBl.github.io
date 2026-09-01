@@ -1,117 +1,100 @@
 ---
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="he" dir="rtl">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="הצהרת נגישות - דו״ח שנתי עשה זאת בעצמך">
+    <meta name="description" content="הצהרת נגישות - דו״ח שנתי עשה זאת בעצמך" />
     <link rel="canonical" href="https://www.taxesil.top/accessibility_declaration.html" />
-    <link rel="icon" type="image/x-icon" href="tax-day2.ico">
+    <link rel="icon" type="image/x-icon" href="tax-day2.ico" />
     <title>הצהרת נגישות - דו״ח שנתי</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="css/index.css" />
     <style>
-        body {
-            display: flex;
-        }
+      body {
+        display: flex;
+      }
 
-        ul {
-            list-style-type: none;
-            padding-right: 20px;
-        }
-        li {
-            margin: 10px 0;
-            position: relative;
-        }
-        li:before {
-            content: "•";
-            color: var(--tax-blue);
-            font-weight: bold;
-            position: absolute;
-            right: -15px;
-        }
+      ul {
+        list-style-type: none;
+        padding-right: 20px;
+      }
+      li {
+        margin: 10px 0;
+        position: relative;
+      }
+      li:before {
+        content: "•";
+        color: var(--tax-blue);
+        font-weight: bold;
+        position: absolute;
+        right: -15px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     {% include auth-header.html %}
     <div class="main-container">
-        <h1>הצהרת נגישות</h1>
+      <h1>הצהרת נגישות</h1>
 
-        <p>
-            האתר פטור מביצוע התאמות נגישות לפי תקנה 35(ו)(1) לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), תשע"ג-2013. אם נתקלתם בקושי בגלישה או שנדרשת עזרה, ניתן ליצור עמנו קשר.
-        </p>
+      <p>האתר פטור מביצוע התאמות נגישות לפי תקנה 35(ו)(1) לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), תשע"ג-2013. אם נתקלתם בקושי בגלישה או שנדרשת עזרה, ניתן ליצור עמנו קשר.</p>
 
-        <h2>כללי</h2>
-        <p>
-            אנו משתדלים להנגיש את האתר לכלל המשתמשים, לרבות אנשים עם מוגבלויות, בהתאם לתקן ישראלי 5568 (ת"י 5568)
-            המבוסס על הנחיות WCAG 2.1 ברמה AA.
-        </p>
+      <h2>כללי</h2>
+      <p>אנו משתדלים להנגיש את האתר לכלל המשתמשים, לרבות אנשים עם מוגבלויות, בהתאם לתקן ישראלי 5568 (ת"י 5568) המבוסס על הנחיות WCAG 2.1 ברמה AA.</p>
 
-        <h2>רמת הנגישות</h2>
-        <p>
-            האתר עומד ברמה AA של תקן ישראלי 5568 בהתאם להנחיות WCAG 2.1.
-            הנגשת האתר בוצעה בהתאם להמלצות הנחיות הנגישות לתכנים באינטרנט (WCAG) 2.1.
-        </p>
+      <h2>רמת הנגישות</h2>
+      <p>האתר עומד ברמה AA של תקן ישראלי 5568 בהתאם להנחיות WCAG 2.1. הנגשת האתר בוצעה בהתאם להמלצות הנחיות הנגישות לתכנים באינטרנט (WCAG) 2.1.</p>
 
-        <h2>רכיב נגישות</h2>
-        <p>
-            האתר כולל תפריט נגישות המסייע למשתמשים לשנות את הגדרות התצוגה בהתאם לצרכיהם.
-            ניתן לגשת לתפריט הנגישות דרך הכפתור המוצג בפינת המסך.
-        </p>
+      <h2>רכיב נגישות</h2>
+      <p>האתר כולל תפריט נגישות המסייע למשתמשים לשנות את הגדרות התצוגה בהתאם לצרכיהם. ניתן לגשת לתפריט הנגישות דרך הכפתור המוצג בפינת המסך.</p>
 
-        <h2>מאפיינים נגישים באתר</h2>
-        <ul>
-            <li>ניווט מלא באמצעות מקלדת</li>
-            <li>תמיכה בקוראי מסך</li>
-            <li>טקסט חלופי לתמונות</li>
-            <li>ניגודיות צבעים גבוהה בין הטקסט לרקע</li>
-            <li>כותרות מובנות והיררכיה ברורה של דפי האתר</li>
-            <li>הגדרת שפה וכיוון (RTL) בקוד הדף</li>
-            <li>תוויות (labels) לכל שדות הטפסים</li>
-            <li>הודעות שגיאה ברורות ומובנות</li>
-            <li>תפריט נגישות המאפשר שינוי גודל טקסט, ניגודיות, וצבעים</li>
-        </ul>
+      <h2>מאפיינים נגישים באתר</h2>
+      <ul>
+        <li>ניווט מלא באמצעות מקלדת</li>
+        <li>תמיכה בקוראי מסך</li>
+        <li>טקסט חלופי לתמונות</li>
+        <li>ניגודיות צבעים גבוהה בין הטקסט לרקע</li>
+        <li>כותרות מובנות והיררכיה ברורה של דפי האתר</li>
+        <li>הגדרת שפה וכיוון (RTL) בקוד הדף</li>
+        <li>תוויות (labels) לכל שדות הטפסים</li>
+        <li>הודעות שגיאה ברורות ומובנות</li>
+        <li>תפריט נגישות המאפשר שינוי גודל טקסט, ניגודיות, וצבעים</li>
+      </ul>
 
-        <h2>חסמי נגישות ידועים</h2>
-        <p>אנו עובדים באופן שוטף לשיפור הנגישות. חסמים ידועים שאנו עובדים על תיקונם:</p>
-        <ul>
-            <li>חלק ממסמכי ה-PDF המיוצאים מהמערכת עשויים שלא להיות נגישים במלואם</li>
-            <li>תוכן מסוים המוצג בעקבות עיבוד AI עלול לא לכלול תיאורים נגישים מלאים</li>
-        </ul>
+      <h2>חסמי נגישות ידועים</h2>
+      <p>אנו עובדים באופן שוטף לשיפור הנגישות. חסמים ידועים שאנו עובדים על תיקונם:</p>
+      <ul>
+        <li>חלק ממסמכי ה-PDF המיוצאים מהמערכת עשויים שלא להיות נגישים במלואם</li>
+        <li>תוכן מסוים המוצג בעקבות עיבוד AI עלול לא לכלול תיאורים נגישים מלאים</li>
+      </ul>
 
-        <h2>פניות בנושא נגישות</h2>
-        <p>
-            אם נתקלתם בבעיית נגישות או שיש לכם הצעות לשיפור, אנא פנו אלינו:
-        </p>
-        <ul>
-            <li>דוא"ל: <a href="mailto:cgtpersonaltaxil@gmail.com" class="help-link">cgtpersonaltaxil@gmail.com</a></li>
-        </ul>
-        <p>
-            אנו נשתדל להגיב לפניות בנושא נגישות בתוך 5 ימי עבודה.
-        </p>
+      <h2>פניות בנושא נגישות</h2>
+      <p>אם נתקלתם בבעיית נגישות או שיש לכם הצעות לשיפור, אנא פנו אלינו:</p>
+      <ul>
+        <li>דוא"ל: <a href="mailto:cgtpersonaltaxil@gmail.com" class="help-link">cgtpersonaltaxil@gmail.com</a></li>
+      </ul>
+      <p>אנו נשתדל להגיב לפניות בנושא נגישות בתוך 5 ימי עבודה.</p>
 
-        <h2>גורם אחראי לנגישות</h2>
-        <p>
-            הגורם האחראי לנגישות האתר הוא צוות CGT Personal Tax.
-            ניתן לפנות אלינו בכל עת בכתובת: <a href="mailto:cgtpersonaltaxil@gmail.com" class="help-link">cgtpersonaltaxil@gmail.com</a>
-        </p>
+      <h2>גורם אחראי לנגישות</h2>
+      <p>הגורם האחראי לנגישות האתר הוא צוות CGT Personal Tax. ניתן לפנות אלינו בכל עת בכתובת: <a href="mailto:cgtpersonaltaxil@gmail.com" class="help-link">cgtpersonaltaxil@gmail.com</a></p>
 
-        <h2>תאריך עדכון ההצהרה</h2>
-        <p>הצהרת נגישות זו עודכנה לאחרונה ביולי 2026.</p>
+      <h2>תאריך עדכון ההצהרה</h2>
+      <p>הצהרת נגישות זו עודכנה לאחרונה ביולי 2026.</p>
 
-		<div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
-			<a href="index.html" class="stnd-link">לדף הבית</a>
-			<a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
-			<a href="faq.html" class="stnd-link" style="margin-right: 10px;">שאלות נפוצות</a>
-			<a href="blogs.html" class="stnd-link" style="margin-right: 10px;">בלוג</a>
-		</div>
+      <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
+        <a href="index.html" class="stnd-link">לדף הבית</a>
+        <a href="help.html" class="stnd-link" style="margin-right: 10px">עזרה</a>
+        <a href="faq.html" class="stnd-link" style="margin-right: 10px">שאלות נפוצות</a>
+        <a href="blogs.html" class="stnd-link" style="margin-right: 10px">בלוג</a>
+      </div>
     </div>
-</body>
-<script>
+  </body>
+  <script>
     nl_pos = "br";
     nl_compact = "1";
-</script>
-<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+  </script>
+  <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
 </html>

@@ -778,8 +778,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       input.maxLength = 100;
       input.placeholder = getFriendlyName(key);
       if (fieldValue.value) {
-		// Convert newline to backslash for display in the input field
-		const formattedValue: string = fieldValue.value.replace(/\n/g, "\\");
+        // Convert newline to backslash for display in the input field
+        const formattedValue: string = fieldValue.value.replace(/\n/g, "\\");
         input.value = formattedValue;
         input.title = formattedValue;
         input.classList.add("value");
@@ -1030,7 +1030,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         const radioGroup = document.createElement("div") as HTMLDivElement;
         radioGroup.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         radioGroup.id = fieldId;
-		radioGroup.className = "radio-group";
+        radioGroup.className = "radio-group";
 
         const options = getFriendlyOptions(key);
         options.forEach((option: string) => {
@@ -1214,10 +1214,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           currentCurrency = value as string;
         }
         createFieldRow(accordianBody, "", 0, key, fieldValue);
-      }else if (key === "children")
-		{
-          renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
-        }
+      } else if (key === "children") {
+        renderItemArray(fileData.children, accordianBody, "children", "הוספת ילד", Child, withAllFields);
+      }
     });
     // If it is an 867 form and we are not on mobile we render according to the template
     if (fileData.documentType === "טופס 867" && window.innerWidth > 768 && withAllFields) {

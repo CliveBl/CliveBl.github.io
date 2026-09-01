@@ -1,96 +1,102 @@
 ---
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="הגשת הדו״ח למס הכנסה - דו״ח שנתי עשה זאת בעצמך">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="הגשת הדו״ח למס הכנסה - דו״ח שנתי עשה זאת בעצמך" />
     <link rel="canonical" href="https://www.taxesil.top/submit_instructions.html" />
     <link rel="icon" type="image/x-icon" href="tax-day2.ico" />
     <title>הגשת הדו״ח למס הכנסה</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Hebrew:wght@400&display=swap" rel="stylesheet"> -->
-    <link rel="stylesheet" href="css/index.css">
-	<style>
-		body {	
-			display: flex; 
-		 }
-	</style>
-</head>
-<body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Hebrew:wght@400&display=swap" rel="stylesheet"> -->
+    <link rel="stylesheet" href="css/index.css" />
+    <style>
+      body {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
     {% include auth-header.html %}
     <div class="main-container">
-        <h1>הגשת הדו״ח למס הכנסה</h1>
-        
-        <div class="instructions-section">
-            <h2>שלב 1: הכנת הקבצים</h2>
-            <ol>
-                <li>צור תיקייה חדשה בשם "דו״ח שנתי [שנת המס]"</li>
-                <li>העתק לתיקייה את כל המסמכים שהועלו למערכת עבור אותו שנת מס</li>
-                <li>הורד והעתק את קובצי התוצאות שהופקו על ידי המערכת עבור אותו שנת מס, לדוגמה: <span dir="ltr">1322_2024.pdf, TaxAnalysis_2024.xlsx</span></li>
-            </ol>
+      <h1>הגשת הדו״ח למס הכנסה</h1>
 
-            <h2>שלב 2: הרשמה לאתר מס הכנסה</h2>
-            <ol>
-                <li>היכנס לאתר <a href="https://signup.taxes.gov.il/logon/LogonPoint/tmindex.html" target="_blank">רשות המסים</a></li>
-                <li>לחץ על "הזדהות"</li>
-                <li>בחר באחת משיטות ההזדהות המוצעות</li>
-                <li>השלם את תהליך ההרשמה</li>
-            </ol>
+      <div class="instructions-section">
+        <h2>שלב 1: הכנת הקבצים</h2>
+        <ol>
+          <li>צור תיקייה חדשה בשם "דו״ח שנתי [שנת המס]"</li>
+          <li>העתק לתיקייה את כל המסמכים שהועלו למערכת עבור אותו שנת מס</li>
+          <li>הורד והעתק את קובצי התוצאות שהופקו על ידי המערכת עבור אותו שנת מס, לדוגמה: <span dir="ltr">1322_2024.pdf, TaxAnalysis_2024.xlsx</span></li>
+        </ol>
 
-            <h2>שלב 3: הגשת הדו״ח</h2>
-				<h3>אם אתה חייב להגיש דו״ח מס</h3>
-			<ol>
-                <li>באתר רשות המסים, בחר ב"הגשת דו״ח שנתי"</li>
-                <li>בחר את שנת המס הרלוונטית</li>
-                <!-- <li>העלה את קובץ הנתונים שהופק על ידי המערכת, לדוגמה: <span dir="ltr">2024_1301.dat</span></li> -->
-                <li>הורד ופתח את קובץ הגיליון האלקטרוני שנוצר <span dir="ltr">TaxAnalysis_2025.xlsx</span></li>
-                <li>העתק את השדות המודגשים מהכרטיסייה 1301 לטופס המקוון לפי קודי השדות</li>
-                <li>אם יש שדות מודגשים בכרטיסייה טופס 1322, עליך להוסיף נספח רווחי הון והעתק את השדות אליו</li>
-                <li>השלם את הפרטים החסרים בטופס המקוון</li>
-                <li>העלה את כל המסמכים הנדרשים מהתיקייה שהכנת</li>
-                <li>בדוק את כל הפרטים לפני ההגשה הסופית</li>
-                <li>שדר והיגיש את הדו״ח</li>
-				<li><strong>⚠️ שים לב: טעות נפוצה היא לשדר את הדו״ח אך לשכוח ללחוץ על "הגש" בסיום התהליך. ודא שקיבלת אישור הגשה סופי!</strong></li>
-            </ol>
-			<p><em>בגרסה עתידית תוכל להעלות את קובץ הנתונים <span dir="ltr">2025_1301.dat</span> ישירות מהמערכת אל אתר רשות המסים, ללא צורך בהעתקה ובהעלאה ידנית.</em></p>
-			<h3>אם אינך חייב להגיש דו״ח מס, עליך קודם לבקש אישור להגשתו</h3>
-            <ol>
-                <li>לך ל<a href="https://secapp.taxes.gov.il/srbksOpentik/#/mainPage" target="_blank">secapp.taxes.gov.il</a></li>
-                <li>כנס לאתר, ולחץ על "אני רוצה לבקש החזר מס"</li>
-                <li>עקוב אחר ההוראות והמתן לתגובה.</li>
-                <li>כאשר תקבל את התגובה, תוכל לעקוב אחר ההוראות בסעיף הקודם.</li>
-            </ol>
+        <h2>שלב 2: הרשמה לאתר מס הכנסה</h2>
+        <ol>
+          <li>היכנס לאתר <a href="https://signup.taxes.gov.il/logon/LogonPoint/tmindex.html" target="_blank">רשות המסים</a></li>
+          <li>לחץ על "הזדהות"</li>
+          <li>בחר באחת משיטות ההזדהות המוצעות</li>
+          <li>השלם את תהליך ההרשמה</li>
+        </ol>
 
-            <h2>שלב 4: מעקב</h2>
-            <ol>
-                <li>שמור את אישור ההגשה שהתקבל</li>
-                <li>עקוב אחר סטטוס הטיפול בדו״ח באזור האישי</li>
-                <li>המתן לתגובת רשות המסים</li>
-            </ol>
+        <h2>שלב 3: הגשת הדו״ח</h2>
+        <h3>אם אתה חייב להגיש דו״ח מס</h3>
+        <ol>
+          <li>באתר רשות המסים, בחר ב"הגשת דו״ח שנתי"</li>
+          <li>בחר את שנת המס הרלוונטית</li>
+          <!-- <li>העלה את קובץ הנתונים שהופק על ידי המערכת, לדוגמה: <span dir="ltr">2024_1301.dat</span></li> -->
+          <li>הורד ופתח את קובץ הגיליון האלקטרוני שנוצר <span dir="ltr">TaxAnalysis_2025.xlsx</span></li>
+          <li>העתק את השדות המודגשים מהכרטיסייה 1301 לטופס המקוון לפי קודי השדות</li>
+          <li>אם יש שדות מודגשים בכרטיסייה טופס 1322, עליך להוסיף נספח רווחי הון והעתק את השדות אליו</li>
+          <li>השלם את הפרטים החסרים בטופס המקוון</li>
+          <li>העלה את כל המסמכים הנדרשים מהתיקייה שהכנת</li>
+          <li>בדוק את כל הפרטים לפני ההגשה הסופית</li>
+          <li>שדר והיגיש את הדו״ח</li>
+          <li><strong>⚠️ שים לב: טעות נפוצה היא לשדר את הדו״ח אך לשכוח ללחוץ על "הגש" בסיום התהליך. ודא שקיבלת אישור הגשה סופי!</strong></li>
+        </ol>
+        <p>
+          <em>בגרסה עתידית תוכל להעלות את קובץ הנתונים <span dir="ltr">2025_1301.dat</span> ישירות מהמערכת אל אתר רשות המסים, ללא צורך בהעתקה ובהעלאה ידנית.</em>
+        </p>
+        <h3>אם אינך חייב להגיש דו״ח מס, עליך קודם לבקש אישור להגשתו</h3>
+        <ol>
+          <li>לך ל<a href="https://secapp.taxes.gov.il/srbksOpentik/#/mainPage" target="_blank">secapp.taxes.gov.il</a></li>
+          <li>כנס לאתר, ולחץ על "אני רוצה לבקש החזר מס"</li>
+          <li>עקוב אחר ההוראות והמתן לתגובה.</li>
+          <li>כאשר תקבל את התגובה, תוכל לעקוב אחר ההוראות בסעיף הקודם.</li>
+        </ol>
 
-            <div class="important-note">
-                <h3>⚠️ הערות חשובות</h3>
-                <ul>
-                    <li>וודא שכל המסמכים חתומים כנדרש</li>
-                    <li>שמור עותק של כל החומר שהוגש</li>
-                    <li>הקפד על הגשה לפני המועד האחרון</li>
-                    <li>השלם את כל הפרטים החסרים בטופס המקוון</li>
-                    <li>במקרה של בעיה, פנה למוקד התמיכה של רשות המסים</li>
-                </ul>
-            </div>
+        <h2>שלב 4: מעקב</h2>
+        <ol>
+          <li>שמור את אישור ההגשה שהתקבל</li>
+          <li>עקוב אחר סטטוס הטיפול בדו״ח באזור האישי</li>
+          <li>המתן לתגובת רשות המסים</li>
+        </ol>
+
+        <div class="important-note">
+          <h3>⚠️ הערות חשובות</h3>
+          <ul>
+            <li>וודא שכל המסמכים חתומים כנדרש</li>
+            <li>שמור עותק של כל החומר שהוגש</li>
+            <li>הקפד על הגשה לפני המועד האחרון</li>
+            <li>השלם את כל הפרטים החסרים בטופס המקוון</li>
+            <li>במקרה של בעיה, פנה למוקד התמיכה של רשות המסים</li>
+          </ul>
         </div>
+      </div>
     </div>
-	<div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
-		<a href="index.html" class="stnd-link">לדף הבית</a>
-		<a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
-		<a href="faq.html" class="stnd-link" style="margin-right: 10px;">שאלות נפוצות</a>
-		<a href="blogs.html" class="stnd-link" style="margin-right: 10px;">בלוג</a>
-		<a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px;">הצהרת נגישות</a>
-	</div>
-</body>
-<script>nl_pos = "br";nl_compact = "1";</script>
-<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
-</html> 
+    <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px">
+      <a href="index.html" class="stnd-link">לדף הבית</a>
+      <a href="help.html" class="stnd-link" style="margin-right: 10px">עזרה</a>
+      <a href="faq.html" class="stnd-link" style="margin-right: 10px">שאלות נפוצות</a>
+      <a href="blogs.html" class="stnd-link" style="margin-right: 10px">בלוג</a>
+      <a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px">הצהרת נגישות</a>
+    </div>
+  </body>
+  <script>
+    nl_pos = "br";
+    nl_compact = "1";
+  </script>
+  <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+</html>

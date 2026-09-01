@@ -1,177 +1,170 @@
 ---
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="he" dir="rtl">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="tax-day2.ico">
+    <link rel="icon" type="image/x-icon" href="tax-day2.ico" />
     <title>החזר מס - עשה זאת בעצמך</title>
-	<meta name="description" content="Yearly tax return preparation tool for Israeli taxpayers">
-	<link rel="canonical" href="https://www.taxesil.top/" />
-	
-	<!-- PWA Meta Tags -->
-	<meta name="theme-color" content="#ff6b35">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="default">
-	<meta name="apple-mobile-web-app-title" content="דו״ח שנתי">
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="msapplication-TileColor" content="#ff6b35">
-	<meta name="msapplication-config" content="/browserconfig.xml">
-	
-	<!-- PWA Manifest -->
-	<link rel="manifest" href="/manifest.json">
-	
-	<!-- Apple Touch Icons -->
-	<link rel="apple-touch-icon" href="assets/taxesil/apple-touch-icon.png">
-	<link rel="apple-touch-icon" sizes="152x152" href="assets/taxesil/apple-touch-icon-152x152.png">
-	<link rel="apple-touch-icon" sizes="180x180" href="assets/taxesil/apple-touch-icon-180x180.png">
-	<link rel="apple-touch-icon" sizes="167x167" href="assets/taxesil/apple-touch-icon-167x167.png">
-	
-	<!-- CSS Styles -->
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Hebrew:wght@400&display=swap" rel="stylesheet"> -->
-	<link rel="stylesheet" href="css/index.css" />
+    <meta name="description" content="Yearly tax return preparation tool for Israeli taxpayers" />
+    <link rel="canonical" href="https://www.taxesil.top/" />
 
-<style>
-	body {	
-		display: flex; 
-	 }
-        .landing-container {
-            max-width: 800px;
-            padding: 40px 20px;
-            text-align: center;
-        }
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ff6b35" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="דו״ח שנתי" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-TileColor" content="#ff6b35" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
 
-        .explanation {
-            text-align: right;
-            margin: 30px 0;
-            line-height: 1.6;
-            font-size: 1.1em;
-        }
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
 
-        .terms-accept-container {
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="assets/taxesil/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/taxesil/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/taxesil/apple-touch-icon-180x180.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="assets/taxesil/apple-touch-icon-167x167.png" />
 
-        .cookie-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-color);
-            padding: 15px;
-            text-align: center;
-            border-top: 1px solid var(--border-color);
-            display: none;
-        }
+    <!-- CSS Styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Hebrew:wght@400&display=swap" rel="stylesheet"> -->
+    <link rel="stylesheet" href="css/index.css" />
+
+    <style>
+      body {
+        display: flex;
+      }
+      .landing-container {
+        max-width: 800px;
+        padding: 40px 20px;
+        text-align: center;
+      }
+
+      .explanation {
+        text-align: right;
+        margin: 30px 0;
+        line-height: 1.6;
+        font-size: 1.1em;
+      }
+
+      .terms-accept-container {
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .cookie-banner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-color);
+        padding: 15px;
+        text-align: center;
+        border-top: 1px solid var(--border-color);
+        display: none;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     {% include auth-header.html %}
     <div class="landing-container">
-        <main role="main">
-
+      <main role="main">
         <div class="slideshow-container">
-            <div class="slideshow-arrows">
-                <button class="arrow prev">❮</button>
-                <button class="arrow next">❯</button>
-            </div>
-			<div>
-				<img src="assets/taxesil/cgtLogo200Trans.webp" alt="CGT Logo" class="logo-overlay">
-			</div>
-			<div class="slides">
-				<img src="splash.webp" alt="דו״ח שנתי" class="hero-image">
-				<img src="slide1.webp" alt="דו״ח שנתי" class="hero-image">
-				<img src="slide2.webp" alt="דו״ח שנתי" class="hero-image">
-				<img src="slide3.webp" alt="דו״ח שנתי" class="hero-image">
-				<img src="slide4.webp" alt="דו״ח שנתי" class="hero-image">
-            </div>
-            <div class="slideshow-dots">
-                <span class="dot active"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-            </div>
+          <div class="slideshow-arrows">
+            <button class="arrow prev">❮</button>
+            <button class="arrow next">❯</button>
+          </div>
+          <div>
+            <img src="assets/taxesil/cgtLogo200Trans.webp" alt="CGT Logo" class="logo-overlay" />
+          </div>
+          <div class="slides">
+            <img src="splash.webp" alt="דו״ח שנתי" class="hero-image" />
+            <img src="slide1.webp" alt="דו״ח שנתי" class="hero-image" />
+            <img src="slide2.webp" alt="דו״ח שנתי" class="hero-image" />
+            <img src="slide3.webp" alt="דו״ח שנתי" class="hero-image" />
+            <img src="slide4.webp" alt="דו״ח שנתי" class="hero-image" />
+          </div>
+          <div class="slideshow-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
         </div>
-        
+
         <div class="explanation">
-            <h2>איך זה עובד?</h2>
-            <p>
-                המערכת שלנו מסייעת לך בהכנת הדו״ח החזר מס (הדו״ח השנתי) שלך לקראת הגשה. 
-                המערכת מנתחת את המסמכים ומכינה את המידע בפורמט המתאים להגשה.
-                לאחר הכנת הדו״ח, תוכל לעיין <a class="stnd-link" href="submit_instructions.html">בהוראות להגשת הדו״ח</a> לרשות המיסים.
-                <br>צפה ב<a class="stnd-link" href="presentation.html">מצגת</a> להבנת התהליך.
-            </p>
-            <p>
-                רוצה לדעת מי עומד מאחורי הכלי? <a class="stnd-link" href="my_story.html">קרא את הסיפור שלי</a>.
-            </p>
-            <p>
-                חשוב לציין כי המערכת אינה מחליפה ייעוץ מס מקצועי, והאחריות הסופית על הדו״ח היא שלך.
-            </p>
-            <p class="general-warning-text">
-                <strong>שים לב: האתר נמצא בשלב בדיקות בטא .</strong> <a href="release_notes.html" class="stnd-link">הערות גרסה</a>
-            </p>
+          <h2>איך זה עובד?</h2>
+          <p>
+            המערכת שלנו מסייעת לך בהכנת הדו״ח החזר מס (הדו״ח השנתי) שלך לקראת הגשה. המערכת מנתחת את המסמכים ומכינה את המידע בפורמט המתאים להגשה. לאחר הכנת הדו״ח, תוכל לעיין
+            <a class="stnd-link" href="submit_instructions.html">בהוראות להגשת הדו״ח</a> לרשות המיסים. <br />צפה ב<a class="stnd-link" href="presentation.html">מצגת</a> להבנת התהליך.
+          </p>
+          <p>רוצה לדעת מי עומד מאחורי הכלי? <a class="stnd-link" href="my_story.html">קרא את הסיפור שלי</a>.</p>
+          <p>חשוב לציין כי המערכת אינה מחליפה ייעוץ מס מקצועי, והאחריות הסופית על הדו״ח היא שלך.</p>
+          <p class="general-warning-text"><strong>שים לב: האתר נמצא בשלב בדיקות בטא .</strong> <a href="release_notes.html" class="stnd-link">הערות גרסה</a></p>
         </div>
 
         <div class="terms-accept-container">
-            <input type="checkbox" id="termsCheckbox" class="custom-checkbox">
-            <label for="termsCheckbox">
-                קראתי ואני מסכים/ה ל<a class="stnd-link" href="terms.html" target="_self">תנאי השימוש</a> ו<a class="stnd-link" href="privacy_policy.html" target="_self">מדיניות הפרטיות</a>
-            </label>
+          <input type="checkbox" id="termsCheckbox" class="custom-checkbox" />
+          <label for="termsCheckbox">
+            קראתי ואני מסכים/ה ל<a class="stnd-link" href="terms.html" target="_self">תנאי השימוש</a> ו<a class="stnd-link" href="privacy_policy.html" target="_self">מדיניות הפרטיות</a>
+          </label>
         </div>
 
         <button id="startButton" class="start-button" disabled>התחל עכשיו</button>
-		<p style="text-align: center; margin-top: 20px;">
-			<a href="help.html" class="stnd-link" style="margin-right: 10px;">עזרה</a>
-			<a href="faq.html" class="stnd-link">שאלות נפוצות</a>
-            <a href="blogs.html" class="stnd-link" style="margin-right: 10px;">בלוג</a>
-			<a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px;">הצהרת נגישות</a>
-		</p>
-		</main>
-	</div>
+        <p style="text-align: center; margin-top: 20px">
+          <a href="help.html" class="stnd-link" style="margin-right: 10px">עזרה</a>
+          <a href="faq.html" class="stnd-link">שאלות נפוצות</a>
+          <a href="blogs.html" class="stnd-link" style="margin-right: 10px">בלוג</a>
+          <a href="accessibility_declaration.html" class="stnd-link" style="margin-right: 10px">הצהרת נגישות</a>
+        </p>
+      </main>
+    </div>
     <script type="module" src="js/authService.js"></script>
     <script type="module" src="js/slideshow.js"></script>
     <!-- <script type="module" src="js/pwa-installer.js"></script> -->
     <script type="module">
-        import { cookieUtils } from './js/cookieUtils.js';
-        import { acceptTerms, declineTerms, isTermsAccepted, showInfoModal, WarningPopupMessage } from './js/authService.js';
-        
-        const termsCheckbox = document.getElementById('termsCheckbox');
-        const startButton = document.getElementById('startButton');
- 
-		termsCheckbox.checked = isTermsAccepted();
-		startButton.disabled = !termsCheckbox.checked;
+      import { cookieUtils } from "./js/cookieUtils.js";
+      import { acceptTerms, declineTerms, isTermsAccepted, showInfoModal, WarningPopupMessage } from "./js/authService.js";
 
-        termsCheckbox.addEventListener('change', () => {
-            startButton.disabled = !termsCheckbox.checked;
-			if (termsCheckbox.checked) {
-				acceptTerms();
-			} else {
-				declineTerms();
-			}
-		});
+      const termsCheckbox = document.getElementById("termsCheckbox");
+      const startButton = document.getElementById("startButton");
 
-        startButton.addEventListener('click', () => {
-            window.location.href = 'tax_return.html';
-        });
+      termsCheckbox.checked = isTermsAccepted();
+      startButton.disabled = !termsCheckbox.checked;
 
+      termsCheckbox.addEventListener("change", () => {
+        startButton.disabled = !termsCheckbox.checked;
+        if (termsCheckbox.checked) {
+          acceptTerms();
+        } else {
+          declineTerms();
+        }
+      });
 
-		  // Check if disclaimer has been accepted
-		  const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
-  if (!disclaimerAccepted) {
-    showInfoModal(WarningPopupMessage);
-    cookieUtils.set("disclaimerAccepted", "true", 365);
-  }
+      startButton.addEventListener("click", () => {
+        window.location.href = "tax_return.html";
+      });
 
+      // Check if disclaimer has been accepted
+      const disclaimerAccepted = cookieUtils.get("disclaimerAccepted");
+      if (!disclaimerAccepted) {
+        showInfoModal(WarningPopupMessage);
+        cookieUtils.set("disclaimerAccepted", "true", 365);
+      }
     </script>
-</body>
-<script>nl_pos = "br";nl_compact = "1";</script>
-<script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
+  </body>
+  <script>
+    nl_pos = "br";
+    nl_compact = "1";
+  </script>
+  <script src="nagishli/nagishli.js?v=2.3" charset="utf-8" defer></script>
 </html>
