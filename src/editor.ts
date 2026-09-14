@@ -396,7 +396,7 @@ async function updateFormAPI(fileId: string, payload: any) {
     return responseData;
   } catch (error: any) {
     clearMessages();
-    addMessage("שגיאה בעריכת הקובץ: " + (error instanceof Error ? error.message : String(error)), "error");
+    addMessage("שגיאה בעריכת נתונים. " + (error instanceof Error ? error.message : String(error)), "error");
   }
 }
 
