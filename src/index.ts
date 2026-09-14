@@ -3184,12 +3184,12 @@ function updateFileListView() {
   }
 
   if (editableFileList) {
-    toggleLink.textContent = "נתונים קבצים";
+    toggleLink.textContent = "הצגת נתונים";
     toggleLink.classList.add("active");
     fileList.style.display = "none";
     expandableArea.style.display = "block";
   } else {
-    toggleLink.textContent = "תציג נתונים מלאים";
+    toggleLink.textContent = "עריכת נתונים";
     toggleLink.classList.remove("active");
     fileList.style.display = "block";
     expandableArea.style.display = "none";
