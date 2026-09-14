@@ -2453,6 +2453,10 @@ a:not(.submit-instructions-button):visited {
   color: var(--text-color);
 }
 
+.accordion-toggle-button.has-ai-identification-note {
+  color: #c62828;
+}
+
 .accordion-toggle-button:hover {
   background-color: transparent;
 }

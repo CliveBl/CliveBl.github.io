@@ -29,6 +29,7 @@ const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", 
 const readOnlyFields = ["fileName", "reasonText"];
 const addFieldsText = "הצג כל השדות";
 const removeFieldsText = "הצג שדות שיש ערכים בלבד";
+const documentNoteTitle = "המסמך נקרא באמצעות בינה מלאכותית. יש לבדוק את נכונות השדות מול המסמך המקורי. ייתכן שחלק מהשדות חסרים, נוספו או מכילים ערכים שגויים. לאחר הבדיקה והתיקון ניתן למחוק את ההערה.";
 const MAX_INTEGER_LENGTH = 10;
 // Template map years: template name
 const template867YearsMap = {
@@ -106,6 +107,33 @@ function getCurrencySymbol(text: string) {
   return text.replace(/[\d\.\,-]/g, "");
 }
 
+function hasAiIdentificationNote(noteText: unknown): boolean {
+  return typeof noteText === "string" && noteText.includes("זיהוי בינה מלאכותית");
+}
+
+function redrawDocumentTypeNoteIndicator(accordionContainer: Element, fileData: any) {
+  const documentTypeInput = accordionContainer.querySelector('.header-fields-wrapper input[data-field-name="documentType"]') as HTMLInputElement | null;
+  const hasNote = hasAiIdentificationNote(fileData.noteText);
+  const documentType = String(fileData.documentType ?? "");
+
+  if (documentTypeInput) {
+    documentTypeInput.value = `${documentType}${hasNote ? " *" : ""}`;
+    if (hasNote) {
+      documentTypeInput.dataset.originalValue = documentType;
+      documentTypeInput.title = documentNoteTitle;
+    } else {
+      delete documentTypeInput.dataset.originalValue;
+      if (documentType.length > 15) {
+        documentTypeInput.title = documentType;
+      } else {
+        documentTypeInput.removeAttribute("title");
+      }
+    }
+  }
+
+  accordionContainer.querySelector(".accordion-toggle-button")?.classList.toggle("has-ai-identification-note", hasNote);
+}
+
 function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
   const updatedData = { ...fileData }; // Clone original fileData
 
@@ -128,6 +156,9 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
   }
 
   function getControlValue(htmlElement: HTMLElement, fieldName: string) {
+    if (htmlElement.dataset.originalValue !== undefined) {
+      return htmlElement.dataset.originalValue;
+    }
     let fieldValue: string = getElementValue(htmlElement);
     if (isCurrencyField(fieldName)) {
       fieldValue = getNumericValue(fieldValue);
@@ -592,6 +623,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       accordianheader.appendChild(editorDeleteButton);
 
       accordionContainer.appendChild(accordianheader);
+      redrawDocumentTypeNoteIndicator(accordionContainer, fileData);
 
       function toggleFieldsView(toggleLink: HTMLAnchorElement) {
         // Get desired state.
@@ -979,7 +1011,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       fieldRow.className = "field-row";
 
       let fieldLabel = document.createElement("label") as HTMLLabelElement;
-      fieldLabel.textContent = getFriendlyName(key);
+  fieldLabel.textContent = getFriendlyName(key) + (key === "noteText" && hasAiIdentificationNote(fileData.noteText) ? " *" : "");
       const title = getElementTitle(key);
       if (title) {
         fieldLabel.title = title;
@@ -1507,7 +1539,14 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     }
 
     // Append fields to the wrapper
-    fieldsWrapper.appendChild(createHeaderInput(fileData.documentType, "documentType", false)); // Read only
+    const documentTypeField = createHeaderInput(fileData.documentType, "documentType", false);
+    const documentTypeInput = documentTypeField.querySelector("input");
+    if (documentTypeInput && hasAiIdentificationNote(fileData.noteText)) {
+      documentTypeInput.dataset.originalValue = documentTypeInput.value;
+      documentTypeInput.value += " *";
+      documentTypeInput.title = documentNoteTitle;
+    }
+    fieldsWrapper.appendChild(documentTypeField); // Read only
     fieldsWrapper.appendChild(createHeaderInput(fileData.organizationName, "organizationName", true));
     fieldsWrapper.appendChild(createHeaderInput(fileData.clientName, "clientName", true));
     fieldsWrapper.appendChild(createHeaderInput(fileData.clientIdentificationNumber, "clientIdentificationNumber", true));
@@ -1674,6 +1713,10 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
                 // Replace the form in the allFilesData array with the form in the backupAllFilesData array
                 backupAllFilesData[backupFormIndex] = updatedBackupData[backupFormIndex];
               }
+              const accordionContainer = accordianBody.closest(".accordion-container");
+              if (accordionContainer) {
+                redrawDocumentTypeNoteIndicator(accordionContainer, backupAllFilesData[backupFormIndex]);
+              }
               // Update the display
               renderFields(backupAllFilesData[backupFormIndex], accordianBody, withAllFields);
             }
@@ -1786,6 +1829,7 @@ export async function saveAllChanges() {
               if (updatedBackupData) {
                 globalBackupAllFilesData[backupFormIndex] = updatedBackupData[backupFormIndex];
               }
+              redrawDocumentTypeNoteIndicator(accordionContainer, globalBackupAllFilesData[backupFormIndex]);
               // Update the display
               //renderFields(globalBackupAllFilesData[backupFormIndex], accordianBody, withAllFields);
             }
