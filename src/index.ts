@@ -3010,7 +3010,10 @@ if (createFormSelect) {
     const identificationNumber = DEFAULT_CLIENT_ID_NUMBER;
 
     try {
-      let fileInfoList = null;
+		showProgressOverlay(" מייצר מסמך...", {
+		showCancelButton: false,
+		});
+	  let fileInfoList = null;
       if (isAnonymous()) {
         const response = await fetch(`${API_BASE_URL}/createFormAsJson`, {
           method: "POST",
@@ -3073,8 +3076,11 @@ if (createFormSelect) {
       (e.target as HTMLSelectElement).value = "";
     } catch (error: unknown) {
       console.error("Failed to create form:", error);
-      addMessage("שגיאה ביצירת הטופס: " + (error instanceof Error ? error.message : String(error)), "error");
+      addMessage("שגיאה ביצירת מסמך: " + (error instanceof Error ? error.message : String(error)) + ".בדוק את חיבור הרשת", "error");
     }
+	finally{
+		hideProgressOverlay();
+	}
     // return the control to its first option
     (e.target as HTMLSelectElement).value = "";
   });
