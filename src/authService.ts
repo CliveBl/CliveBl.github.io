@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export const UIVersion = "1.78";
+export const UIVersion = "1.79";
 export let ServerVersion = "";
 
 export const WarningPopupMessage = 'אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.<p class="general-warning-text">שים לב: האתר נמצא בשלב בדיקות בטא  .</p>'
@@ -538,23 +538,29 @@ export async function handleAuthResponse(response: any, errorMessage: string) {
   if (!response.ok) {
     // Can throw an exception here if there is no data to parse.
     debug("handleAuthResponse:", errorMessage, response);
-    const errorData = await response.json();
+	let errorData;
+	try{
+		errorData = await response.json();
+	} catch (e) {
+		debug("handleAuthResponse error parsing JSON:", e);
+		throw new Error(errorMessage);
+	}
 
-    if (errorData.detail.includes("JWT")) {
-      signOut();
-      // The session timed out. Please reconnect.
-      showErrorModal("הסשן פג תוקף. אנא התחבר מחדש.");
-      return false;
-    }
-    if (errorData.detail.includes("User not found")) {
-      // If we have an Anonymous account inform the user that his data has been deleted with a modal warning:
-      if (isAnonymous()) {
-        showInfoModal("חשבון אנונימי נמחק אוטומטית אחרי 30 יום, יחד עם כל הנתונים שלו. אתה יכול להשתמש בחשבון אנונימי חדש או ליצור משתמש קבוע על ידי הרישמה.");
-      }
-      clearUserSession();
-      return false;
-    }
-    throw new Error(errorData.detail);
+	if (errorData.detail.includes("JWT")) {
+	signOut();
+	// The session timed out. Please reconnect.
+	showErrorModal("הסשן פג תוקף. אנא התחבר מחדש.");
+	return false;
+	}
+	if (errorData.detail.includes("User not found")) {
+	// If we have an Anonymous account inform the user that his data has been deleted with a modal warning:
+	if (isAnonymous()) {
+		showInfoModal("חשבון אנונימי נמחק אוטומטית אחרי 30 יום, יחד עם כל הנתונים שלו. אתה יכול להשתמש בחשבון אנונימי חדש או ליצור משתמש קבוע על ידי הרשמה.");
+	}
+	clearUserSession();
+	return false;
+	}
+	throw new Error(errorData.detail);
   }
   return true;
 }
