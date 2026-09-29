@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export const UIVersion = "1.80";
+export const UIVersion = "1.81";
 export let ServerVersion = "";
 
 export const WarningPopupMessage =
@@ -542,8 +542,7 @@ export async function handleAuthResponse(response: any, errorMessage: string) {
     debug("handleAuthResponse:", errorMessage, response);
     let errorData;
     try {
-      debug("handleAuthResponse errorData:", response);
-      errorData = await response.json();
+       errorData = await response.json();
     } catch (e) {
       debug("handleAuthResponse error parsing JSON:", e);
       throw new Error(errorMessage);
