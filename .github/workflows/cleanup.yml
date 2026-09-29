@@ -1,0 +1,35 @@
+name: Cleanup Old Deployment Runs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete completed deployment runs older than 90 days
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy.yml',
+              status: 'completed',
+              created: `<=${cutoff.toISOString()}`,
+              per_page: 100
+            });
+
+            core.info(`Found ${runs.length} completed deployment runs older than 90 days.`);
+            for (const run of runs) {
+              core.info(`Deleting run ${run.id} (${run.created_at})`);
+              await github.rest.actions.deleteWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id
+              });
+            }
