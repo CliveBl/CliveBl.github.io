@@ -1483,6 +1483,14 @@ function convertToHtml(text: string) {
   return text;
 }
 
+function removeMatches(text: string, matches: RegExpMatchArray | null): string {
+  matches?.forEach((match: string) => {
+    // Replace the match with optional comma in one operation
+    text = text.replace(new RegExp(match.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ",?", "g"), "");
+  });
+  return text;
+}
+
 // Update addMessage function to handle message types
 export function addMessage(text: string, type = "info", scrollToMessageSection = true) {
   // Use imported error code mappings
@@ -1492,7 +1500,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     messageDiv.classList.add(type);
   }
 
-  let displayedText = text;
+  let displayedText : string = text;
   const messageTextSpan: HTMLSpanElement = document.createElement("span");
   messageTextSpan.className = "message-text";
   // ^<message code> indicates a message code
@@ -1516,20 +1524,13 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
   // If the message contains fileName= then make messageDiv a clickable link to the entry for that file in the filelist
   if (displayedText.includes("fileName=")) {
     // Extract all fileName= and property= pairs from the message
-    const fileNameMatches = displayedText.match(/fileName=[^,]+/g);
-    const propertyMatches = displayedText.match(/property=[^,]+/g);
+    const fileNameMatches: RegExpMatchArray | null = displayedText.match(/fileName=[^,]+/g);
+    const propertyMatches: RegExpMatchArray | null = displayedText.match(/property=[^,]+/g);
 
     if (fileNameMatches && fileNameMatches.length > 0) {
       // Clean up the display text by removing all fileName= and property= patterns
-      let cleanText = displayedText;
-      fileNameMatches.forEach((match) => {
-        cleanText = cleanText.replace(match + ",", "").replace(match, "");
-      });
-      propertyMatches?.forEach((match, index) => {
-        // Replace the property match with optional comma in one operation
-        cleanText = cleanText.replace(new RegExp(match.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ",?", "g"), "");
-      });
-      displayedText = cleanText;
+      displayedText = removeMatches(displayedText, fileNameMatches);
+      displayedText = removeMatches(displayedText, propertyMatches);
 
       // Add clickable class to show it's interactive
       messageDiv.classList.add("clickable");
