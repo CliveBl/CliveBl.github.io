@@ -1500,7 +1500,7 @@ export function addMessage(text: string, type = "info", scrollToMessageSection =
     messageDiv.classList.add(type);
   }
 
-  let displayedText : string = text;
+  let displayedText: string = text;
   const messageTextSpan: HTMLSpanElement = document.createElement("span");
   messageTextSpan.className = "message-text";
   // ^<message code> indicates a message code
@@ -2733,30 +2733,21 @@ async function initialize() {
 
   try {
     await loadConfiguration(); // For Create form select menu.
-    versionNumberElement.textContent = `גרסה ${UIVersion}`;
-
     if (!SignedIn) {
+      versionNumberElement.textContent = `גרסה ${UIVersion}`;
       debug("Not signed in");
-      //	  	await signInAnonymous();
-    }
-    if (SignedIn) {
+    } else {
       versionNumberElement.textContent = `גרסה ${ServerVersion} ${UIVersion}`;
-
-      initializeDocumentIcons();
-      //await loadExistingFiles();
-      //await loadResults(false); // Dont scroll
-      //debug("Successfully loaded files and results with existing token");
     }
+    initializeDocumentIcons();
   } catch (error) {
     console.error("Exception fetching Basic Info:", error);
   }
-
   // Pre-fill feedback email if user is logged in
   if (feedbackEmail) {
     feedbackEmail.value = SignedIn && !isAnonymous() ? UserEmailValue : "";
     updateFeedbackButtonState();
   }
-
   // Add event listeners for document count selects
   document.querySelectorAll('select[id$="-count"]').forEach((select) => {
     // Add a option to upload a file
@@ -3010,10 +3001,10 @@ if (createFormSelect) {
     const identificationNumber = DEFAULT_CLIENT_ID_NUMBER;
 
     try {
-		showProgressOverlay(" מייצר מסמך...", {
-		showCancelButton: false,
-		});
-	  let fileInfoList = null;
+      showProgressOverlay("מייצרת מסמך...", {
+        showCancelButton: false,
+      });
+      let fileInfoList = null;
       if (isAnonymous()) {
         const response = await fetch(`${API_BASE_URL}/createFormAsJson`, {
           method: "POST",
@@ -3077,10 +3068,9 @@ if (createFormSelect) {
     } catch (error: unknown) {
       console.error("Failed to create form:", error);
       addMessage("שגיאה ביצירת מסמך: " + (error instanceof Error ? error.message : String(error)) + ".בדוק את חיבור הרשת", "error");
+    } finally {
+      hideProgressOverlay();
     }
-	finally{
-		hideProgressOverlay();
-	}
     // return the control to its first option
     (e.target as HTMLSelectElement).value = "";
   });

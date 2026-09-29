@@ -6,10 +6,11 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export const UIVersion = "1.79";
+export const UIVersion = "1.80";
 export let ServerVersion = "";
 
-export const WarningPopupMessage = 'אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.<p class="general-warning-text">שים לב: האתר נמצא בשלב בדיקות בטא  .</p>'
+export const WarningPopupMessage =
+  'אתר זה זמין ללא תשלום במטרה לסייע לאנשים המעוניינים להכין את הדו״ח השנתי שלהם למס הכנסה בעצמם. איננו מייצגים אתכם מול רשויות המס. אנא קראו בעיון את התנאים וההגבלות לפני המשך השימוש.<p class="general-warning-text">שים לב: האתר נמצא בשלב בדיקות בטא  .</p>';
 
 // Customer management
 export const DEFAULT_CUSTOMER_DATA_ENTRY_NAME = "Default";
@@ -220,13 +221,14 @@ export async function convertAnonymousAccount(email: string, password: string, f
   signOut();
 }
 
-export function signOut(): void {
+export async function signOut() {
   debug("signOut");
   // Delete the cookie by calling the signOut api
-  fetch(`${API_BASE_URL}/signOut`, {
+  const response = await fetch(`${API_BASE_URL}/signOut`, {
     method: "POST",
     credentials: "include",
   });
+  const result = await response.json();
 
   // Update UI to show logged out state
   clearUserSession();
@@ -522,8 +524,8 @@ export function translateError(error: string): string {
   const colonIndex = error.indexOf(":");
   const errorMessage = colonIndex !== -1 ? error.substring(colonIndex + 1).trim() : error.trim();
   const errorPrefix = colonIndex !== -1 ? error.substring(0, colonIndex).trim() : "";
-//   debug("translateError:", errorMessage);
-//   debug("tranlationTable[errorMessage]:", tranlationTable[errorMessage]);
+  //   debug("translateError:", errorMessage);
+  //   debug("tranlationTable[errorMessage]:", tranlationTable[errorMessage]);
   const translatedMessage = tranlationTable[errorMessage] || errorMessage;
   return errorPrefix ? errorPrefix + ": " + translatedMessage : translatedMessage;
 }
@@ -538,29 +540,31 @@ export async function handleAuthResponse(response: any, errorMessage: string) {
   if (!response.ok) {
     // Can throw an exception here if there is no data to parse.
     debug("handleAuthResponse:", errorMessage, response);
-	let errorData;
-	try{
-		errorData = await response.json();
-	} catch (e) {
-		debug("handleAuthResponse error parsing JSON:", e);
-		throw new Error(errorMessage);
-	}
+    let errorData;
+    try {
+      debug("handleAuthResponse errorData:", response);
+      errorData = await response.json();
+    } catch (e) {
+      debug("handleAuthResponse error parsing JSON:", e);
+      throw new Error(errorMessage);
+    }
 
-	if (errorData.detail.includes("JWT")) {
-	signOut();
-	// The session timed out. Please reconnect.
-	showErrorModal("הסשן פג תוקף. אנא התחבר מחדש.");
-	return false;
-	}
-	if (errorData.detail.includes("User not found")) {
-	// If we have an Anonymous account inform the user that his data has been deleted with a modal warning:
-	if (isAnonymous()) {
-		showInfoModal("חשבון אנונימי נמחק אוטומטית אחרי 30 יום, יחד עם כל הנתונים שלו. אתה יכול להשתמש בחשבון אנונימי חדש או ליצור משתמש קבוע על ידי הרשמה.");
-	}
-	clearUserSession();
-	return false;
-	}
-	throw new Error(errorData.detail);
+    if (errorData.detail.includes("JWT")) {
+      if (SignedIn) {
+        const wasAnonymous: boolean = isAnonymous();
+        signOut();
+        // The session timed out. Please reconnect.
+        if (!wasAnonymous) {
+          showInfoModal("הסשן פג תוקף. אנא התחבר מחדש.");
+        }
+        return false;
+      }
+    }
+    if (errorData.detail.includes("User not found")) {
+      clearUserSession();
+      return false;
+    }
+    throw new Error(errorData.detail);
   }
   return true;
 }
@@ -691,7 +695,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         UserRole = "ROLE_USER";
       }
-	  updateSignInState(true);
+      updateSignInState(true);
 
       debug("Successfully got BasicInfo");
     }
