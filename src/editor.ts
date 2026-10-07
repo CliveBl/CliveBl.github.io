@@ -27,10 +27,15 @@ function makeUniqueId() {
 
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
-const addFieldsText = "הצג כל השדות";
-const removeFieldsText = "הצג שדות שיש ערכים בלבד";
-const documentNoteTitle = "המסמך נקרא באמצעות בינה מלאכותית. יש לבדוק את נכונות השדות מול המסמך המקורי. ייתכן שחלק מהשדות חסרים, נוספו או מכילים ערכים שגויים. לאחר הבדיקה והתיקון ניתן למחוק את ההערה.";
+const addFieldsText: string = "הצג כל השדות";
+const removeFieldsText: string = "הצג שדות שיש ערכים בלבד";
+const documentNoteTitle: string =
+  "המסמך נקרא באמצעות בינה מלאכותית. יש לבדוק את נכונות השדות מול המסמך המקורי. ייתכן שחלק מהשדות חסרים, נוספו או מכילים ערכים שגויים. לאחר הבדיקה והתיקון ניתן למחוק את ההערה.";
 const MAX_INTEGER_LENGTH = 10;
+// If there are up to this number of fields then show them by default without requiring the user to click "show all fields"
+const MAX_SHOW_FIELDS_COUNT = 4;
+const READ_ONLY_FIELD_PREFIX: string = "ro_";
+const GENERIC_ONLY_FIELD_PREFIX: string = "go_";
 // Template map years: template name
 const template867YearsMap = {
   2018: "template_867_2022",
@@ -56,6 +61,7 @@ interface Value {
   type: string;
   value: any;
   currency: string;
+  readonly: boolean;
 }
 
 const Child = {
@@ -95,6 +101,20 @@ function getEnabledSaveButtons() {
 
 export function hasUnsavedChanges() {
   return getEnabledSaveButtons().length > 0;
+}
+
+function clearGenericOnlyIndicator(option: string): string {
+  return option.startsWith(GENERIC_ONLY_FIELD_PREFIX) ? option.slice(GENERIC_ONLY_FIELD_PREFIX.length) : option;
+}
+
+function hasGenericOnlyIndicator(option: string): boolean {
+  return option.startsWith(GENERIC_ONLY_FIELD_PREFIX);
+}
+function clearReadOnlyIndicator(option: string): string {
+  return option.startsWith(READ_ONLY_FIELD_PREFIX) ? option.slice(READ_ONLY_FIELD_PREFIX.length) : option;
+}
+function hasReadOnlyIndicator(option: string): boolean {
+  return option.startsWith(READ_ONLY_FIELD_PREFIX);
 }
 
 function getNumericValue(text: string) {
@@ -450,8 +470,7 @@ async function validateAndUpdateFormLocalStorage(fileId: string, payload: any) {
       return;
     }
     const formJson = await response.json();
-    // Get the data from local storage.
-    updateFormInLocalStorage(fileId, payload, formJson);
+    updateFormInLocalStorage(fileId, formJson);
     return fileInfoListFromLocalStorage();
   } catch (error: any) {
     clearMessages();
@@ -663,11 +682,11 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         // If the configuration data shows that the form has less than five variable field types we will show
         // them all. Also if it is a new upload (which is the last file in the list) that has fields we show all variable fields.
         const formType = configurationData.formTypes.find((form) => form.formType === fileData.type);
-        showAllVFields = (isNewlyUploadedFile && fileData.fileId === lastFile.fileId) || (formType?.fieldTypes ? formType.fieldTypes.length < 5 : false);
+        showAllVFields = (isNewlyUploadedFile && fileData.fileId === lastFile.fileId) || (formType?.fieldTypes ? formType.fieldTypes.length <= MAX_SHOW_FIELDS_COUNT : false);
 
-        const toggleLinkContainer = document.createElement("div") as HTMLDivElement;
+        const toggleLinkContainer: HTMLDivElement = document.createElement("div") as HTMLDivElement;
         toggleLinkContainer.className = "fields-toggle";
-        const fieldsToggleLink = document.createElement("a") as HTMLAnchorElement;
+        const fieldsToggleLink: HTMLAnchorElement = document.createElement("a") as HTMLAnchorElement;
         fieldsToggleLink.className = "fields-toggle-link";
         fieldsToggleLink.textContent = addFieldsText;
         fieldsToggleLink.href = "#";
@@ -794,6 +813,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   }
 
   function formatInput(key: string, input: HTMLInputElement, fieldValue: Value) {
+    if (fieldValue.readonly) {
+      input.readOnly = true;
+    }
     if (key.endsWith("Name")) {
       if (!input.className) input.className = "field-text-input";
       input.type = "text";
@@ -1011,7 +1033,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       fieldRow.className = "field-row";
 
       let fieldLabel = document.createElement("label") as HTMLLabelElement;
-  fieldLabel.textContent = getFriendlyName(key) + (key === "noteText" && hasAiIdentificationNote(fileData.noteText) ? " *" : "");
+      fieldLabel.textContent = getFriendlyName(key) + (key === "noteText" && hasAiIdentificationNote(fileData.noteText) ? " *" : "");
       const title = getElementTitle(key);
       if (title) {
         fieldLabel.title = title;
@@ -1097,6 +1119,8 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         const fieldTypesWithNone = formDetails.fieldTypes ? ["NONE", ...formDetails.fieldTypes] : ["NONE"];
 
         fieldTypesWithNone.forEach((option: string) => {
+          option = clearGenericOnlyIndicator(option);
+          option = clearReadOnlyIndicator(option);
           const optionElement = document.createElement("option") as HTMLOptionElement;
           optionElement.value = option;
           const optionText = getOptionTextWithTaxCode(option);
@@ -1109,7 +1133,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         fieldRow.appendChild(dropdown);
       } else {
         let input = document.createElement("input") as HTMLInputElement;
-        input.className = "field-input";
+        input.className = fieldValue.readonly ? "field-input-readonly" : "field-input";
         input.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
         // Associate the input with a unique ID and connect it to the label so that screen readers can read the label when the input is focused.
         input.id = fieldId;
@@ -1218,6 +1242,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
               type: "any",
               value: value,
               currency: key.includes("FXX") ? currentCurrency : "ILS",
+              readonly: false,
             };
             if (key === "currencySelect") {
               // This sets the currency for all subsequent fields with FXX in the name of this item until another currencySelect field is encountered.
@@ -1232,6 +1257,12 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       }
     }
 
+    // A field is read-only if the form's configured fieldTypes contain a read-only or generic-only field.
+    function isReadOnlyField(key: string): boolean {
+      const form = configurationData.formTypes.find((f) => f.formType === fileData.type) as { fieldTypes?: string[] } | undefined;
+      return !!(form?.fieldTypes?.includes(READ_ONLY_FIELD_PREFIX + key) || form?.fieldTypes?.includes(GENERIC_ONLY_FIELD_PREFIX + key));
+    }
+
     let currentCurrency: string = "ILS";
     // Process main fields (thicker border)
     Object.entries(fileData).forEach(([key, value]) => {
@@ -1240,6 +1271,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           type: "any",
           value: value,
           currency: key.includes("FXX") ? currentCurrency : "ILS",
+          readonly: false,
         };
         if (key === "currencySelect") {
           // This sets the currency for all subsequent fields that have FXX in their name.
@@ -1262,6 +1294,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
           type: "any",
           value: value,
           currency: "",
+          readonly: isReadOnlyField(key),
         };
         populateField(clone, key, fieldValue);
       });
@@ -1271,14 +1304,15 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       // Process nested fields inside `fileData.fields` (thinner border)
       Object.entries(fileData.fields || {}).forEach(([key, value]) => {
         const v = value || "";
-        if (!isFieldValidForTaxYear(key, fileData.taxYear) && v === "0.00") {
-          //debug("field " + key + " value " + v + " type " + (value as any).type + " is not valid for tax year " + fileData.taxYear);
+        if ((!isFieldValidForTaxYear(key, fileData.taxYear) && v === "0.00") || hasGenericOnlyIndicator(key) || (hasReadOnlyIndicator(key) && v === "0.00")) {
+          //   debug("field " + key + " value " + v + " type " + (value as any).type + " is not shown " + fileData.taxYear);
           return;
         }
         const fieldValue: Value = {
           type: "any",
           value: value,
           currency: "",
+          readonly: isReadOnlyField(key),
         };
         createFieldRow(accordianBody, "", 0, key, fieldValue);
       });
@@ -1314,7 +1348,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
     accordianBody.appendChild(actionButtonsContainer);
   }
 
-  function getTaxCodeFromFieldName(fieldName: string) {
+  function getTaxCodeFromFieldName(fieldName: string): string {
     if (fieldName.includes("_")) {
       const parts = fieldName.split("_");
       if (parts.length > 2) {
@@ -1415,9 +1449,9 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
       if (valueField) {
         if (isExceptionalIntegerField(selectedOption)) {
           // Format it as an integer
-          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "Integer", value: "0", currency: "" });
+          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "Integer", value: "0", currency: "", readonly: false });
         } else {
-          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "any", value: "0", currency: "" });
+          formatInput(valueField.getAttribute("data-field-name") as string, valueField, { type: "any", value: "0", currency: "", readonly: false });
         }
       }
     }
@@ -1528,6 +1562,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         type: "any",
         value: value,
         currency: "",
+        readonly: false,
       };
       formatInput(fieldName, input, fieldValue);
       addChangeHandler(input, accordianBody);
@@ -1861,8 +1896,6 @@ export async function saveAllChanges() {
     console.error("Error in saveAllChanges:", error);
     addMessage("שגיאה כללית בשמירת השינויים", "error");
   } finally {
-    if (!isAnonymous()) {
-      hideProgressOverlay();
-    }
+    hideProgressOverlay();
   }
 }

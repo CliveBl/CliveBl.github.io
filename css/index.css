@@ -2202,7 +2202,18 @@ a:not(.submit-instructions-button):visited {
 }
 .radio-group.error {
   background-color: var(--error-bg);
-}	
+}
+.field-input-readonly {
+  flex: 0 0 120px;
+  padding: 2px;
+  text-align: right;
+  border: 1px solid var(--gray);
+  background-color: var(--disabled-bg);
+  color: var(--disabled-text);
+  cursor: not-allowed;
+  height: 20px;
+  max-width: 100px;
+}
 .field-input {
   flex: 0 0 120px;
   padding: 2px;
