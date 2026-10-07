@@ -81,7 +81,6 @@ interface FormType {
   formName: string;
   userCanAdd: boolean;
   fieldTypes?: string[];
-  fields?: string[];
 }
 
 interface FileInfo {
@@ -1387,11 +1386,30 @@ async function uploadFiles(validFiles: File[], replacedFileId: string | null = n
   return true;
 }
 
+function clearResultFilesAndMessagesFromLocalStorage(transaction: IDBTransaction) {
+  const resultsStore: IDBObjectStore = transaction.objectStore("resultFiles");
+  const messagesStore: IDBObjectStore = transaction.objectStore("messages");
+  try {
+    const clearRequest = resultsStore.clear();
+    clearRequest.onerror = () => console.warn("Failed to clear resultFiles store:", clearRequest.error);
+  } catch (e) {
+    console.warn("Clearing resultFiles failed:", e);
+    throw e;
+  }
+  try {
+    const clearMessagesRequest = messagesStore.clear();
+    clearMessagesRequest.onerror = () => console.warn("Failed to clear messages store:", clearMessagesRequest.error);
+  } catch (e) {
+    console.warn("Clearing messages failed:", e);
+    throw e;
+  }
+}
+
 async function addFormsToLocalStorage(forms: any[]) {
   const db = await openDb();
   return new Promise<void>((resolve, reject) => {
     try {
-      const transaction = db.transaction(["forms"], "readwrite");
+      const transaction = db.transaction(["forms", "resultFiles", "messages"], "readwrite");
       const store = transaction.objectStore("forms");
       for (const form of forms) {
         const ts = Date.now();
@@ -1400,6 +1418,7 @@ async function addFormsToLocalStorage(forms: any[]) {
         const formWithId = { ...form, fileId };
         store.put(formWithId);
       }
+      clearResultFilesAndMessagesFromLocalStorage(transaction);
       debug("Stored parsed forms into IndexedDB (forms store)");
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(new Error(`Failed to store forms: ${transaction.error}`));
@@ -1409,21 +1428,20 @@ async function addFormsToLocalStorage(forms: any[]) {
   });
 }
 
-export async function updateFormInLocalStorage(fileId: string, payload: any, formJson: any): Promise<boolean> {
+export async function updateFormInLocalStorage(fileId: string, formJson: any): Promise<boolean> {
   try {
     const db = await openDb();
     return await new Promise<boolean>((resolve, reject) => {
       try {
-        const tx = db.transaction(["forms"], "readwrite");
+        const tx = db.transaction(["forms", "resultFiles", "messages"], "readwrite");
         const store = tx.objectStore("forms");
-        payload.fileId = fileId;
-        payload.taxYear = formJson.taxYear;
-        payload.noteText = formJson.noteText;
-        const putRequest = store.put(payload);
+        formJson.fileId = fileId;
+        const putRequest = store.put(formJson);
         putRequest.onsuccess = () => {
           tx.oncomplete = () => resolve(true);
         };
         putRequest.onerror = () => reject(new Error(String(putRequest.error)));
+        clearResultFilesAndMessagesFromLocalStorage(tx);
       } catch (e) {
         reject(e);
       }
@@ -2415,19 +2433,13 @@ export async function deleteFileFromLocalStorage(fileId: string): Promise<boolea
     const db = await openDb();
     await new Promise<void>((resolve, reject) => {
       try {
-        const transaction = db.transaction(["forms", "resultFiles"], "readwrite");
-        const formsStore = transaction.objectStore("forms");
-        const resultsStore = transaction.objectStore("resultFiles");
+        const transaction: IDBTransaction = db.transaction(["forms", "resultFiles", "messages"], "readwrite");
+        const formsStore: IDBObjectStore = transaction.objectStore("forms");
 
         const deleteFormRequest = formsStore.delete(fileId);
         deleteFormRequest.onerror = () => reject(new Error(`Failed to delete form from IndexedDB: ${deleteFormRequest.error}`));
 
-        try {
-          const clearRequest = resultsStore.clear();
-          clearRequest.onerror = () => console.warn("Failed to clear resultFiles store:", clearRequest.error);
-        } catch (e) {
-          console.warn("Clearing resultFiles failed:", e);
-        }
+        clearResultFilesAndMessagesFromLocalStorage(transaction);
 
         transaction.oncomplete = () => resolve();
         transaction.onerror = () => reject(new Error(`Transaction failed: ${String(transaction.error)}`));

@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export const UIVersion = "1.81";
+export const UIVersion: string = "1.82";
 export let ServerVersion = "";
 
 export const WarningPopupMessage =
