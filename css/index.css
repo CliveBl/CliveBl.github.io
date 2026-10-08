@@ -35,7 +35,7 @@
   --modal-overlay-hover: rgba(0, 0, 0, 0.8);
   --modal-shadow: rgba(0, 0, 0, 0.1);
   --modal-shadow-light: rgba(0, 0, 0, 0.2);
-  --disabled-bg: #f0f0f0;
+  --disabled-bg: var(--bg-color);
   --disabled-text: #95a5a6;
   --hover-overlay: rgba(52, 152, 219, 0.1);
   --white-overlay: rgba(255, 255, 255, 0.5);
