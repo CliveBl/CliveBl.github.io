@@ -986,7 +986,7 @@ export function hideProgressOverlay() {
  * // Update progress for step-based operations
  * updateProgress(currentStep);
  */
-function updateProgress(current: number) {
+export function updateProgress(current: number) {
   const currentProgress = document.getElementById("currentProgress") as HTMLSpanElement;
   if (currentProgress) {
     currentProgress.textContent = current.toString();

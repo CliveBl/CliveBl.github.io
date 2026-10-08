@@ -13,6 +13,7 @@ import {
   getFriendlyOptions,
   getFriendlyOptionName,
   showProgressOverlay,
+  updateProgress,
   hideProgressOverlay,
 } from "./index.js";
 import { selectedCustomerDataEntryName, isAnonymous } from "./authService.js";
@@ -509,8 +510,15 @@ function clearAllChanged(accordianBody: HTMLDivElement) {
   // Collect all inputs and controls
   const allElements = [
     ...Array.from(accordianBody.querySelectorAll("input[data-field-name], textarea[data-field-name], select[data-field-name], div[data-field-name]")),
-    ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container textarea[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
-    ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], textarea[data-field-name], select[data-field-name], div[data-field-name]") || []),
+    ...Array.from(
+      accordianBody.querySelectorAll(
+        ".item-container input[data-field-name], .item-container textarea[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]",
+      ),
+    ),
+    ...(accordianBody
+      .closest(".accordion-container")
+      ?.querySelector(".header-fields-wrapper")
+      ?.querySelectorAll("input[data-field-name], textarea[data-field-name], select[data-field-name], div[data-field-name]") || []),
   ];
   // Clear changed class from all inputs and controls
   allElements.forEach((element) => {
@@ -528,6 +536,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
   // Store global variables for saveAllChanges function
   globalAllFilesData = allFilesData;
   globalBackupAllFilesData = backupAllFilesData;
+  globalRenderFields = renderFields;
 
   const expandableArea = document.getElementById("expandableAreaUploadFiles") as HTMLDivElement;
   if (!expandableArea) {
@@ -1824,6 +1833,7 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 // Global variables to store data for saveAllChanges function
 let globalAllFilesData: any = null;
 let globalBackupAllFilesData: any = null;
+let globalRenderFields: ((fileData: any, accordianBody: HTMLDivElement, withAllFields?: boolean) => void) | null = null;
 let globalWithAllFieldsMap: Map<string, boolean> = new Map();
 
 export async function saveAllChanges() {
@@ -1845,7 +1855,11 @@ export async function saveAllChanges() {
     let successCount = 0;
     let errorCount = 0;
 
-    showProgressOverlay("שמירת נתונים", { showCancelButton: false });
+    showProgressOverlay("שמירת נתונים", {
+      showCancelButton: true,
+      total: enabledSaveButtons.length,
+      unit: "מסמכים",
+    });
     // Process each enabled save button
     for (const saveButton of enabledSaveButtons) {
       try {
@@ -1892,7 +1906,7 @@ export async function saveAllChanges() {
         const updatedData = await updateForm(fileData.fileId, formData);
 
         if (updatedData && Array.isArray(updatedData)) {
-          successCount++;
+          updateProgress(++successCount);
 
           // Update the backup data (similar to lines 1522-1535)
           const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);
@@ -1905,7 +1919,7 @@ export async function saveAllChanges() {
               }
               redrawDocumentTypeNoteIndicator(accordionContainer, globalBackupAllFilesData[backupFormIndex]);
               // Update the display
-              //renderFields(globalBackupAllFilesData[backupFormIndex], accordianBody, withAllFields);
+              globalRenderFields?.(globalBackupAllFilesData[backupFormIndex], accordianBody, withAllFields);
             }
           }
 
