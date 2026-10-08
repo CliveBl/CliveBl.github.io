@@ -25,6 +25,33 @@ function makeUniqueId() {
   return `field-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
+function formatTextArea(key: string, textarea: HTMLTextAreaElement, fieldValue: Value) {
+  textarea.className = "field-text-input";
+  textarea.readOnly = fieldValue.readonly;
+  textarea.maxLength = 100;
+  textarea.placeholder = getFriendlyName(key);
+  textarea.value = fieldValue.value ? String(fieldValue.value) : "";
+  textarea.title = textarea.value;
+  textarea.rows = 1;
+  if (textarea.value) {
+    textarea.classList.add("value");
+  }
+
+  const fitText = () => {
+    // Nothing to measure while detached or hidden (e.g. a collapsed accordion)
+    if (!textarea.isConnected || textarea.offsetParent === null) return;
+    textarea.style.height = "auto";
+    const borders = textarea.offsetHeight - textarea.clientHeight;
+    textarea.style.height = `${textarea.scrollHeight + borders}px`;
+  };
+  fitText();
+  textarea.oninput = fitText;
+  // Re-fit once the element is attached and visible, and when its width changes
+  new ResizeObserver(() => {
+    if (textarea.isConnected) fitText();
+  }).observe(textarea);
+}
+
 const excludedHeaderFields = ["organizationName", "clientIdentificationNumber", "clientName", "documentType", "type", "fileId", "matchTag", "fieldTypes"];
 const readOnlyFields = ["fileName", "reasonText"];
 const addFieldsText: string = "הצג כל השדות";
@@ -167,7 +194,7 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
   }
 
   function getElementValue(element: HTMLElement): string {
-    if (element instanceof HTMLInputElement) {
+    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
       return element.value;
     } else if (element instanceof HTMLSelectElement) {
       return element.value;
@@ -205,7 +232,7 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
   const formDetails = configurationData.formTypes.find((form) => form.formType === fileData.type) as { fieldTypes?: string[] };
 
   // Update regular fields
-  accordionBody.querySelectorAll("input[data-field-name],select[data-field-name],div[data-field-name]:not(.item-container input)").forEach((htmlElement: Element) => {
+  accordionBody.querySelectorAll("input[data-field-name],textarea[data-field-name],select[data-field-name],div[data-field-name]:not(.item-container input)").forEach((htmlElement: Element) => {
     // Check the ancestors of the htmlElement are not item containers. We update those later.
     const isInItemContainer = htmlElement.closest(".item-container") !== null;
     if (!isInItemContainer) {
@@ -223,7 +250,7 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
   // Update header fields
   const headerContainer = accordionBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper");
   if (headerContainer) {
-    headerContainer.querySelectorAll("input[data-field-name]").forEach((htmlElement: Element) => {
+    headerContainer.querySelectorAll("input[data-field-name],textarea[data-field-name]").forEach((htmlElement: Element) => {
       const fieldName = htmlElement.getAttribute("data-field-name") as string;
       let fieldValue = getControlValue(htmlElement as HTMLElement, fieldName);
       updatedData[fieldName] = fieldValue;
@@ -241,7 +268,7 @@ function getDataFromControls(accordionBody: HTMLDivElement, fileData: any) {
     for (let i = 0; i < itemContainers.length; i++) {
       const container = itemContainers[i];
       const item: any = {};
-      const htmlElements: HTMLElement[] = Array.from(container.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]"));
+      const htmlElements: HTMLElement[] = Array.from(container.querySelectorAll("input[data-field-name], textarea[data-field-name], select[data-field-name], div[data-field-name]"));
       // Iterate over all html elements and populate an item with the field names and values from the controls.
       for (const htmlElement of htmlElements) {
         const fieldName = htmlElement.getAttribute("data-field-name") as string;
@@ -481,9 +508,9 @@ async function validateAndUpdateFormLocalStorage(fileId: string, payload: any) {
 function clearAllChanged(accordianBody: HTMLDivElement) {
   // Collect all inputs and controls
   const allElements = [
-    ...Array.from(accordianBody.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]")),
-    ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
-    ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], select[data-field-name], div[data-field-name]") || []),
+    ...Array.from(accordianBody.querySelectorAll("input[data-field-name], textarea[data-field-name], select[data-field-name], div[data-field-name]")),
+    ...Array.from(accordianBody.querySelectorAll(".item-container input[data-field-name], .item-container textarea[data-field-name], .item-container select[data-field-name], .item-container div[data-field-name]")),
+    ...(accordianBody.closest(".accordion-container")?.querySelector(".header-fields-wrapper")?.querySelectorAll("input[data-field-name], textarea[data-field-name], select[data-field-name], div[data-field-name]") || []),
   ];
   // Clear changed class from all inputs and controls
   allElements.forEach((element) => {
@@ -1131,6 +1158,14 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
         dropdown.value = fieldValue.value;
         addChangeHandler(dropdown, accordianBody);
         fieldRow.appendChild(dropdown);
+      } else if (key.endsWith("Text")) {
+        const textarea = document.createElement("textarea");
+        textarea.className = "field-text-input";
+        textarea.setAttribute("data-field-name", makeFieldName(itemTitle, index, key));
+        textarea.id = fieldId;
+        formatTextArea(key, textarea, fieldValue);
+        addChangeHandler(textarea, accordianBody);
+        fieldRow.appendChild(textarea);
       } else {
         let input = document.createElement("input") as HTMLInputElement;
         input.className = fieldValue.readonly ? "field-input-readonly" : "field-input";
@@ -1158,9 +1193,13 @@ export async function displayFileInfoInExpandableArea(allFilesData: any, backupA
 
     function populateField(container: HTMLElement, key: string, fieldValue: Value) {
       // Find the field in the container
-      const field = container.querySelector(`input[data-field-name="${key}"]`) as HTMLInputElement;
+      const field = container.querySelector<HTMLInputElement | HTMLTextAreaElement>(`input[data-field-name="${key}"], textarea[data-field-name="${key}"]`);
       if (field) {
-        formatInput(key, field, fieldValue);
+        if (field instanceof HTMLTextAreaElement) {
+          formatTextArea(key, field, fieldValue);
+        } else {
+          formatInput(key, field, fieldValue);
+        }
         addChangeHandler(field, accordianBody);
       }
     }

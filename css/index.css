@@ -2240,6 +2240,16 @@ a:not(.submit-instructions-button):visited {
   width: 460px;
 }
 
+textarea.field-text-input {
+  box-sizing: border-box;
+  /* One line plus padding and border; grows with content */
+  min-height: calc(1.4em + 6px);
+  line-height: 1.4;
+  field-sizing: content;
+  overflow-y: hidden;
+  resize: none;
+}
+
 .field-text-input.value {
   background-color: var(--warning-bg);
 }
