@@ -186,6 +186,7 @@ function setupEventListeners(): void {
   // Customer selection events
   if (customerSelect) {
     customerSelect.addEventListener("change", handleCustomerSelectChange);
+    customerSelect.addEventListener("keydown", handleCustomerSelectKeydown);
   }
 
   if (customerNameInput) {
@@ -384,6 +385,31 @@ async function handleGoogleLogin(): Promise<void> {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     showErrorModal(errorMessage);
+  }
+}
+
+let customerTypeAheadBuffer = "";
+let customerTypeAheadTimer: number | undefined;
+
+// Progressive type-ahead: jump to the entry matching the typed prefix without committing the selection.
+// Press Enter (or click) to select it.
+function handleCustomerSelectKeydown(e: KeyboardEvent): void {
+  if (e.key === "Enter") {
+    if (customerSelect.value) handleCustomerSelectChange();
+    return;
+  }
+  if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === " " && !customerTypeAheadBuffer) return;
+
+  e.preventDefault();
+  customerTypeAheadBuffer += e.key.toLowerCase();
+  window.clearTimeout(customerTypeAheadTimer);
+  customerTypeAheadTimer = window.setTimeout(() => (customerTypeAheadBuffer = ""), 1000);
+
+  const options = Array.from(customerSelect.options);
+  const match = options.find((o) => o.text.trim().toLowerCase().startsWith(customerTypeAheadBuffer));
+  if (match) {
+    customerSelect.selectedIndex = match.index;
   }
 }
 
