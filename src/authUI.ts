@@ -391,7 +391,7 @@ async function handleGoogleLogin(): Promise<void> {
 let customerTypeAheadBuffer = "";
 let customerTypeAheadTimer: number | undefined;
 
-// Progressive type-ahead: jump to the entry matching the typed prefix without committing the selection.
+// Progressive type-ahead: jump to the entry matching the typed text without committing the selection.
 // Press Enter (or click) to select it.
 function handleCustomerSelectKeydown(e: KeyboardEvent): void {
   if (e.key === "Enter") {
@@ -407,7 +407,9 @@ function handleCustomerSelectKeydown(e: KeyboardEvent): void {
   customerTypeAheadTimer = window.setTimeout(() => (customerTypeAheadBuffer = ""), 1000);
 
   const options = Array.from(customerSelect.options);
-  const match = options.find((o) => o.text.trim().toLowerCase().startsWith(customerTypeAheadBuffer));
+  const text = (o: HTMLOptionElement) => o.text.trim().toLowerCase();
+  // Prefer a prefix match, otherwise match the typed text anywhere in the name.
+  const match = options.find((o) => text(o).startsWith(customerTypeAheadBuffer)) ?? options.find((o) => text(o).includes(customerTypeAheadBuffer));
   if (match) {
     customerSelect.selectedIndex = match.index;
   }
