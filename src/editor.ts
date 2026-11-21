@@ -29,6 +29,8 @@ function makeUniqueId() {
 function formatTextArea(key: string, textarea: HTMLTextAreaElement, fieldValue: Value) {
   textarea.className = "field-text-input";
   textarea.readOnly = fieldValue.readonly;
+  textarea.dir = "auto";
+  textarea.style.unicodeBidi = "plaintext";
   textarea.maxLength = 100;
   textarea.placeholder = getFriendlyName(key);
   textarea.value = fieldValue.value ? String(fieldValue.value) : "";
@@ -1860,6 +1862,7 @@ export async function saveAllChanges() {
       total: enabledSaveButtons.length,
       unit: "מסמכים",
     });
+    updateProgress(1);
     // Process each enabled save button
     for (const saveButton of enabledSaveButtons) {
       try {
@@ -1906,7 +1909,7 @@ export async function saveAllChanges() {
         const updatedData = await updateForm(fileData.fileId, formData);
 
         if (updatedData && Array.isArray(updatedData)) {
-          updateProgress(++successCount);
+          updateProgress(++successCount + 1);
 
           // Update the backup data (similar to lines 1522-1535)
           const formIndex = updatedData.findIndex((form: any) => form.fileId === fileData.fileId);

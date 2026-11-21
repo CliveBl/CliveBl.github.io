@@ -6,7 +6,7 @@ import { cookieUtils } from "./cookieUtils.js";
 export let UserEmailValue = "";
 export let UserRole = "";
 export let SignedIn = false;
-export const UIVersion = "1.85";
+export const UIVersion = "1.86";
 export let ServerVersion = "";
 
 export const WarningPopupMessage =
@@ -228,7 +228,7 @@ export async function signOut() {
     method: "POST",
     credentials: "include",
   });
-  const result = await response.json();
+  const result = await response;
 
   // Update UI to show logged out state
   clearUserSession();
@@ -409,21 +409,51 @@ export async function handleGoogleCallback(): Promise<void> {
     }
 
     const baseUrl = SignedIn ? API_BASE_URL : AUTH_BASE_URL;
-    const response = await fetch(`${baseUrl}/google/callback`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // Important for receiving the cookie
-      body: JSON.stringify(code),
-    });
+    
+    // Retry logic for handling transient Google OAuth server errors
+    let response;
+    let lastError;
+    const MAX_RETRIES = 3;
+    const INITIAL_BACKOFF_MS = 1000;
+    
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        response = await fetch(`${baseUrl}/google/callback`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // Important for receiving the cookie
+          body: JSON.stringify(code),
+        });
 
-    if (!response.ok) {
-      throw new Error("Failed to complete Google login");
+        if (response.ok) {
+          break;
+        }
+
+        // If server returns 500, treat as transient and retry
+        if (response.status >= 500 && attempt < MAX_RETRIES) {
+          const backoffMs = INITIAL_BACKOFF_MS * Math.pow(2, attempt);
+          console.warn(`Google login server error (HTTP ${response.status}). Retrying in ${backoffMs}ms (attempt ${attempt + 1}/${MAX_RETRIES})`);
+          await new Promise(resolve => setTimeout(resolve, backoffMs));
+          continue;
+        }
+
+        // For other errors, throw immediately
+        throw new Error(`Server error: HTTP ${response.status}`);
+      } catch (error) {
+        lastError = error;
+        if (attempt < MAX_RETRIES) {
+          const backoffMs = INITIAL_BACKOFF_MS * Math.pow(2, attempt);
+          console.warn(`Network error during Google login. Retrying in ${backoffMs}ms (attempt ${attempt + 1}/${MAX_RETRIES}):`, error);
+          await new Promise(resolve => setTimeout(resolve, backoffMs));
+        }
+      }
     }
 
-    const result = await response.json();
-    UserEmailValue = result.email;
+    if (!response || !response.ok) {
+      throw lastError || new Error("Failed to complete Google login after retries");
+    }
 
     // Remove all OAuth2 parameters from the URL
     url.searchParams.delete("code");
@@ -436,23 +466,19 @@ export async function handleGoogleCallback(): Promise<void> {
     url.searchParams.delete("prompt");
     window.history.replaceState({}, "", url);
 
-    // Clear basic info cache since user state has changed
     clearBasicInfoCache();
+    const basicInfo = await getBasicInfo(true);
+    if (!basicInfo || !basicInfo.userEmail || !basicInfo.userRole) {
+      throw new Error("Missing user information after Google login");
+    }
 
+    ServerVersion = basicInfo.productVersion;
+    UserEmailValue = basicInfo.userEmail;
+    UserRole = basicInfo.userRole;
     updateSignInState(true);
   } catch (error) {
     console.error("Error handling Google callback:", error);
     throw new Error("שגיאה בהתחברות עם Google");
-  }
-}
-
-export function checkForGoogleCallback(): void {
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get("code");
-
-  if (code) {
-    // We're in the OAuth2 callback
-    handleGoogleCallback();
   }
 }
 
@@ -681,25 +707,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   //   await registerServiceWorker();
 
-  // Get and display version number
+  const urlParams = new URLSearchParams(window.location.search);
+  const oauthCode = urlParams.get("code");
+
   try {
-    UserEmailValue = "";
-
-    const basicInfo = await getBasicInfo(false);
-    if (basicInfo) {
-      ServerVersion = basicInfo.productVersion;
-      UserEmailValue = basicInfo.userEmail;
-      if (basicInfo.userRole) {
-        UserRole = basicInfo.userRole;
-      } else {
-        UserRole = "ROLE_USER";
+    if (oauthCode) {
+      await handleGoogleCallback();
+    } else {
+      UserEmailValue = "";
+      const basicInfo = await getBasicInfo(false);
+      if (basicInfo) {
+        ServerVersion = basicInfo.productVersion;
+        UserEmailValue = basicInfo.userEmail;
+        if (basicInfo.userRole) {
+          UserRole = basicInfo.userRole;
+        } else {
+          UserRole = "ROLE_USER";
+        }
+        updateSignInState(true);
       }
-      updateSignInState(true);
-
-      debug("Successfully got BasicInfo");
     }
   } catch (error) {
-    console.error("Exception fetching Basic Info:", error);
+    if (oauthCode) {
+      console.error("Google sign-in initialization failed:", error);
+      void showErrorModal(error instanceof Error ? error.message : String(error));
+    } else {
+      console.error("Exception fetching Basic Info:", error);
+    }
   }
   if (!SignedIn) {
     debug("Failed to fetch version:");
@@ -716,7 +750,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   emit("authServiceInitialized");
 
-  const urlParams = new URLSearchParams(window.location.search);
   const shared = urlParams.get("shared");
   if (shared) {
     console.log("Share handler: Shared parameter:", shared);
@@ -761,6 +794,7 @@ export async function getBasicInfo(forceRefresh = false): Promise<any> {
     if (!(await handleAuthResponse(response, "Failed to fetch basic info"))) {
       return null;
     }
+    debug("Successfully got BasicInfo");
 
     const data = await response.json();
 

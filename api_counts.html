@@ -1,0 +1,363 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Call Counts</title>
+    <link rel="stylesheet" href="css/index.css">
+    <style>
+        .counts-container, .counts-container * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-color);
+            min-height: 100vh;
+            padding: 100px 20px 20px;
+        }
+
+        .counts-container {
+            background: var(--item-bg);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px var(--modal-shadow);
+            border: 1px solid var(--border-color);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            margin: 0 auto;
+            direction: ltr;
+            text-align: left;
+            color: var(--text-color);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 160px;
+            }
+            
+            .counts-container {
+                padding: 20px;
+            }
+        }
+
+        .counts-container h1 {
+            color: var(--tax-blue);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: var(--message-text);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .counts-container button {
+            background: var(--button-color);
+            color: var(--button-text);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .counts-container button:hover {
+            background: var(--button-color-hover);
+        }
+
+        .counts-container button:active {
+            transform: scale(0.98);
+        }
+
+        .counts-container button:disabled {
+            background: var(--disabled-bg);
+            color: var(--disabled-text);
+            cursor: not-allowed;
+        }
+
+        .counts-container .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .counts-container .spinner {
+            border: 4px solid var(--default-border);
+            border-top: 4px solid var(--button-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: counts-spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes counts-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .counts-container .error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid var(--error-border);
+            display: none;
+        }
+
+        .counts-container .error.show {
+            display: block;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .results-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--tax-blue);
+            margin-bottom: 15px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -20px;
+        }
+
+        @media (max-width: 768px) {
+            .table-wrapper {
+                margin: 0 -20px;
+            }
+        }
+
+        .counts-container table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 300px;
+        }
+
+        .counts-container thead {
+            background: var(--item-bg-hover);
+        }
+
+        .counts-container th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .counts-container td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        @media (max-width: 768px) {
+            .counts-container th {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+            
+            .counts-container td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+
+            .endpoint-name {
+                font-size: 12px;
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+        }
+
+        .counts-container tbody tr:hover {
+            background: var(--selected-bg);
+        }
+
+        .counts-container tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .endpoint-name {
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: var(--tax-blue);
+            font-weight: 500;
+        }
+
+        .count {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-color);
+            white-space: nowrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--message-text);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+    </style>
+</head>
+<body>
+    {% include auth-header.html %}
+    <div class="counts-container">
+        <h1>🔍 API Call Counts Monitor</h1>
+        <p class="subtitle">View API endpoint call counts</p>
+
+        <div class="button-group">
+            <button id="fetchCounts">Fetch API Counts</button>
+            <button id="clearResults">Clear Results</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading API counts...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="results" id="results" style="display: none;">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th class="count">Call Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">📊</div>
+            <p>No data loaded yet. Click "Fetch API Counts" to retrieve data.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { API_BASE_URL, AUTH_BASE_URL } from "./js/env.js";
+
+        async function fetchAPICounts() {
+            const endpoint = `${API_BASE_URL}/getAPICounts`;
+
+            const errorEl = document.getElementById('error');
+            const loadingEl = document.getElementById('loading');
+            const resultsEl = document.getElementById('results');
+            const emptyStateEl = document.getElementById('emptyState');
+            const fetchConfig = { mode: "cors" };
+
+            // Clear previous messages
+            errorEl.classList.remove('show');
+            resultsEl.style.display = 'none';
+            emptyStateEl.style.display = 'none';
+            loadingEl.style.display = 'block';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    credentials: 'include',
+                    ...fetchConfig,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                errorEl.textContent = `✗ Error fetching API counts: ${error.message}`;
+                errorEl.classList.add('show');
+                emptyStateEl.style.display = 'block';
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        function displayResults(data) {
+            const resultsEl = document.getElementById('results');
+            const resultsTable = document.getElementById('resultsTable');
+            const emptyStateEl = document.getElementById('emptyState');
+
+            // Clear previous results
+            resultsTable.innerHTML = '';
+
+            if (!data || Object.keys(data).length === 0) {
+                emptyStateEl.style.display = 'block';
+                resultsEl.style.display = 'none';
+                return;
+            }
+
+            // Sort data by count (descending)
+            const sortedData = Object.entries(data).sort((a, b) => b[1] - a[1]);
+
+            // Populate table
+            sortedData.forEach(([endpoint, count]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="endpoint-name">${escapeHtml(endpoint)}</td>
+                    <td class="count">${count.toLocaleString()}</td>
+                `;
+                resultsTable.appendChild(row);
+            });
+
+            resultsEl.style.display = 'block';
+            emptyStateEl.style.display = 'none';
+        }
+
+        function clearResults() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('error').classList.remove('show');
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        document.getElementById('fetchCounts').addEventListener('click', fetchAPICounts);
+        document.getElementById('clearResults').addEventListener('click', clearResults);
+        document.getElementById('emptyState').style.display = 'block';
+    </script>
+</body>
+</html>

@@ -8,7 +8,6 @@ import {
   signIn,
   signOut,
   signInWithGoogle,
-  checkForGoogleCallback,
   loadCustomerList,
   getCustomerListCache,
   updateCustomerName,
@@ -84,9 +83,6 @@ const fullNameInput = document.getElementById("fullName") as HTMLInputElement;
 if (fullNameInput) {
   fullNameInput.required = false;
 }
-
-// Check for Google OAuth callback
-checkForGoogleCallback();
 
 // Set up all event listeners
 function setupEventListeners(): void {
