@@ -15,7 +15,7 @@ on:
           - production
           - staging
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '24'
   RUBY_VERSION: '3.4.13'
 
 jobs:
