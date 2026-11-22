@@ -35,7 +35,7 @@ jobs:
           bundler-cache: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -59,7 +59,7 @@ jobs:
         run: npm install
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: site-build
           path: |
@@ -76,7 +76,7 @@ jobs:
 
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: site-build
 
@@ -138,7 +138,7 @@ jobs:
           echo "Tag $TAG_NAME created and pushed successfully"
 
       - name: Download build artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: site-build
 
