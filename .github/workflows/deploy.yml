@@ -16,7 +16,7 @@ on:
           - staging
 env:
   NODE_VERSION: '24'
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   RUBY_VERSION: '3.4.13'
 
 jobs:
